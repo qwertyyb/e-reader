@@ -1,0 +1,463 @@
+<template>
+  <div class="control-wrapper">
+    <transition name="slide-down">
+      <div class="navigator" v-if="panelVisible">
+        <div class="material-icons back-to-index"
+          @click="$router.replace('/')">arrow_back</div>
+
+        <div class="navigator-menu">
+          <span class="material-icons-outlined" @click="dialog='bookMenu'">
+            more_vert
+          </span>
+        </div>
+      </div>
+    </transition>
+
+    <catalog-dialog :visible="visiblePanel==='catalog'"
+      @close="visiblePanel=null">
+      <slot name="catalog"></slot>
+    </catalog-dialog>
+
+    <!-- <menu-dialog :visible="dialog==='bookMenu'" @close="dialog=null"
+      @action="dialog=$event">
+    </menu-dialog> -->
+
+    <!-- <catalog-setting-dialog :visible="dialog==='catalogSetting'" @close="dialog=null">
+    </catalog-setting-dialog> -->
+
+    <c-dialog :visible="dialog==='marksViewer'" @close="dialog=null;refreshMarks()">
+      <marks-viewer :book-id="bookId"></marks-viewer>
+    </c-dialog>
+
+    <selection-menu>
+      <div class="content-container" ref="content" @touchstart="touchstartHandler">
+          <slot :settings="settings"></slot>
+      </div>
+    </selection-menu>
+
+    <transition name="slide-up">
+      <div class="control" v-if="panelVisible">
+        <div class="control-panel play-panel" data-target-control="autoPlay" v-if="visiblePanel === 'autoPlay'">
+          <div class="speed">
+            <c-progress
+              :min="10"
+              :max="200"
+              :step="10"
+              style="flex: 1"
+              @change="changeAutoPlayDuration"
+              v-model="settings.autoPlayDuration">
+              <template v-slot:prefix>-</template>
+              <template v-slot:suffix>+</template>
+            </c-progress>
+          </div>
+        </div>
+
+        <div class="control-panel font-panel" data-target-control="font" v-if="visiblePanel === 'font'">
+          <div class="font-weight">
+            <c-progress
+              :min="100"
+              :max="900"
+              :step="100"
+              :steps="[100, 200, 300, 400, 500, 600, 700, 800, 900]"
+              style="flex: 1"
+              v-model="settings.fontWeight">
+              <template v-slot:prefix>B-</template>
+              <template v-slot:suffix>B+</template>
+            </c-progress>
+          </div>
+          <div class="font-size">
+            <c-progress
+              :min="10"
+              :max="30"
+              :step="1"
+              style="flex: 1"
+              v-model="settings.fontSize">
+              <template v-slot:prefix>A-</template>
+              <template v-slot:suffix>A+</template>
+            </c-progress>
+          </div>
+          <div class="font-family">
+            <c-select v-model="settings.fontFamily">
+              <template v-slot:label="{ value }">
+                <div class="font-family-label"
+                  :data-font="settings.fontFamily">
+                  {{ fontFamilyList.find(item => item.value === value)?.label || fontFamilyList[0]?.label }}
+                </div>
+              </template>
+              <c-option :value="family.value" :data-font="family.value" v-for="family in fontFamilyList" :key="family.value">{{ family.label }}</c-option>
+            </c-select>
+            <span class="material-icons">chevron_right</span>
+          </div>
+          <div class="background">
+          </div>
+        </div>
+        <div class="control-list">
+          <div class="control-item" data-control="catalog"
+            @click="actionHandler('catalog')">
+            <div class="control-icon material-icons">menu</div>
+            <div class="control-label"></div>
+          </div>
+          <div class="control-item" data-control="autoPlay"
+            @click="actionHandler('autoPlay')">
+            <div class="control-icon material-icons">{{ controlState.autoPlay ? 'pause' : 'play_arrow' }}</div>
+            <div class="control-label"></div>
+          </div>
+          <div class="control-item" data-control="readSpeak" @click="actionHandler('readSpeak')">
+            <div class="control-icon material-icons">{{ controlState.readSpeak ? 'pause_circle' : 'play_circle' }}</div>
+            <div class="control-label"></div>
+          </div>
+          <div class="control-item" data-control="font" @click="visiblePanel='font'">
+            <span class="material-icons">text_format</span>
+            <div class="control-label"></div>
+          </div>
+          <div class="control-item" data-control="darkMode" @click="actionHandler('darkMode')">
+            <span class="material-icons">{{ controlState.darkMode ? 'light_mode' : 'dark_mode' }}</span>
+            <div class="control-label"></div>
+          </div>
+        </div>
+      </div>
+    </transition>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { getSettings } from '@/utils/settings';
+import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { fontFamilyList } from '@/config';
+import CatalogDialog from '@/components/CatalogDialog.vue';
+import CSelect from '@/components/common/CSelect.vue';
+import COption from '@/components/common/COption.vue';
+import CProgress from '@/components/common/CProgress.vue';
+import CDialog from '@/components/common/CDialog.vue';
+import MarksViewer from '@/components/MarksViewer.vue';
+import { env } from '@/utils/env';
+import router from '@/router';
+import { AutoPlay, DarkMode, ReadSpeak } from '@/actions';
+import { getNearestTopEl } from '@/utils';
+
+defineProps<{
+  bookId: number
+}>()
+
+const emits = defineEmits<{
+  'prev-page': [],
+  'next-page': [],
+  'scroll-vertical': [number]
+}>()
+
+const panelVisible = ref(false)
+const visiblePanel = ref<string | null>()
+const dialog = ref<string | null>()
+
+const controlState = ref({
+  darkMode: false,
+  readSpeak: false,
+  autoPlay: false
+})
+
+const settings = ref(getSettings())
+
+const contentRef = useTemplateRef('content')
+
+const changeAutoPlayDuration = (duration: number) => {
+  settings.value.autoPlayDuration = duration
+  actions.autoPlay.updateInterval(duration)
+}
+
+const refreshMarks = () => {
+  const chapterEls = contentRef.value!.querySelectorAll<HTMLElement>('.chapter')
+  chapterEls.forEach(el => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (el as any).chapterMark?.refresh()
+  })
+}
+
+const touchstartHandler = (e: TouchEvent) => {
+  const p = e.changedTouches[0]
+  if (p.pageX < 20 || p.pageX > window.innerWidth - 20) {
+    e.preventDefault()
+  }
+}
+
+const actionHandler = async (control: string) => {
+  // action: readSpeak | darkMode | autoPlay | catalog
+  if (control === 'darkMode') {
+    actions.darkMode?.toggle()
+  }
+  if (control === 'readSpeak') {
+    const candidates = Array.from(contentRef.value!.querySelectorAll<HTMLElement>('.chapter'))
+    const el = getNearestTopEl(candidates)
+    actions.readSpeak.toggle(el!)
+  } else if (control === 'autoPlay') {
+    visiblePanel.value = 'autoPlay'
+    actions.autoPlay.toggle()
+  } else if (control === 'catalog') {
+    visiblePanel.value = 'catalog'
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let hammerInstance: any
+
+const initHammer = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const contentTapHandler = (event: any) => {
+    if (event.srcEvent.target.nodeName.toLowerCase() === 'mark') return
+    if (env.isInk()) {
+      /**
+       * 把点击区域分为九个区域，如下
+       * 1|2|3
+       * 4|5|6
+       * 7|8|9
+       * 先计算在点击落于哪个区域
+       */
+      const { x, y } = event.center
+      const centerLeft = window.innerWidth / 3
+      const centerRight = 2 * centerLeft
+      const centerTop = window.innerHeight / 3
+      const centerBottom = 2 * centerTop
+      let area = -1
+      if (y <= centerTop) {
+        area = x < centerLeft ? 1 : x < centerRight ? 2 : 3
+      } else if (y <= centerBottom) {
+        area = x < centerLeft ? 4 : x < centerRight ? 5 : 6
+      } else {
+        area = x < centerLeft ? 7 : x < centerRight ? 8 : 9
+      }
+
+      const nextPageArea = [3, 7, 9]
+      const prevPageArea = [1, 4, 6]
+
+      if (nextPageArea.includes(area)) {
+        emits('next-page')
+      } else if (prevPageArea.includes(area)) {
+        emits('prev-page')
+      } else {
+        panelVisible.value = !panelVisible.value
+      }
+      return
+    }
+    if (actions.autoPlay.isPlaying()) {
+      visiblePanel.value = 'autoPlay'
+    }
+    panelVisible.value = !panelVisible.value
+  }
+  const hammer = new window.Hammer.Manager(contentRef.value!, {
+    recognizers: [
+      [window.Hammer.Tap],
+      [window.Hammer.Swipe, { direction: window.Hammer.DIRECTION_ALL, threshold: 10 }]
+    ]
+  })
+  if (env.isInk()) {
+    hammer.on('swipeleft', () => emits('next-page'))
+    hammer.on('swiperight', () => emits('prev-page'))
+  } else {
+    hammer.on('swiperight', (() => {
+      let backed = false
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (e: any) => {
+        const { center: { x }, deltaX } = e
+        const startX = x - deltaX
+        if (startX <= 80 && !backed) {
+          backed = true
+          router.back()
+        }
+      }
+    })())
+    hammer.on('swipeleft', () => {
+      visiblePanel.value = 'catalog'
+    })
+  }
+  hammer.on('tap', contentTapHandler)
+  hammerInstance = hammer
+}
+
+const createActions = () => {
+  return {
+    darkMode: new DarkMode({
+      auto: true,
+      changeHandler: event => controlState.value.darkMode = event.detail.enabled
+    }),
+    readSpeak: new ReadSpeak({
+      getNextElement: () => {
+        const el = contentRef.value!.querySelector('p.reading')
+        return el?.nextElementSibling ?? null
+      },
+      changeHandler: event => {
+        controlState.value.readSpeak = event.detail.speaking
+      }
+    }),
+    autoPlay: new AutoPlay({
+      nextPage: () => emits('next-page'),
+      scrollVertical: () => emits('scroll-vertical', 1),
+      autoPlayDuration: settings.value.autoPlayDuration,
+      changeHandler: (event) => {
+        controlState.value.autoPlay = event.detail.playing
+      }
+    })
+  }
+}
+
+let actions: ReturnType<typeof createActions>
+
+onMounted(() => {
+  initHammer();
+  actions = createActions()
+})
+
+onUnmounted(() => { if (hammerInstance) { hammerInstance.destroy() } })
+
+</script>
+
+<style lang="scss" scoped>
+.control-wrapper {
+  height: 100%;
+  flex: 1;
+}
+.control-wrapper .content-container {
+  height: 100%;
+  touch-action: none;
+  background-image: url(https://cdn.jsdelivr.net/gh/qwertyyb/eink-reader/assets/bg.png);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.control-wrapper .navigator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  width: calc(100% - 24px);
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  background: #fff;
+  border-bottom: 1px solid #000;
+  z-index: 10;
+  padding-top: env(safe-area-inset-top);
+  box-sizing: content-box;
+}
+.control-wrapper .navigator::before {
+  content: " ";
+  display: block;
+  width: 100vw;
+  height: env(safe-area-inset-top);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #000;
+}
+html.dark-mode .control-wrapper .navigator::before {
+  background-color: #fff;
+}
+.control-wrapper .navigator .back-to-index {
+  font-size: 28px;
+}
+
+/* control */
+.control {
+  --control-height: 48px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 6;
+}
+.control .control-list {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 12px;
+  height: var(--control-height);
+  background-color: #fff;
+  border-top: 1px solid #000;
+  text-align: center;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-sizing: content-box;
+}
+.control-item {
+  cursor: pointer;
+}
+.control .material-icons {
+  font-size: 32px;
+}
+.control .control-panel {
+  background: #fff;
+  padding: 16px 0;
+  border-top: 1px solid #000;
+  box-sizing: content-box;
+}
+.control .control-panel.font-panel {
+  display: flex;
+  font-size: 20px;
+  justify-content: space-around;
+  flex-direction: column;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+.control-panel.font-panel > div {
+  width: 100%;
+}
+.control-panel.font-panel .font-family {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.control-panel.font-panel .font-family .c-select {
+  flex: 1;
+}
+.control-panel.font-panel .font-family .font-family-label {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 100%;
+}
+.control-panel.font-panel .font-weight {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.control-panel.font-panel > * {
+  margin: 10px 0;
+}
+.control-panel.font-panel .font-weight.selected {
+  background: #000;
+  color: #fff;
+}
+.control-panel.font-panel .font-size {
+  display: flex;
+  align-items: center;
+}
+.control-panel.font-panel .font-size .text-size {
+  width: 48px;
+  text-align: center;
+}
+.control-panel.font-panel .font-size button {
+  font-size: 24px;
+  padding: 6px;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.control-panel.play-panel {
+  display: flex;
+  justify-content: space-around;
+}
+.control-panel.play-panel button {
+  border: 1px solid #000;
+  border-radius: 999px;
+  font-size: 24px;
+  padding: 6px;
+}
+.control-panel.play-panel .speed {
+  width: 90%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+</style>
