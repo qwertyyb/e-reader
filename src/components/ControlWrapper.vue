@@ -29,7 +29,7 @@
       <marks-viewer :book-id="bookId"></marks-viewer>
     </c-dialog>
 
-    <selection-menu>
+    <selection-menu :book-id="bookId" :chapterId="chapterId">
       <div class="content-container" ref="content" @touchstart="touchstartHandler">
           <slot :settings="settings"></slot>
       </div>
@@ -130,6 +130,7 @@ import COption from '@/components/common/COption.vue';
 import CProgress from '@/components/common/CProgress.vue';
 import CDialog from '@/components/common/CDialog.vue';
 import MarksViewer from '@/components/MarksViewer.vue';
+import SelectionMenu from '@/components/SelectionMenu.vue';
 import { env } from '@/utils/env';
 import router from '@/router';
 import { AutoPlay, DarkMode, ReadSpeak } from '@/actions';
@@ -137,6 +138,7 @@ import { getNearestTopEl } from '@/utils';
 
 defineProps<{
   bookId: number
+  chapterId: number
 }>()
 
 const emits = defineEmits<{

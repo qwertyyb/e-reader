@@ -2,6 +2,7 @@
   <div class="read-view">
     <control-wrapper ref="control-wrapper"
       :book-id="+id"
+      :chapter-id="+chapter.id"
       @prev-page="pageHandler('prev')"
       @next-page="pageHandler('next')"
       @scroll-vertical="scrollVertical">
@@ -93,6 +94,7 @@ const search = ref({
 })
 
 const list = computed(() => search.value.completed ? search.value.results : chapterList.value)
+const chapter = computed(() => chapterList.value[curChapterIndex.value])
 
 const contentChapterList = computed(() => {
   const results: Required<IChapter>[] = []

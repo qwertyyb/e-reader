@@ -74,7 +74,7 @@
 <script setup lang="ts">
 import CDialog from '@/components/common/CDialog.vue'
 import { marks } from '@/services/storage';
-import { MarkColors, MarkData, MarkStyleIcons, MarkStyles, MarkType } from '@/utils/mark'
+import { ChapterMark, MarkColors, MarkData, MarkStyleIcons, MarkStyles, MarkType } from '@/utils/mark'
 import { computed, onMounted, onUnmounted, ref, toRaw, useTemplateRef } from 'vue'
 
 const props = defineProps<{ bookId: number, chapterId: number }>()
@@ -82,25 +82,26 @@ const props = defineProps<{ bookId: number, chapterId: number }>()
 const rect = ref({ top: 0, left: 0 })
 const dialog = ref<string | null>(null)
 const dialogProps = ref({})
-const mark = ref<MarkData | null>(null)
+const mark = ref<MarkData | { thought: string, text: string, type: number }>({ thought: '', text: '', type: 0 })
 const selectedMark = ref<IMarkEntity | null>(null)
 
 const contentWrapperRef = useTemplateRef('contentWrapper')
 const inputRef = useTemplateRef('input')
 
 const chapterMark = computed(() => {
-  return contentWrapperRef.value!.querySelector(`.chapter[data-id="${this.chapter.id}"]`)?.chapterMark
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (contentWrapperRef.value!.querySelector(`.chapter[data-id="${props.chapterId}"]`) as any)?.chapterMark
 })
-const visible = computed(() {
-  return !this.dialog && (this.mark.text || this.selectedMark)
+const visible = computed(() => {
+  return !dialog.value && (mark.value?.text || selectedMark.value)
 })
 
 onMounted(() => {
-  document.addEventListener('selectionchange', this.selectionChangeHandler)
+  document.addEventListener('selectionchange', selectionChangeHandler)
   registerMutationObserver()
 })
 onUnmounted(() => {
-  document.removeEventListener('selectionchange', this.selectionChangeHandler)
+  document.removeEventListener('selectionchange', selectionChangeHandler)
   unregisterMutationObserver()
 })
 let observer: MutationObserver | null = null
@@ -108,12 +109,14 @@ const registerMutationObserver = () => {
   observer = new MutationObserver(() => {
     const chapterEls = contentWrapperRef.value!.querySelectorAll<HTMLElement>('.chapter')
     chapterEls.forEach(chapterEl => {
-      if (chapterEl.chapterMark) return
-      chapterEl.chapterMark = new ChapterMark(this.book.id, chapterEl.dataset.id, chapterEl)
-      chapterEl.chapterMark.refresh()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const el = chapterEl as any
+      if (el.chapterMark) return
+      el.chapterMark = new ChapterMark(props.bookId, el.dataset.id, chapterEl)
+      el.chapterMark.refresh()
     })
   })
-  observer.observe(this.$refs.contentWrapper, {
+  observer.observe(contentWrapperRef.value!, {
     childList: true,
     subtree: true
   })
@@ -175,7 +178,7 @@ const underlineActionHandler = async () => {
   })
   chapterMark.value.refresh()
   window.getSelection()?.empty()
-  mark.value = null
+  mark.value = { thought: '', text: '', type: 0 }
 }
 const removeUnderlineHandler = async () => {
   await marks.remove(selectedMark.value!.id)
@@ -211,7 +214,7 @@ const thoughtActionHandler = async () => {
     inputRef.value!.focus()
     fakeInput.remove()
   }, 300)
-},
+}
 const saveThought = async () => {
   mark.value!.type = MarkType.THOUGHT
   await marks.add(toRaw(mark.value!))
@@ -221,12 +224,12 @@ const saveThought = async () => {
 }
 const contentTapHandler = async (e: MouseEvent) => {
   selectedMark.value = null
-  const markEl = e.target.nodeName === 'MARK' ? e.target : e.target.closest('mark')
+  const markEl = ((e.target as HTMLElement).nodeName === 'MARK' ? e.target : (e.target as HTMLElement).closest('mark')) as HTMLElement
   if (!markEl) return
   e.preventDefault()
   e.stopImmediatePropagation()
   e.stopPropagation()
-  const mark = await marks.get(parseInt(markEl.dataset.id, 10))
+  const mark = await marks.get(parseInt(markEl.dataset.id || '0', 10))
   if (!mark) return
   selectedMark.value = mark
   const { bottom, left, width } = markEl.getBoundingClientRect()
@@ -241,7 +244,7 @@ const contentTapHandler = async (e: MouseEvent) => {
     }
   }
 }
-const actionHandler = async (event: Event, action: string, params: Partial<MarkData>) => {
+const actionHandler = async (event: Event, action: string, params?: Partial<MarkData>) => {
   event.preventDefault()
   // action: thought | underline
   if (action === 'underline') {
@@ -260,7 +263,7 @@ const actionHandler = async (event: Event, action: string, params: Partial<MarkD
       range: mark.range
     }
   } else if (action === 'update') {
-    updateSelectedMarkHandler(params)
+    updateSelectedMarkHandler(params!)
   }
 }
 </script>
