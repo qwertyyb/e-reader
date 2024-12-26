@@ -1,5 +1,6 @@
 @import './base.css';
 @import './animation.css';
+@import './fonts.css';
 
 #app {
   min-height: 100vh;

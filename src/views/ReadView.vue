@@ -1,6 +1,7 @@
 <template>
   <div class="read-view">
     <control-wrapper ref="control-wrapper"
+      v-if="chapter"
       :book-id="+id"
       :chapter-id="+chapter.id"
       @prev-page="pageHandler('prev')"
@@ -51,7 +52,6 @@
               fontWeight: settings.fontWeight
             }"
             :class="{ column: env.isInk() }"
-            ref="content"
             @scroll="hScrollHandler"
             v-html="content">
           </div>
@@ -114,7 +114,6 @@ const content = computed(() => {
 })
 
 const contentWrapperRef = useTemplateRef('contentWrapper')
-const contentRef = useTemplateRef('content')
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const catalogRef = useTemplateRef<any>('catalog')
 
@@ -183,7 +182,8 @@ const updateProgress = () => {
 
 const getCurrentProgress = () => {
   // 1. 找到当前的章节
-  const chapterEls = contentRef.value!.querySelectorAll<HTMLDivElement>('.chapter')
+  const content = contentWrapperRef.value?.querySelector('.content')
+  const chapterEls = content!.querySelectorAll<HTMLDivElement>('.chapter')
   const chapterEl = Array.from(chapterEls)
     .reverse()
     .find((el) => {
@@ -221,9 +221,10 @@ const getCurrentProgress = () => {
 
 const needAppendNextChapter = () => {
   if (env.isInk()) {
-    const pageWidth = contentRef.value!.getBoundingClientRect().width
-    const curPage = Math.round(contentRef.value!.scrollLeft / pageWidth)
-    const totalPage = Math.round(contentRef.value!.scrollWidth / pageWidth)
+    const content = contentWrapperRef.value?.querySelector('.content')
+    const pageWidth = content!.getBoundingClientRect().width
+    const curPage = Math.round(content!.scrollLeft / pageWidth)
+    const totalPage = Math.round(content!.scrollWidth / pageWidth)
     return totalPage - curPage <= 2
   }
   const contentWrapper = contentWrapperRef.value!
@@ -369,7 +370,6 @@ init()
   color: black;
   user-select: text;
   -webkit-user-select: text;
-  color: #fff;
 }
 .content .chapter {
   margin-bottom: env(safe-area-inset-bottom);

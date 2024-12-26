@@ -95,3 +95,12 @@ body {
   background: rgba(0, 0, 0, 0.5);
   z-index: 9;
 }
+
+/* dark mode start */
+html.dark-mode {
+  filter: invert(1) hue-rotate(180deg)
+}
+html.dark-mode img {
+  filter: invert(1) hue-rotate(180deg)
+}
+/* dark mode end */

@@ -1,5 +1,5 @@
 <template>
-<div class="selection-menu">
+  <div class="selection-menu">
     <div class="selection-menu-content-wrapper" @click.capture="contentTapHandler" ref="contentWrapper">
       <slot></slot>
     </div>
@@ -82,7 +82,7 @@ const props = defineProps<{ bookId: number, chapterId: number }>()
 const rect = ref({ top: 0, left: 0 })
 const dialog = ref<string | null>(null)
 const dialogProps = ref({})
-const mark = ref<MarkData | { thought: string, text: string, type: number }>({ thought: '', text: '', type: 0 })
+const mark = ref<MarkData | { id: undefined, thought: string, text: string, type: number }>({ id: undefined, thought: '', text: '', type: 0 })
 const selectedMark = ref<IMarkEntity | null>(null)
 
 const contentWrapperRef = useTemplateRef('contentWrapper')
@@ -104,6 +104,7 @@ onUnmounted(() => {
   document.removeEventListener('selectionchange', selectionChangeHandler)
   unregisterMutationObserver()
 })
+
 let observer: MutationObserver | null = null
 const registerMutationObserver = () => {
   observer = new MutationObserver(() => {
@@ -112,7 +113,7 @@ const registerMutationObserver = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const el = chapterEl as any
       if (el.chapterMark) return
-      el.chapterMark = new ChapterMark(props.bookId, el.dataset.id, chapterEl)
+      el.chapterMark = new ChapterMark(props.bookId, Number(el.dataset.id), chapterEl)
       el.chapterMark.refresh()
     })
   })
@@ -173,12 +174,14 @@ const selectionChangeHandler = () => {
 const underlineActionHandler = async () => {
   if (!mark.value) return;
   mark.value.type = MarkType.UNDERLINE
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { id, ...rest } = toRaw(mark.value)
   await marks.add({
-    ...toRaw(mark.value),
+    ...toRaw(rest),
   })
   chapterMark.value.refresh()
   window.getSelection()?.empty()
-  mark.value = { thought: '', text: '', type: 0 }
+  mark.value = { id: undefined, thought: '', text: '', type: 0 }
 }
 const removeUnderlineHandler = async () => {
   await marks.remove(selectedMark.value!.id)
@@ -267,3 +270,101 @@ const actionHandler = async (event: Event, action: string, params?: Partial<Mark
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.selection-menu {
+  height: 100%;
+}
+.selection-menu .selection-menu-content-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.selection-menu .selection-menu-content-wrapper mark {
+  background: transparent;
+  cursor: pointer;
+}
+.selection-menu .selection-menu-list {
+  position: fixed;
+  z-index: 2;
+  background: #fff;
+  border-radius: 10px;
+  list-style: none;
+  display: flex;
+  box-shadow: 0 0 14px gray;
+  justify-content: space-around;
+  transform: translateX(-50%);
+  padding: 0 6px;
+}
+.selection-menu .selection-menu-list .selection-menu-item {
+  position: relative;
+}
+.selection-menu .selection-menu-list .selection-menu-item .menu-item-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 10px;
+  padding: 4px 10px;
+}
+.selection-menu .selection-menu-list .selection-menu-item .menu-item-wrapper > .menu-icon {
+  font-size: 18px;
+}
+.selection-menu .selection-menu-list .underline-submenu-list {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  display: flex;
+  background: #fff;
+  padding: 6px 12px;
+  box-shadow: 0 0 14px gray;
+  list-style: none;
+  border-radius: 99999px;
+  transform: translateX(-50%);
+}
+.selection-menu .selection-menu-list .underline-submenu-item {
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.selection-menu .selection-menu-list .underline-submenu-item.mark-style .style-icon {
+  color: inherit;
+}
+.selection-menu .selection-menu-list .underline-submenu-item + .underline-submenu-item {
+  margin-left: 8px;
+}
+.selection-menu .selection-menu-list .underline-submenu-list .divider {
+  width: 2px;
+  height: 24px;
+  background: #bbb;
+  margin: 0 12px;
+}
+.selection-menu .selection-menu-list .menu-item-label {
+  margin-top: 3px;
+  white-space: nowrap;
+}
+.thought-input-dialog .thought-input-wrapper {
+  padding: 20px max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  display: flex;
+  align-items: flex-end;
+  width: 100vw;
+  box-sizing: border-box;
+}
+.thought-input-dialog .thought-input {
+  flex: 1;
+  height: 20vh;
+  outline: none;
+  border: none;
+  font-size: 16px;
+}
+.thought-input-dialog .save-btn {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  padding: 6px 8px;
+}
+</style>

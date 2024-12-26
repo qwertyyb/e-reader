@@ -18,9 +18,9 @@
       <slot name="catalog"></slot>
     </catalog-dialog>
 
-    <!-- <menu-dialog :visible="dialog==='bookMenu'" @close="dialog=null"
+    <menu-dialog :visible="dialog==='bookMenu'" @close="dialog=null"
       @action="dialog=$event">
-    </menu-dialog> -->
+    </menu-dialog>
 
     <!-- <catalog-setting-dialog :visible="dialog==='catalogSetting'" @close="dialog=null">
     </catalog-setting-dialog> -->
@@ -121,8 +121,8 @@
 </template>
 
 <script setup lang="ts">
-import { getSettings } from '@/utils/settings';
-import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { getSettings, saveAllSettings } from '@/utils/settings';
+import { onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { fontFamilyList } from '@/config';
 import CatalogDialog from '@/components/CatalogDialog.vue';
 import CSelect from '@/components/common/CSelect.vue';
@@ -131,6 +131,7 @@ import CProgress from '@/components/common/CProgress.vue';
 import CDialog from '@/components/common/CDialog.vue';
 import MarksViewer from '@/components/MarksViewer.vue';
 import SelectionMenu from '@/components/SelectionMenu.vue';
+import MenuDialog from '@/components/MenuDialog.vue';
 import { env } from '@/utils/env';
 import router from '@/router';
 import { AutoPlay, DarkMode, ReadSpeak } from '@/actions';
@@ -160,6 +161,8 @@ const controlState = ref({
 const settings = ref(getSettings())
 
 const contentRef = useTemplateRef('content')
+
+watch(settings, value => saveAllSettings(value), { deep: true })
 
 const changeAutoPlayDuration = (duration: number) => {
   settings.value.autoPlayDuration = duration

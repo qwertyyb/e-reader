@@ -61,3 +61,38 @@ const removeMark = async (mark: IMarkEntity) => {
   emits('mark-removed', mark)
 }
 </script>
+
+<style lang="scss" scoped>
+.marks-viewer {
+  width: 100vw;
+  box-sizing: border-box;
+  padding: 10px 0 env(safe-area-inset-bottom) 16px;
+  background: rgb(238, 238, 238);
+  max-height: 80vh;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+.marks-viewer .marks-viewer-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  height: 30px;
+}
+.marks-viewer .marks-viewer-title .more-icon {
+  font-size: 16px;
+}
+.marks-viewer .mark-chapters {
+  min-height: 60vh;
+  height: calc(100% - 30px);
+  overflow: auto;
+}
+.marks-viewer .mark-chapter-title {
+  margin-bottom: 12px;
+}
+.marks-viewer .marks-viewer-list {
+  margin-right: 16px;
+}
+</style>
