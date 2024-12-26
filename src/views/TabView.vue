@@ -1,5 +1,6 @@
 <template>
   <div class="tab-view">
+    <app-header></app-header>
     <div class="tab-panel-container">
       <router-view></router-view>
     </div>
@@ -17,6 +18,7 @@
 </template>
 
 <script setup lang="ts">
+import AppHeader from '@/components/AppHeader.vue';
 </script>
 
 <style lang="scss" scoped>
@@ -25,15 +27,23 @@
   display: flex;
   flex-direction: column;
 }
+.tab-panel-container {
+  padding-top: calc(env(safe-area-inset-top) + 48px);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 60px);
+}
 .tab-nav-list {
   display: flex;
   padding-bottom: env(safe-area-inset-bottom);
   width: 100%;
   height: 54px;
+  box-sizing: content-box;
   border-top: 1px solid #efefef;
-  position: relative;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 1;
-  margin-top: auto;
+  background: #fff;
 }
 .tab-nav-item {
   flex: 1;

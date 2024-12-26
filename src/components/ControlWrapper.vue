@@ -320,7 +320,8 @@ onUnmounted(() => { if (hammerInstance) { hammerInstance.destroy() } })
   flex: 1;
 }
 .control-wrapper .content-container {
-  height: 100%;
+  max-height: 100vh;
+  overflow: auto;
   touch-action: none;
   background-image: url(https://cdn.jsdelivr.net/gh/qwertyyb/eink-reader/assets/bg.png);
   background-size: 100% 100%;

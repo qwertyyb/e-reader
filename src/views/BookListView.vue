@@ -75,7 +75,6 @@ refresh()
   grid-gap: 10px;
   gap: 10px;
   justify-content: space-around;
-  padding-bottom: calc(54px + env(safe-area-inset-bottom));
   position: relative;
   box-sizing: border-box;
 }

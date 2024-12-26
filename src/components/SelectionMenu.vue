@@ -62,17 +62,21 @@
         <button class="save-btn" @click="saveThought">保存</button>
       </div>
     </c-dialog>
-    <marks-dialog
+    <range-marks-dialog
       :visible="dialog==='marks'"
       @close="dialog=null"
       @mark-removed="markRemovedHandler"
-      v-bind="dialogProps">
-    </marks-dialog>
+      :book-id="bookId"
+      :chapter-id="chapterId"
+      :range="marksRange"
+    >
+    </range-marks-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import CDialog from '@/components/common/CDialog.vue'
+import RangeMarksDialog from '@/components/RangeMarksDialog.vue';
 import { marks } from '@/services/storage';
 import { ChapterMark, MarkColors, MarkData, MarkStyleIcons, MarkStyles, MarkType } from '@/utils/mark'
 import { computed, onMounted, onUnmounted, ref, toRaw, useTemplateRef } from 'vue'
@@ -81,7 +85,7 @@ const props = defineProps<{ bookId: number, chapterId: number }>()
 
 const rect = ref({ top: 0, left: 0 })
 const dialog = ref<string | null>(null)
-const dialogProps = ref({})
+const marksRange = ref<{ start: number, length: number } | null>(null)
 const mark = ref<MarkData | { id: undefined, thought: string, text: string, type: number }>({ id: undefined, thought: '', text: '', type: 0 })
 const selectedMark = ref<IMarkEntity | null>(null)
 
@@ -242,9 +246,7 @@ const contentTapHandler = async (e: MouseEvent) => {
   }
   if (mark.type === MarkType.THOUGHT) {
     dialog.value = 'marks'
-    dialogProps.value = {
-      range: mark.range
-    }
+    marksRange.value = mark.range
   }
 }
 const actionHandler = async (event: Event, action: string, params?: Partial<MarkData>) => {
@@ -262,9 +264,7 @@ const actionHandler = async (event: Event, action: string, params?: Partial<Mark
     dialog.value = 'marks'
     const mark = await marks.get(selectedMark.value!.id)
     selectedMark.value = mark
-    dialogProps.value = {
-      range: mark.range
-    }
+    marksRange.value = mark.range
   } else if (action === 'update') {
     updateSelectedMarkHandler(params!)
   }

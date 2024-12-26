@@ -125,8 +125,8 @@ const pageHandler = (direction: 'prev' | 'next') => {
   console.log('pageHandler', direction)
 }
 
-const scrollVertical = () => {
-
+const scrollVertical = (distance: number) => {
+  contentWrapperRef.value!.scrollTop += distance
 }
 
 const searchContent = async () => {
@@ -319,11 +319,6 @@ init()
     width: 100%;
   }
 }
-.read-view, .content-wrapper {
-  height: var(--height);
-  position: relative;
-  z-index: 2;
-}
 
 .mask {
   position: fixed;
@@ -336,7 +331,7 @@ init()
 }
 .content-wrapper {
   width: 100%;
-  height: 100%;
+  max-height: 100vh;
   overflow: auto;
   position: relative;
   z-index: 2;
