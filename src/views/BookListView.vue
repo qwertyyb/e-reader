@@ -2,7 +2,7 @@
   <div class="book-list-view">
     <ul class="book-list">
       <book-item
-        v-for="book in bookList"
+        v-for="book in formattedList"
         :key="book.id"
         :book="book"
         mode="show"
@@ -14,24 +14,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import BookItem from '@/components/BookItem.vue';
 import { dataService } from '@/services/local';
 import { formatSize, showToast } from '@/utils';
 import router from '@/router';
+import { useReadingStore } from '@/stores/reading';
 
-const bookList = ref<IBookListItem[]>([])
+const bookList = ref<(IBookEntity & { downloaded: number, downloadUrl: string })[]>([])
 
-const refresh = async () => {
-  const list = await dataService.getBookList()
-  console.table(list)
-  bookList.value = list.map(item => {
+const formattedList = computed(() => {
+  return bookList.value.map(item => {
     return {
       ...item,
-      status: item.downloaded ? 'downloaded' : 'remote',
+      status: (item.id === readingStore.readingBookId ? 'reading' : item.downloaded ? 'downloaded' : 'remote') as IBookListItem['status'],
     }
   })
+})
+
+const readingStore = useReadingStore()
+
+const refresh = async () => {
+  bookList.value = await dataService.getBookList()
 }
 
 const download = async (book: IBookListItem) => {
@@ -59,7 +64,8 @@ const download = async (book: IBookListItem) => {
 }
 
 const read = async (book: IBookListItem) => {
-  // @todo 开书动画
+  book.status = 'reading'
+  readingStore.setReadingBookId(book.id)
   router.push({ name: 'read', params: { id: book.id } })
 }
 
@@ -77,5 +83,6 @@ refresh()
   justify-content: space-around;
   position: relative;
   box-sizing: border-box;
+  perspective: 600px;
 }
 </style>

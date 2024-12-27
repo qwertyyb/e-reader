@@ -1,63 +1,68 @@
 <template>
   <div class="read-view">
-    <control-wrapper ref="control-wrapper"
-      v-if="chapter"
-      :book-id="+id"
-      :chapter-id="+chapter.id"
-      @prev-page="pageHandler('prev')"
-      @next-page="pageHandler('next')"
-      @scroll-vertical="scrollVertical">
-      <template v-slot:catalog>
-        <header class="catalog-header">
-          <div class="search-input">
-            <input type="text" v-model.trim="search.keyword" />
-            <span class="material-symbols-outlined regexp-icon"
-              :class="{active: search.isRegExp}"
-              @click="search.isRegExp = !search.isRegExp">regular_expression</span>
-          </div>
-          <button class="action-btn search-btn" @click="searchContent">
-            <span class="material-symbols-outlined action-icon">search</span>
-          </button>
-          <button class="action-btn close-btn" @click="clearSearch" v-if="search.completed">
-            <span class="material-symbols-outlined action-icon">close</span>
-          </button>
-        </header>
-        <div class="search-empty-results" v-if="search.completed && search.results.length <= 0">
-          <span class="material-symbols-outlined icon">find_in_page</span>
-          <p class="empty-title">未找到结果</p>
-        </div>
-        <virtual-list
-          v-else
-          class="catalog-content-wrapper"
-          data-key="id"
-          :data-sources="list"
-          ref="catalog"
-          :estimate-size="48">
-          <template v-slot="{ source, index }">
-            <div class="catalog-item"
-              @click="readChapter(source, index)"
-              :class="{active: index === curChapterIndex}"
-              :data-catalog-level="source.level || 1"
-              :data-catalog-id="source.id">
-              <div class="catalog-label">{{ source.title }}</div>
+    <div class="open-book-anim">
+      <div class="book-cover open-book-anim-cover">
+        <img class="book-cover-img" :src="book.cover" :alt="book.title" v-if="book" />
+      </div>
+      <control-wrapper class="control-wrapper open-book-anim-main" ref="control-wrapper"
+        v-if="chapter"
+        :book-id="+id"
+        :chapter-id="+chapter.id"
+        @prev-page="pageHandler('prev')"
+        @next-page="pageHandler('next')"
+        @scroll-vertical="scrollVertical">
+        <template v-slot:catalog>
+          <header class="catalog-header">
+            <div class="search-input">
+              <input type="text" v-model.trim="search.keyword" />
+              <span class="material-symbols-outlined regexp-icon"
+                :class="{active: search.isRegExp}"
+                @click="search.isRegExp = !search.isRegExp">regular_expression</span>
             </div>
-          </template>
-        </virtual-list>
-      </template>
-      <template v-slot="{ settings }">
-        <div class="content-wrapper" ref="contentWrapper" @scroll="vScrollHandler">
-          <div class="content" :data-font="settings.fontFamily"
-            :style="{
-              fontSize: settings.fontSize + 'px',
-              fontWeight: settings.fontWeight
-            }"
-            :class="{ column: env.isInk() }"
-            @scroll="hScrollHandler"
-            v-html="content">
+            <button class="action-btn search-btn" @click="searchContent">
+              <span class="material-symbols-outlined action-icon">search</span>
+            </button>
+            <button class="action-btn close-btn" @click="clearSearch" v-if="search.completed">
+              <span class="material-symbols-outlined action-icon">close</span>
+            </button>
+          </header>
+          <div class="search-empty-results" v-if="search.completed && search.results.length <= 0">
+            <span class="material-symbols-outlined icon">find_in_page</span>
+            <p class="empty-title">未找到结果</p>
           </div>
-        </div>
-      </template>
-    </control-wrapper>
+          <virtual-list
+            v-else
+            class="catalog-content-wrapper"
+            data-key="id"
+            :data-sources="list"
+            ref="catalog"
+            :estimate-size="48">
+            <template v-slot="{ source, index }">
+              <div class="catalog-item"
+                @click="readChapter(source, index)"
+                :class="{active: index === curChapterIndex}"
+                :data-catalog-level="source.level || 1"
+                :data-catalog-id="source.id">
+                <div class="catalog-label">{{ source.title }}</div>
+              </div>
+            </template>
+          </virtual-list>
+        </template>
+        <template v-slot="{ settings }">
+          <div class="content-wrapper" ref="contentWrapper" @scroll="vScrollHandler">
+            <div class="content" :data-font="settings.fontFamily"
+              :style="{
+                fontSize: settings.fontSize + 'px',
+                fontWeight: settings.fontWeight
+              }"
+              :class="{ column: env.isInk() }"
+              @scroll="hScrollHandler"
+              v-html="content">
+            </div>
+          </div>
+        </template>
+      </control-wrapper>
+    </div>
   </div>
 </template>
 
@@ -309,14 +314,57 @@ init()
 </script>
 
 <style lang="scss" scoped>
-
 .read-view {
   width: 100vw;
-  flex: 1;
   display: flex;
   flex-direction: column;
-  & > * {
+  position: relative;
+  &.anim {
+    height: 100vh;
+    display: flex;
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    .open-book-anim {
+      width: 100vw;
+      height: calc(100vw / 3 * 4);
+    }
+    .control-wrapper {
+      aspect-ratio: inherit;
+      overflow: auto;
+    }
+    .book-cover {
+      display: block;
+    }
+  }
+  .open-book-anim {
+    height: 100vh;
+    perspective: 1000px;
+    transform-origin: center center;
+  }
+  .book-cover {
     width: 100%;
+    height: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    transform-origin: left;
+    display: none;
+    .book-cover-img {
+      width: 100%;
+      height: auto;
+      vertical-align: top;
+    }
+  }
+  .control-wrapper {
+    width: 100%;
+    position: relative;
+    z-index: 0;
   }
 }
 

@@ -3,7 +3,7 @@
     <transition name="slide-down">
       <div class="navigator" v-if="panelVisible">
         <div class="material-icons back-to-index"
-          @click="$router.replace('/')">arrow_back</div>
+          @click="$router.replace('/tab/local')">arrow_back</div>
 
         <div class="navigator-menu">
           <span class="material-icons-outlined" @click="dialog='bookMenu'">

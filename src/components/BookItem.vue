@@ -2,7 +2,7 @@
   <div class="book-item"
     :class="{
       'is-reading': book.status === 'reading',
-      'downloaded': book.status === 'downloaded'
+      'downloaded': book.status === 'downloaded' || book.status === 'reading'
     }"
     :data-book-id="book.id">
     <div class="book-cover" @click="onTap">
@@ -47,6 +47,9 @@ const onTap = () => {
 .book-item {
   position: relative;
   opacity: 0.4;
+  &.is-reading .book-cover {
+    opacity: 0;
+  }
 }
 .book-item.downloaded {
   filter: none;
@@ -76,9 +79,6 @@ const onTap = () => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.book-item.is-reading .book-cover {
-  opacity: 0;
 }
 .book-item .action-mask {
   position: absolute;
