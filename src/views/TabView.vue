@@ -30,6 +30,8 @@ import AppHeader from '@/components/AppHeader.vue';
 .tab-panel-container {
   padding-top: calc(env(safe-area-inset-top) + 48px);
   padding-bottom: calc(env(safe-area-inset-bottom) + 60px);
+  background: #fff;
+  min-height: 100vh;
 }
 .tab-nav-list {
   display: flex;

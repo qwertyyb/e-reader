@@ -320,12 +320,10 @@ onUnmounted(() => { if (hammerInstance) { hammerInstance.destroy() } })
   flex: 1;
 }
 .control-wrapper .content-container {
-  max-height: 100vh;
   overflow: auto;
   touch-action: none;
-  background-image: url(https://cdn.jsdelivr.net/gh/qwertyyb/eink-reader/assets/bg.png);
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
+  background-image: var(--read-view-background-image);
+  background-size: cover;
 }
 
 .control-wrapper .navigator {
@@ -367,7 +365,7 @@ html.dark-mode .control-wrapper .navigator::before {
 /* control */
 .control {
   --control-height: 48px;
-  position: fixed;
+  position: absolute;
   bottom: 0;
   left: 0;
   right: 0;

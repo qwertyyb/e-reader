@@ -1,3 +1,4 @@
+import './register-sw'
 import './assets/main.css'
 
 import VirtualList from 'vue-virtual-list-v3'

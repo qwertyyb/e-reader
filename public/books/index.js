@@ -1,5 +1,7 @@
-const bookUrl = (bookName) => new URL(`./${bookName}.txt`, import.meta.url).href
-const coverUrl = (name) => new URL(`./covers/${name}.jpeg`, import.meta.url).href
+const curUrl = document.currentScript.src
+
+const bookUrl = (bookName) => new URL(`./${bookName}.txt`, curUrl).href
+const coverUrl = (name) => new URL(`./covers/${name}.jpeg`, curUrl).href
 
 window.remoteBooks = [
   {

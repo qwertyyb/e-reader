@@ -2,7 +2,7 @@
   <div class="read-view">
     <div class="open-book-anim">
       <div class="book-cover open-book-anim-cover">
-        <img class="book-cover-img" :src="book.cover" :alt="book.title" v-if="book" />
+        <img class="book-cover-img" :src="book?.cover" :alt="book?.title" />
       </div>
       <control-wrapper class="control-wrapper open-book-anim-main" ref="control-wrapper"
         v-if="chapter"
@@ -314,14 +314,18 @@ init()
 </script>
 
 <style lang="scss" scoped>
+@property --read-view-content-height {
+  syntax: "<length-percentage>";
+  inherits: true;
+  initial-value: 100vh;
+}
 .read-view {
+  --read-view-content-height: 100vh;
+  --read-view-background-image: url(https://cdn.jsdelivr.net/gh/qwertyyb/eink-reader/assets/bg.png);
   width: 100vw;
-  display: flex;
-  flex-direction: column;
   position: relative;
   &.anim {
     height: 100vh;
-    display: flex;
     position: fixed;
     top: 0;
     right: 0;
@@ -329,42 +333,65 @@ init()
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
     z-index: 10;
+    --read-view-content-height: calc(100vw / 3 * 4);
+    &.close-anim {
+      --read-view-content-height: 100vh;
+      .book-cover {
+        transform: rotateY(-180deg);
+      }
+    }
     .open-book-anim {
       width: 100vw;
-      height: calc(100vw / 3 * 4);
+      height: var(--read-view-content-height);
+      perspective: 1000px;
     }
     .control-wrapper {
-      aspect-ratio: inherit;
-      overflow: auto;
+      aspect-ratio: 3 / 4;
     }
     .book-cover {
       display: block;
     }
   }
   .open-book-anim {
-    height: 100vh;
-    perspective: 1000px;
     transform-origin: center center;
   }
   .book-cover {
     width: 100%;
-    height: auto;
+    height: var(--read-view-content-height);
     position: absolute;
     top: 0;
     left: 0;
     z-index: 1;
     transform-origin: left;
     display: none;
+    backface-visibility: hidden;
+    &::after {
+      content: " ";
+      display: block;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      inset: 0;
+      background-image: var(--read-view-background-image);
+      background-size: cover;
+      z-index: 1;
+      transform: rotateY(-180deg)
+    }
     .book-cover-img {
       width: 100%;
       height: auto;
       vertical-align: top;
+      position: relative;
+      z-index: 2;
+      perspective: 10px;
     }
   }
   .control-wrapper {
     width: 100%;
     position: relative;
     z-index: 0;
+    height: var(--read-view-content-height);
+    overflow: hidden;
   }
 }
 
@@ -379,7 +406,7 @@ init()
 }
 .content-wrapper {
   width: 100%;
-  max-height: 100vh;
+  height: var(--read-view-content-height);
   overflow: auto;
   position: relative;
   z-index: 2;
@@ -388,7 +415,7 @@ init()
   box-sizing: border-box;
   margin-left: 12px;
   margin-right: 12px;
-  width: calc(100vw - 24px);
+  width: calc(100% - 24px);
 }
 .content.column {
   margin-top: 20px;
