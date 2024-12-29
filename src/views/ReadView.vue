@@ -3,6 +3,7 @@
     <div class="open-book-anim">
       <div class="book-cover open-book-anim-cover">
         <img class="book-cover-img" :src="book?.cover" :alt="book?.title" />
+        <div class="book-cover-backface"></div>
       </div>
       <control-wrapper class="control-wrapper open-book-anim-main" ref="control-wrapper"
         v-if="chapter"
@@ -292,10 +293,12 @@ const startRead = async () => {
   await nextTick()
 
   const el = document.querySelector(`.content [data-cursor="${cursor}"]`)
+  const wrapper = el?.closest<HTMLElement>('.content-wrapper')
 
-  if (el) {
-    el.scrollIntoView()
-  }
+  // if (wrapper) {
+  //   wrapper.scrollTo({ top: el!.getBoundingClientRect().top - wrapper.getBoundingClientRect().top })
+  // }
+  el?.scrollIntoView()
   // 等待滚动到位置后再监听滚动事件
   setTimeout(() => {
     inited = true
@@ -321,9 +324,10 @@ init()
 }
 .read-view {
   --read-view-content-height: 100vh;
-  --read-view-background-image: url(https://cdn.jsdelivr.net/gh/qwertyyb/eink-reader/assets/bg.png);
+  --read-view-background-image: url("../assets/bg.png");
   width: 100vw;
   position: relative;
+  background: #fff;
   &.anim {
     height: 100vh;
     position: fixed;
@@ -357,6 +361,7 @@ init()
   }
   .book-cover {
     width: 100%;
+    aspect-ratio: 3 / 4;
     height: var(--read-view-content-height);
     position: absolute;
     top: 0;
@@ -364,26 +369,26 @@ init()
     z-index: 1;
     transform-origin: left;
     display: none;
-    backface-visibility: hidden;
-    &::after {
-      content: " ";
-      display: block;
+    transform-style: preserve-3d;
+    .book-cover-backface {
       width: 100%;
       height: 100%;
       position: absolute;
       inset: 0;
       background-image: var(--read-view-background-image);
       background-size: cover;
+      transform: rotateY(-180deg);
+      transform: translateZ(1px);
       z-index: 1;
-      transform: rotateY(-180deg)
     }
     .book-cover-img {
+      backface-visibility: hidden;
       width: 100%;
       height: auto;
       vertical-align: top;
       position: relative;
+      transform: translateZ(2px);
       z-index: 2;
-      perspective: 10px;
     }
   }
   .control-wrapper {
@@ -407,6 +412,9 @@ init()
 .content-wrapper {
   width: 100%;
   height: var(--read-view-content-height);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  background-clip: border-box;
   overflow: auto;
   position: relative;
   z-index: 2;

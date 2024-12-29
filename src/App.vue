@@ -55,6 +55,8 @@ const openBook = async (bookEl: HTMLElement) => {
     { transform: `scale(${centerScale}) translate(0, ${offsetY / centerScale}px)` }
   ], { easing: 'ease-in', duration: 600, fill: 'both' }).finished
 
+  // await new Promise(() => {})
+
   // 动画2. 翻页
   const cover = bookEl.querySelector<HTMLElement>('.open-book-anim-cover')!
   await cover.animate([
