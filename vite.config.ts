@@ -7,7 +7,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '',
+  base: '/e-reader/',
   plugins: [
     vue(),
     vueJsx(),
@@ -20,5 +20,21 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
+  },
+  build: {
+    manifest: true
+  },
+  worker: {
+    rollupOptions: {
+      output: {
+        entryFileNames(chunkInfo) {
+          if (chunkInfo.name === 'sw') {
+            // 需要把 sw 放在根目录，否则无法生效
+            return '[name].js'
+          }
+          return '[name]-[hash][extname]'
+        },
+      }
+    }
   }
 })

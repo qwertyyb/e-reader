@@ -99,6 +99,7 @@ self.addEventListener('activate', event => {
 
 const resourceNeedCache = (request: Request) => {
   const url = new URL(request.url);
+  if (!url.protocol.startsWith('http')) return false
   const isApi = url.host === 'proxy.qwertyyb.cn'
   if (isApi) return false;
   return true;
