@@ -322,8 +322,6 @@ onUnmounted(() => { if (hammerInstance) { hammerInstance.destroy() } })
 .control-wrapper .content-container {
   overflow: auto;
   touch-action: none;
-  background-image: var(--read-view-background-image);
-  background-size: cover;
 }
 
 .control-wrapper .navigator {

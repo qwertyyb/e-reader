@@ -1,4 +1,4 @@
-import './register-sw'
+import { register, unregister } from './register-sw'
 import './assets/main.css'
 
 import VirtualList from 'vue-virtual-list-v3'
@@ -15,3 +15,9 @@ app.use(router)
 app.use(VirtualList)
 
 app.mount('#app')
+
+if (import.meta.env.PROD) {
+  register()
+} else {
+  unregister()
+}

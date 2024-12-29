@@ -1,11 +1,11 @@
 <template>
-  <div class="read-view">
-    <div class="open-book-anim">
-      <div class="book-cover open-book-anim-cover">
+  <div class="read-view book-read-view">
+    <div class="book-anim">
+      <div class="book-cover book-anim-cover">
         <img class="book-cover-img" :src="book?.cover" :alt="book?.title" />
         <div class="book-cover-backface"></div>
       </div>
-      <control-wrapper class="control-wrapper open-book-anim-main" ref="control-wrapper"
+      <control-wrapper class="control-wrapper book-anim-main" ref="control-wrapper"
         v-if="chapter"
         :book-id="+id"
         :chapter-id="+chapter.id"
@@ -293,12 +293,8 @@ const startRead = async () => {
   await nextTick()
 
   const el = document.querySelector(`.content [data-cursor="${cursor}"]`)
-  const wrapper = el?.closest<HTMLElement>('.content-wrapper')
-
-  // if (wrapper) {
-  //   wrapper.scrollTo({ top: el!.getBoundingClientRect().top - wrapper.getBoundingClientRect().top })
-  // }
   el?.scrollIntoView()
+
   // 等待滚动到位置后再监听滚动事件
   setTimeout(() => {
     inited = true
@@ -322,6 +318,11 @@ init()
   inherits: true;
   initial-value: 100vh;
 }
+@property --cover-rotate {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
 .read-view {
   --read-view-content-height: 100vh;
   --read-view-background-image: url("../assets/bg.png");
@@ -337,17 +338,17 @@ init()
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
     z-index: 10;
+    transform-style: preserve-3d;
+    perspective: 1000px;
     --read-view-content-height: calc(100vw / 3 * 4);
     &.close-anim {
       --read-view-content-height: 100vh;
-      .book-cover {
-        transform: rotateY(-180deg);
-      }
+      --cover-rotate: -180deg;
     }
-    .open-book-anim {
+    .book-anim {
       width: 100vw;
       height: var(--read-view-content-height);
-      perspective: 1000px;
+      perspective: 140vw;
     }
     .control-wrapper {
       aspect-ratio: 3 / 4;
@@ -356,7 +357,7 @@ init()
       display: block;
     }
   }
-  .open-book-anim {
+  .book-anim {
     transform-origin: center center;
   }
   .book-cover {
@@ -368,6 +369,7 @@ init()
     left: 0;
     z-index: 1;
     transform-origin: left;
+    transform: rotateY(var(--cover-rotate));
     display: none;
     transform-style: preserve-3d;
     .book-cover-backface {
@@ -418,12 +420,20 @@ init()
   overflow: auto;
   position: relative;
   z-index: 2;
+  background-image: var(--read-view-background-image);
+  background-size: contain;
+  background-attachment: local;
+  background-color: #fff;
 }
 .content {
   box-sizing: border-box;
   margin-left: 12px;
   margin-right: 12px;
   width: calc(100% - 24px);
+  line-height: 1.6;
+  font-size: 24px;
+  user-select: text;
+  -webkit-user-select: text;
 }
 .content.column {
   margin-top: 20px;
@@ -441,14 +451,6 @@ init()
   justify-content: center;
 }
 
-
-.content {
-  line-height: 1.6;
-  font-size: 24px;
-  color: black;
-  user-select: text;
-  -webkit-user-select: text;
-}
 .content .chapter {
   margin-bottom: env(safe-area-inset-bottom);
 }

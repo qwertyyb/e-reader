@@ -1,5 +1,5 @@
 <template>
-  <div class="tab-view">
+  <div class="tab-view book-shelf">
     <app-header></app-header>
     <div class="tab-panel-container">
       <router-view></router-view>

@@ -2,7 +2,8 @@ import { showToast } from "./utils"
 import sw from '../sw.ts?worker&url'
 import { createBridge } from "./utils/bridge"
 
-if ('serviceWorker' in navigator) {
+export const register = () => {
+  if (!('serviceWorker' in navigator)) { return }
   navigator.serviceWorker.register(sw, { type: 'module' })
     .then(reg => {
       console.log('service worker register successfully: ', reg)
@@ -24,52 +25,14 @@ if ('serviceWorker' in navigator) {
   }
 }
 
-
-// export const createBridge = <F extends (...args: any[]) => any>(calls: Record<string, F>) => {
-//   if (!navigator.serviceWorker) {
-//     return {
-//       invoke() {}
-//     }
-//   }
-//   const callbacks = new Map<string, (result: unknown) => void>()
-
-//   navigator.serviceWorker.addEventListener('message', async event => {
-//     const { type, method, args, returnValue, callback } = event.data
-//     if (type === 'invoke') {
-//       const result = await calls[method]?.(...args)
-//       return event.source?.postMessage({
-//         type: 'callback',
-//         callback,
-//         returnValue: result
-//       })
-//     }
-//     if (type === 'callback') {
-//       const cb = callbacks.get(callback);
-//       if (cb) {
-//         cb(returnValue);
-//         callbacks.delete(callback);
-//       }
-//     }
-//   })
-
-//   return {
-//     invoke (method: string, ...args: unknown[]) {
-//       return new Promise(resolve => {
-//         const callback = `callback_${Math.random()}`;
-//         callbacks.set(callback, resolve);
-//         navigator.serviceWorker.ready.then(reg => {
-//           reg.active?.postMessage({
-//             type: 'invoke',
-//             callback,
-//             method,
-//             args
-//           })
-//         })
-//       })
-//     }
-//   }
-// }
-
+export const unregister = () => {
+  navigator.serviceWorker?.getRegistrations()
+    .then(registrations => {
+      registrations.map(r => {
+        r.unregister()
+      })
+    })
+}
 
 export const bridge = createBridge(
   (payload) => navigator.serviceWorker.ready.then(reg => reg.active?.postMessage(payload)),
