@@ -23,7 +23,8 @@ const resources: string[] = [
 const functions = {
   async deleteAllCache() {
     const cacheNames = await caches.keys()
-    return Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)))
+    await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
+    (await caches.open(CACHE_NAME)).addAll(resources)
   },
   async checkCachedUrls(urls: string[]) {
     const results = await Promise.all(urls.map(async url => {
@@ -39,11 +40,11 @@ const functions = {
     const updateUrl = self.origin + '/e-reader/version.json'
     logger.info('checkUpdates', updateUrl)
     const cachedResponse = await caches.match(updateUrl)
-    const localVersion = (await cachedResponse?.json()).version
+    const localVersion = (await cachedResponse?.json())?.version
     const response = await fetch(updateUrl + '?t=' + Date.now())
     const version = (await response.json()).version
     logger.info('checkUpdates', version, localVersion)
-    if (version && localVersion && version !== localVersion) {
+    if (version && version !== localVersion) {
       return {
         hasUpdates: true,
         version,
