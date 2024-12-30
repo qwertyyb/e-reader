@@ -71,4 +71,6 @@ interface DocumentEventMap {
   'app:checkupdates': CustomEvent<{ slient: boolean }>
 }
 
+declare const __APP_VERSION__: string
+
 declare module 'vue-virtual-list-v3'

@@ -22,9 +22,10 @@ import CDialog from "@/components/common/CDialog.vue";
 import { bridge } from "@/register-sw";
 import { showToast } from "@/utils";
 import { onBeforeUnmount, ref } from "vue";
-import { updateInterval, version } from '@/constant';
+import { updateInterval } from '@/constant';
 
 const visible = ref(false)
+const version = ref('')
 const newVersionInfo = ref({
   version: '',
   changelog: ''
@@ -49,6 +50,14 @@ const update = async () => {
   location.reload()
 }
 
+const getVersion = async () => {
+  const r = await fetch('./version.json')
+  const json = await r.json()
+  version.value = json.version
+}
+
+getVersion()
+
 checkUpdates({ slient: true })
 
 const interval = setInterval(() => {
@@ -62,7 +71,10 @@ const checkUpdatesHandler = (event: CustomEvent<{ slient: boolean }>) => {
 
 document.addEventListener('app:checkupdates', checkUpdatesHandler)
 
-onBeforeUnmount(() => { clearInterval(interval) })
+onBeforeUnmount(() => {
+  clearInterval(interval)
+  document.removeEventListener('app:checkupdates', checkUpdatesHandler)
+})
 
 </script>
 
