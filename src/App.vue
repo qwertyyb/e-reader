@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useReadingStore } from '@/stores/reading'
 import { RouterView } from 'vue-router'
-
+import UpdateDialog from '@/components/UpdateDialog.vue'
 
 const COVER_SIZE = 100
 // 在动画过程中，添加到 read-view 的类名
@@ -160,15 +160,18 @@ async function onEnter(el: Element, done: () => void) {
 </script>
 
 <template>
-  <router-view v-slot="{ Component }">
-    <transition
-      @before-enter="onBeforeEnter"
-      @enter="onEnter"
-      @before-leave="onBeforeLeave"
-      @leave="onLeave"
-      :css="false"
-    >
-      <component :is="Component" />
-    </transition>
-  </router-view>
+  <div class="root-app">
+    <router-view v-slot="{ Component }">
+      <transition
+        @before-enter="onBeforeEnter"
+        @enter="onEnter"
+        @before-leave="onBeforeLeave"
+        @leave="onLeave"
+        :css="false"
+      >
+        <component :is="Component" />
+      </transition>
+    </router-view>
+    <update-dialog></update-dialog>
+  </div>
 </template>

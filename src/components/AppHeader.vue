@@ -1,7 +1,6 @@
 <template>
   <header class="app-header">
-    <img class="logo"
-      src="/icons/icon96.png" />
+    <img class="logo" @click="menuDialogVisible=true" src="/icons/icon96.png" />
     <span class="material-symbols-outlined mode-toggle-action header-action"
       v-if="isDarkMode"
       @click="toggleDarkMode">dark_mode</span>
@@ -10,14 +9,17 @@
       @click="toggleDarkMode">light_mode</span>
     <!-- <span class="header-action select-action">选择</span> -->
     <!-- <span class="header-action select-action" v-if="mode==='select'">取消</span> -->
+     <app-menu-dialog :visible="menuDialogVisible" @close="menuDialogVisible=false"></app-menu-dialog>
   </header>
 </template>
 
 <script setup lang="ts">
+import AppMenuDialog from '@/components/AppMenuDialog.vue';
 import { DarkMode } from '@/actions';
 import { onUnmounted, ref } from 'vue';
 
 const isDarkMode = ref(false);
+const menuDialogVisible = ref(false);
 
 const toggleDarkMode = () => {
   darkModeDetector.toggle()

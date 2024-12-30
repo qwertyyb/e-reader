@@ -35,7 +35,10 @@ export const unregister = () => {
 }
 
 export const bridge = createBridge(
-  (payload) => navigator.serviceWorker.ready.then(reg => reg.active?.postMessage(payload)),
+  (payload) => {
+    console.log(payload)
+    navigator.serviceWorker.ready.then(reg => reg.active?.postMessage(payload))
+  },
   (callback) => {
     navigator.serviceWorker.addEventListener('message', event => callback(event.data))
   },

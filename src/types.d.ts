@@ -67,4 +67,8 @@ interface Window {
   Hammer: any
 }
 
+interface DocumentEventMap {
+  'app:checkupdates': CustomEvent<{ slient: boolean }>
+}
+
 declare module 'vue-virtual-list-v3'

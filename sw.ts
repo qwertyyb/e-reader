@@ -9,7 +9,15 @@ const CACHE_NAME = 'v4';
 
 console.log('self', self)
 
+const logger = {
+  info: (...args: Parameters<typeof console.info>) => console.info('[sw]', ...args),
+  warn: (...args: Parameters<typeof console.warn>) => console.warn('[sw]', ...args),
+  error: (...args: Parameters<typeof console.error>) => console.error('[sw]', ...args),
+}
+
+
 const resources: string[] = [
+  self.origin + '/e-reader/version.json'
 ]
 
 const functions = {
@@ -28,17 +36,17 @@ const functions = {
     }), {})
   },
   async checkUpdates() {
-    const updateUrl = self.origin + (self.origin.includes('localhost') ? '/constant.js' : '/eink-reader/constant.js')
+    const updateUrl = self.origin + '/e-reader/version.json'
+    logger.info('checkUpdates', updateUrl)
     const cachedResponse = await caches.match(updateUrl)
-    const localVersion = (await cachedResponse?.text())?.match(/export\sconst\sversion\s=\s'(.*)'/)?.[1]
-    const response = await fetch(updateUrl)
-    const text = await response.text()
-    const remoteVersion = text.match(/export\sconst\sversion\s=\s'(.*)'/)?.[1]
-    logger.info('checkUpdates', remoteVersion, localVersion)
-    if (remoteVersion && localVersion && remoteVersion !== localVersion) {
+    const localVersion = (await cachedResponse?.json()).version
+    const response = await fetch(updateUrl + '?t=' + Date.now())
+    const version = (await response.json()).version
+    logger.info('checkUpdates', version, localVersion)
+    if (version && localVersion && version !== localVersion) {
       return {
         hasUpdates: true,
-        version: remoteVersion,
+        version,
         changelog: ''
       }
     }
@@ -55,17 +63,12 @@ const bridge = createBridge(
       .then(clients => clients.forEach(client => client.postMessage(payload)));
   },
   (callback) => {
-    self.addEventListener('message', event => callback(event.data))
+    self.addEventListener('message', event => {
+      callback(event.data)
+    })
   },
   functions
 )
-
-const logger = {
-  info: (...args: Parameters<typeof console.info>) => console.info('[sw]', ...args),
-  warn: (...args: Parameters<typeof console.warn>) => console.warn('[sw]', ...args),
-  error: (...args: Parameters<typeof console.error>) => console.error('[sw]', ...args),
-}
-
 self.addEventListener('install', function(event) {
   logger.info('service worker installing...')
   event.waitUntil(

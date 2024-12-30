@@ -21,11 +21,6 @@ export const createBridge = <F extends (...args: any[]) => any>(
   on: (callback: Callback) => void,
   functions: Record<string, F>
 ) => {
-  if (!navigator.serviceWorker) {
-    return {
-      invoke() {}
-    }
-  }
   const callbacks = new Map<string, (result: unknown) => void>();
 
   on(async (data: TPayload) => {
@@ -55,10 +50,11 @@ export const createBridge = <F extends (...args: any[]) => any>(
   })
 
   return {
-    invoke (method: string, ...args: unknown[]) {
-      return new Promise(resolve => {
+    invoke <R>(method: string, ...args: unknown[]) {
+      return new Promise<R>(resolve => {
         const callback = `callback_${Math.random()}`;
-        callbacks.set(callback, resolve);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        callbacks.set(callback, resolve as any);
         send({
           type: 'invoke',
           callback,
