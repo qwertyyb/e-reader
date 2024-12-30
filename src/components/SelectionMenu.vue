@@ -3,7 +3,12 @@
     <div class="selection-menu-content-wrapper" @click.capture="contentTapHandler" ref="contentWrapper">
       <slot></slot>
     </div>
-    <ul class="selection-menu-list" @pointerdown.prevent :style="{top: rect.top + 'px', left: rect.left + 'px'}" v-show="visible">
+    <ul class="selection-menu-list"
+      @pointerdown.prevent
+      :style="{top: rect.top + 'px', left: rect.left + 'px'}"
+      v-show="visible"
+      :class="{ 'count-3': selectedMark }"
+    >
       <li class="selection-menu-item" @click="actionHandler($event, 'thought')">
         <div class="menu-item-wrapper">
           <span class="material-icons menu-icon">lightbulb</span>
@@ -92,10 +97,10 @@ const selectedMark = ref<IMarkEntity | null>(null)
 const contentWrapperRef = useTemplateRef('contentWrapper')
 const inputRef = useTemplateRef('input')
 
-const chapterMark = computed(() => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (contentWrapperRef.value!.querySelector(`.chapter[data-id="${props.chapterId}"]`) as any)?.chapterMark
-})
+// const chapterMark = computed(() => {
+//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//   return (contentWrapperRef.value!.querySelector(`.chapter[data-id="${props.chapterId}"]`) as any)?.chapterMark
+// })
 const visible = computed(() => {
   return !dialog.value && (mark.value?.text || selectedMark.value)
 })
@@ -133,7 +138,8 @@ const markRemovedHandler = (mark: IMarkEntity) => {
   refreshMark()
 }
 const refreshMark = () => {
-  chapterMark.value.refresh()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (contentWrapperRef.value!.querySelector(`.chapter[data-id="${props.chapterId}"]`) as any)?.chapterMark?.refresh()
 }
 const unregisterMutationObserver = () => {
   observer?.disconnect()
@@ -180,16 +186,17 @@ const underlineActionHandler = async () => {
   mark.value.type = MarkType.UNDERLINE
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id, ...rest } = toRaw(mark.value)
-  await marks.add({
+  const newId = await marks.add({
     ...toRaw(rest),
   })
-  chapterMark.value.refresh()
+  refreshMark()
   window.getSelection()?.empty()
+  selectedMark.value = await marks.get(newId as number)
   mark.value = { id: undefined, thought: '', text: '', type: 0 }
 }
 const removeUnderlineHandler = async () => {
   await marks.remove(selectedMark.value!.id)
-  chapterMark.value.refresh()
+  refreshMark()
   selectedMark.value = null
 }
 const updateSelectedMarkHandler = async (newData: Partial<IMarkEntity>) => {
@@ -199,7 +206,7 @@ const updateSelectedMarkHandler = async (newData: Partial<IMarkEntity>) => {
   }
   await marks.update(selectedMark.value!.id, newMark)
   selectedMark.value = newMark
-  chapterMark.value.refresh()
+  refreshMark()
 }
 const thoughtActionHandler = async () => {
   dialog.value = 'thoughtInput'
@@ -224,10 +231,14 @@ const thoughtActionHandler = async () => {
 }
 const saveThought = async () => {
   mark.value!.type = MarkType.THOUGHT
-  await marks.add(toRaw(mark.value!))
-  chapterMark.value.refresh()
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { id, ...rest } = toRaw(mark.value!)
+  console.log(rest)
+  const newId = await marks.add(rest)
+  refreshMark()
   dialog.value = null
-  mark.value!.text = ''
+  selectedMark.value = await marks.get(newId as number)
+  mark.value = { id: undefined, thought: '', text: '', type: 0 }
 }
 const contentTapHandler = async (e: MouseEvent) => {
   selectedMark.value = null
@@ -280,9 +291,15 @@ const actionHandler = async (event: Event, action: string, params?: Partial<Mark
   height: 100%;
 }
 
-.selection-menu .selection-menu-content-wrapper mark {
+.selection-menu .selection-menu-content-wrapper::v-deep(mark) {
   background: transparent;
   cursor: pointer;
+  &[data-type="2"] {
+    text-decoration-style: dashed;
+    text-decoration-line: underline;
+    text-decoration-color: rgb(253, 145, 163);
+    text-underline-offset: 0.3em;
+  }
 }
 .selection-menu .selection-menu-list {
   position: fixed;
@@ -295,9 +312,15 @@ const actionHandler = async (event: Event, action: string, params?: Partial<Mark
   justify-content: space-around;
   transform: translateX(-50%);
   padding: 0 6px;
+  width: 92px;
+  transition: width .3s;
+  &.count-3 {
+    width: 152px;
+  }
 }
 .selection-menu .selection-menu-list .selection-menu-item {
   position: relative;
+  cursor: default;
 }
 .selection-menu .selection-menu-list .selection-menu-item .menu-item-wrapper {
   display: flex;
@@ -329,6 +352,7 @@ const actionHandler = async (event: Event, action: string, params?: Partial<Mark
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: default;
 }
 .selection-menu .selection-menu-list .underline-submenu-item.mark-style .style-icon {
   color: inherit;

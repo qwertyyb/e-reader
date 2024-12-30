@@ -1,7 +1,10 @@
 <template>
   <div class="c-select">
     <div class="c-select-label" @click="optionsVisible=true">
-      <slot name="label" :value="modelValue">{{ label }}</slot>
+      <div class="c-select-label-value">
+        <slot name="label" :value="modelValue">{{ label }}</slot>
+      </div>
+      <span class="material-icons arrow-icon">chevron_right</span>
     </div>
     <c-dialog :visible="optionsVisible" @close="optionsVisible=false" class="c-select-dialog">
       <div class="c-option-list">
@@ -30,3 +33,13 @@ const onOptionSelected = (value: any) => {
 provide(Symbol.for('c-select:modelValue'), modelValue)
 provide(Symbol.for('c-select:onOptionSelected'), onOptionSelected)
 </script>
+
+<style lang="scss" scoped>
+.c-select-label {
+  display: flex;
+  align-items: center;
+  .arrow-icon {
+    margin-left: auto;
+  }
+}
+</style>

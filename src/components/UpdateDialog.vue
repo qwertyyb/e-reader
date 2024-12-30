@@ -79,7 +79,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
-.update-dialog .c-dialog-content {
+.update-dialog::v-deep(.c-dialog-content) {
   width: 100vw;
   box-sizing: border-box;
   padding: 20px 20px max(20px, env(safe-area-inset-bottom)) 20px;

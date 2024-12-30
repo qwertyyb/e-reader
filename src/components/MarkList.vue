@@ -93,7 +93,7 @@ const markListWithStyle = computed(() => {
 .mark-list .mark-quote-wrapper .mark-quote {
   line-height: 1.8;
 }
-.mark-list .mark-quote-wrapper .mark-quote mark {
+.mark-list .mark-quote-wrapper .mark-quote::v-deep(mark) {
   color: #666;
 }
 .mark-list .mark-item .mark-icon {

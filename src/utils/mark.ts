@@ -61,6 +61,7 @@ export const MarkStyles = {
   SOLID: 1,
   WAVE: 2,
   HIGHLIGHT: 3,
+  UNKNOWN: 0,
 }
 
 export const MarkStyleIcons = {
@@ -70,11 +71,11 @@ export const MarkStyleIcons = {
 }
 
 export const MarkColors = {
-  YELLOW: 'yellow',
-  BLUE: 'blue',
-  PURPLE: 'purple',
-  GREEN: 'green',
-  RED: 'red'
+  YELLOW: '#ffc379',
+  BLUE: '#67acfb',
+  PURPLE: '#ad97fa',
+  GREEN: '#6acc7d',
+  RED: '#fd8492'
 }
 
 export class MarkData {
@@ -85,7 +86,7 @@ export class MarkData {
   range: ChapterMarkRange
   type = MarkType.UNKNOWN
   thought = ''
-  style = MarkStyles.SOLID
+  style = MarkStyles.UNKNOWN
   color = MarkColors.BLUE
 
   constructor({
@@ -123,7 +124,7 @@ export class ChapterMark {
           dom.dataset.type = type.toString()
           if (style === MarkStyles.HIGHLIGHT) {
             dom.style.backgroundColor = color || ''
-          } else {
+          } else if (style === MarkStyles.SOLID || style === MarkStyles.WAVE) {
             dom.style.cssText = `text-decoration:underline;text-decoration-style:${style === MarkStyles.WAVE ? 'wavy' : 'solid'};text-decoration-color:${color};text-underline-offset: 0.3em`
           }
         }

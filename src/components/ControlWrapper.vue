@@ -86,7 +86,6 @@
               </template>
               <c-option :value="family.value" :data-font="family.value" v-for="family in fontFamilyList" :key="family.value">{{ family.label }}</c-option>
             </c-select>
-            <span class="material-icons">chevron_right</span>
           </div>
           <div class="background">
           </div>
