@@ -51,24 +51,19 @@ export class ChapterMarkRange {
   }
 }
 
-export const MarkType = {
-  UNKNOWN: 0,
-  UNDERLINE: 1,
-  THOUGHT: 2,
-}
-
 export const MarkStyles = {
+  NONE: 0,
   SOLID: 1,
   WAVE: 2,
   HIGHLIGHT: 3,
-  UNKNOWN: 0,
 }
 
 export const MarkStyleIcons = {
+  [MarkStyles.NONE]: 'format_underlined',
   [MarkStyles.SOLID]: 'format_underlined',
   [MarkStyles.WAVE]: 'format_underlined_squiggle',
-  [MarkStyles.HIGHLIGHT]: 'texture'
-}
+  [MarkStyles.HIGHLIGHT]: 'texture',
+} as Record<number, string>
 
 export const MarkColors = {
   YELLOW: '#ffc379',
@@ -84,10 +79,9 @@ export class MarkData {
   chapterId = 0
   text = ''
   range: ChapterMarkRange
-  type = MarkType.UNKNOWN
   thought = ''
-  style = MarkStyles.UNKNOWN
-  color = MarkColors.BLUE
+  style = MarkStyles.NONE
+  color = MarkColors.YELLOW
 
   constructor({
     range, bookId, chapterId
@@ -114,14 +108,13 @@ export class ChapterMark {
   render() {
     this.markInstance.unmark()
     this.markList.forEach(markData => {
-      const { range, id, type, color, style } = markData
-      const className = type === MarkType.UNDERLINE ? 'underline' : 'thought'
+      const { range, id, color, style, thought } = markData
+      const className = thought ? 'thought' : ''
       this.markInstance.markRanges([range], {
         className,
         each(markedDom) {
           const dom = markedDom as HTMLElement
           dom.dataset.id = id?.toString()
-          dom.dataset.type = type.toString()
           if (style === MarkStyles.HIGHLIGHT) {
             dom.style.backgroundColor = color || ''
           } else if (style === MarkStyles.SOLID || style === MarkStyles.WAVE) {

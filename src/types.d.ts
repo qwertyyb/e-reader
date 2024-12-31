@@ -41,17 +41,18 @@ interface IMarkEntity {
   id: number
   bookId: number
   chapterId: number
-  text: string
-  type: number
-  thought: string
-  style: number
-  color: string
   range: {
     start: number,
     length: number,
     markStart: { cursor: number, offset: number },
     markEnd: { cursor: number, offset: number }
   }
+
+  text: string
+  thought: string
+
+  style: number
+  color: string
 }
 
 interface ISettings {

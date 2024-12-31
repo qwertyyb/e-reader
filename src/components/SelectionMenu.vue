@@ -1,69 +1,50 @@
 <template>
   <div class="selection-menu">
-    <div class="selection-menu-content-wrapper" @click.capture="contentTapHandler" ref="contentWrapper">
+    <div class="selection-menu-content-wrapper" @pointerdown.capture="contentTapHandler" ref="contentWrapper">
       <slot></slot>
     </div>
-    <ul class="selection-menu-list"
+    <div class="selection-menu-list-wrapper"
       @pointerdown.prevent
-      :style="{top: rect.top + 'px', left: rect.left + 'px'}"
-      v-show="visible"
-      :class="{ 'count-3': selectedMark }"
-    >
-      <li class="selection-menu-item" @click="actionHandler($event, 'thought')">
-        <div class="menu-item-wrapper">
-          <span class="material-icons menu-icon">lightbulb</span>
-          <span class="menu-item-label">想法</span>
-        </div>
-      </li>
-      <li class="selection-menu-item"
-        v-if="selectedMark && selectedMark.type === MarkType.UNDERLINE">
-        <div class="menu-item-wrapper"
-          @click="actionHandler($event, 'removeUnderline')">
-          <span class="material-icons menu-icon">format_underlined</span>
-          <span class="menu-item-label">删除划线</span>
-        </div>
-        <ul class="underline-submenu-list">
-          <li class="underline-submenu-item mark-style"
-            v-for="style in MarkStyles"
-            @click="actionHandler($event, 'update', { style })"
-            :style="{color: selectedMark.style === style ? selectedMark.color : ''}"
-            :key="style">
-            <span class="material-symbols-outlined style-icon">
-            {{ MarkStyleIcons[style] }}
-            </span>
-          </li>
-          <li class="divider"></li>
-          <li class="underline-submenu-item"
-            v-for="color in MarkColors"
-            @click="actionHandler($event, 'update', { color })"
-            :key="color"
-            :style="{background: color}">
-            <span class="material-symbols-outlined" v-if="selectedMark.color===color">
-            check
-            </span>
-          </li>
-        </ul>
-      </li>
-      <li class="selection-menu-item"
-        v-else
-        @click="actionHandler($event, 'underline')">
-        <div class="menu-item-wrapper">
-          <span class="material-icons menu-icon">format_color_text</span>
-          <span class="menu-item-label">划线</span>
-        </div>
-      </li>
-      <li class="selection-menu-item"
-        v-if="selectedMark"
-        @click="actionHandler($event, 'viewMark')">
-        <div class="menu-item-wrapper">
-          <span class="material-symbols-outlined menu-icon">visibility</span>
-          <span class="menu-item-label">查看</span>
-        </div>
-      </li>
-    </ul>
+      :style="floatingStyles"
+      v-if="visible"
+      ref="floating">
+      <ul class="selection-menu-list"
+        :class="{ 'count-3': mark?.id }"
+      >
+        <li class="selection-menu-item" @click="actionHandler($event, 'thought')">
+          <div class="menu-item-wrapper">
+            <span class="material-icons menu-icon">lightbulb</span>
+            <span class="menu-item-label">想法</span>
+          </div>
+        </li>
+        <li class="selection-menu-item" v-if="mark?.id && mark?.style !== MarkStyles.NONE">
+          <mark-style-menu
+            :mark="mark"
+            :key="mark.id"
+            @update="updateMarkHandler"
+            @remove-underline="removeUnderlineHandler"
+          ></mark-style-menu>
+        </li>
+        <li class="selection-menu-item" v-else
+          @click="actionHandler($event, 'underline')">
+          <div class="menu-item-wrapper">
+            <span class="material-icons menu-icon">format_color_text</span>
+            <span class="menu-item-label">划线</span>
+          </div>
+        </li>
+        <li class="selection-menu-item"
+          v-if="mark?.id"
+          @click="actionHandler($event, 'viewMark')">
+          <div class="menu-item-wrapper">
+            <span class="material-symbols-outlined menu-icon">visibility</span>
+            <span class="menu-item-label">查看</span>
+          </div>
+        </li>
+      </ul>
+    </div>
     <c-dialog :visible="dialog==='thoughtInput'" class="thought-input-dialog" @close="dialog=null">
       <div class="thought-input-wrapper">
-        <textarea class="thought-input" placeholder="写下这一刻的想法" ref="input" v-model="mark.thought"></textarea>
+        <textarea class="thought-input" placeholder="写下这一刻的想法" ref="input" v-model="mark!.thought"></textarea>
         <button class="save-btn" @click="saveThought">保存</button>
       </div>
     </c-dialog>
@@ -80,29 +61,28 @@
 </template>
 
 <script setup lang="ts">
+import { useFloating, offset, shift } from '@floating-ui/vue';
 import CDialog from '@/components/common/CDialog.vue'
 import RangeMarksDialog from '@/components/RangeMarksDialog.vue';
+import MarkStyleMenu from '@/components/MarkStyleMenu.vue';
 import { marks } from '@/services/storage';
-import { ChapterMark, MarkColors, MarkData, MarkStyleIcons, MarkStyles, MarkType } from '@/utils/mark'
+import { ChapterMark, MarkColors, MarkData, MarkStyles } from '@/utils/mark'
 import { computed, onMounted, onUnmounted, ref, toRaw, useTemplateRef } from 'vue'
 
 const props = defineProps<{ bookId: number, chapterId: number }>()
 
-const rect = ref({ top: 0, left: 0 })
 const dialog = ref<string | null>(null)
 const marksRange = ref<{ start: number, length: number } | null>(null)
-const mark = ref<MarkData | { id: undefined, thought: string, text: string, type: number }>({ id: undefined, thought: '', text: '', type: 0 })
-const selectedMark = ref<IMarkEntity | null>(null)
+const mark = ref<MarkData | null>(null)
+const reference = ref<{ getBoundingClientRect: () => DOMRect }>()
+const floating = ref(null);
+const { floatingStyles, update: updateMenuRect } = useFloating(reference, floating, { placement: 'bottom', middleware: [offset(10), shift({ padding: 12 })] });
 
 const contentWrapperRef = useTemplateRef('contentWrapper')
 const inputRef = useTemplateRef('input')
 
-// const chapterMark = computed(() => {
-//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//   return (contentWrapperRef.value!.querySelector(`.chapter[data-id="${props.chapterId}"]`) as any)?.chapterMark
-// })
 const visible = computed(() => {
-  return !dialog.value && (mark.value?.text || selectedMark.value)
+  return !dialog.value && mark.value
 })
 
 onMounted(() => {
@@ -131,10 +111,8 @@ const registerMutationObserver = () => {
     subtree: true
   })
 }
-const markRemovedHandler = (mark: IMarkEntity) => {
-  if (mark.id === selectedMark.value?.id) {
-    selectedMark.value = null
-  }
+const markRemovedHandler = () => {
+  mark.value = null
   refreshMark()
 }
 const refreshMark = () => {
@@ -174,38 +152,53 @@ const selectionChangeHandler = () => {
   })
   mark.value = md
 
-  const { bottom, left, width } = range.getBoundingClientRect()
-  selectedMark.value = null
-  rect.value = {
-    top: bottom + 10,
-    left: left + width / 2,
-  }
+  const rect = range.getBoundingClientRect()
+
+  reference.value = {
+    getBoundingClientRect() {
+      return rect
+    },
+  };
 }
 const underlineActionHandler = async () => {
   if (!mark.value) return;
-  mark.value.type = MarkType.UNDERLINE
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  mark.value = {
+    ...toRaw(mark.value),
+    style: MarkStyles.SOLID,
+    color: MarkColors.YELLOW
+  }
   const { id, ...rest } = toRaw(mark.value)
-  const newId = await marks.add({
-    ...toRaw(rest),
-  })
+  if (id) {
+    await marks.update(id, rest)
+  } else {
+    const id = await marks.add(rest)
+    mark.value.id = id as number
+  }
   refreshMark()
   window.getSelection()?.empty()
-  selectedMark.value = await marks.get(newId as number)
-  mark.value = { id: undefined, thought: '', text: '', type: 0 }
+  updateMenuRect()
 }
 const removeUnderlineHandler = async () => {
-  await marks.remove(selectedMark.value!.id)
+  if (!mark.value?.id) return;
+  const { thought, id } = mark.value
+  if (thought) {
+    // 有想法的划线，只删除划线，保留想法内容
+    await marks.update(id, { style: MarkStyles.NONE, color: MarkColors.YELLOW })
+  } else {
+    // 没有想法的划线，直接删除
+    await marks.remove(id)
+  }
   refreshMark()
-  selectedMark.value = null
+  mark.value = null
 }
-const updateSelectedMarkHandler = async (newData: Partial<IMarkEntity>) => {
+const updateMarkHandler = async (newData: Partial<IMarkEntity>) => {
+  if (!mark.value?.id) return
   const newMark = {
-    ...toRaw(selectedMark.value!),
+    ...toRaw(mark.value),
     ...newData
   }
-  await marks.update(selectedMark.value!.id, newMark)
-  selectedMark.value = newMark
+  await marks.update(mark.value.id, newMark)
+  mark.value = newMark
   refreshMark()
 }
 const thoughtActionHandler = async () => {
@@ -230,65 +223,83 @@ const thoughtActionHandler = async () => {
   }, 300)
 }
 const saveThought = async () => {
-  mark.value!.type = MarkType.THOUGHT
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id, ...rest } = toRaw(mark.value!)
-  console.log(rest)
-  const newId = await marks.add(rest)
+  if (id) {
+    await marks.update(id, rest)
+  } else {
+    const id = await marks.add(rest)
+    mark.value!.id = id as number
+  }
   refreshMark()
   dialog.value = null
-  selectedMark.value = await marks.get(newId as number)
-  mark.value = { id: undefined, thought: '', text: '', type: 0 }
+  updateMenuRect()
 }
 const contentTapHandler = async (e: MouseEvent) => {
-  selectedMark.value = null
+  mark.value = null
   const markEl = ((e.target as HTMLElement).nodeName === 'MARK' ? e.target : (e.target as HTMLElement).closest('mark')) as HTMLElement
   if (!markEl) return
   e.preventDefault()
   e.stopImmediatePropagation()
   e.stopPropagation()
-  const mark = await marks.get(parseInt(markEl.dataset.id || '0', 10))
-  if (!mark) return
-  selectedMark.value = mark
-  const { bottom, left, width } = markEl.getBoundingClientRect()
-  rect.value = {
-    top: bottom + 10,
-    left: left + width / 2
+  const markValue = await marks.get(parseInt(markEl.dataset.id || '0', 10))
+  if (!markValue) return
+  mark.value = markValue
+  const rect = markEl.getBoundingClientRect()
+  console.log(markEl, rect)
+  reference.value = {
+    getBoundingClientRect() {
+      return rect
+    },
   }
-  if (mark.type === MarkType.THOUGHT) {
+  if (mark.value.thought) {
     dialog.value = 'marks'
-    marksRange.value = mark.range
+    marksRange.value = mark.value.range
   }
 }
-const actionHandler = async (event: Event, action: string, params?: Partial<MarkData>) => {
+const actionHandler = async (event: Event, action: string) => {
   event.preventDefault()
   // action: thought | underline
   if (action === 'underline') {
     underlineActionHandler()
   } else if (action === 'thought') {
     thoughtActionHandler()
-  } else if (action === 'removeUnderline') {
-    removeUnderlineHandler()
   } else if (action === 'viewMark') {
+    if (!mark.value?.id) return
     event.stopImmediatePropagation()
     event.stopPropagation()
     dialog.value = 'marks'
-    const mark = await marks.get(selectedMark.value!.id)
-    selectedMark.value = mark
-    marksRange.value = mark.range
-  } else if (action === 'update') {
-    updateSelectedMarkHandler(params!)
+    const markValue = await marks.get(mark.value.id)
+    mark.value = markValue
+    marksRange.value = markValue.range
   }
 }
 </script>
 
 <style lang="scss" scoped>
+@keyframes slide-down-scale {
+  from {
+    opacity: 0;
+    transform: translateY(-20%) scale(1);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 .selection-menu {
   height: 100%;
+  position: relative;
+  z-index: 1;
 }
 .selection-menu .selection-menu-content-wrapper {
   width: 100%;
   height: 100%;
+  position: relative;
+  z-index: 1;
+}
+.selection-menu-list-wrapper {
+  position: relative;
+  z-index: 2;
 }
 
 .selection-menu .selection-menu-content-wrapper::v-deep(mark) {
@@ -302,7 +313,7 @@ const actionHandler = async (event: Event, action: string, params?: Partial<Mark
   }
 }
 .selection-menu .selection-menu-list {
-  position: fixed;
+  position: relative;
   z-index: 2;
   background: #fff;
   border-radius: 10px;
@@ -310,17 +321,14 @@ const actionHandler = async (event: Event, action: string, params?: Partial<Mark
   display: flex;
   box-shadow: 0 0 14px gray;
   justify-content: space-around;
-  transform: translateX(-50%);
   padding: 0 6px;
-  width: 92px;
-  transition: width .3s;
-  &.count-3 {
-    width: 152px;
-  }
+  animation: slide-down-scale .2s ease;
+  pointer-events: none;
 }
 .selection-menu .selection-menu-list .selection-menu-item {
   position: relative;
   cursor: default;
+  pointer-events: auto;
 }
 .selection-menu .selection-menu-list .selection-menu-item .menu-item-wrapper {
   display: flex;
@@ -329,42 +337,10 @@ const actionHandler = async (event: Event, action: string, params?: Partial<Mark
   align-items: center;
   font-size: 10px;
   padding: 4px 10px;
+  height: 50px;
 }
 .selection-menu .selection-menu-list .selection-menu-item .menu-item-wrapper > .menu-icon {
   font-size: 18px;
-}
-.selection-menu .selection-menu-list .underline-submenu-list {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 50%;
-  display: flex;
-  background: #fff;
-  padding: 6px 12px;
-  box-shadow: 0 0 14px gray;
-  list-style: none;
-  border-radius: 99999px;
-  transform: translateX(-50%);
-}
-.selection-menu .selection-menu-list .underline-submenu-item {
-  width: 22px;
-  height: 22px;
-  border-radius: 9999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: default;
-}
-.selection-menu .selection-menu-list .underline-submenu-item.mark-style .style-icon {
-  color: inherit;
-}
-.selection-menu .selection-menu-list .underline-submenu-item + .underline-submenu-item {
-  margin-left: 8px;
-}
-.selection-menu .selection-menu-list .underline-submenu-list .divider {
-  width: 2px;
-  height: 24px;
-  background: #bbb;
-  margin: 0 12px;
 }
 .selection-menu .selection-menu-list .menu-item-label {
   margin-top: 3px;

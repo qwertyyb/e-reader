@@ -13,6 +13,7 @@
     "lint": "eslint . --fix"
   },
   "dependencies": {
+    "@floating-ui/vue": "^1.1.5",
     "jschardet": "^3.1.4",
     "mark.js": "^8.11.1",
     "pinia": "^2.2.6",

@@ -3,13 +3,13 @@
     <li class="mark-item"
       v-for="mark in markListWithStyle" :key="mark.id">
       <span class="material-symbols-outlined mark-icon"
-        v-if="mark.type === MarkType.UNDERLINE"
+        v-if="!mark.thought"
         :style="mark.iconStyle">{{ MarkStyleIcons[mark.style] }}</span>
       <span class="material-icons-outlined mark-icon"
-        v-else-if="mark.type === MarkType.THOUGHT"
+        v-else
         :style="mark.iconStyle">comment</span>
       <div class="mark-content">
-        <p class="mark-thought" v-if="mark.type === MarkType.THOUGHT">{{ mark.thought }}</p>
+        <p class="mark-thought" v-if="mark.thought">{{ mark.thought }}</p>
         <div class="mark-quote-wrapper">
           <div class="pre-line"></div>
           <p class="mark-quote"><mark :style="mark.textStyle">{{ mark.text }}</mark></p>
@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { MarkStyles, MarkType, MarkStyleIcons } from "@/utils/mark";
+import { MarkStyles, MarkStyleIcons } from "@/utils/mark";
 import { computed } from "vue";
 
 const props = defineProps<{
