@@ -29,6 +29,12 @@ const router = createRouter({
       props: true,
       component: ReadView
     },
+    {
+      path: '/book/:id/notes',
+      name: 'notes',
+      props: true,
+      component: () => import('@/views/NotesView.vue')
+    }
   ],
 })
 

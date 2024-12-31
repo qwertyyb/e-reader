@@ -1,5 +1,6 @@
 import Mark from 'mark.js'
 import { marks } from "@/services/storage"
+import { dataService } from '@/services/local'
 
 const getPreviousOffset = (node: HTMLElement | ChildNode | ParentNode | null, stopEl: HTMLElement): number => {
   if (!node) return 0
@@ -144,5 +145,53 @@ export class ChapterMark {
   async unmark(id: number) {
     await marks.remove(id)
     await this.refresh()
+  }
+}
+
+export const getBookMarkList = (markList: IMarkEntity[], chapterList: { cursor: number, title: string }[]) => {
+  const chapterLabels = chapterList!.reduce<Record<string, string>>((acc, chapter) => {
+    return {
+      ...acc,
+      [chapter.cursor]: chapter.title
+    }
+  }, {})
+  return Object.values(
+    markList.reduce<Record<string, { chapterId: number, markList: IMarkEntity[], title: string }>>(
+      (acc, mark) => {
+        if (!acc[mark.chapterId]) {
+          acc[mark.chapterId] = {
+            chapterId: mark.chapterId,
+            title: chapterLabels[mark.chapterId] || '未知章节',
+            markList: []
+          }
+        }
+        acc[mark.chapterId].markList.push(mark)
+        return acc
+      },
+      {}
+    )
+  ).sort((a, b) => a.chapterId - b.chapterId)
+}
+
+export const exportBookMarkList = (title: string, markList: ReturnType<typeof getBookMarkList>, options: { format: 'markdown' | 'html' }) => {
+  if (options.format === 'markdown') {
+    return `# ${title}\n\n` + markList.map(chapter => {
+      return `## ${chapter.title}\n\n${chapter.markList.map(mark => {
+        return `- ${mark.thought ? `${mark.thought}\n\n    ` : ''}> ${mark.text}\n\n`
+      }).join('\n\n')}`
+    }).join('\n\n')
+  }
+  return `<h1>${title}</h1>` + markList.map(chapter => {
+    return `<h2>${chapter.title}</h2>${chapter.markList.map(mark => {
+      return `<blockquote><p>${mark.text}</p>${mark.thought ? `<p>${mark.thought}</p>` : ''}</blockquote>`
+    }).join('')}`
+  }).join('')
+}
+
+export const exportBookMarkListByBookId = async (bookId: number) => {
+  const [book, chapterList, markList] = await Promise.all([dataService.getBook(bookId), dataService.getCatalog(bookId), marks.getListByBook(bookId)])
+  return {
+    markdown: exportBookMarkList(book.title, getBookMarkList(markList, chapterList), { format: 'markdown' }),
+    html: exportBookMarkList(book.title, getBookMarkList(markList, chapterList), { format: 'html' })
   }
 }

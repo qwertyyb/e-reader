@@ -2,6 +2,7 @@
 import { useReadingStore } from '@/stores/reading'
 import { RouterView } from 'vue-router'
 import UpdateDialog from '@/components/UpdateDialog.vue'
+import router from '@/router'
 
 const COVER_SIZE = 100
 // 在动画过程中，添加到 read-view 的类名
@@ -112,7 +113,7 @@ function onBeforeLeave(el: Element) {
 async function onLeave(el: Element, done: () => void) {
   // 调用回调函数 done 表示过渡结束
   // 如果与 CSS 结合使用，则这个回调是可选参数
-  if (el.matches(BOOK_READ_SELECTOR)) {
+  if (el.matches(BOOK_READ_SELECTOR) && router.currentRoute.value.name === 'local') {
     // 从阅读页面退出，运行关书动画
     await runBookAnimation(el.querySelector<HTMLElement>(BOOK_ANIM_SELECTOR)!, {
       direction: 'reverse'

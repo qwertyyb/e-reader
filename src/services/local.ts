@@ -63,14 +63,15 @@ export const dataService = {
       id, title, cover
     }
   },
-  getCatalog (book: IBookEntity) {
-    const catalog = (book.catalog || []).map(item => {
+  async getCatalog (id: number) {
+    const book = await books.get(id)
+    const catalog = book.catalog.map(item => {
       return {
         ...item,
         id: item.cursor
       }
     })
-    return { catalog }
+    return catalog
   },
   async getChapter(chapter: { id: number, cursor: number }, chapterIndex: number, book: IBookEntity) {
     const { content } = await books.get(book.id)

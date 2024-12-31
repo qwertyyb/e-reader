@@ -25,3 +25,12 @@ a,
     background-color: hsla(160, 100%, 37%, 0.2);
   }
 }
+
+mark {
+  background: transparent;
+  cursor: pointer;
+  text-decoration-style: dashed;
+  text-decoration-line: underline;
+  text-decoration-color: rgb(253, 145, 163);
+  text-underline-offset: 0.3em;
+}

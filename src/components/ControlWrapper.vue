@@ -18,9 +18,9 @@
       <slot name="catalog"></slot>
     </catalog-dialog>
 
-    <menu-dialog :visible="dialog==='bookMenu'" @close="dialog=null"
+    <book-menu-dialog :visible="dialog==='bookMenu'" :book-id="bookId" @close="dialog=null"
       @action="dialog=$event">
-    </menu-dialog>
+    </book-menu-dialog>
 
     <!-- <catalog-setting-dialog :visible="dialog==='catalogSetting'" @close="dialog=null">
     </catalog-setting-dialog> -->
@@ -130,7 +130,7 @@ import CProgress from '@/components/common/CProgress.vue';
 import CDialog from '@/components/common/CDialog.vue';
 import MarksViewer from '@/components/MarksViewer.vue';
 import SelectionMenu from '@/components/SelectionMenu.vue';
-import MenuDialog from '@/components/MenuDialog.vue';
+import BookMenuDialog from '@/components/BookMenuDialog.vue';
 import { env } from '@/utils/env';
 import router from '@/router';
 import { AutoPlay, DarkMode, ReadSpeak } from '@/actions';

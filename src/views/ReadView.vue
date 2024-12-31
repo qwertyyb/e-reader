@@ -268,11 +268,11 @@ const vScrollHandler = () => {
 }
 
 const fetchBook = async () => {
-  const bk = await dataService.getBookList().then(bookList => bookList.find(book => `${book.id}` === `${props.id}`))
+  const bk = await dataService.getBook(Number(props.id))
   if (!bk) {
     return showToast(`获取book失败: ${props.id}`)
   }
-  const { catalog } = await dataService.getCatalog(bk)
+  const catalog = await dataService.getCatalog(Number(props.id))
   if (!catalog) {
     return showToast(`获取目录失败: ${props.id}`)
   }

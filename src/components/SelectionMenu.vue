@@ -302,16 +302,6 @@ const actionHandler = async (event: Event, action: string) => {
   z-index: 2;
 }
 
-.selection-menu .selection-menu-content-wrapper::v-deep(mark) {
-  background: transparent;
-  cursor: pointer;
-  &[data-type="2"] {
-    text-decoration-style: dashed;
-    text-decoration-line: underline;
-    text-decoration-color: rgb(253, 145, 163);
-    text-underline-offset: 0.3em;
-  }
-}
 .selection-menu .selection-menu-list {
   position: relative;
   z-index: 2;

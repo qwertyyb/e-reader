@@ -65,7 +65,7 @@ const markListWithStyle = computed(() => {
 .mark-list .mark-item .remove-action {
   display: flex;
   align-items: center;
-  color: red;
+  color: rgb(153, 153, 153);
   cursor: pointer;
   font-size: 12px;
 }
@@ -85,9 +85,9 @@ const markListWithStyle = computed(() => {
   font-size: 16px;
 }
 .mark-list .mark-quote-wrapper .pre-line {
-  width: 4px;
-  height: auto;
-  background: rgb(195, 195, 195);
+  width: 3px;
+  margin-top: 2px;
+  background: rgb(224, 224, 224);
   margin-right: 8px;
 }
 .mark-list .mark-quote-wrapper .mark-quote {
@@ -97,6 +97,15 @@ const markListWithStyle = computed(() => {
   color: #666;
 }
 .mark-list .mark-item .mark-icon {
-  margin-right: 6px;
+  margin-right: 12px;
+  font-size: 14px;
+  width: 20px;
+  height: 20px;
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f1f1f1;
+  border-radius: 9999px;
 }
 </style>

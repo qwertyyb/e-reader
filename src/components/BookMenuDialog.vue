@@ -28,8 +28,10 @@
 
 <script setup lang="ts">
 import CDialog from '@/components/common/CDialog.vue';
+import { showToast } from '@/utils';
+import { exportBookMarkListByBookId } from '@/utils/mark';
 
-defineProps<{ visible: boolean }>()
+const props = defineProps<{ visible: boolean, bookId: number }>()
 
 const emits = defineEmits<{
   action: ['marksViewer' | 'catalogSetting' | 'exportMarks'],
@@ -38,13 +40,18 @@ const emits = defineEmits<{
 
 const viewMarks = () => {
   emits('action', 'marksViewer')
-  console.log('查看笔记')
 }
-const exportMarks = () => {
-  emits('action', 'exportMarks')
+const exportMarks = async () => {
+  const { markdown, html } = await exportBookMarkListByBookId(props.bookId)
+  navigator.clipboard.write([
+    new ClipboardItem({
+      'text/plain': new Blob([markdown], { type: 'text/plain' }),
+      'text/html': new Blob([html], { type: 'text/html' }),
+    })
+  ])
+  showToast('已复制到剪贴板')
 }
 const catalogSetting = () => {
-  console.log('设置目录')
   emits('action', 'catalogSetting')
 }
 </script>
