@@ -40,7 +40,7 @@ export const bridge = createBridge(
     navigator.serviceWorker.ready.then(reg => reg.active?.postMessage(payload))
   },
   (callback) => {
-    navigator.serviceWorker.addEventListener('message', event => callback(event.data))
+    navigator.serviceWorker?.addEventListener('message', event => callback(event.data))
   },
   {
     toast: (msg: string, duration?: number) => showToast(msg, duration),

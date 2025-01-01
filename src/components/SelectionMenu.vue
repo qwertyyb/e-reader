@@ -1,6 +1,6 @@
 <template>
   <div class="selection-menu">
-    <div class="selection-menu-content-wrapper" @pointerdown.capture="contentTapHandler" ref="contentWrapper">
+    <div class="selection-menu-content-wrapper" @pointerdown.capture="pointerdownHandler" @pointerup.capture="contentTapHandler" ref="contentWrapper">
       <slot></slot>
     </div>
     <div class="selection-menu-list-wrapper"
@@ -180,13 +180,13 @@ const underlineActionHandler = async () => {
 }
 const removeUnderlineHandler = async () => {
   if (!mark.value?.id) return;
-  const { thought, id } = mark.value
+  const { thought, id, ...rest } = toRaw(mark.value)
   if (thought) {
     // 有想法的划线，只删除划线，保留想法内容
-    await marks.update(id, { style: MarkStyles.NONE, color: MarkColors.YELLOW })
+    await marks.update(id!, { thought, ...rest, style: MarkStyles.NONE, color: MarkColors.YELLOW })
   } else {
     // 没有想法的划线，直接删除
-    await marks.remove(id)
+    await marks.remove(id!)
   }
   refreshMark()
   mark.value = null
@@ -227,15 +227,24 @@ const saveThought = async () => {
   if (id) {
     await marks.update(id, rest)
   } else {
-    const id = await marks.add(rest)
-    mark.value!.id = id as number
+    await marks.add(rest)
   }
   refreshMark()
+  mark.value = null
   dialog.value = null
   updateMenuRect()
 }
-const contentTapHandler = async (e: MouseEvent) => {
+
+const pointerdownHandler = (e: PointerEvent) => {
   mark.value = null
+  const markEl = ((e.target as HTMLElement).nodeName === 'MARK' ? e.target : (e.target as HTMLElement).closest('mark')) as HTMLElement
+  if (!markEl) return
+  e.preventDefault()
+  e.stopImmediatePropagation()
+  e.stopPropagation()
+}
+
+const contentTapHandler = async (e: MouseEvent) => {
   const markEl = ((e.target as HTMLElement).nodeName === 'MARK' ? e.target : (e.target as HTMLElement).closest('mark')) as HTMLElement
   if (!markEl) return
   e.preventDefault()
