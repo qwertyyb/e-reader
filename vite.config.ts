@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import { relative } from 'node:path'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -13,6 +14,9 @@ export default defineConfig({
     vueJsx(),
     vueDevTools(),
   ],
+  define: {
+    __APP_VERSION__: JSON.stringify(new Date().toLocaleString('zh-CN').replace(/(\/|\s|:)/g, ''))
+  },
   server: {
     port: 8030
   },
@@ -22,7 +26,17 @@ export default defineConfig({
     },
   },
   build: {
-    manifest: true
+    manifest: true,
+    rollupOptions: {
+      output: {
+        chunkFileNames(chunkInfo) {
+          if (chunkInfo.facadeModuleId && relative(fileURLToPath(import.meta.url), chunkInfo.facadeModuleId) === '../src/version.ts') {
+            return 'version.js'
+          }
+          return 'assets/[name]-[hash].js'
+        },
+      }
+    }
   },
   worker: {
     rollupOptions: {

@@ -17,9 +17,8 @@ defineProps<{ visible: boolean }>()
 const version = ref<string>('')
 
 const getVersion = async () => {
-  const r = await fetch('./version.json')
-  const json = await r.json()
-  version.value = json.version
+  const r = await import('@/version.ts')
+  version.value = r.version
 }
 
 getVersion()

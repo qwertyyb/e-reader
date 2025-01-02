@@ -33,11 +33,12 @@ const newVersionInfo = ref({
 
 const checkUpdates = async ({ slient = false } = {}) => {
   if (!slient) showToast('正在检查更新')
-  const res = await bridge.invoke<{ version: string, changelog: string, hasUpdates: boolean }>('checkUpdates')
-  if (res?.hasUpdates) {
+  await getVersion()
+  const { version: newVer } = await import(/* @vite-ignore */`${new URL('./version.js?remote=true', location.href)}`)
+  if (newVer !== version.value) {
     newVersionInfo.value = {
-      version: res.version,
-      changelog: res.changelog
+      version: newVer,
+      changelog: ''
     }
     visible.value = true
   } else {
@@ -51,12 +52,9 @@ const update = async () => {
 }
 
 const getVersion = async () => {
-  const r = await fetch('./version.json')
-  const json = await r.json()
-  version.value = json.version
+  const { version: curVer } = await import('@/version.ts')
+  version.value = curVer
 }
-
-getVersion()
 
 checkUpdates({ slient: true })
 

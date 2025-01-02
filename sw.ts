@@ -1,11 +1,12 @@
 /// <reference lib="WebWorker" />
 
 import { createBridge } from "./src/utils/bridge";
+import { version } from "./src/version";
 
 // NOTE: The default context is just Worker and we need to be the more specific ServiceWorker
 declare let self: ServiceWorkerGlobalScope
 
-const CACHE_NAME = 'v4';
+const CACHE_NAME = version;
 
 console.log('self', self)
 
@@ -15,17 +16,33 @@ const logger = {
   error: (...args: Parameters<typeof console.error>) => console.error('[sw]', ...args),
 }
 
+const clearCache = async () => {
+  const cacheNames = await caches.keys()
+  await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
+}
 
-const resources: string[] = [
-  self.origin + '/e-reader/version.json'
-]
+const fetchResources = async () => {
+  const resources: string[] = [
+    '',
+    'index.html',
+    'favicon.ico',
+    'manifest.json',
+    'version.json',
+  ]
+  const url = new URL('.vite/manifest.json?t=' + Date.now(), location.origin + location.pathname)
+  const response = await fetch(url)
+  const json = await response.json()
+  return [
+    ...resources,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...new Set(Object.values(json).map((item: any) => {
+      return [item.file, ...(item.css || []), ...(item.assets || [])]
+    }).flat())
+  ]
+}
 
 const functions = {
-  async deleteAllCache() {
-    const cacheNames = await caches.keys()
-    await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
-    (await caches.open(CACHE_NAME)).addAll(resources)
-  },
+  deleteAllCache: clearCache,
   async checkCachedUrls(urls: string[]) {
     const results = await Promise.all(urls.map(async url => {
       const response = await caches.match(url)
@@ -36,25 +53,12 @@ const functions = {
       [url]: results[index]
     }), {})
   },
-  async checkUpdates() {
-    const updateUrl = self.origin + '/e-reader/version.json'
-    logger.info('checkUpdates', updateUrl)
-    const cachedResponse = await caches.match(updateUrl)
-    const localVersion = (await cachedResponse?.json())?.version
-    const response = await fetch(updateUrl + '?t=' + Date.now())
-    const version = (await response.json()).version
-    logger.info('checkUpdates', version, localVersion)
-    if (version && version !== localVersion) {
-      return {
-        hasUpdates: true,
-        version,
-        changelog: ''
-      }
-    }
-    return {
-      hasUpdates: false,
-      version: localVersion,
-    }
+  async update() {
+    await clearCache()
+    const assets = await fetchResources()
+    const cache = await caches.open(CACHE_NAME)
+    await cache.addAll(assets)
+    return assets
   }
 }
 
@@ -74,7 +78,10 @@ self.addEventListener('install', function(event) {
   logger.info('service worker installing...')
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
+      .then(async cache => {
+        await clearCache()
+        const resources = await fetchResources()
+        logger.info('cache resources', resources)
         return cache.addAll(resources);
       })
       .then(() => {
@@ -106,6 +113,8 @@ const resourceNeedCache = (request: Request) => {
   if (!url.protocol.startsWith('http')) return false
   const isApi = url.host === 'proxy.qwertyyb.cn'
   if (isApi) return false;
+  const isRemote = url.searchParams.get('remote') === 'true'
+  if (isRemote) return false;
   return true;
 }
 
@@ -114,22 +123,17 @@ self.addEventListener('fetch', function(event) {
   if (!event.clientId || !resourceNeedCache(event.request)) return;
   logger.info('fetch', event.request.url)
   event.respondWith(
-    self.clients.get(event.clientId)
-      .then(client => {
-        const disableCache = client?.url.includes('cache=0') ?? true
-        if (disableCache) return fetch(event.request);
-        return caches.match(event.request).then(function(cachedResp) {
-          if (cachedResp) {
-            logger.info('cache hit', event.request.url)
-            return cachedResp
-          }
-          return fetch(event.request).then(function(response) {
-            return caches.open(CACHE_NAME).then(function(cache) {
-              cache.put(event.request, response.clone());
-              return response;
-            });
-          });
-        })
-      })
+    caches.match(event.request, { cacheName: CACHE_NAME }).then(function(cachedResp) {
+      if (cachedResp) {
+        logger.info('cache hit', event.request.url)
+        return cachedResp
+      }
+      return fetch(event.request).then(function(response) {
+        return caches.open(CACHE_NAME).then(function(cache) {
+          cache.put(event.request, response.clone());
+          return response;
+        });
+      });
+    })
   );
 });
