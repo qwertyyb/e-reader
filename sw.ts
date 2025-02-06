@@ -1,12 +1,11 @@
 /// <reference lib="WebWorker" />
 
 import { createBridge } from "./src/utils/bridge";
-import { version } from "./src/version";
 
 // NOTE: The default context is just Worker and we need to be the more specific ServiceWorker
 declare let self: ServiceWorkerGlobalScope
 
-const CACHE_NAME = version;
+const CACHE_NAME = 'V5';
 
 console.log('self', self)
 
@@ -25,6 +24,7 @@ const fetchResources = async () => {
   const resources: string[] = [
     '',
     'index.html',
+    'index.html?source=pwa',
     'favicon.ico',
     'manifest.json',
     'version.json',
