@@ -306,6 +306,8 @@ const init = async () => {
   await startRead()
   lastReadBook.set(Number(props.id))
   books.updateLastReadTime(Number(props.id))
+  await nextTick()
+  catalogRef.value?.scrollToIndex(Math.max(0, curChapterIndex.value - 2))
 }
 
 init()
