@@ -47,12 +47,6 @@ window.remoteBooks = [
     downloadUrl: bookUrl('神墓')
   },
   {
-    id: 8,
-    cover: coverUrl('xm'),
-    title: '星门',
-    downloadUrl: bookUrl('星门')
-  },
-  {
     id: 9,
     cover: coverUrl('nocover'),
     title: '佛本是道',
@@ -81,5 +75,11 @@ window.remoteBooks = [
     cover: coverUrl('wxkb'),
     title: '无限恐怖',
     downloadUrl: bookUrl('无限恐怖')
+  },
+  {
+    id: 14,
+    cover: coverUrl('asjct'),
+    title: '傲世九重天',
+    downloadUrl: bookUrl('傲世九重天')
   }
 ]
