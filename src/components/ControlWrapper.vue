@@ -2,11 +2,11 @@
   <div class="control-wrapper">
     <transition name="slide-down">
       <div class="navigator" v-if="panelVisible">
-        <div class="material-icons back-to-index"
-          @click="$router.replace('/tab/local')">arrow_back</div>
+        <div class="material-symbols-outlined back-to-index"
+          @click="$router.replace('/tab/local')">arrow_back_ios</div>
 
         <div class="navigator-menu">
-          <span class="material-icons-outlined" @click="dialog='bookMenu'">
+          <span class="material-symbols-outlined" @click="dialog='bookMenu'">
             more_vert
           </span>
         </div>
@@ -93,24 +93,24 @@
         <div class="control-list">
           <div class="control-item" data-control="catalog"
             @click="actionHandler('catalog')">
-            <div class="control-icon material-icons">menu</div>
+            <div class="control-ico material-symbols-outlined">menu</div>
             <div class="control-label"></div>
           </div>
           <div class="control-item" data-control="autoPlay"
             @click="actionHandler('autoPlay')">
-            <div class="control-icon material-icons">{{ controlState.autoPlay ? 'pause' : 'play_arrow' }}</div>
+            <div class="control-icon material-symbols-outlined">{{ controlState.autoPlay ? 'pause' : 'play_arrow' }}</div>
             <div class="control-label"></div>
           </div>
           <div class="control-item" data-control="readSpeak" @click="actionHandler('readSpeak')">
-            <div class="control-icon material-icons">{{ controlState.readSpeak ? 'pause_circle' : 'play_circle' }}</div>
+            <div class="control-icon material-symbols-outlined">{{ controlState.readSpeak ? 'pause_circle' : 'play_circle' }}</div>
             <div class="control-label"></div>
           </div>
           <div class="control-item" data-control="font" @click="visiblePanel='font'">
-            <span class="material-icons">text_format</span>
+            <span class="material-symbols-outlined">text_format</span>
             <div class="control-label"></div>
           </div>
           <div class="control-item" data-control="darkMode" @click="actionHandler('darkMode')">
-            <span class="material-icons">{{ controlState.darkMode ? 'light_mode' : 'dark_mode' }}</span>
+            <span class="material-symbols-outlined">{{ controlState.darkMode ? 'light_mode' : 'dark_mode' }}</span>
             <div class="control-label"></div>
           </div>
         </div>
@@ -383,7 +383,7 @@ html.dark-mode .control-wrapper .navigator::before {
 .control-item {
   cursor: pointer;
 }
-.control .material-icons {
+.control .material-symbols-outlined {
   font-size: 32px;
 }
 .control .control-panel {

@@ -5,7 +5,7 @@
       <span class="material-symbols-outlined mark-icon"
         v-if="!mark.thought"
         :style="mark.iconStyle">{{ MarkStyleIcons[mark.style] }}</span>
-      <span class="material-icons-outlined mark-icon"
+      <span class="material-symbols-outlined mark-icon"
         v-else
         :style="mark.iconStyle">comment</span>
       <div class="mark-content">

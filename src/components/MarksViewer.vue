@@ -35,6 +35,7 @@ const removeMark = async (mark: IMarkEntity) => {
   overflow: auto;
   display: flex;
   flex-direction: column;
+  min-height: 60vh;
 }
 .marks-viewer .marks-viewer-title {
   font-size: 18px;

@@ -9,7 +9,7 @@
       <img class="book-cover-img" :src="book.cover" :alt="book.title" />
     </div>
     <div class="book-title">
-      <span class="material-icons-outlined remote-icon" v-if="book.status !== 'downloaded'">cloud</span>
+      <span class="material-symbols-outlined remote-icon" v-if="book.status !== 'downloaded'">cloud</span>
       <div class="download-progress-percent" v-else-if="book.downloading">
         ({{ book.downloading.progress }})
       </div>
@@ -17,7 +17,7 @@
     </div>
     <div class="action-mask"
       v-if="mode==='select' && book.status === 'downloaded'">
-      <span class="material-icons-outlined remove-icon" @click="$emit('remove')">delete</span>
+      <span class="material-symbols-outlined remove-icon" @click="$emit('remove')">delete</span>
     </div>
   </div>
 </template>

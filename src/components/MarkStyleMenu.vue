@@ -3,7 +3,7 @@
     <div class="menu-item-wrapper"
       ref="reference"
       @click="emits('removeUnderline')">
-      <span class="material-icons menu-icon">format_underlined</span>
+      <span class="material-symbols-outlined menu-icon">format_underlined</span>
       <span class="menu-item-label">删除划线</span>
     </div>
     <div class="underline-submenu" ref="floating" :style="floatingStyles">

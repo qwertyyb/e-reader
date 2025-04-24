@@ -4,7 +4,7 @@
       <div class="c-select-label-value">
         <slot name="label" :value="modelValue">{{ label }}</slot>
       </div>
-      <span class="material-icons arrow-icon">chevron_right</span>
+      <span class="material-symbols-outlined arrow-icon">chevron_right</span>
     </div>
     <c-dialog :visible="optionsVisible" @close="optionsVisible=false" class="c-select-dialog">
       <div class="c-option-list">

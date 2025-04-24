@@ -6,11 +6,11 @@
     </div>
     <ul class="tab-nav-list">
       <li class="tab-nav-item">
-        <span class="material-icons">menu_book</span>
+        <span class="material-symbols-outlined">newsstand</span>
         本地
       </li>
       <li class="tab-nav-item">
-        <span class="material-icons">cloud</span>
+        <span class="material-symbols-outlined">storefront</span>
         在线
       </li>
     </ul>

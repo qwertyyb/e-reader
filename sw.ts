@@ -110,6 +110,7 @@ self.addEventListener('activate', event => {
 
 const resourceNeedCache = (request: Request) => {
   const url = new URL(request.url);
+  if (url.hostname === 'localhost') return false;
   const isApi = url.host === 'proxy.qwertyyb.cn'
   if (isApi) return false;
   const isRemote = url.searchParams.get('remote') === 'true'
