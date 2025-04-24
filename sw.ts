@@ -110,7 +110,6 @@ self.addEventListener('activate', event => {
 
 const resourceNeedCache = (request: Request) => {
   const url = new URL(request.url);
-  if (!url.protocol.startsWith('http')) return false
   const isApi = url.host === 'proxy.qwertyyb.cn'
   if (isApi) return false;
   const isRemote = url.searchParams.get('remote') === 'true'
@@ -121,7 +120,6 @@ const resourceNeedCache = (request: Request) => {
 
 self.addEventListener('fetch', function(event) {
   if (!event.clientId || !resourceNeedCache(event.request)) return;
-  logger.info('fetch', event.request.url)
   event.respondWith(
     caches.match(event.request, { cacheName: CACHE_NAME }).then(function(cachedResp) {
       if (cachedResp) {
