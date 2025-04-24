@@ -119,7 +119,7 @@ const resourceNeedCache = (request: Request) => {
 
 
 self.addEventListener('fetch', function(event) {
-  if (!event.clientId || !resourceNeedCache(event.request)) return;
+  if (!resourceNeedCache(event.request)) return;
   event.respondWith(
     caches.match(event.request, { cacheName: CACHE_NAME }).then(function(cachedResp) {
       if (cachedResp) {
