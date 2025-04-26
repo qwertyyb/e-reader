@@ -13,7 +13,7 @@
       >
         <li class="selection-menu-item" @click="actionHandler($event, 'thought')">
           <div class="menu-item-wrapper">
-            <span class="material-icons menu-icon">lightbulb</span>
+            <span class="material-symbols-outlined menu-icon">lightbulb</span>
             <span class="menu-item-label">想法</span>
           </div>
         </li>
@@ -28,7 +28,7 @@
         <li class="selection-menu-item" v-else
           @click="actionHandler($event, 'underline')">
           <div class="menu-item-wrapper">
-            <span class="material-icons menu-icon">format_color_text</span>
+            <span class="material-symbols-outlined menu-icon">format_color_text</span>
             <span class="menu-item-label">划线</span>
           </div>
         </li>

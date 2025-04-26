@@ -1,5 +1,6 @@
 import { register, unregister } from './register-sw'
 import './assets/main.css'
+import 'material-symbols/outlined.css'
 
 import VirtualList from 'vue-virtual-list-v3'
 import { createApp } from 'vue'

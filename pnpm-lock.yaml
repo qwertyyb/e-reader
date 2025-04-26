@@ -20,6 +20,9 @@ importers:
       mark.js:
         specifier: ^8.11.1
         version: 8.11.1
+      material-symbols:
+        specifier: ^0.31.2
+        version: 0.31.2
       pinia:
         specifier: ^2.2.6
         version: 2.3.0(typescript@5.6.3)(vue@3.5.13(typescript@5.6.3))
@@ -1276,8 +1279,8 @@ packages:
   mark.js@8.11.1:
     resolution: {integrity: sha512-1I+1qpDt4idfgLQG+BNWmrqku+7/2bi5nLf4YwF8y8zXvmfiTBY3PV3ZibfrjBueCByROpuBjLLFCajqkgYoLQ==}
 
-  memoize-one@6.0.0:
-    resolution: {integrity: sha512-rkpe71W0N0c0Xz6QD0eJETuWAJGnJ9afsl1srmwPrI+yBCkge5EycXXbYRyvL29zZVUWQCY7InPRCv3GDXuZNw==}
+  material-symbols@0.31.2:
+    resolution: {integrity: sha512-WANME7n9kqLNG1mcdcTuvbxkMuBQ64ktK/18d44/p/wZF0XkYXjXWs62cp4qnYGjtWABvUM3ZTB096MJsLbNSw==}
 
   memorystream@0.3.1:
     resolution: {integrity: sha512-S3UwM3yj5mtUSEfP41UZmt/0SCoVYUcU1rkXv+BQ5Ig8ndL4sPoJNBUJERafdPb5jjHJGuMgytgKvKIf58XNBw==}
@@ -3090,6 +3093,8 @@ snapshots:
   mark.js@8.11.1: {}
 
   memoize-one@6.0.0: {}
+
+  material-symbols@0.31.2: {}
 
   memorystream@0.3.1: {}
 
