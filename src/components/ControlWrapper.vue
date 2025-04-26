@@ -352,6 +352,7 @@ onUnmounted(() => { if (hammerInstance) { hammerInstance.destroy() } })
   z-index: 10;
   padding-top: env(safe-area-inset-top);
   box-sizing: content-box;
+  box-shadow: 0 0 10px light-dark(var(--light-shadow-color), var(--dark-shadow-color));
 }
 .control-wrapper .navigator::before {
   content: " ";
@@ -395,6 +396,7 @@ html.dark-mode .control-wrapper .navigator::before {
   text-align: center;
   padding-bottom: env(safe-area-inset-bottom);
   box-sizing: content-box;
+  box-shadow: 0 0 10px light-dark(var(--light-shadow-color), var(--dark-shadow-color));
 }
 .control-item {
   cursor: pointer;

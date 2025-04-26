@@ -447,7 +447,7 @@ init()
 }
 .catalog-item {
   padding: 0 10px;
-  border-bottom: 1px solid #BDBDBD;
+  border-bottom: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
   cursor: pointer;
   width: 100%;
   box-sizing: border-box;
@@ -464,11 +464,8 @@ init()
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.catalog-item.active {
-  color: #fff;
-  background: #673AB7;
-}
 .catalog-item.active .catalog-label {
-  color: #fff;
+  color: rgb(29, 132, 146);
+  font-weight: bold;
 }
 </style>

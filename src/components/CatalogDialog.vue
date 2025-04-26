@@ -54,10 +54,10 @@ watch(() => props.visible, () => {
   right: 0;
   top: 0;
   bottom: 0;
-  border-right: 1px solid #000;
+  border-right: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
   width: 80vw;
   max-width: 330px;
-  background-color: #fff;
+  background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
   z-index: 10;
   height: 100vh;
   display: flex;
