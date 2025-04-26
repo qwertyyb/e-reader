@@ -22,6 +22,12 @@
         </span>
         <div class="menu-item-label">目录设置</div>
       </li>
+      <li class="menu-item" @click="search">
+        <span class="material-symbols-outlined menu-item-icon">
+        search
+        </span>
+        <div class="menu-item-label">全文搜索</div>
+      </li>
     </ul>
   </c-dialog>
 </template>
@@ -34,7 +40,7 @@ import { exportBookMarkListByBookId } from '@/utils/mark';
 const props = defineProps<{ visible: boolean, bookId: number }>()
 
 const emits = defineEmits<{
-  action: ['marksViewer' | 'catalogSetting' | 'exportMarks'],
+  action: ['marksViewer' | 'catalogSetting' | 'exportMarks' | 'search'],
   close: []
 }>()
 
@@ -54,6 +60,9 @@ const exportMarks = async () => {
 const catalogSetting = () => {
   emits('action', 'catalogSetting')
 }
+const search = () => {
+  emits('action', 'search')
+}
 </script>
 
 <style lang="scss" scoped>
@@ -67,6 +76,7 @@ const catalogSetting = () => {
 }
 .book-menu-dialog .menu-item {
   margin-right: 32px;
+  cursor: pointer;
 }
 .book-menu-dialog .menu-item-icon {
   font-size: 28px;

@@ -22,6 +22,13 @@
       @action="dialog=$event">
     </book-menu-dialog>
 
+    <search-dialog
+      :visible="dialog==='search'"
+      @close="dialog=null"
+      :book-id="bookId"
+      @jump="dialog=null;emits('jump', $event)"
+    ></search-dialog>
+
     <!-- <catalog-setting-dialog :visible="dialog==='catalogSetting'" @close="dialog=null">
     </catalog-setting-dialog> -->
 
@@ -134,6 +141,7 @@ import CDialog from '@/components/common/CDialog.vue';
 import MarksViewer from '@/components/MarksViewer.vue';
 import SelectionMenu from '@/components/SelectionMenu.vue';
 import BookMenuDialog from '@/components/BookMenuDialog.vue';
+import SearchDialog from '@/components/SearchDialog.vue';
 import { env } from '@/utils/env';
 import router from '@/router';
 import { AutoPlay, DarkMode, ReadSpeak } from '@/actions';
@@ -147,7 +155,8 @@ defineProps<{
 const emits = defineEmits<{
   'prev-page': [],
   'next-page': [],
-  'scroll-vertical': [number]
+  'scroll-vertical': [number],
+  'jump': [{ cursor: number, chapterId: string }],
 }>()
 
 const panelVisible = ref(false)
@@ -360,6 +369,10 @@ html.dark-mode .control-wrapper .navigator::before {
 }
 .control-wrapper .navigator .back-to-index {
   font-size: 28px;
+  cursor: pointer;
+}
+.control-wrapper .navigator-menu {
+  cursor: pointer;
 }
 
 /* control */

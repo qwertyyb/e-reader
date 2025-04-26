@@ -20,7 +20,14 @@ const migrations: TMigration[] = [
   },
   ({ transaction }) => {
     transaction!.objectStore('books').createIndex('onlineBookId', 'onlineBookId')
-  }
+  },
+  ({ database }) => {
+    const keywordsStore = database.createObjectStore('keywords', { keyPath: 'id', autoIncrement: true })
+    keywordsStore.createIndex('bookId', 'bookId')
+  },
+  ({ transaction }) => {
+    transaction!.objectStore('keywords').createIndex('bookIdAndKeyword', ['bookId', 'keyword'], { unique: true })
+  },
 ]
 const version = migrations.length
 
@@ -131,6 +138,41 @@ export const marks = (() => {
         .sort((a, b) => {
           return a.chapterId - b.chapterId || a.range.start - b.range.start
         })
+    }
+  }
+})()
+
+export const keywordsStore = (() => {
+  const store = createStore<IKeyword>('keywords')
+  return {
+    ...store,
+    async getListByBookId(bookId: number): Promise<IKeyword[]> {
+      return wrap(db =>
+        db.transaction('keywords')
+          .objectStore('keywords')
+          .index('bookId')
+          .getAll(bookId)
+      )
+    },
+    async removeAllByBookId(bookId: number) {
+      const list = await this.getListByBookId(bookId)
+      const transaction = db!.transaction(['keywords'], 'readwrite')
+      const store = transaction.objectStore('keywords')
+      await Promise.all(list.map(item => {
+        return new Promise((resolve, reject) => {
+          const request = store.delete(item.id)
+          request.onsuccess = () => resolve(request.result)
+          request.onerror = () => reject(request.error)
+        })
+      }))
+    },
+    async updateLastUsedAt(id: number) {
+      const keyword = await store.get(id)
+      if (keyword) {
+        await store.update(id, {
+          lastUsedAt: new Date().toISOString()
+        })
+      }
     }
   }
 })()

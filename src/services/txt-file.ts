@@ -17,15 +17,19 @@ const decodeText = (arrayBuffer: ArrayBuffer) => {
   }
 }
 
-export const parseCatalog = (content: string, { regList = [/^第.+章/] } = {}) => {
-  const toc: { id: string, title: string, cursor: number, level: number }[] = []
+export const parseChapterList = (content: string, { regList = [/^第.+章/] } = {}) => {
+  const toc: { id: string, title: string, cursorStart: number, cursorEnd?: number, level: number }[] = []
   content.split('\n').forEach((line, row) => {
     const index = regList.findIndex(reg => reg.test(line.trim()))
     if (index < 0) return;
+    if (toc.length > 0) {
+      toc[toc.length - 1]!.cursorEnd = row - 1
+    }
     toc.push({
       id: String(row),
       title: line.trim(),
-      cursor: row,
+      cursorStart: row,
+      cursorEnd: undefined,
       level: index + 1
     })
   })
@@ -58,7 +62,7 @@ export const parseTxtFile = async (file: File, { tocReg = /^第.+章/ } = {}) =>
   return {
     title,
     content,
-    catalog: parseCatalog(content, { regList: [tocReg] })
+    catalog: parseChapterList(content, { regList: [tocReg] })
   }
 }
 
@@ -92,7 +96,7 @@ const downloadWithProgress = async (url: string, onUpdate?: (progress: number, t
 export const download = async (downloadUrl: string, onUpdate?: (progress: number, total: number) => void) => {
   const arrayBuffer = await downloadWithProgress(downloadUrl, onUpdate)
   const content = decodeText(arrayBuffer.buffer)
-  const chapterList = parseCatalog(content)
+  const chapterList = parseChapterList(content)
   return {
     content,
     chapterList,

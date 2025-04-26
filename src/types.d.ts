@@ -18,6 +18,7 @@ interface IBookItem extends IBook {
   reading: boolean,
   downloaded: boolean,
   downloading?: boolean,
+  localBookId?: string,
   downloadProgress?: {
     total: number,
     downloaded: number,
@@ -29,7 +30,17 @@ interface IBookItem extends IBook {
 interface IChapter {
   id: string,
   title: string,
-  chapters?: IChapter[]
+  level: number,
+  cursorStart: number,
+  cursorEnd?: number,
+}
+
+interface IKeyword {
+  id: number
+  bookId: number
+  keyword: string
+  createdAt: string
+  lastUsedAt: string
 }
 
 interface IBookEntity {

@@ -29,7 +29,7 @@ const visibleList = computed(() => {
   return bookList.value.map(item => {
     return {
       ...item,
-      reading: String(item.id) === String(readingStore.readingBookId)
+      reading: item.localBookId && String(item.localBookId) === String(readingStore.readingBookId)
     }
   })
 })
@@ -38,10 +38,12 @@ const refresh = async () => {
   const localBooks = await localBookService.getBookList()
 
   bookList.value = window.remoteBooks.map((item) => {
+    const localBook = localBooks.find((book) => String(book.onlineBookId) === String(item.id))
     return {
       ...item,
       reading: item.id === String(readingStore.readingBookId),
-      downloaded: localBooks.some((book) => String(book.onlineBookId) === String(item.id)),
+      downloaded: !!localBook,
+      localBookId: localBook?.id,
     }
   })
 }
@@ -67,8 +69,8 @@ const download = async ({ id }: IBookItem) => {
 
 const onTap = async (book: IBookItem) => {
   if (book.downloaded) {
-    readingStore.setReadingBookId(Number(book.id))
-    router.push({ name: 'read', params: { id: book.id } })
+    readingStore.setReadingBookId(book.localBookId!)
+    router.push({ name: 'read', params: { id: book.localBookId } })
     return;
   }
   await download(book)

@@ -4,6 +4,7 @@
       <h4 class="mark-chapter-title">{{ chapter.title }}</h4>
       <mark-list :mark-list="chapter.markList" @remove="removeMark" class="mark-list"></mark-list>
     </li>
+    <li class="empty-tips" v-if="!loading && !chapterMarkList.length">暂无笔记，快标注你的第一条笔记吧</li>
   </ul>
 </template>
 
@@ -60,5 +61,11 @@ refresh()
 }
 .mark-chapter-title {
   margin-bottom: 12px;
+}
+.empty-tips {
+  font-size: 14px;
+  color: #999;
+  text-align: center;
+  padding: 160px 0 0 0;
 }
 </style>

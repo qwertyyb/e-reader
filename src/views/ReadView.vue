@@ -11,31 +11,14 @@
         :chapter-id="+chapter.id"
         @prev-page="pageHandler('prev')"
         @next-page="pageHandler('next')"
-        @scroll-vertical="scrollVertical">
+        @scroll-vertical="scrollVertical"
+        @jump="jump"
+      >
         <template v-slot:catalog>
-          <header class="catalog-header">
-            <div class="search-input">
-              <input type="text" v-model.trim="search.keyword" />
-              <span class="material-symbols-outlined regexp-icon"
-                :class="{active: search.isRegExp}"
-                @click="search.isRegExp = !search.isRegExp">regular_expression</span>
-            </div>
-            <button class="action-btn search-btn" @click="searchContent">
-              <span class="material-symbols-outlined action-icon">search</span>
-            </button>
-            <button class="action-btn close-btn" @click="clearSearch" v-if="search.completed">
-              <span class="material-symbols-outlined action-icon">close</span>
-            </button>
-          </header>
-          <div class="search-empty-results" v-if="search.completed && search.results.length <= 0">
-            <span class="material-symbols-outlined icon">find_in_page</span>
-            <p class="empty-title">未找到结果</p>
-          </div>
           <virtual-list
-            v-else
             class="catalog-content-wrapper"
             data-key="id"
-            :data-sources="list"
+            :data-sources="chapterList"
             ref="catalog"
             :estimate-size="48">
             <template v-slot="{ source, index }">
@@ -90,14 +73,7 @@ let book: IBookEntity | null = null
 const chapterList = ref<IChapter[]>([])
 const startChapterIndex = ref(0)
 const curChapterIndex = ref(0)
-const search = ref({
-  keyword: '',
-  isRegExp: false,
-  completed: false,
-  results: [] as { title: string, cursor: number, id: number }[]
-})
 
-const list = computed(() => search.value.completed ? search.value.results : chapterList.value)
 const chapter = computed(() => chapterList.value[curChapterIndex.value])
 
 const contentChapterList = computed(() => {
@@ -131,32 +107,6 @@ const pageHandler = (direction: 'prev' | 'next') => {
 
 const scrollVertical = (distance: number) => {
   contentWrapperRef.value!.scrollTop += distance
-}
-
-const searchContent = async () => {
-  // if (!search.value.keyword.trim()) return;
-  // const { content } = await dataService.getBook(props.id)
-  // const results: { title: string, cursor: number, id: number }[] = []
-  // const reg = search.value.isRegExp ? new RegExp(search.value.keyword) : null
-  // content.split('\n').forEach((line, index) => {
-  //   const match = search.value.isRegExp && reg ? reg.test(line.trim()) : line.trim().includes(search.value.keyword)
-  //   if (match) {
-  //     results.push({
-  //       title: line.trim(),
-  //       cursor: index,
-  //       id: index,
-  //     })
-  //   }
-  // })
-  // search.value.completed = true
-  // search.value.results = results
-}
-
-const clearSearch = async () => {
-  search.value.completed = false
-  search.value.keyword = ''
-  search.value.results = []
-  search.value.isRegExp = false
 }
 
 const readChapter = async (item: IChapter, index: number) => {
@@ -297,6 +247,17 @@ const startRead = async () => {
   setTimeout(() => {
     inited = true
   }, 300)
+}
+
+const jump = async (options: { chapterId: string, cursor: number }) => {
+  const index = chapterList.value.findIndex(item => String(item.id) === String(options.chapterId))
+  if (index < 0) return;
+  startChapterIndex.value = index
+  curChapterIndex.value = index
+  await loadChapter(index)
+  await nextTick()
+  const el = document.querySelector(`.content [data-cursor="${options.cursor}"]`)
+  el?.scrollIntoView()
 }
 
 const init = async () => {
@@ -469,81 +430,6 @@ init()
   }
 }
 
-.catalog-header {
-  display: flex;
-  align-items: center;
-  height: 48px;
-  box-sizing: border-box;
-  padding: 0 8px;
-}
-.catalog-header .search-input {
-  display: flex;
-  align-items: center;
-  position: relative;
-  flex: 1;
-}
-.catalog-header .search-input input {
-  outline: none;
-  border: none;
-  background: #ddd;
-  border-radius: 4px;
-  height: 32px;
-  padding: 0 32px 0 12px;
-  font-size: 14px;
-  flex: 1;
-}
-.catalog-header .search-input .regexp-icon {
-  position: absolute;
-  font-size: 18px;
-  top: 4px;
-  right: 4px;
-  color: #555;
-  padding: 3px;
-  border-radius: 4px;
-}
-.catalog-header .search-input .regexp-icon.active {
-  background: #bbb;
-}
-.catalog-header .action-btn {
-  border: none;
-  border-radius: 9999px;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 12px;
-  flex-shrink: 0;
-}
-.catalog-header .action-btn .action-icon {
-  color: #fff;
-}
-.catalog-header .action-btn.search-btn {
-  background: #448AFF;
-}
-.catalog-header .action-btn.close-btn {
-  border: 1px solid #bdbdbd;
-  background: transparent;
-}
-.catalog-header .action-btn.close-btn .action-icon {
-  color: #757575;
-}
-.search-empty-results {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  flex: 1;
-}
-.search-empty-results .icon {
-  color: #757575;
-}
-.search-empty-results .empty-title {
-  margin-top: 20px;
-  color: #757575;
-}
-
-
 .catalog-content-wrapper {
   flex: 1;
   overflow: auto;
@@ -560,6 +446,7 @@ init()
   display: flex;
   align-items: center;
   height: 48px;
+  cursor: pointer;
 }
 .catalog-item[data-catalog-level="1"] .catalog-label {
   margin-left: 1em;
