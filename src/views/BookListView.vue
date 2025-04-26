@@ -2,12 +2,11 @@
   <div class="book-list-view">
     <ul class="book-list">
       <book-item
-        v-for="book in formattedList"
+        v-for="book in visibleList"
         :key="book.id"
         :book="book"
         mode="show"
-        @download="download(book)"
-        @read="read(book)"
+        @onTap="onTap(book)"
       ></book-item>
     </ul>
   </div>
@@ -17,56 +16,62 @@
 import { computed, ref } from 'vue';
 
 import BookItem from '@/components/BookItem.vue';
-import { dataService } from '@/services/local';
+import { onlineService } from '@/services/OnlineService';
 import { formatSize, showToast } from '@/utils';
-import router from '@/router';
+import { localBookService } from '@/services/LocalBookService';
 import { useReadingStore } from '@/stores/reading';
+import router from '@/router';
 
-const bookList = ref<(IBookEntity & { downloaded: number, downloadUrl: string })[]>([])
+const bookList = ref<IBookItem[]>([])
+const readingStore = useReadingStore()
 
-const formattedList = computed(() => {
+const visibleList = computed(() => {
   return bookList.value.map(item => {
     return {
       ...item,
-      status: (item.id === readingStore.readingBookId ? 'reading' : item.downloaded ? 'downloaded' : 'remote') as IBookListItem['status'],
+      reading: String(item.id) === String(readingStore.readingBookId)
     }
   })
 })
 
-const readingStore = useReadingStore()
-
 const refresh = async () => {
-  bookList.value = await dataService.getBookList()
-}
+  const localBooks = await localBookService.getBookList()
 
-const download = async (book: IBookListItem) => {
-  showToast('开始下载...')
-  let timeout: ReturnType<typeof setTimeout>
-  let lastExecTime = Date.now()
-  const onUpdate = (progress: number, total: number) => {
-    if (timeout) { clearTimeout(timeout) }
-    if (Date.now() - lastExecTime > 200) {
-      lastExecTime = Date.now()
-      book.downloading = {
-        total,
-        downloaded: progress,
-        progress: `${formatSize(progress)}/${formatSize(total)}`
-      }
-      return;
+  bookList.value = window.remoteBooks.map((item) => {
+    return {
+      ...item,
+      reading: item.id === String(readingStore.readingBookId),
+      downloaded: localBooks.some((book) => String(book.onlineBookId) === String(item.id)),
     }
-    timeout = setTimeout(() => {
-      onUpdate(progress, total)
-    }, 200)
-  }
-  await dataService.downloadRemoteBook(book, onUpdate)
-  showToast(`${book.title}下载完成`)
-  refresh()
+  })
 }
 
-const read = async (book: IBookListItem) => {
-  book.status = 'reading'
-  readingStore.setReadingBookId(book.id)
-  router.push({ name: 'read', params: { id: book.id } })
+const download = async ({ id }: IBookItem) => {
+  const book = bookList.value.find((item) => item.id === id)!
+  book.downloading = true
+  onlineService.downloadBook(book.id, (progress, total) => {
+    book.downloadProgress = {
+      total,
+      downloaded: progress,
+      percent: Math.floor((progress / total) * 100),
+      progress: `${formatSize(progress)}/${formatSize(total)}`
+    }
+  }).then(() => {
+    showToast('下载完成')
+    refresh()
+  }).catch((err) => {
+    showToast('下载失败')
+    throw err;
+  })
+}
+
+const onTap = async (book: IBookItem) => {
+  if (book.downloaded) {
+    readingStore.setReadingBookId(Number(book.id))
+    router.push({ name: 'read', params: { id: book.id } })
+    return;
+  }
+  await download(book)
 }
 
 refresh()

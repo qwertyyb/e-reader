@@ -25,7 +25,10 @@
     <!-- <catalog-setting-dialog :visible="dialog==='catalogSetting'" @close="dialog=null">
     </catalog-setting-dialog> -->
 
-    <c-dialog :visible="dialog==='marksViewer'" @close="dialog=null;refreshMarks()">
+    <c-dialog :visible="dialog==='marksViewer'"
+      height="80vh"
+      @close="dialog=null;refreshMarks()"
+    >
       <marks-viewer :book-id="bookId"></marks-viewer>
     </c-dialog>
 

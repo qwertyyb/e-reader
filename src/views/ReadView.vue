@@ -70,21 +70,19 @@
 <script setup lang="ts">
 import ControlWrapper from '@/components/ControlWrapper.vue';
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
-import { dataService } from '@/services/local';
+import { localBookService as dataService } from '@/services/LocalBookService';
 import { env } from '@/utils/env';
-import { books } from '@/services/storage';
 import { showToast } from '@/utils';
 import { lastReadBook, lastReadBooks } from '@/utils/last-read';
 
 interface IChapter {
-  id: number
-  cursor: number,
+  id: string
   status: 'default' | 'loading' | 'loaded',
   content?: string
 }
 
 const props = defineProps<{
-  id: string | number
+  id: string
 }>()
 
 let inited = false
@@ -136,22 +134,22 @@ const scrollVertical = (distance: number) => {
 }
 
 const searchContent = async () => {
-  if (!search.value.keyword.trim()) return;
-  const { content } = await dataService.getBook(Number(props.id))
-  const results: { title: string, cursor: number, id: number }[] = []
-  const reg = search.value.isRegExp ? new RegExp(search.value.keyword) : null
-  content.split('\n').forEach((line, index) => {
-    const match = search.value.isRegExp && reg ? reg.test(line.trim()) : line.trim().includes(search.value.keyword)
-    if (match) {
-      results.push({
-        title: line.trim(),
-        cursor: index,
-        id: index,
-      })
-    }
-  })
-  search.value.completed = true
-  search.value.results = results
+  // if (!search.value.keyword.trim()) return;
+  // const { content } = await dataService.getBook(props.id)
+  // const results: { title: string, cursor: number, id: number }[] = []
+  // const reg = search.value.isRegExp ? new RegExp(search.value.keyword) : null
+  // content.split('\n').forEach((line, index) => {
+  //   const match = search.value.isRegExp && reg ? reg.test(line.trim()) : line.trim().includes(search.value.keyword)
+  //   if (match) {
+  //     results.push({
+  //       title: line.trim(),
+  //       cursor: index,
+  //       id: index,
+  //     })
+  //   }
+  // })
+  // search.value.completed = true
+  // search.value.results = results
 }
 
 const clearSearch = async () => {
@@ -172,7 +170,7 @@ const readChapter = async (item: IChapter, index: number) => {
 const loadChapter = async (chapterIndex: number) => {
   const chapter = chapterList.value[chapterIndex]
   chapter.status = 'loading'
-  const { content } = await dataService.getChapter(chapter, chapterIndex, book!)
+  const content = await dataService.getChapter(props.id as string, chapter.id, chapterIndex)
   chapter.content = content
   chapter.status = 'loaded'
 }
@@ -183,7 +181,7 @@ const updateProgress = () => {
 
   curChapterIndex.value = chapterIndex
 
-  lastReadBooks.set(Number(props.id), { catalogId: chapter.id, cursor })
+  // lastReadBooks.set(Number(props.id), { catalogId: chapter.id, cursor })
 }
 
 const getCurrentProgress = () => {
@@ -268,11 +266,11 @@ const vScrollHandler = () => {
 }
 
 const fetchBook = async () => {
-  const bk = await dataService.getBook(Number(props.id))
+  const bk = await dataService.getBook(props.id)
   if (!bk) {
     return showToast(`获取book失败: ${props.id}`)
   }
-  const catalog = await dataService.getCatalog(Number(props.id))
+  const catalog = await dataService.getChapterList(props.id)
   if (!catalog) {
     return showToast(`获取目录失败: ${props.id}`)
   }
@@ -305,7 +303,7 @@ const init = async () => {
   await fetchBook()
   await startRead()
   lastReadBook.set(Number(props.id))
-  books.updateLastReadTime(Number(props.id))
+  // books.updateLastReadTime(Number(props.id))
   await nextTick()
   catalogRef.value?.scrollToIndex(Math.max(0, curChapterIndex.value - 2))
 }

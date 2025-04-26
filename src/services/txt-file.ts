@@ -18,11 +18,12 @@ const decodeText = (arrayBuffer: ArrayBuffer) => {
 }
 
 export const parseCatalog = (content: string, { regList = [/^第.+章/] } = {}) => {
-  const toc: { title: string, cursor: number, level: number }[] = []
+  const toc: { id: string, title: string, cursor: number, level: number }[] = []
   content.split('\n').forEach((line, row) => {
     const index = regList.findIndex(reg => reg.test(line.trim()))
     if (index < 0) return;
     toc.push({
+      id: String(row),
       title: line.trim(),
       cursor: row,
       level: index + 1
@@ -88,13 +89,12 @@ const downloadWithProgress = async (url: string, onUpdate?: (progress: number, t
   return data
 }
 
-export const download = async (book: IRemoteBook, onUpdate?: (progress: number, total: number) => void) => {
-  const arrayBuffer = await downloadWithProgress(book.downloadUrl, onUpdate)
-  const content = await decodeText(arrayBuffer)
-  const catalog = parseCatalog(content)
+export const download = async (downloadUrl: string, onUpdate?: (progress: number, total: number) => void) => {
+  const arrayBuffer = await downloadWithProgress(downloadUrl, onUpdate)
+  const content = decodeText(arrayBuffer.buffer)
+  const chapterList = parseCatalog(content)
   return {
-    ...book,
     content,
-    catalog,
+    chapterList,
   }
 }

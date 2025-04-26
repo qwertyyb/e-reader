@@ -11,6 +11,15 @@ const migrations: TMigration[] = [
     const objectStore = database.createObjectStore('marks', { keyPath: 'id', autoIncrement: true })
     objectStore.createIndex('bookId', 'bookId', { unique: false })
     objectStore.createIndex('chapter', ['bookId', 'chapterId'], { unique: false })
+  },
+  ({ database }) => {
+    database.createObjectStore('content', { keyPath: 'bookId' })
+  },
+  ({ database }) => {
+    database.createObjectStore('chapterList', { keyPath: 'bookId' })
+  },
+  ({ transaction }) => {
+    transaction!.objectStore('books').createIndex('onlineBookId', 'onlineBookId')
   }
 ]
 const version = migrations.length
@@ -60,14 +69,12 @@ const createStore = <E>(storeName: string) => {
           .add(info)
       )
     },
-    getList () {
+    getList(): Promise<E[]> {
       return wrap(db =>
         db.transaction(storeName)
           .objectStore(storeName)
           .getAll()
       )
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .then(list => (list as (E & { content: string })[]).map(({ content, ...rest }) => rest))
 
     },
     get (id: number): Promise<Required<E>> {
@@ -94,18 +101,19 @@ const createStore = <E>(storeName: string) => {
   }
 }
 
-export const books = (() => {
-  const baseBooks = createStore<IBookEntity>('books')
-  return {
-    ...baseBooks,
-    async updateLastReadTime(id: number) {
-      const data = await baseBooks.get(id)
-      const lastReadTime = Date.now()
-      data.lastReadTime = lastReadTime
-      return baseBooks.update(id, data)
-    }
-  }
-})()
+export const booksStore = createStore<ILocalBook>('books')
+
+interface IContent {
+  bookId: number
+  content: string
+}
+export const contentStore = createStore<IContent>('content')
+
+interface IChapterEntity {
+  bookId: number
+  chapterList: IChapter[]
+}
+export const chapterListStore = createStore<IChapterEntity>('chapterList')
 
 export const marks = (() => {
   const baseMarks = createStore<IMarkEntity>('marks')

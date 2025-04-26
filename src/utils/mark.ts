@@ -1,6 +1,6 @@
 import Mark from 'mark.js'
 import { marks } from "@/services/storage"
-import { dataService } from '@/services/local'
+import { localBookService } from '@/services/LocalBookService'
 
 const getPreviousOffset = (node: HTMLElement | ChildNode | ParentNode | null, stopEl: HTMLElement): number => {
   if (!node) return 0
@@ -148,11 +148,11 @@ export class ChapterMark {
   }
 }
 
-export const getBookMarkList = (markList: IMarkEntity[], chapterList: { cursor: number, title: string }[]) => {
+export const getBookMarkList = (markList: IMarkEntity[], chapterList: { id: string, title: string }[]) => {
   const chapterLabels = chapterList!.reduce<Record<string, string>>((acc, chapter) => {
     return {
       ...acc,
-      [chapter.cursor]: chapter.title
+      [chapter.id]: chapter.title
     }
   }, {})
   return Object.values(
@@ -189,7 +189,7 @@ export const exportBookMarkList = (title: string, markList: ReturnType<typeof ge
 }
 
 export const exportBookMarkListByBookId = async (bookId: number) => {
-  const [book, chapterList, markList] = await Promise.all([dataService.getBook(bookId), dataService.getCatalog(bookId), marks.getListByBook(bookId)])
+  const [book, chapterList, markList] = await Promise.all([localBookService.getBook(String(bookId)), localBookService.getChapterList(String(bookId)), marks.getListByBook(bookId)])
   return {
     markdown: exportBookMarkList(book.title, getBookMarkList(markList, chapterList), { format: 'markdown' }),
     html: exportBookMarkList(book.title, getBookMarkList(markList, chapterList), { format: 'html' })

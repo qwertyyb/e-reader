@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 import BookMarkList from '@/components/BookMarkList.vue';
-import { dataService } from '@/services/local';
+import { localBookService } from '@/services/LocalBookService';
 import { ref } from 'vue';
 
 const props = defineProps<{
@@ -17,7 +17,7 @@ const props = defineProps<{
 const book = ref<IBookEntity>()
 
 const refresh = async () => {
-  const result = await dataService.getBook(+props.id)
+  const result = await localBookService.getBook(String(props.id))
   book.value = result
 }
 

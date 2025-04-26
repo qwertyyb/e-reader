@@ -72,4 +72,7 @@ const catalogSetting = () => {
   font-size: 28px;
   margin-bottom: 8px;
 }
+.menu-item-label {
+  white-space: nowrap;
+}
 </style>

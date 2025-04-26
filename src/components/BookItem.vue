@@ -1,44 +1,34 @@
 <template>
   <div class="book-item"
     :class="{
-      'is-reading': book.status === 'reading',
-      'downloaded': book.status === 'downloaded' || book.status === 'reading'
+      'is-reading': book.reading,
+      'downloaded': book.downloaded,
     }"
     :data-book-id="book.id">
     <div class="book-cover" @click="onTap">
       <img class="book-cover-img" :src="book.cover" :alt="book.title" />
+      <div class="download-progress-percent" v-if="book.downloading && book.downloadProgress">
+        ({{ book.downloadProgress.percent }}%)
+      </div>
     </div>
     <div class="book-title">
-      <span class="material-icons-outlined remote-icon" v-if="book.status !== 'downloaded'">cloud</span>
-      <div class="download-progress-percent" v-else-if="book.downloading">
-        ({{ book.downloading.progress }})
-      </div>
+      <span class="material-icons-outlined remote-icon" v-if="!book.downloaded">cloud</span>
       <span class="title">{{ book.title }}</span>
-    </div>
-    <div class="action-mask"
-      v-if="mode==='select' && book.status === 'downloaded'">
-      <span class="material-icons-outlined remove-icon" @click="$emit('remove')">delete</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{
-  book: IBookListItem,
-  mode: 'show' | 'select',
+defineProps<{
+  book: IBookItem,
 }>()
 const emits = defineEmits<{
-  read: [],
-  remove: [],
-  download: []
+  download: [],
+  onTap: [],
 }>()
 
 const onTap = () => {
-  if (props.book.status === 'downloaded') {
-    emits('read' )
-  } else if (props.book.status === 'remote') {
-    emits('download')
-  }
+  emits('onTap')
 }
 
 </script>
@@ -68,10 +58,20 @@ const onTap = () => {
   font-size: 18px;
   margin-right: 6px;
 }
-.book-item .book-title .download-progress-percent {
+.book-item .book-cover .download-progress-percent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
   font-size: 12px;
-  color: gray;
-  margin-right: 6px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .book-item .book-title .title {
   width: 0;
@@ -79,29 +79,6 @@ const onTap = () => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.book-item .action-mask {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, .6);
-}
-.book-item .action-mask .remove-icon {
-  color: #fff;
-  font-size: 36px;
-}
-.book-item .action-label {
-  color: #fff;
-}
-.book-item .action-label {
-  white-space: pre-wrap;
-  font-size: 10px;
-  margin-top: 6px;
 }
 
 .book-cover {

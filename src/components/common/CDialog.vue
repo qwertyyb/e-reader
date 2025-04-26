@@ -4,7 +4,7 @@
     <div class="c-dialog" v-if="containerVisible">
       <div class="mask" @pointerdown="$emit('close')"></div>
       <transition :name="anim" @after-leave="containerVisible=false">
-        <div class="c-dialog-content" v-if="contentVisible">
+        <div class="c-dialog-content" v-if="contentVisible" :style="{ height: props.height || 'auto' }">
           <slot></slot>
         </div>
       </transition>
@@ -17,7 +17,8 @@ import { ref, watch } from 'vue';
 
 const props = withDefaults(defineProps<{
   visible: boolean,
-  anim?: string
+  anim?: string,
+  height?: string
 }>(), { anim: 'slide-up' })
 
 const emits = defineEmits<{

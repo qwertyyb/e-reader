@@ -8,12 +8,32 @@ interface IBook {
   id: string
   title: string
   cover: string
-  status: 'default' | 'remote' | 'downloading' | 'downloaded' | 'reading',
-  downloading?: IDownloadingStatus
+}
+
+interface ILocalBook extends IBook {
+  onlineBookId?: string
+}
+
+interface IBookItem extends IBook {
+  reading: boolean,
+  downloaded: boolean,
+  downloading?: boolean,
+  downloadProgress?: {
+    total: number,
+    downloaded: number,
+    progress: string,
+    percent: number,
+  }
+}
+
+interface IChapter {
+  id: string,
+  title: string,
+  chapters?: IChapter[]
 }
 
 interface IBookEntity {
-  id: number
+  id: string
   title: string
   cover: string
   content?: string
@@ -24,14 +44,13 @@ interface IBookEntity {
   }[]
 }
 
-interface IBookListItem extends IBookEntity {
-  downloadUrl: string
-  status: 'default' | 'remote' | 'downloading' | 'downloaded' | 'reading'
-  downloading?: IDownloadingStatus
+interface IBookListItem extends IBook {
+  reading?: boolean,
+  downloaded?: boolean
 }
 
 interface IRemoteBook {
-  id: number
+  id: string
   title: string
   cover: string
   downloadUrl: string
