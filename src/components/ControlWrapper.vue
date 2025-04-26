@@ -347,8 +347,8 @@ onUnmounted(() => { if (hammerInstance) { hammerInstance.destroy() } })
   align-items: center;
   justify-content: space-between;
   padding: 0 12px;
-  background: #fff;
-  border-bottom: 1px solid #000;
+  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
+  border-bottom: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
   z-index: 10;
   padding-top: env(safe-area-inset-top);
   box-sizing: content-box;
@@ -362,7 +362,7 @@ onUnmounted(() => { if (hammerInstance) { hammerInstance.destroy() } })
   top: 0;
   left: 0;
   right: 0;
-  background: #000;
+  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
 }
 html.dark-mode .control-wrapper .navigator::before {
   background-color: #fff;
@@ -390,8 +390,8 @@ html.dark-mode .control-wrapper .navigator::before {
   align-items: center;
   padding: 0 12px;
   height: var(--control-height);
-  background-color: #fff;
-  border-top: 1px solid #000;
+  background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
+  border-top: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
   text-align: center;
   padding-bottom: env(safe-area-inset-bottom);
   box-sizing: content-box;
@@ -403,9 +403,9 @@ html.dark-mode .control-wrapper .navigator::before {
   font-size: 32px;
 }
 .control .control-panel {
-  background: #fff;
+  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
   padding: 16px 0;
-  border-top: 1px solid #000;
+  border-top: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
   box-sizing: content-box;
 }
 .control .control-panel.font-panel {

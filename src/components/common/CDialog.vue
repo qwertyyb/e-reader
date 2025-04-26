@@ -53,7 +53,7 @@ watch(() => props.visible, () => {
 
 .c-dialog .c-dialog-content {
   width: 100%;
-  background: #fff;
+  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
   z-index: 10;
   padding-bottom: env(safe-area-inset-bottom);
 }

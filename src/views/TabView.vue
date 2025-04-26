@@ -30,7 +30,6 @@ import AppHeader from '@/components/AppHeader.vue';
 .tab-panel-container {
   padding-top: calc(env(safe-area-inset-top) + 48px);
   padding-bottom: calc(env(safe-area-inset-bottom) + 60px);
-  background: #fff;
   min-height: 100vh;
 }
 .tab-nav-list {
@@ -39,13 +38,13 @@ import AppHeader from '@/components/AppHeader.vue';
   width: 100%;
   height: 54px;
   box-sizing: content-box;
-  border-top: 1px solid #efefef;
+  border-top: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 1;
-  background: #fff;
+  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
 }
 .tab-nav-item {
   flex: 1;

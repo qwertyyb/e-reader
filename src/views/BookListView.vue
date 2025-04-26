@@ -29,7 +29,7 @@ const visibleList = computed(() => {
   return bookList.value.map(item => {
     return {
       ...item,
-      reading: item.localBookId && String(item.localBookId) === String(readingStore.readingBookId)
+      reading: !!item.localBookId && String(item.localBookId) === String(readingStore.readingBookId)
     }
   })
 })

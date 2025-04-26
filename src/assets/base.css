@@ -13,13 +13,19 @@
     'Droid Sans',
     'Helvetica Neue',
     sans-serif;
+  --light-bg-color: #f0f0f0;
+  --dark-bg-color: #1a1a1a;
+  --light-border-color: #ccc;
+  --dark-border-color: #444;
+  --light-text-color: #333;
+  --dark-text-color: #b4b3b3;
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  color: #333;
+  color: light-dark(var(--light-text-color), var(--dark-text-color));
 }
 
 body {
@@ -43,15 +49,16 @@ body {
   right: 0;
   bottom: 0;
   left: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.85);
   z-index: 9;
+}
+
+html {
+  color-scheme: light;
 }
 
 /* dark mode start */
 html.dark-mode {
-  filter: invert(1) hue-rotate(180deg)
-}
-html.dark-mode img {
-  filter: invert(1) hue-rotate(180deg)
+  color-scheme: dark;
 }
 /* dark mode end */

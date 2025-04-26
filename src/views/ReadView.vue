@@ -286,10 +286,10 @@ init()
 }
 .read-view {
   --read-view-content-height: 100vh;
-  --read-view-background-image: url("../assets/bg.png");
+  --read-view-background-image: url("../assets/text-bg.png");
   width: 100vw;
   position: relative;
-  background: #fff;
+  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
   &.anim {
     height: 100vh;
     position: fixed;
@@ -338,11 +338,15 @@ init()
       height: 100%;
       position: absolute;
       inset: 0;
+      background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
       background-image: var(--read-view-background-image);
       background-size: cover;
       transform: rotateY(-180deg);
       transform: translateZ(1px);
       z-index: 1;
+    }
+    :global(html.dark-mode .read-view .book-cover .book-cover-backface) {
+      background-image: none;
     }
     .book-cover-img {
       backface-visibility: hidden;
@@ -384,7 +388,11 @@ init()
   background-image: var(--read-view-background-image);
   background-size: contain;
   background-attachment: local;
-  background-color: #fff;
+  background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
+}
+
+:global(html.dark-mode .content-wrapper) {
+  background-image: none;
 }
 .content-wrapper :deep(.content) {
   box-sizing: border-box;

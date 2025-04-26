@@ -70,7 +70,7 @@ const action = (action: 'dec' | 'inc') => {
 
 .c-progress .c-progress-bar .c-progress-line {
   height: 3px;
-  background: #000;
+  background: light-dark(var(--light-text-color), var(--dark-text-color));
   border-radius: 9999px;
   width: 100%;
 }
@@ -82,6 +82,6 @@ const action = (action: 'dec' | 'inc') => {
   top: 4px;
   left: 50%;
   margin-left: -4px;
-  background: #000;
+  background: light-dark(var(--light-text-color), var(--dark-text-color));
 }
 </style>

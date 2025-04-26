@@ -40,7 +40,7 @@ onUnmounted(() => darkModeDetector.destroy())
 .app-header {
   width: calc(100% - 40px);
   height: 48px;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -49,8 +49,8 @@ onUnmounted(() => darkModeDetector.destroy())
   flex-shrink: 0;
   position: fixed;
   padding-top: env(safe-area-inset-top);
-  background: #fff;
   z-index: 2;
+  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
 }
 .app-header .logo {
   width: 24px;

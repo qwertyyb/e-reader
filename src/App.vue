@@ -176,3 +176,10 @@ async function onEnter(el: Element, done: () => void) {
     <update-dialog></update-dialog>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.root-app {
+  background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
+}
+
+</style>
