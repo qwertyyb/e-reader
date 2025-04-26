@@ -21,6 +21,7 @@ import { formatSize, showToast } from '@/utils';
 import { localBookService } from '@/services/LocalBookService';
 import { useReadingStore } from '@/stores/reading';
 import router from '@/router';
+import { readingStateStore } from '@/services/storage';
 
 const bookList = ref<IBookItem[]>([])
 const readingStore = useReadingStore()
@@ -35,7 +36,15 @@ const visibleList = computed(() => {
 })
 
 const refresh = async () => {
-  const localBooks = await localBookService.getBookList()
+  const [localBooks, reading] = await Promise.all([
+    localBookService.getBookList(),
+    readingStateStore.getList().then((list) => {
+      return list.reduce((acc, item) => {
+        acc[item.bookId] = item
+        return acc
+      }, {} as Record<string, IReadingState>)
+    })
+  ])
 
   bookList.value = window.remoteBooks.map((item) => {
     const localBook = localBooks.find((book) => String(book.onlineBookId) === String(item.id))
@@ -44,8 +53,9 @@ const refresh = async () => {
       reading: item.id === String(readingStore.readingBookId),
       downloaded: !!localBook,
       localBookId: localBook?.id,
+      lastReadTime: localBook && reading[localBook.id] ? reading[localBook.id].lastReadTime : 0,
     }
-  })
+  }).sort((prev, next) => Number(next.downloaded) - Number(prev.downloaded) || prev.lastReadTime - next.lastReadTime)
 }
 
 const download = async ({ id }: IBookItem) => {

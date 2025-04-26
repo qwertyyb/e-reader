@@ -43,6 +43,14 @@ interface IKeyword {
   lastUsedAt: string
 }
 
+interface IReadingState {
+  bookId: string
+  chapterId: string
+  cursor: number
+  lastReadTime: number
+}
+
+
 interface IBookEntity {
   id: string
   title: string

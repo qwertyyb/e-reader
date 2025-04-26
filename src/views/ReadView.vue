@@ -56,7 +56,7 @@ import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
 import { localBookService as dataService } from '@/services/LocalBookService';
 import { env } from '@/utils/env';
 import { showToast } from '@/utils';
-import { lastReadBook, lastReadBooks } from '@/utils/last-read';
+import { readingStateStore } from '@/services/storage';
 
 interface IChapter {
   id: string
@@ -131,7 +131,11 @@ const updateProgress = () => {
 
   curChapterIndex.value = chapterIndex
 
-  // lastReadBooks.set(Number(props.id), { catalogId: chapter.id, cursor })
+  readingStateStore.update(props.id, {
+    chapterId: chapter.id,
+    cursor,
+    lastReadTime: Date.now(),
+  })
 }
 
 const getCurrentProgress = () => {
@@ -232,9 +236,9 @@ const fetchBook = async () => {
   book = bk
 }
 const startRead = async () => {
-  const { catalogId = chapterList.value[0].id, cursor = 0 } = lastReadBooks.get(Number(props.id)) || {}
+  const { chapterId = chapterList.value[0].id, cursor = 0 } = await readingStateStore.get(props.id) || {}
 
-  let index = chapterList.value.findIndex(item => `${item.id}` === `${catalogId}`)
+  let index = chapterList.value.findIndex(item => `${item.id}` === `${chapterId}`)
   index = index >= 0 ? index : 0
   await readChapter(chapterList.value[index], index)
 
@@ -263,8 +267,7 @@ const jump = async (options: { chapterId: string, cursor: number }) => {
 const init = async () => {
   await fetchBook()
   await startRead()
-  lastReadBook.set(Number(props.id))
-  // books.updateLastReadTime(Number(props.id))
+  readingStateStore.update(props.id, { lastReadTime: Date.now() })
   await nextTick()
   catalogRef.value?.scrollToIndex(Math.max(0, curChapterIndex.value - 2))
 }

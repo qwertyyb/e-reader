@@ -28,6 +28,10 @@ const migrations: TMigration[] = [
   ({ transaction }) => {
     transaction!.objectStore('keywords').createIndex('bookIdAndKeyword', ['bookId', 'keyword'], { unique: true })
   },
+  ({ database }) => {
+    const readingStateStore = database.createObjectStore('readingState', { keyPath: 'bookId' })
+    readingStateStore.createIndex('bookId', 'bookId')
+  }
 ]
 const version = migrations.length
 
@@ -67,7 +71,11 @@ const wrap = async <R>(func: (db: IDBDatabase) => IDBRequest<R>) => {
   })
 }
 
-const createStore = <E>(storeName: string) => {
+const createStore = <E, I extends IDBKeyRange | IDBValidKey = number>(storeName: string, {
+  keyPath = 'id',
+}: {
+  keyPath?: string
+} = {}) => {
   return {
     add(info: Partial<E>) {
       return wrap(db =>
@@ -84,25 +92,25 @@ const createStore = <E>(storeName: string) => {
       )
 
     },
-    get (id: number): Promise<Required<E>> {
+    get (id: I): Promise<Required<E>> {
       return wrap(db =>
         db.transaction(storeName)
           .objectStore(storeName)
           .get(id)
       )
     },
-    remove (id: number) {
+    remove (id: I) {
       return wrap(db =>
         db.transaction([storeName], 'readwrite')
           .objectStore(storeName)
           .delete(id)
       )
     },
-    update (id: number, updatedData: Partial<E>) {
+    update (id: I, updatedData: Partial<E>) {
       return wrap(db =>
         db.transaction([storeName], 'readwrite')
           .objectStore(storeName)
-          .put({ ...updatedData, id })
+          .put({ ...updatedData, [keyPath]: id })
       )
     }
   }
@@ -176,3 +184,5 @@ export const keywordsStore = (() => {
     }
   }
 })()
+
+export const readingStateStore = createStore<IReadingState, string>('readingState', { keyPath: 'bookId' })
