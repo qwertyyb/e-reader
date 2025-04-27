@@ -1,36 +1,32 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
 import UpdateDialog from '@/components/UpdateDialog.vue'
-import { ref } from 'vue'
+import { watch } from 'vue'
 import router from '@/router'
-import type ReadView from '@/views/ReadView.vue'
+import { clearAnimData, waits } from '@/stores/bookAnim'
 
-const component = ref<InstanceType<typeof ReadView>>()
+const route = useRoute()
+let oldRouteName: string | null | undefined | symbol = null
 
-let removeBeforeRoute: () => void
+watch(() => route.name, (newVal, oldVal) => {
+  console.log('route changed', newVal, oldVal)
+  oldRouteName = oldVal
+})
 
 // 在离开过渡开始时调用
 // 用这个来开始离开动画
 async function onLeave(el: Element, done: () => void) {
-  console.log('onLeave', component.value, router.currentRoute.value)
-  if (router.currentRoute.value.name === 'read') {
-    // 如果下一个路由的页面是read, 则等待开书动画完成后再移除之前的路由
-    removeBeforeRoute = done
+  if (oldRouteName === 'local' && router.currentRoute.value.name === 'read') {
+    // 如果当前路由在书架，下一个路由的页面是read, 则等待开书动画完成后再移除之前的路由
+    await waits.waitOpen.promise
+    done()
     return
   }
-  done()
-}
-
-// 在元素被插入到 DOM 之后的下一帧被调用
-// 用这个来开始进入动画
-async function onEnter(el: Element, done: () => void) {
-  console.log('onEnter', component.value, router.currentRoute.value)
-  const route = router.currentRoute.value
-  if (route.name === 'read' && route.query.originalRect && component.value?.openBook) {
-    // 即将要进入的路由是阅读页面，则执行开书动画，然后移除之前的路由页面
-    await component.value.openBook()
-    removeBeforeRoute()
+  if (oldRouteName === 'read' && router.currentRoute.value.name === 'local') {
+    // 如果当前路由是阅读页面，下一个路由是书架，则需要等待关书动画完成后再移除之前的路由
+    await waits.waitClose.promise
     done()
+    clearAnimData()
     return
   }
   done()
@@ -40,13 +36,12 @@ async function onEnter(el: Element, done: () => void) {
 <template>
   <div class="root-app">
     <router-view v-slot="{ Component }">
-      <!-- <transition
-        @enter="onEnter"
+      <transition
         @leave="onLeave"
         :css="false"
-      > -->
-        <component :is="Component" ref="component" />
-      <!-- </transition> -->
+      >
+        <component :is="Component" />
+      </transition>
     </router-view>
     <update-dialog></update-dialog>
   </div>

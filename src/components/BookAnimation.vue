@@ -1,8 +1,8 @@
 <template>
   <div class="book-animation" :class="{ animting: direction !== 'none', closing: direction === 'reverse' }">
-    <div class="book-anim" ref="bookRef">
+    <div class="book-anim">
       <div class="book-cover book-anim-cover">
-        <img class="book-cover-img" :src="cover" :alt="title" />
+        <img class="book-cover-img" :src="animData.cover" :alt="animData.title" />
         <div class="book-cover-backface"></div>
       </div>
       <div class="book-content">
@@ -13,13 +13,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-
-const props = defineProps<{
-  cover: string,
-  title?: string,
-  originalRect: { top: number, left: number, width: number, height: number },
-}>();
+import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { animData, setWait } from '@/stores/bookAnim';
 
 const direction = ref<'normal' | 'reverse' | 'none'>('normal')
 
@@ -29,10 +24,17 @@ const centerSize = Math.min(COVER_SIZE * 2, Math.min(window.innerWidth, window.i
 const centerScale = Math.min(2, centerSize / window.innerWidth)
 const offsetY = window.innerHeight / 2 - window.innerWidth / 3 * 4 / 2
 
-const bookRef = ref<HTMLElement | null>(null)
+const getOriginalRect = () => {
+  return document.querySelector(`[data-book-trace=${JSON.stringify(animData.value.trace)}] .book-cover img`)?.getBoundingClientRect() || {
+    top: 20,
+    left: 20,
+    width: 100,
+    height: 140,
+  }
+}
 
 const calcToRectTransform = () => {
-  const { top, left, width, height } = props.originalRect
+  const { top, left, width, height } = getOriginalRect()
   const offsetX = left + width / 2 - window.innerWidth / 2
   const offsetY = top + height / 2 - window.innerWidth / 3 * 4 / 2
   const scale = width / window.innerWidth;
@@ -42,7 +44,7 @@ const calcToRectTransform = () => {
 const runBookAnimation = async (options: {
   direction: 'normal' | 'reverse',
 }) => {
-  const bookEl = bookRef.value
+  const bookEl = document.querySelector('.book-anim')
   if (!bookEl) return
   // 动画1. 把从书架上拿出来
   const anim1 = async () => {
@@ -85,17 +87,28 @@ const runBookAnimation = async (options: {
   }
 }
 
+const { promise: waitOpen, resolve: openDone } = Promise.withResolvers<void>()
+const { promise: waitClose, resolve: closeDone } = Promise.withResolvers<void>()
+
 const openBook = async () => {
   direction.value = 'normal'
   await runBookAnimation({ direction: 'normal' })
   direction.value = 'none'
+  openDone()
 }
 
 const closeBook = async () => {
   direction.value = 'reverse'
   await runBookAnimation({ direction: 'reverse' })
   direction.value = 'none'
+  closeDone()
 }
+
+setWait({ waitOpen, waitClose })
+
+onBeforeUnmount(() => {
+  console.log('beforeUnmount')
+})
 
 onMounted(() => {
   openBook()

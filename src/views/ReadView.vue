@@ -1,5 +1,5 @@
 <template>
-  <book-animation ref="anim" :cover="$route.query.cover as string" :original-rect="JSON.parse($route.query.originalRect as string)" class="read-view book-read-view">
+  <book-animation ref="anim" class="read-view book-read-view">
     <control-wrapper class="control-wrapper book-anim-main" ref="control-wrapper"
       v-if="chapter"
       :book-id="+id"
@@ -53,7 +53,6 @@ import { showToast } from '@/utils';
 import { readingStateStore } from '@/services/storage';
 import BookAnimation from '@/components/BookAnimation.vue';
 import { onBeforeRouteLeave } from 'vue-router';
-// import { onBeforeRouteLeave } from 'vue-router';
 
 interface IChapter {
   id: string
@@ -267,9 +266,8 @@ const init = async () => {
 init()
 
 onBeforeRouteLeave((to, from, next) => {
-  animRef.value?.closeBook().then(() => {
-    next()
-  })
+  animRef.value?.closeBook()
+  next()
 })
 
 defineExpose({

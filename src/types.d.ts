@@ -17,6 +17,7 @@ interface ILocalBook extends IBook {
 interface IBookItem extends IBook {
   reading: boolean,
   downloaded: boolean,
+  trace?: string,
   downloading?: boolean,
   localBookId?: string,
   downloadProgress?: {

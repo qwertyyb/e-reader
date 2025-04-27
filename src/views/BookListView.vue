@@ -19,13 +19,12 @@ import BookItem from '@/components/BookItem.vue';
 import { onlineService } from '@/services/OnlineService';
 import { formatSize, showToast } from '@/utils';
 import { localBookService } from '@/services/LocalBookService';
-import { useReadingStore } from '@/stores/reading';
 import router from '@/router';
 import { readingStateStore } from '@/services/storage';
 import { useRoute } from 'vue-router';
+import { setAnimData, animData } from '@/stores/bookAnim';
 
 const bookList = ref<IBookItem[]>([])
-const readingStore = useReadingStore()
 
 const route = useRoute()
 
@@ -33,7 +32,7 @@ const visibleList = computed(() => {
   return bookList.value.map(item => {
     return {
       ...item,
-      reading: !!item.localBookId && String(item.localBookId) === String(readingStore.readingBookId)
+      reading: !!item.localBookId && String(item.trace) === String(animData.value.trace)
     }
   })
 })
@@ -53,7 +52,8 @@ const refresh = async () => {
     const localBook = localBooks.find((book) => String(book.onlineBookId) === String(item.id))
     return {
       ...item,
-      reading: item.id === String(readingStore.readingBookId),
+      trace: `${route.path}_${item.id}`,
+      reading: false,
       downloaded: !!localBook,
       localBookId: localBook?.id,
       lastReadTime: localBook && reading[localBook.id] ? reading[localBook.id].lastReadTime : 0,
@@ -89,21 +89,10 @@ const download = async ({ id }: IBookItem) => {
 
 const onTap = async (book: IBookItem) => {
   if (book.downloaded) {
-    // readingStore.setReadingBookId(book.localBookId!)
-    const coverRect = document.querySelector(`.book-item[data-book-id="${book.id}"] .book-cover`)!.getBoundingClientRect()
+    setAnimData({ cover: book.cover, title: book.title, trace: book.trace! })
     router.push({
       name: 'read',
-      params: { id: book.localBookId },
-      query: {
-        cover: book.cover,
-        title: book.title,
-        originalRect: JSON.stringify({
-          top: coverRect.top,
-          left: coverRect.left,
-          width: coverRect.width,
-          height: coverRect.height
-        })
-      }
+      params: { id: book.localBookId }
     })
     return;
   }

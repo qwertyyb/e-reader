@@ -4,7 +4,8 @@
       'is-reading': book.reading,
       'downloaded': book.downloaded,
     }"
-    :data-book-id="book.id">
+    :data-book-id="book.id"
+    :data-book-trace="book.trace">
     <div class="book-cover" @click="onTap">
       <img class="book-cover-img" :src="book.cover" :alt="book.title" />
       <div class="download-progress-percent" v-if="book.downloading && book.downloadProgress">

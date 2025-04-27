@@ -9,8 +9,8 @@
         <span class="material-symbols-outlined">newsstand</span>
         本地
       </li>
-      <li class="last-read-item" v-if="book">
-        <book-item :book="book" :no-title="true" @on-tap="toRead"></book-item>
+      <li class="last-read-item" v-if="visibleBook">
+        <book-item :book="visibleBook" :no-title="true" @on-tap="toRead"></book-item>
       </li>
       <li class="tab-nav-item" @click="$router.push({ name: 'remote' })">
         <span class="material-symbols-outlined">storefront</span>
@@ -25,10 +25,19 @@ import AppHeader from '@/components/AppHeader.vue';
 import { localBookService } from '@/services/LocalBookService';
 import { readingStateStore } from '@/services/storage';
 import BookItem from '@/components/BookItem.vue';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import router from '@/router';
+import { setAnimData, animData } from '@/stores/bookAnim';
 
 const book = ref<IBookItem | null>(null)
+
+const visibleBook = computed(() => {
+  if (!book.value) return null
+  return {
+    ...book.value,
+    reading: String(animData.value.trace) === String(book.value?.trace)
+  }
+})
 
 const getLastReadBook = async () => {
   const readings = await readingStateStore.getList()
@@ -60,8 +69,7 @@ const toRead = () => {
   if (!book.value) {
     return
   }
-  // readingStore.setReadingBookId(book.value.id!)
-  book.value.reading = true
+  setAnimData({ cover: book.value.cover, title: book.value.title, trace: book.value.trace! })
   router.push({
     name: 'read',
     params: {
@@ -76,6 +84,7 @@ getLastReadBook().then((lastReadBook) => {
   }
   book.value = {
     ...lastReadBook,
+    trace: 'last-read',
     id: String(lastReadBook.id),
     reading: false,
     downloaded: true,
@@ -121,5 +130,7 @@ getLastReadBook().then((lastReadBook) => {
   height: 140px;
   align-self: flex-end;
   margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
 }
 </style>
