@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import BookItem from '@/components/BookItem.vue';
 import { onlineService } from '@/services/OnlineService';
@@ -22,9 +22,12 @@ import { localBookService } from '@/services/LocalBookService';
 import { useReadingStore } from '@/stores/reading';
 import router from '@/router';
 import { readingStateStore } from '@/services/storage';
+import { useRoute } from 'vue-router';
 
 const bookList = ref<IBookItem[]>([])
 const readingStore = useReadingStore()
+
+const route = useRoute()
 
 const visibleList = computed(() => {
   return bookList.value.map(item => {
@@ -55,7 +58,14 @@ const refresh = async () => {
       localBookId: localBook?.id,
       lastReadTime: localBook && reading[localBook.id] ? reading[localBook.id].lastReadTime : 0,
     }
-  }).sort((prev, next) => Number(next.downloaded) - Number(prev.downloaded) || prev.lastReadTime - next.lastReadTime)
+  })
+    .sort((prev, next) => Number(next.downloaded) - Number(prev.downloaded) || prev.lastReadTime - next.lastReadTime)
+    .filter((item) => {
+      if (route.name === 'local') {
+        return item.downloaded
+      }
+      return true
+  })
 }
 
 const download = async ({ id }: IBookItem) => {
@@ -87,6 +97,10 @@ const onTap = async (book: IBookItem) => {
 }
 
 refresh()
+
+watch(() => route.name, () => {
+  refresh()
+})
 
 </script>
 

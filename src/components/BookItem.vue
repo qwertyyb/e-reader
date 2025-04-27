@@ -11,7 +11,7 @@
         ({{ book.downloadProgress.percent }}%)
       </div>
     </div>
-    <div class="book-title">
+    <div class="book-title" v-if="!noTitle">
       <span class="material-symbols-outlined remote-icon" v-if="!book.downloaded">cloud</span>
       <span class="title">{{ book.title }}</span>
     </div>
@@ -21,6 +21,7 @@
 <script setup lang="ts">
 defineProps<{
   book: IBookItem,
+  noTitle?: boolean,
 }>()
 const emits = defineEmits<{
   download: [],

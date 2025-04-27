@@ -19,6 +19,11 @@ const router = createRouter({
           path: 'local',
           name: 'local',
           component: BookListView
+        },
+        {
+          path: 'remote',
+          name: 'remote',
+          component: BookListView
         }
       ]
     },
