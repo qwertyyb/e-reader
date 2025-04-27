@@ -52,6 +52,7 @@ import { env } from '@/utils/env';
 import { showToast } from '@/utils';
 import { readingStateStore } from '@/services/storage';
 import BookAnimation from '@/components/BookAnimation.vue';
+import { onBeforeRouteLeave } from 'vue-router';
 // import { onBeforeRouteLeave } from 'vue-router';
 
 interface IChapter {
@@ -265,11 +266,11 @@ const init = async () => {
 
 init()
 
-// onBeforeRouteLeave((to, from, next) => {
-//   animRef.value?.closeBook().then(() => {
-//     next()
-//   })
-// })
+onBeforeRouteLeave((to, from, next) => {
+  animRef.value?.closeBook().then(() => {
+    next()
+  })
+})
 
 defineExpose({
   closeBook: () => {
