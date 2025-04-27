@@ -1,53 +1,47 @@
 <template>
-  <div class="read-view book-read-view">
-    <div class="book-anim">
-      <div class="book-cover book-anim-cover">
-        <img class="book-cover-img" :src="book?.cover" :alt="book?.title" />
-        <div class="book-cover-backface"></div>
-      </div>
-      <control-wrapper class="control-wrapper book-anim-main" ref="control-wrapper"
-        v-if="chapter"
-        :book-id="+id"
-        :chapter-id="+chapter.id"
-        @prev-page="pageHandler('prev')"
-        @next-page="pageHandler('next')"
-        @scroll-vertical="scrollVertical"
-        @jump="jump"
-      >
-        <template v-slot:catalog>
-          <virtual-list
-            class="catalog-content-wrapper"
-            data-key="id"
-            :data-sources="chapterList"
-            ref="catalog"
-            :estimate-size="48">
-            <template v-slot="{ source, index }">
-              <div class="catalog-item"
-                @click="readChapter(source, index)"
-                :class="{active: index === curChapterIndex}"
-                :data-catalog-level="source.level || 1"
-                :data-catalog-id="source.id">
-                <div class="catalog-label">{{ source.title }}</div>
-              </div>
-            </template>
-          </virtual-list>
-        </template>
-        <template v-slot="{ settings }">
-          <div class="content-wrapper" ref="contentWrapper" @scroll="vScrollHandler">
-            <div class="content" :data-font="settings.fontFamily"
-              :style="{
-                fontSize: settings.fontSize + 'px',
-                fontWeight: settings.fontWeight
-              }"
-              :class="{ column: env.isInk() }"
-              @scroll="hScrollHandler"
-              v-html="content">
+  <book-animation ref="anim" :cover="$route.query.cover as string" :original-rect="JSON.parse($route.query.originalRect as string)" class="read-view book-read-view">
+    <control-wrapper class="control-wrapper book-anim-main" ref="control-wrapper"
+      v-if="chapter"
+      :book-id="+id"
+      :chapter-id="+chapter.id"
+      @prev-page="pageHandler('prev')"
+      @next-page="pageHandler('next')"
+      @scroll-vertical="scrollVertical"
+      @jump="jump"
+    >
+      <template v-slot:catalog>
+        <virtual-list
+          class="catalog-content-wrapper"
+          data-key="id"
+          :data-sources="chapterList"
+          ref="catalog"
+          :estimate-size="48">
+          <template v-slot="{ source, index }">
+            <div class="catalog-item"
+              @click="readChapter(source, index)"
+              :class="{active: index === curChapterIndex}"
+              :data-catalog-level="source.level || 1"
+              :data-catalog-id="source.id">
+              <div class="catalog-label">{{ source.title }}</div>
             </div>
+          </template>
+        </virtual-list>
+      </template>
+      <template v-slot="{ settings }">
+        <div class="content-wrapper" ref="contentWrapper" @scroll="vScrollHandler">
+          <div class="content" :data-font="settings.fontFamily"
+            :style="{
+              fontSize: settings.fontSize + 'px',
+              fontWeight: settings.fontWeight
+            }"
+            :class="{ column: env.isInk() }"
+            @scroll="hScrollHandler"
+            v-html="content">
           </div>
-        </template>
-      </control-wrapper>
-    </div>
-  </div>
+        </div>
+      </template>
+    </control-wrapper>
+  </book-animation>
 </template>
 
 <script setup lang="ts">
@@ -57,6 +51,8 @@ import { localBookService as dataService } from '@/services/LocalBookService';
 import { env } from '@/utils/env';
 import { showToast } from '@/utils';
 import { readingStateStore } from '@/services/storage';
+import BookAnimation from '@/components/BookAnimation.vue';
+// import { onBeforeRouteLeave } from 'vue-router';
 
 interface IChapter {
   id: string
@@ -69,10 +65,10 @@ const props = defineProps<{
 }>()
 
 let inited = false
-let book: IBookEntity | null = null
 const chapterList = ref<IChapter[]>([])
 const startChapterIndex = ref(0)
 const curChapterIndex = ref(0)
+const animRef = useTemplateRef('anim')
 
 const chapter = computed(() => chapterList.value[curChapterIndex.value])
 
@@ -219,11 +215,7 @@ const vScrollHandler = () => {
   }
 }
 
-const fetchBook = async () => {
-  const bk = await dataService.getBook(props.id)
-  if (!bk) {
-    return showToast(`获取book失败: ${props.id}`)
-  }
+const fetchChapterList = async () => {
   const catalog = await dataService.getChapterList(props.id)
   if (!catalog) {
     return showToast(`获取目录失败: ${props.id}`)
@@ -233,7 +225,6 @@ const fetchBook = async () => {
     status: 'default', // default | loading | loaded
     content: '',
   }))
-  book = bk
 }
 const startRead = async () => {
   const { chapterId = chapterList.value[0].id, cursor = 0 } = await readingStateStore.get(props.id) || {}
@@ -265,7 +256,7 @@ const jump = async (options: { chapterId: string, cursor: number }) => {
 }
 
 const init = async () => {
-  await fetchBook()
+  await fetchChapterList()
   await startRead()
   readingStateStore.update(props.id, { lastReadTime: Date.now() })
   await nextTick()
@@ -273,6 +264,21 @@ const init = async () => {
 }
 
 init()
+
+// onBeforeRouteLeave((to, from, next) => {
+//   animRef.value?.closeBook().then(() => {
+//     next()
+//   })
+// })
+
+defineExpose({
+  closeBook: () => {
+    return animRef.value?.closeBook()
+  },
+  openBook: () => {
+    return animRef.value?.openBook()
+  },
+})
 
 </script>
 

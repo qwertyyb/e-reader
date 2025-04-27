@@ -10,7 +10,7 @@
         本地
       </li>
       <li class="last-read-item" v-if="book">
-        <book-item :book="book" :no-title="true"></book-item>
+        <book-item :book="book" :no-title="true" @on-tap="toRead"></book-item>
       </li>
       <li class="tab-nav-item" @click="$router.push({ name: 'remote' })">
         <span class="material-symbols-outlined">storefront</span>
@@ -26,6 +26,7 @@ import { localBookService } from '@/services/LocalBookService';
 import { readingStateStore } from '@/services/storage';
 import BookItem from '@/components/BookItem.vue';
 import { ref } from 'vue';
+import router from '@/router';
 
 const book = ref<IBookItem | null>(null)
 
@@ -53,6 +54,20 @@ const getLastReadBook = async () => {
     ...book,
     lastReadTime: lastRead.lastReadTime,
   }
+}
+
+const toRead = () => {
+  if (!book.value) {
+    return
+  }
+  // readingStore.setReadingBookId(book.value.id!)
+  book.value.reading = true
+  router.push({
+    name: 'read',
+    params: {
+      id: book.value.id,
+    },
+  })
 }
 
 getLastReadBook().then((lastReadBook) => {

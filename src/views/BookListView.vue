@@ -89,8 +89,22 @@ const download = async ({ id }: IBookItem) => {
 
 const onTap = async (book: IBookItem) => {
   if (book.downloaded) {
-    readingStore.setReadingBookId(book.localBookId!)
-    router.push({ name: 'read', params: { id: book.localBookId } })
+    // readingStore.setReadingBookId(book.localBookId!)
+    const coverRect = document.querySelector(`.book-item[data-book-id="${book.id}"] .book-cover`)!.getBoundingClientRect()
+    router.push({
+      name: 'read',
+      params: { id: book.localBookId },
+      query: {
+        cover: book.cover,
+        title: book.title,
+        originalRect: JSON.stringify({
+          top: coverRect.top,
+          left: coverRect.left,
+          width: coverRect.width,
+          height: coverRect.height
+        })
+      }
+    })
     return;
   }
   await download(book)
