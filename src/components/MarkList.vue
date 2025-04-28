@@ -7,7 +7,7 @@
         :style="mark.iconStyle">{{ MarkStyleIcons[mark.style] }}</span>
       <span class="material-symbols-outlined mark-icon"
         v-else
-        :style="mark.iconStyle">comment</span>
+        :style="mark.iconStyle">record_voice_over</span>
       <div class="mark-content">
         <p class="mark-thought" v-if="mark.thought">{{ mark.thought }}</p>
         <div class="mark-quote-wrapper">
@@ -53,7 +53,7 @@ const markListWithStyle = computed(() => {
   list-style: none;
 }
 .mark-list .mark-item {
-  background: #fff;
+  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
   border-radius: 10px;
   overflow: hidden;
   display: flex;
@@ -87,8 +87,9 @@ const markListWithStyle = computed(() => {
 .mark-list .mark-quote-wrapper .pre-line {
   width: 3px;
   margin-top: 2px;
-  background: rgb(224, 224, 224);
+  background: light-dark(rgb(224, 224, 224), #666);
   margin-right: 8px;
+  border-radius: 999px;
 }
 .mark-list .mark-quote-wrapper .mark-quote {
   line-height: 1.8;
@@ -96,16 +97,16 @@ const markListWithStyle = computed(() => {
 .mark-list .mark-quote-wrapper .mark-quote::v-deep(mark) {
   color: #666;
 }
-.mark-list .mark-item .mark-icon {
+.mark-icon {
   margin-right: 12px;
-  font-size: 14px;
-  width: 20px;
-  height: 20px;
+  font-size: 18px;
+  width: 24px;
+  height: 24px;
   margin-top: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f1f1f1;
+  background-color: light-dark(#f1f1f1, #333);
   border-radius: 9999px;
 }
 </style>

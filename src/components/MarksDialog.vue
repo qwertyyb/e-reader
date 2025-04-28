@@ -1,5 +1,5 @@
 <template>
-  <c-dialog :visible="visible" @close="$emit('close')">
+  <c-dialog :visible="visible" @close="$emit('close')" height="90vh">
     <template v-slot:header>
       <h3 class="marks-dialog-title">
         笔记
@@ -36,25 +36,11 @@ const removeMark = async (mark: IMarkEntity) => {
 </script>
 
 <style lang="scss" scoped>
-.marks-viewer {
-  width: 100vw;
-  box-sizing: border-box;
-  padding: 0 16px env(safe-area-inset-bottom) 16px;
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  position: relative;
-}
-.marks-viewer .marks-viewer-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 6px;
+.marks-dialog-title {
   display: flex;
   align-items: center;
-  height: 30px;
 }
-.marks-viewer .marks-viewer-title .more-icon {
+.more-icon {
   font-size: 16px;
   margin-left: 4px;
 }

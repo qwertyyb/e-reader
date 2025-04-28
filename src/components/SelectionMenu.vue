@@ -44,7 +44,14 @@
     </div>
     <c-dialog :visible="dialog==='thoughtInput'" class="thought-input-dialog" @close="dialog=null">
       <div class="thought-input-wrapper">
-        <textarea class="thought-input" placeholder="写下这一刻的想法" ref="input" v-model="mark!.thought"></textarea>
+        <span class="material-symbols-outlined thought-icon">record_voice_over</span>
+        <textarea
+          rows="1"
+          class="thought-input"
+          placeholder="写下这一刻的想法"
+          ref="input"
+          v-model="mark!.thought"
+        ></textarea>
         <button class="save-btn" @click="saveThought">保存</button>
       </div>
     </c-dialog>
@@ -90,7 +97,7 @@ const visible = computed(() => {
   return !dialog.value && mark.value
 })
 
-watch(visible, (val) => val ? emits('show') : emits('hide'))
+watch(() => visible.value || dialog.value, (val) => val ? emits('show') : emits('hide'))
 
 onMounted(() => {
   document.addEventListener('selectionchange', selectionChangeHandler)
@@ -321,11 +328,11 @@ const actionHandler = async (event: Event, action: string) => {
 .selection-menu .selection-menu-list {
   position: relative;
   z-index: 2;
-  background: #fff;
-  border-radius: 10px;
+  background: light-dark(#fff, #000);
+  border-radius: 4px;
   list-style: none;
   display: flex;
-  box-shadow: 0 0 14px gray;
+  box-shadow: 0 3px 7px light-dark(#ddd, #2a2a2a);
   justify-content: space-around;
   padding: 0 6px;
   animation: slide-down-scale .2s ease;
@@ -353,24 +360,37 @@ const actionHandler = async (event: Event, action: string) => {
   white-space: nowrap;
 }
 .thought-input-dialog .thought-input-wrapper {
-  padding: 20px max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  margin: 12px max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
   display: flex;
   align-items: flex-end;
-  width: 100vw;
+  width: auto;
   box-sizing: border-box;
+  border-bottom: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
+  .thought-icon {
+    margin-right: 8px;
+    font-size: 20px;
+    align-self: flex-start;
+    margin-top: 8px;
+  }
 }
 .thought-input-dialog .thought-input {
   flex: 1;
-  height: 20vh;
   outline: none;
   border: none;
   font-size: 16px;
+  line-height: 1.4;
+  height: fit-content;
+  line-height: 36px;
+  background: none;
 }
 .thought-input-dialog .save-btn {
   border: none;
   outline: none;
   background: transparent;
   font-size: 16px;
-  padding: 6px 8px;
+  padding: 0 8px;
+  height: 34px;
+  line-height: 34px;
+  margin-bottom: 1px;
 }
 </style>

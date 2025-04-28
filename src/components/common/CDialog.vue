@@ -73,6 +73,9 @@ watch(() => props.visible, () => {
   display: flex;
   align-items: center;
   padding: 12px 16px 8px 16px;
+  &:empty {
+    display: none;
+  }
 }
 .c-dialog-title {
   font-size: 16px;
