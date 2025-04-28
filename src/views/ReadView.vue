@@ -388,7 +388,7 @@ defineExpose({
   align-items: center;
   height: 42px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 14px;
 }
 .catalog-item[data-catalog-level="2"] .catalog-label {
   margin-left: 1em;
