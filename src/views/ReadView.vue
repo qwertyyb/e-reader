@@ -9,13 +9,13 @@
       @scroll-vertical="scrollVertical"
       @jump="jump"
     >
-      <template v-slot:catalog>
+      <template v-slot:chapterList>
         <virtual-list
           class="catalog-content-wrapper"
           data-key="id"
           :data-sources="chapterList"
           ref="catalog"
-          :estimate-size="48">
+          :estimate-size="42">
           <template v-slot="{ source, index }">
             <div class="catalog-item"
               @click="readChapter(source, index)"
@@ -298,81 +298,6 @@ defineExpose({
   width: 100vw;
   position: relative;
   background: light-dark(var(--light-bg-color), var(--dark-bg-color));
-  &.anim {
-    height: 100vh;
-    position: fixed;
-    top: 0;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 10;
-    transform-style: preserve-3d;
-    perspective: 1000px;
-    --read-view-content-height: calc(100vw / 3 * 4);
-    &.close-anim {
-      --read-view-content-height: 100vh;
-      --cover-rotate: -180deg;
-    }
-    .book-anim {
-      width: 100vw;
-      height: var(--read-view-content-height);
-      perspective: 140vw;
-    }
-    .control-wrapper {
-      aspect-ratio: 3 / 4;
-    }
-    .book-cover {
-      display: block;
-    }
-  }
-  .book-anim {
-    transform-origin: center center;
-  }
-  .book-cover {
-    width: 100%;
-    aspect-ratio: 3 / 4;
-    height: var(--read-view-content-height);
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1;
-    transform-origin: left;
-    transform: rotateY(var(--cover-rotate));
-    display: none;
-    transform-style: preserve-3d;
-    .book-cover-backface {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      inset: 0;
-      background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
-      background-image: var(--read-view-background-image);
-      background-size: cover;
-      transform: rotateY(-180deg);
-      transform: translateZ(1px);
-      z-index: 1;
-    }
-    :global(html.dark-mode .read-view .book-cover .book-cover-backface) {
-      background-image: none;
-    }
-    .book-cover-img {
-      backface-visibility: hidden;
-      width: 100%;
-      height: auto;
-      vertical-align: top;
-      position: relative;
-      transform: translateZ(2px);
-      z-index: 2;
-    }
-  }
-  .control-wrapper {
-    width: 100%;
-    position: relative;
-    z-index: 0;
-    height: var(--read-view-content-height);
-    overflow: hidden;
-  }
 }
 
 .mask {
@@ -386,13 +311,13 @@ defineExpose({
 }
 .content-wrapper {
   width: 100%;
+  z-index: 0;
   height: var(--read-view-content-height);
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
   background-clip: border-box;
   overflow: auto;
   position: relative;
-  z-index: 2;
   background-image: var(--read-view-background-image);
   background-size: contain;
   background-attachment: local;
@@ -447,24 +372,25 @@ defineExpose({
 }
 
 .catalog-content-wrapper {
-  flex: 1;
+  height: 100%;
   overflow: auto;
   overscroll-behavior: contain;
   content-visibility: auto;
   box-sizing: border-box;
 }
 .catalog-item {
-  padding: 0 10px;
+  padding: 0 16px;
   border-bottom: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
   cursor: pointer;
   width: 100%;
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  height: 48px;
+  height: 42px;
   cursor: pointer;
+  font-size: 13px;
 }
-.catalog-item[data-catalog-level="1"] .catalog-label {
+.catalog-item[data-catalog-level="2"] .catalog-label {
   margin-left: 1em;
 }
 .catalog-item .catalog-label {

@@ -67,9 +67,14 @@ import RangeMarksDialog from '@/components/RangeMarksDialog.vue';
 import MarkStyleMenu from '@/components/MarkStyleMenu.vue';
 import { marks } from '@/services/storage';
 import { ChapterMark, MarkColors, MarkData, MarkStyles } from '@/utils/mark'
-import { computed, onMounted, onUnmounted, ref, toRaw, useTemplateRef } from 'vue'
+import { computed, onMounted, onUnmounted, ref, toRaw, useTemplateRef, watch } from 'vue'
 
 const props = defineProps<{ bookId: number, chapterId: number }>()
+
+const emits = defineEmits<{
+  show: [],
+  hide: []
+}>()
 
 const dialog = ref<string | null>(null)
 const marksRange = ref<{ start: number, length: number } | null>(null)
@@ -84,6 +89,8 @@ const inputRef = useTemplateRef('input')
 const visible = computed(() => {
   return !dialog.value && mark.value
 })
+
+watch(visible, (val) => val ? emits('show') : emits('hide'))
 
 onMounted(() => {
   document.addEventListener('selectionchange', selectionChangeHandler)

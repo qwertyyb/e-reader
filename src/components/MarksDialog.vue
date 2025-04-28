@@ -1,21 +1,31 @@
 <template>
-  <div class="marks-viewer">
-    <h3 class="marks-viewer-title">笔记<span class="material-symbols-outlined more-icon">arrow_forward_ios</span></h3>
-    <book-mark-list :book-id="bookId" @mark-removed="removeMark" style="flex:1"></book-mark-list>
-  </div>
+  <c-dialog :visible="visible" @close="$emit('close')">
+    <template v-slot:header>
+      <h3 class="marks-dialog-title">
+        笔记
+        <span class="material-symbols-outlined more-icon">arrow_forward_ios</span>
+      </h3>
+    </template>
+    <div class="marks-viewer">
+      <book-mark-list :book-id="bookId" @mark-removed="removeMark" style="flex:1"></book-mark-list>
+    </div>
+  </c-dialog>
 </template>
 
 <script setup lang="ts">
+import CDialog from '@/components/common/CDialog.vue';
 import BookMarkList from '@/components/BookMarkList.vue';
 import { marks } from "@/services/storage";
 import { showToast } from "@/utils";
 
 defineProps<{
   bookId: number,
+  visible: boolean
 }>()
 
 const emits = defineEmits<{
-  'mark-removed': [IMarkEntity]
+  'mark-removed': [IMarkEntity],
+  close: []
 }>()
 
 const removeMark = async (mark: IMarkEntity) => {
@@ -29,8 +39,7 @@ const removeMark = async (mark: IMarkEntity) => {
 .marks-viewer {
   width: 100vw;
   box-sizing: border-box;
-  padding: 10px 16px env(safe-area-inset-bottom) 16px;
-  background: rgb(238, 238, 238);
+  padding: 0 16px env(safe-area-inset-bottom) 16px;
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -47,5 +56,6 @@ const removeMark = async (mark: IMarkEntity) => {
 }
 .marks-viewer .marks-viewer-title .more-icon {
   font-size: 16px;
+  margin-left: 4px;
 }
 </style>

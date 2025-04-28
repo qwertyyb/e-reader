@@ -37,6 +37,7 @@ const onTap = () => {
 
 <style lang="scss" scoped>
 .book-item {
+  width: 100px;
   position: relative;
   opacity: 0.4;
   &.is-reading .book-cover {
@@ -84,15 +85,15 @@ const onTap = () => {
 }
 
 .book-cover {
-  width: 100px;
+  width: 100%;
   box-sizing: border-box;
   text-align: center;
   background: #fff;
   position: relative;
 }
 .book-cover img.book-cover-img {
-  width: 100px;
-  height: 133.33px;
+  width: 100%;
+  aspect-ratio: 3 / 4;
   vertical-align: top;
 }
 </style>

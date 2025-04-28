@@ -59,7 +59,7 @@ const refresh = async () => {
       lastReadTime: localBook && reading[localBook.id] ? reading[localBook.id].lastReadTime : 0,
     }
   })
-    .sort((prev, next) => Number(next.downloaded) - Number(prev.downloaded) || prev.lastReadTime - next.lastReadTime)
+    .sort((prev, next) => Number(next.downloaded) - Number(prev.downloaded) || next.lastReadTime - prev.lastReadTime)
     .filter((item) => {
       if (route.name === 'local') {
         return item.downloaded

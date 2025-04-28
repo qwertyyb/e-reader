@@ -9,8 +9,8 @@
         <span class="material-symbols-outlined">newsstand</span>
         本地
       </li>
-      <li class="last-read-item" v-if="visibleBook">
-        <book-item :book="visibleBook" :no-title="true" @on-tap="toRead"></book-item>
+      <li class="last-read-item">
+        <last-read-book></last-read-book>
       </li>
       <li class="tab-nav-item" @click="$router.push({ name: 'remote' })">
         <span class="material-symbols-outlined">storefront</span>
@@ -22,75 +22,7 @@
 
 <script setup lang="ts">
 import AppHeader from '@/components/AppHeader.vue';
-import { localBookService } from '@/services/LocalBookService';
-import { readingStateStore } from '@/services/storage';
-import BookItem from '@/components/BookItem.vue';
-import { computed, ref } from 'vue';
-import router from '@/router';
-import { setAnimData, animData } from '@/stores/bookAnim';
-
-const book = ref<IBookItem | null>(null)
-
-const visibleBook = computed(() => {
-  if (!book.value) return null
-  return {
-    ...book.value,
-    reading: String(animData.value.trace) === String(book.value?.trace)
-  }
-})
-
-const getLastReadBook = async () => {
-  const readings = await readingStateStore.getList()
-  if (!readings.length) {
-    return null
-  }
-  const lastRead = readings.reduce((acc, item) => {
-    if (!acc || item.lastReadTime > acc.lastReadTime) {
-      return item
-    }
-    return acc
-  }, null as IReadingState | null)
-
-  if (!lastRead) {
-    return null
-  }
-  const books = await localBookService.getBookList()
-  const book = books.find((book) => String(book.id) === String(lastRead.bookId))
-  if (!book) {
-    return null
-  }
-  return {
-    ...book,
-    lastReadTime: lastRead.lastReadTime,
-  }
-}
-
-const toRead = () => {
-  if (!book.value) {
-    return
-  }
-  setAnimData({ cover: book.value.cover, title: book.value.title, trace: book.value.trace! })
-  router.push({
-    name: 'read',
-    params: {
-      id: book.value.id,
-    },
-  })
-}
-
-getLastReadBook().then((lastReadBook) => {
-  if (!lastReadBook) {
-    return
-  }
-  book.value = {
-    ...lastReadBook,
-    trace: 'last-read',
-    id: String(lastReadBook.id),
-    reading: false,
-    downloaded: true,
-  }
-})
-
+import LastReadBook from '@/components/LastReadBook.vue';
 </script>
 
 <style lang="scss" scoped>
@@ -127,7 +59,6 @@ getLastReadBook().then((lastReadBook) => {
   align-items: center;
 }
 .last-read-item {
-  height: 140px;
   align-self: flex-end;
   margin-bottom: 12px;
   position: relative;

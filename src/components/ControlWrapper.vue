@@ -1,7 +1,7 @@
 <template>
   <div class="control-wrapper">
     <transition name="slide-down">
-      <div class="navigator" v-if="panelVisible">
+      <div class="navigator" v-if="panelVisible && !selectMenuShowed">
         <div class="material-symbols-outlined back-to-index"
           @click="$router.replace('/tab/local')">arrow_back_ios</div>
 
@@ -13,13 +13,19 @@
       </div>
     </transition>
 
-    <catalog-dialog :visible="visiblePanel==='catalog'"
-      @close="visiblePanel=null">
-      <slot name="catalog"></slot>
-    </catalog-dialog>
+    <c-dialog :visible="dialog==='catalog'"
+      height="90vh"
+      title="目录"
+      @close="dialog=null">
+      <slot name="chapterList"></slot>
+    </c-dialog>
 
-    <book-menu-dialog :visible="dialog==='bookMenu'" :book-id="bookId" @close="dialog=null"
-      @action="dialog=$event">
+    <book-menu-dialog
+      :visible="dialog==='bookMenu'"
+      :book-id="bookId"
+      @close="dialog=null"
+      @action="dialog=$event"
+    >
     </book-menu-dialog>
 
     <search-dialog
@@ -32,21 +38,26 @@
     <!-- <catalog-setting-dialog :visible="dialog==='catalogSetting'" @close="dialog=null">
     </catalog-setting-dialog> -->
 
-    <c-dialog :visible="dialog==='marksViewer'"
-      height="80vh"
+    <marks-dialog
+      :book-id="bookId"
+      :visible="dialog==='marksViewer'"
       @close="dialog=null;refreshMarks()"
     >
-      <marks-viewer :book-id="bookId"></marks-viewer>
-    </c-dialog>
+    </marks-dialog>
 
-    <selection-menu :book-id="bookId" :chapterId="chapterId">
+    <selection-menu
+      :book-id="bookId"
+      :chapterId="chapterId"
+      @show="selectMenuShowed = true"
+      @hide="selectMenuShowed = false"
+    >
       <div class="content-container" ref="content" @touchstart="touchstartHandler">
           <slot :settings="settings"></slot>
       </div>
     </selection-menu>
 
     <transition name="slide-up">
-      <div class="control" v-if="panelVisible">
+      <div class="control" v-if="panelVisible && !selectMenuShowed">
         <div class="control-panel play-panel" data-target-control="autoPlay" v-if="visiblePanel === 'autoPlay'">
           <div class="speed">
             <c-progress
@@ -133,14 +144,13 @@
 import { getSettings, saveAllSettings } from '@/utils/settings';
 import { onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { fontFamilyList } from '@/config';
-import CatalogDialog from '@/components/CatalogDialog.vue';
 import CSelect from '@/components/common/CSelect.vue';
 import COption from '@/components/common/COption.vue';
 import CProgress from '@/components/common/CProgress.vue';
 import CDialog from '@/components/common/CDialog.vue';
-import MarksViewer from '@/components/MarksViewer.vue';
 import SelectionMenu from '@/components/SelectionMenu.vue';
 import BookMenuDialog from '@/components/BookMenuDialog.vue';
+import MarksDialog from '@/components/MarksDialog.vue';
 import SearchDialog from '@/components/SearchDialog.vue';
 import { env } from '@/utils/env';
 import router from '@/router';
@@ -162,6 +172,7 @@ const emits = defineEmits<{
 const panelVisible = ref(false)
 const visiblePanel = ref<string | null>()
 const dialog = ref<string | null>()
+const selectMenuShowed = ref(false)
 
 const controlState = ref({
   darkMode: false,
@@ -208,7 +219,7 @@ const actionHandler = async (control: string) => {
     visiblePanel.value = 'autoPlay'
     actions.autoPlay.toggle()
   } else if (control === 'catalog') {
-    visiblePanel.value = 'catalog'
+    dialog.value = 'catalog'
   }
 }
 
@@ -364,9 +375,6 @@ onUnmounted(() => { if (hammerInstance) { hammerInstance.destroy() } })
   left: 0;
   right: 0;
   background: light-dark(var(--light-bg-color), var(--dark-bg-color));
-}
-html.dark-mode .control-wrapper .navigator::before {
-  background-color: #fff;
 }
 .control-wrapper .navigator .back-to-index {
   font-size: 28px;

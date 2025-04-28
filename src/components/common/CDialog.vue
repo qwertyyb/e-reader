@@ -4,9 +4,14 @@
     <div class="c-dialog" v-if="containerVisible">
       <div class="mask" @pointerdown="$emit('close')"></div>
       <transition :name="anim" @after-leave="containerVisible=false">
-        <div class="c-dialog-content" v-if="contentVisible" :style="{ height: props.height || 'auto' }">
+        <section class="c-dialog-content" v-if="contentVisible" :style="{ height: props.height || 'auto' }">
+          <header class="c-dialog-header">
+            <slot name="header">
+              <h2 class="c-dialog-title" v-if="title">{{ title }}</h2>
+            </slot>
+          </header>
           <slot></slot>
-        </div>
+        </section>
       </transition>
     </div>
   </transition>
@@ -18,7 +23,8 @@ import { ref, watch } from 'vue';
 const props = withDefaults(defineProps<{
   visible: boolean,
   anim?: string,
-  height?: string
+  height?: string,
+  title?: string,
 }>(), { anim: 'slide-up' })
 
 const emits = defineEmits<{
@@ -51,10 +57,25 @@ watch(() => props.visible, () => {
   z-index: 10;
 }
 
-.c-dialog .c-dialog-content {
+.c-dialog-content {
   width: 100%;
   background: light-dark(var(--light-bg-color), var(--dark-bg-color));
   z-index: 10;
   padding-bottom: env(safe-area-inset-bottom);
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  & > * {
+    width: 100%;
+  }
+}
+.c-dialog-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px 8px 16px;
+}
+.c-dialog-title {
+  font-size: 16px;
+  font-weight: bold;
 }
 </style>

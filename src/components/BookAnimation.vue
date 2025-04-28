@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { animData, setWait } from '@/stores/bookAnim';
 
 const direction = ref<'normal' | 'reverse' | 'none'>('normal')
@@ -44,14 +44,23 @@ const calcToRectTransform = () => {
 const runBookAnimation = async (options: {
   direction: 'normal' | 'reverse',
 }) => {
-  const bookEl = document.querySelector('.book-anim')
-  if (!bookEl) return
+  const mask = document.querySelector('.book-animation')
+  const bookEl = document.querySelector('.book-animation > .book-anim')
+  if (!bookEl || !mask) return
+
   // 动画1. 把从书架上拿出来
   const anim1 = async () => {
-    await bookEl.animate([
-      { transform: calcToRectTransform() },
-      { transform: `scale(${centerScale}) translate(0, ${offsetY / centerScale}px)` }
-    ], { easing: 'ease-in', duration: 600, fill: 'both', direction: options.direction }).finished
+    await Promise.all([
+      bookEl.animate([
+        { transform: calcToRectTransform() },
+        { transform: `scale(${centerScale}) translate(0, ${offsetY / centerScale}px)` }
+      ], { easing: 'ease-in', duration: 600, fill: 'both', direction: options.direction }).finished,
+      // 背景渐入
+      mask.animate([
+        { backgroundColor: 'rgba(0,0,0,0)' },
+        { backgroundColor: 'rgba(0,0,0,0.65)' }
+      ], { easing: 'ease-in', duration: 400, fill: 'both', direction: options.direction }).finished
+    ])
   }
 
   // 动画2. 翻页
@@ -106,10 +115,6 @@ const closeBook = async () => {
 
 setWait({ waitOpen, waitClose })
 
-onBeforeUnmount(() => {
-  console.log('beforeUnmount')
-})
-
 onMounted(() => {
   openBook()
 })
@@ -144,7 +149,7 @@ defineExpose({
     right: 0;
     left: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0);
     z-index: 10;
     transform-style: preserve-3d;
     perspective: 1000px;

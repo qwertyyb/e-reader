@@ -1,7 +1,8 @@
 <template>
   <c-dialog @close="$emit('close')"
     :visible="props.visible"
-    height="85vh"
+    height="90vh"
+    title="全文搜索"
     class="search-dialog">
     <section class="search-section">
       <header class="search-header">
@@ -151,7 +152,7 @@ const toResult = (source: IResult, result: { cursor: number, text: string }) => 
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 12px;
+  padding: 0 12px 12px 12px;
   & > * {
     width: 100%;
   }
