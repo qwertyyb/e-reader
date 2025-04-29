@@ -125,6 +125,8 @@ const openDialog = async () => {
   font-weight: bold;
 }
 .c-dialog-main {
+  height: 0;
+  overflow: auto;
   flex: 1;
   padding-left: 16px;
   padding-right: 16px;
