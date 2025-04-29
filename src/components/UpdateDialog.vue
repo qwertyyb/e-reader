@@ -34,7 +34,7 @@ const newVersionInfo = ref({
 const checkUpdates = async ({ slient = false } = {}) => {
   if (!slient) showToast('正在检查更新')
   await getVersion()
-  const { version: newVer } = await import(/* @vite-ignore */`${new URL('./version.js?remote=true', location.href)}`)
+  const { version: newVer } = await import(/* @vite-ignore */`${new URL('./version.js?remote=true&_t' + Date.now(), location.href)}`)
   if (newVer !== version.value) {
     newVersionInfo.value = {
       version: newVer,
