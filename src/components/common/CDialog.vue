@@ -93,6 +93,9 @@ const openDialog = async () => {
   z-index: 10;
   &.dialog-position-left {
     left: initial;
+    .c-dialog-content {
+      padding-top: env(safe-area-inset-top);
+    }
   }
 }
 
@@ -101,7 +104,6 @@ const openDialog = async () => {
   background: light-dark(var(--light-bg-color), var(--dark-bg-color));
   z-index: 10;
   padding-bottom: env(safe-area-inset-bottom);
-  padding-top: env(safe-area-inset-top);
   box-sizing: border-box;
   overflow: auto;
   display: flex;
