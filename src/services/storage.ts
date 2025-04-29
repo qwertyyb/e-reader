@@ -106,11 +106,12 @@ const createStore = <E, I extends IDBKeyRange | IDBValidKey = number>(storeName:
           .delete(id)
       )
     },
-    update (id: I, updatedData: Partial<E>) {
+    async update (id: I, updatedData: Partial<E>) {
+      const data = await this.get(id)
       return wrap(db =>
         db.transaction([storeName], 'readwrite')
           .objectStore(storeName)
-          .put({ ...updatedData, [keyPath]: id })
+          .put({ ...data, ...updatedData, [keyPath]: id })
       )
     }
   }
