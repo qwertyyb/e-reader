@@ -1,24 +1,22 @@
 <template>
-  <transition name="fade-in"
-    @enter="contentVisible=true">
-    <div class="c-dialog" :class="`dialog-position-${position}`" v-if="containerVisible">
-      <div class="mask" @pointerdown="$emit('close')"></div>
-      <transition :name="anim" @after-leave="containerVisible=false">
-        <section class="c-dialog-content" v-if="contentVisible" :style="{ height: props.height || 'auto', width: props.width }">
-          <header class="c-dialog-header">
-            <slot name="header">
-              <h2 class="c-dialog-title" v-if="title">{{ title }}</h2>
-            </slot>
-          </header>
-          <slot></slot>
-        </section>
-      </transition>
-    </div>
-  </transition>
+  <div class="c-dialog" :class="`dialog-position-${position}`" v-if="containerVisible">
+    <div class="mask" @pointerdown="$emit('close')" ref="mask"></div>
+    <section class="c-dialog-content"
+      ref="dialog"
+      :style="{ height: props.height || 'auto', width: props.width }"
+    >
+      <header class="c-dialog-header">
+        <slot name="header">
+          <h2 class="c-dialog-title" v-if="title">{{ title }}</h2>
+        </slot>
+      </header>
+      <slot></slot>
+    </section>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { nextTick, ref, useTemplateRef, watch } from 'vue';
 
 const props = defineProps<{
   visible: boolean,
@@ -28,7 +26,8 @@ const props = defineProps<{
   width?: string,
 }>()
 
-const anim = computed(() => props.position === 'bottom' ? 'slide-up' : 'slide-left')
+const mask = useTemplateRef('mask')
+const dialog = useTemplateRef('dialog')
 
 const emits = defineEmits<{
   open: []
@@ -36,16 +35,47 @@ const emits = defineEmits<{
 }>()
 
 const containerVisible = ref(props.visible)
-const contentVisible = ref(props.visible)
 
 watch(() => props.visible, () => {
   if (props.visible) {
-    containerVisible.value = true
+    openDialog()
     emits('open')
   } else {
-    contentVisible.value = false
+    closeDialog()
   }
 })
+
+const fadeInKeyframes = [
+  { backgroundColor: 'rgba(0, 0, 0, 0)' },
+  { backgroundColor: 'rgba(0, 0, 0, 0.85)'}
+]
+const slideLeftInKeyframes = [
+  { transform: 'translateX(100%)' },
+  { transform: 'translateX(0)'}
+]
+const slideUpInKeyframes = [
+  { transform: 'translateY(100%)' },
+  { transform: 'translateY(0)'}
+]
+
+const getInKeyframes = () => props.position === 'left' ? slideLeftInKeyframes : slideUpInKeyframes
+
+const closeDialog = async () => {
+  await nextTick()
+  await Promise.all([
+    dialog.value?.animate(getInKeyframes().toReversed(), { duration: 200, easing: 'ease-in', fill: 'both' }).finished,
+    mask.value?.animate(fadeInKeyframes.toReversed(), { duration: 200, easing: 'ease-in', fill: 'both' }).finished
+  ])
+  containerVisible.value = false
+}
+const openDialog = async () => {
+  containerVisible.value = true
+  await nextTick()
+  await Promise.all([
+    dialog.value?.animate(getInKeyframes(), { duration: 200, easing: 'ease-out', fill: 'both' }).finished,
+    mask.value?.animate(fadeInKeyframes, { duration: 200, easing: 'ease-out', fill: 'both' }).finished
+  ])
+}
 </script>
 
 <style lang="scss" scoped>
