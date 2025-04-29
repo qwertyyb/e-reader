@@ -37,7 +37,7 @@
 }
 .enable-anim .slide-left-enter-from,
 .enable-anim .slide-left-leave-to {
-  transform: translateX(-100%)
+  transform: translateX(100%)
 }
 
 .enable-anim .fade-in-enter-from,

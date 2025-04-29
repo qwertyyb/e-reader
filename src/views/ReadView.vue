@@ -10,12 +10,14 @@
       @jump="jump"
     >
       <template v-slot:chapterList>
-        <virtual-list
+        <c-virtual-list
           class="catalog-content-wrapper"
           data-key="id"
           :data-sources="chapterList"
           ref="catalog"
-          :estimate-size="42">
+          :estimate-size="42"
+          :active-index="curChapterIndex"
+        >
           <template v-slot="{ source, index }">
             <div class="catalog-item"
               @click="readChapter(source, index)"
@@ -25,7 +27,7 @@
               <div class="catalog-label">{{ source.title }}</div>
             </div>
           </template>
-        </virtual-list>
+        </c-virtual-list>
       </template>
       <template v-slot="{ settings }">
         <div class="content-wrapper" ref="contentWrapper" @scroll="vScrollHandler">
@@ -46,12 +48,13 @@
 
 <script setup lang="ts">
 import ControlWrapper from '@/components/ControlWrapper.vue';
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, ref, useTemplateRef } from 'vue';
 import { localBookService as dataService } from '@/services/LocalBookService';
 import { env } from '@/utils/env';
 import { showToast } from '@/utils';
 import { readingStateStore } from '@/services/storage';
 import BookAnimation from '@/components/BookAnimation.vue';
+import CVirtualList from '@/components/common/CVirtualList.vue';
 import { onBeforeRouteLeave } from 'vue-router';
 
 interface IChapter {
@@ -90,12 +93,6 @@ const content = computed(() => {
 })
 
 const contentWrapperRef = useTemplateRef('contentWrapper')
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const catalogRef = useTemplateRef<any>('catalog')
-
-watch(curChapterIndex, () => {
-  catalogRef.value?.scrollToIndex(Math.max(0, curChapterIndex.value - 2))
-})
 
 const pageHandler = (direction: 'prev' | 'next') => {
   console.log('pageHandler', direction)
@@ -260,7 +257,6 @@ const init = async () => {
   await startRead()
   readingStateStore.update(props.id, { lastReadTime: Date.now() })
   await nextTick()
-  catalogRef.value?.scrollToIndex(Math.max(0, curChapterIndex.value - 2))
 }
 
 init()

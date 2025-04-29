@@ -14,8 +14,10 @@
     </transition>
 
     <c-dialog :visible="dialog==='catalog'"
-      height="90vh"
+      height="100vh"
+      width="80vw"
       title="目录"
+      position="left"
       @close="dialog=null">
       <slot name="chapterList"></slot>
     </c-dialog>

@@ -1,10 +1,10 @@
 <template>
   <transition name="fade-in"
     @enter="contentVisible=true">
-    <div class="c-dialog" v-if="containerVisible">
+    <div class="c-dialog" :class="`dialog-position-${position}`" v-if="containerVisible">
       <div class="mask" @pointerdown="$emit('close')"></div>
       <transition :name="anim" @after-leave="containerVisible=false">
-        <section class="c-dialog-content" v-if="contentVisible" :style="{ height: props.height || 'auto' }">
+        <section class="c-dialog-content" v-if="contentVisible" :style="{ height: props.height || 'auto', width: props.width }">
           <header class="c-dialog-header">
             <slot name="header">
               <h2 class="c-dialog-title" v-if="title">{{ title }}</h2>
@@ -18,14 +18,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   visible: boolean,
-  anim?: string,
+  position?: 'left' | 'bottom',
   height?: string,
   title?: string,
-}>(), { anim: 'slide-up' })
+  width?: string,
+}>()
+
+const anim = computed(() => props.position === 'bottom' ? 'slide-up' : 'slide-left')
 
 const emits = defineEmits<{
   open: []
@@ -55,6 +58,9 @@ watch(() => props.visible, () => {
   display: flex;
   align-items: flex-end;
   z-index: 10;
+  &.dialog-position-left {
+    left: initial;
+  }
 }
 
 .c-dialog-content {
@@ -62,6 +68,8 @@ watch(() => props.visible, () => {
   background: light-dark(var(--light-bg-color), var(--dark-bg-color));
   z-index: 10;
   padding-bottom: env(safe-area-inset-bottom);
+  padding-top: env(safe-area-inset-top);
+  box-sizing: border-box;
   overflow: auto;
   display: flex;
   flex-direction: column;
