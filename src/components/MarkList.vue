@@ -53,8 +53,8 @@ const markListWithStyle = computed(() => {
   list-style: none;
 }
 .mark-list .mark-item {
-  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
-  border-radius: 10px;
+  background: light-dark(#dfdfdf, #333);
+  border-radius: 4px;
   overflow: hidden;
   display: flex;
   margin-bottom: 12px;
@@ -87,8 +87,8 @@ const markListWithStyle = computed(() => {
 .mark-list .mark-quote-wrapper .pre-line {
   width: 3px;
   margin-top: 2px;
-  background: light-dark(rgb(224, 224, 224), #666);
-  margin-right: 8px;
+  background: light-dark(#ccc, #666);
+  margin-right: 6px;
   border-radius: 999px;
 }
 .mark-list .mark-quote-wrapper .mark-quote {
@@ -106,7 +106,7 @@ const markListWithStyle = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: light-dark(#f1f1f1, #333);
+  background-color: light-dark(#eee, #444);
   border-radius: 9999px;
 }
 </style>

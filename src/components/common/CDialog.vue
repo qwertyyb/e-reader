@@ -5,18 +5,20 @@
       ref="dialog"
       :style="{ height: props.height || 'auto', width: props.width }"
     >
-      <header class="c-dialog-header">
+      <header class="c-dialog-header" v-if="$slots.header || title">
         <slot name="header">
           <h2 class="c-dialog-title" v-if="title">{{ title }}</h2>
         </slot>
       </header>
-      <slot></slot>
+      <main class="c-dialog-main" :style="bodyStyle">
+        <slot></slot>
+      </main>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, useTemplateRef, watch } from 'vue';
+import { nextTick, ref, useTemplateRef, watch, type StyleValue } from 'vue';
 
 const props = defineProps<{
   visible: boolean,
@@ -24,6 +26,7 @@ const props = defineProps<{
   height?: string,
   title?: string,
   width?: string,
+  bodyStyle?: StyleValue
 }>()
 
 const mask = useTemplateRef('mask')
@@ -118,5 +121,10 @@ const openDialog = async () => {
 .c-dialog-title {
   font-size: 16px;
   font-weight: bold;
+}
+.c-dialog-main {
+  flex: 1;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 </style>

@@ -15,8 +15,9 @@
 
     <c-dialog :visible="dialog==='catalog'"
       height="100vh"
-      width="80vw"
+      width="85vw"
       position="left"
+      body-style="padding-left:0;padding-right:0"
       @close="dialog=null">
       <slot name="chapterList"></slot>
     </c-dialog>

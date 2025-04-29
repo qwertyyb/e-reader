@@ -46,11 +46,12 @@
       <div class="thought-input-wrapper">
         <span class="material-symbols-outlined thought-icon">record_voice_over</span>
         <textarea
+          v-if="mark"
           rows="1"
           class="thought-input"
           placeholder="写下这一刻的想法"
           ref="input"
-          v-model="mark!.thought"
+          v-model="mark.thought"
         ></textarea>
         <button class="save-btn" @click="saveThought">保存</button>
       </div>
@@ -244,7 +245,6 @@ const saveThought = async () => {
     await marks.add(rest)
   }
   refreshMark()
-  mark.value = null
   dialog.value = null
   updateMenuRect()
 }

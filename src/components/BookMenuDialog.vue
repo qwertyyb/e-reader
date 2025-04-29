@@ -67,7 +67,7 @@ const search = () => {
 
 <style lang="scss" scoped>
 .book-menu-dialog .book-menu {
-  padding: 30px 40px 50px 40px;
+  padding: 30px 0;
   width: calc(100vw - 80px);
   list-style: none;
   display: flex;
