@@ -26,10 +26,10 @@ const offsetY = window.innerHeight / 2 - window.innerWidth / 3 * 4 / 2
 
 const getOriginalRect = () => {
   return document.querySelector(`[data-book-trace=${JSON.stringify(animData.value.trace)}] .book-cover img`)?.getBoundingClientRect() || {
-    top: 20,
-    left: 20,
-    width: 100,
-    height: 140,
+    top: (window.innerHeight - COVER_SIZE / 3 * 4) / 2,
+    left: (window.innerWidth - COVER_SIZE) / 2,
+    width: COVER_SIZE,
+    height: COVER_SIZE / 3 * 4,
   }
 }
 
