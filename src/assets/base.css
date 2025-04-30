@@ -21,6 +21,9 @@
   --dark-text-color: #b4b3b3;
   --light-shadow-color: rgba(0, 0, 0, 0.2);
   --dark-shadow-color: rgba(227, 227, 227, 0.1);
+
+  --light-card-bg-color: #dfdfdf;
+  --dark-card-bg-color: #333;
 }
 
 * {

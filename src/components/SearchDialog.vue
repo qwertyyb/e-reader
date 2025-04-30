@@ -13,9 +13,9 @@
           <span class="material-symbols-outlined regexp-icon"
             :class="{active: isRegExp}"
             @click="isRegExp = !isRegExp">regular_expression</span>
-          <span class="search-btn" @click="search">搜索</span>
+          <span class="search-btn" @click="search()">搜索</span>
         </div>
-        <keyword-candidates v-if="!loading && !completed" :book-id="bookId"></keyword-candidates>
+        <keyword-candidates v-if="!loading && !completed" :book-id="bookId" @selected="search"></keyword-candidates>
       </header>
       <div class="search-empty-results" v-if="completed && results.length <= 0">
         <span class="material-symbols-outlined icon">find_in_page</span>
@@ -39,7 +39,7 @@
                 :key="index"
                 @click="toResult(source, item)"
                 class="chapter-result-item">
-                <div class="result-text">{{ item.text }}</div>
+                <div class="result-text" v-html="item.text"></div>
               </li>
             </ul>
           </div>
@@ -89,7 +89,10 @@ const clearSearch = () => {
   results.value = []
 }
 
-const search = async () => {
+const search = async (candidate?: IKeyword) => {
+  if (candidate) {
+    keyword.value = candidate.keyword
+  }
   if (!keyword.value.trim()) {
     clearSearch()
     return;
@@ -98,10 +101,16 @@ const search = async () => {
   const { content } = await contentStore.get(Number(props.bookId))
   const chapterList = await localBookService.getChapterList(String(props.bookId))
   const query = keyword.value.trim()
-  Promise.resolve().then(async () => {
-    const date = new Date().toISOString()
-    await keywordsStore.add({ keyword: query, bookId: Number(props.bookId), createdAt: date, lastUsedAt: date })
-  })
+  if (candidate) {
+    Promise.resolve().then(async () => {
+      keywordsStore.updateLastUsedAt(candidate.id)
+    })
+  } else {
+    Promise.resolve().then(async () => {
+      const date = new Date().toISOString()
+      await keywordsStore.add({ keyword: query, bookId: Number(props.bookId), createdAt: date, lastUsedAt: date })
+    })
+  }
   const reg = isRegExp.value ? new RegExp(query) : null
   const txts = content.split('\n')
   chapterList.forEach((chapter) => {
@@ -115,7 +124,7 @@ const search = async () => {
       const match = isRegExp.value && reg ? reg.test(line.trim()) : line.trim().includes(query)
       if (match) {
         chapterResults.results.push({
-          text: line.trim(),
+          text: line.trim().replaceAll(query, '<mark>$&</mark>'),
           cursor: index + chapter.cursorStart,
         })
       }
@@ -142,7 +151,6 @@ const toResult = (source: IResult, result: { cursor: number, text: string }) => 
 .search-section {
   display: flex;
   flex-direction: column;
-  background: rgb(240, 240, 240);
   height: 100%;
   & > * {
     width: 100%;
@@ -152,7 +160,7 @@ const toResult = (source: IResult, result: { cursor: number, text: string }) => 
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 12px 12px 12px;
+  padding-bottom: 12px;
   & > * {
     width: 100%;
   }
@@ -162,7 +170,7 @@ const toResult = (source: IResult, result: { cursor: number, text: string }) => 
   align-items: center;
   position: relative;
   flex: 1;
-  background: #d8d8d8;
+  background: light-dark(#d8d8d8, #333);
   border-radius: 9999px;
   padding: 0 8px;
   height: 30px;
@@ -197,27 +205,27 @@ const toResult = (source: IResult, result: { cursor: number, text: string }) => 
     display: block;
     width: 1px;
     height: 14px;
-    background: #bbb;
+    background: light-dark(#bbb, #777);
   }
 }
 .regexp-icon {
   font-size: 18px;
-  color: #555;
+  color: light-dark(#555, #aaa);
   padding: 0 4px;
   height: 100%;
   line-height: 30px;
   margin-right: 8px;
 }
 .regexp-icon.active {
-  background: #bbb;
+  background: light-dark(#bbb, #444);
 }
 .close-icon {
   font-size: 12px;
   font-weight: 600;
   border-radius: 999px;
-  background: #acacac;
+  background: light-dark(#acacac, #888);
   padding: 2px;
-  color: #fff;
+  color: light-dark(#fff, #444);
   margin-right: 8px;
 }
 
@@ -238,10 +246,9 @@ const toResult = (source: IResult, result: { cursor: number, text: string }) => 
 .chapter-title {
   font-size: 16px;
   font-weight: 600;
-  padding: 8px 16px;
+  padding: 8px 0;
 }
 .chapter-result-list {
-  padding: 0 16px;
   margin-bottom: 8px;
 }
 .chapter-result-item {
@@ -250,9 +257,13 @@ const toResult = (source: IResult, result: { cursor: number, text: string }) => 
   padding: 8px 12px;
   font-size: 13px;
   color: #555;
-  background: #fff;
-  border-radius: 8px;
+  background: light-dark(var(--light-card-bg-color), var(--dark-card-bg-color));
+  border-radius: 4px;
   letter-spacing: 0.5px;
+  &:deep(mark) {
+    text-decoration: none;
+    color: light-dark(rgb(0, 64, 255), rgb(70, 116, 255));
+  }
 }
 .chapter-result-item + .chapter-result-item {
   margin-top: 12px;
