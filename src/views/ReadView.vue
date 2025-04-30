@@ -40,12 +40,14 @@
           }"
         >
           <chapter-content-list
-            v-if="readingChapterId"
+            v-if="defaultProgress"
             :chapter-list="chapterList"
-            :reading-chapter-id="readingChapterId"
-            :reading-cursor="readingCursor"
+            :default-chapter-id="defaultProgress.chapterId"
+            :default-cursor="defaultProgress.cursor"
+            :load-chapter="loadChapter"
             @load="loadChapter"
             @progress="updateProgress"
+            ref="chapter-content-list"
           ></chapter-content-list>
           <!-- <virtual-list
             :data-sources="chapterList"
@@ -94,32 +96,13 @@ const props = defineProps<{
   id: string
 }>()
 
-const inited = false
 const chapterList = ref<IChapterItem[]>([])
-const startChapterIndex = ref(0)
 const curChapterIndex = ref(0)
 const animRef = useTemplateRef('anim')
-const readingChapterId = ref('')
-const readingCursor = ref(0)
+const chapterContentListRef = useTemplateRef('chapter-content-list')
+const defaultProgress = ref<{ chapterId: string, cursor: number } | null>(null)
 
 const chapter = computed(() => chapterList.value[curChapterIndex.value])
-
-const contentChapterList = computed(() => {
-  const results: Required<IChapterItem>[] = []
-  for(let i = startChapterIndex.value; i < chapterList.value.length; i += 1) {
-    const chapter = chapterList.value[i]
-    if (chapter.status === 'loaded') {
-      results.push(chapter as Required<IChapterItem>)
-    } else {
-      break
-    }
-  }
-  return results
-})
-
-const content = computed(() => {
-  return contentChapterList.value.map(chapter => chapter.content).filter(i => i).join('\n') || '<div class="placeholder">正在加载</div>'
-})
 
 const contentWrapperRef = useTemplateRef('contentWrapper')
 
@@ -131,13 +114,9 @@ const scrollVertical = (distance: number) => {
   contentWrapperRef.value!.scrollTop += distance
 }
 
-const readChapter = async (item: IChapter, index: number) => {
-  startChapterIndex.value = index
+const readChapter = async (chapter: IChapter, index: number) => {
   curChapterIndex.value = index
-  // await loadChapter(curChapterIndex.value)
-  await nextTick()
-  contentWrapperRef.value!.scrollTo(0, 0)
-  // updateProgress()
+  chapterContentListRef.value?.jump({ chapterId: chapter.id, cursor: chapter.cursorStart })
 }
 const loadChapter = async (chapter: IChapterItem, chapterIndex: number) => {
   console.log('loadChapter', chapter)
@@ -148,10 +127,9 @@ const loadChapter = async (chapter: IChapterItem, chapterIndex: number) => {
   chapter.content = content
   chapter.status = 'loaded'
 }
-const updateProgress = (progress: { chapter: IChapterItem, cursor: number }) => {
+const updateProgress = (progress: { chapter: IChapterItem, cursor: number, chapterIndex: number }) => {
   console.log('updateProgress', progress)
-  readingChapterId.value = progress.chapter.id
-  readingCursor.value = progress.cursor
+  curChapterIndex.value = progress.chapterIndex
 
   readingStateStore.update(props.id, {
     chapterId: progress.chapter.id,
@@ -159,45 +137,6 @@ const updateProgress = (progress: { chapter: IChapterItem, cursor: number }) => 
     lastReadTime: Date.now(),
   })
 }
-
-// const getCurrentProgress = () => {
-//   // 1. 找到当前的章节
-//   const content = contentWrapperRef.value?.querySelector('.content')
-//   const chapterEls = content!.querySelectorAll<HTMLDivElement>('.chapter')
-//   const chapterEl = Array.from(chapterEls)
-//     .reverse()
-//     .find((el) => {
-//       const { top, left } = el.getBoundingClientRect()
-//       return top < 0 || left < 0
-//     }) || chapterEls[0]
-//   if (!chapterEl) return
-
-//   // 2. 找到章节中最靠近上方的段落
-//   const els = Array.from(chapterEl.querySelectorAll<HTMLDivElement>('.content [data-cursor]'))
-//   const screenRect = document.documentElement.getBoundingClientRect()
-//   let minLeft = Number.MAX_SAFE_INTEGER
-//   let minTop = Number.MAX_SAFE_INTEGER
-//   let target: HTMLDivElement | null = null
-//   els.forEach(el => {
-//     const rect = el.getBoundingClientRect()
-//     if (rect.top >= screenRect.top
-//       && rect.left >= screenRect.left
-//       && rect.bottom <= screenRect.bottom
-//       && rect.right <= screenRect.right) {
-//         // 在屏幕内
-//         if (rect.left < minLeft || rect.top < minTop) {
-//           minTop = rect.top
-//           minLeft = rect.left
-//           target = el
-//         }
-//       }
-//   })
-//   return {
-//     chapterIndex: Number(chapterEl.dataset.chapterIndex),
-//     chapter: chapterList.value[Number(chapterEl.dataset.chapterIndex)],
-//     cursor: Number((target as HTMLDListElement | null)?.dataset.cursor)
-//   }
-// }
 
 const needAppendNextChapter = () => {
   if (env.isInk()) {
@@ -254,33 +193,12 @@ const fetchChapterList = async () => {
 }
 const startRead = async () => {
   const { chapterId = chapterList.value[0].id, cursor = 0 } = await readingStateStore.get(props.id) || {}
-  readingChapterId.value = chapterId
-  readingCursor.value = cursor
-
-  // let index = chapterList.value.findIndex(item => `${item.id}` === `${chapterId}`)
-  // index = index >= 0 ? index : 0
-  // await readChapter(chapterList.value[index], index)
-
+  defaultProgress.value = { chapterId, cursor }
   await nextTick()
-
-  // const el = document.querySelector(`.content [data-cursor="${cursor}"]`)
-  // el?.scrollIntoView()
-
-  // // 等待滚动到位置后再监听滚动事件
-  // setTimeout(() => {
-  //   inited = true
-  // }, 300)
 }
 
 const jump = async (options: { chapterId: string, cursor: number }) => {
-  const index = chapterList.value.findIndex(item => String(item.id) === String(options.chapterId))
-  if (index < 0) return;
-  startChapterIndex.value = index
-  curChapterIndex.value = index
-  // await loadChapter(index)
-  await nextTick()
-  const el = document.querySelector(`.content [data-cursor="${options.cursor}"]`)
-  el?.scrollIntoView()
+  chapterContentListRef.value?.jump(options)
 }
 
 const init = async () => {

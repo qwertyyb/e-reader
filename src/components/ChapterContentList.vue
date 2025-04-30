@@ -7,27 +7,29 @@
       @scroll="scrollHandler"
       class="chapter-content-virutal-list"
       :estimate-size="600"
-      :start="start"
+      :start="startChapterIndex"
+      ref="virtual-list"
     >
       <template v-slot="{ source }">
-        <div class="chapter-wrapper" v-html="source.content"></div>
+        <div class="chapter-wrapper" v-html="source.content" :chapter-id="source.id"></div>
       </template>
     </virtual-list>
   </div>
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, useTemplateRef, watch } from 'vue';
+import { nextTick, ref, useTemplateRef } from 'vue';
 
 const props = defineProps<{
   chapterList: IChapterItem[],
-  readingChapterId: string,
-  readingCursor: number,
+  defaultChapterId: string,
+  defaultCursor: number,
+  loadChapter: (chapter: IChapterItem, chapterIndex: number) => Promise<void>
 }>()
 
 const emits = defineEmits<{
   load: [IChapterItem, number],
-  progress: [{ chapter: IChapterItem, cursor: number }]
+  progress: [{ chapter: IChapterItem, cursor: number, chapterIndex: number }]
 }>()
 
 interface IChapterItem extends IChapter {
@@ -36,66 +38,66 @@ interface IChapterItem extends IChapter {
 }
 
 const el = useTemplateRef('el')
-const start = ref(0)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const virtualListRef = useTemplateRef<any>('virtual-list')
+const startChapterIndex = ref(0)
 
-const loadDefaultContents = async () => {
+const loadContents = (chapterId: string) => {
   // 如果指定了 ChapterId，则加载 ChapterId 前后的几个章节
-  const index = Math.max(0, props.chapterList.findIndex(chapter => chapter.id === props.readingChapterId))
-  start.value = index
-  console.log('loadDefaultContents', index, props.readingChapterId)
-  // 加载当前章节和后两个章节
-  props.chapterList.slice(index, index + 3).forEach((chapter, i) => {
-    emits('load', chapter, index + i)
-  })
-
-  // 也往前加载两个章节
-  for (let i = index - 1; i >= Math.max(0, index - 2); i--) {
-    emits('load', props.chapterList[i], i)
-  }
-
-  if (getCurrentProgress()?.cursor !== props.readingCursor) {
-    await nextTick()
-    console.log('sddd', el.value?.querySelector(`[data-cursor="${props.readingCursor}"]`))
-    el.value?.querySelector(`[data-cursor="${props.readingCursor}"]`)?.scrollIntoView()
-  }
+  const targetIndex = Math.max(0, props.chapterList.findIndex(chapter => chapter.id === chapterId))
+  const startIndex = Math.max(0, targetIndex - 2)
+  startChapterIndex.value = startIndex
+  console.log('loadDefaultContents', startChapterIndex)
+  return Promise.all(
+    props.chapterList.slice(startIndex, startIndex + 5).map((chapter, i) => props.loadChapter(chapter, startIndex + i))
+  )
 }
 
-watch(() => props.readingChapterId, loadDefaultContents)
+const scrollToCursor = async (cursor: number) => {
+  await nextTick()
+  const p = el.value?.querySelector<HTMLElement>(`[data-cursor="${cursor}"]`)
+  if (!p) return;
+  // const visibleRect = el.value
+  virtualListRef.value?.scrollToOffset(p.offsetTop + virtualListRef.value!.getOffset() - 16)
+}
 
-const checkProgress = () => {
+const updateProgress = () => {
   const { chapter, cursor, chapterIndex } = getCurrentProgress() || {}
+  console.log(chapter, cursor)
   if (!chapter || !cursor || !chapterIndex && chapterIndex !== 0) return;
 
-  emits('progress', { chapter, cursor })
+  console.log('checkProgress', cursor)
+  emits('progress', { chapter, cursor, chapterIndex })
 }
 
 const getCurrentProgress = () => {
+  if (!el.value) return;
   // 1. 找到当前的章节
-  const chapterEls = el.value?.querySelectorAll<HTMLDivElement>('.chapter') || []
+  const visibleRect = el.value.getBoundingClientRect()
+  const chapterEls = el.value.querySelectorAll<HTMLDivElement>('.chapter') || []
   const chapterEl = Array.from(chapterEls)
     .reverse()
     .find((el) => {
       const { top, left } = el.getBoundingClientRect()
-      return top < 0 || left < 0
+      return Math.round(top) < Math.round(visibleRect.top) || Math.round(left) < Math.round(visibleRect.left)
     }) || chapterEls[0]
   if (!chapterEl) return
 
   // 2. 找到章节中最靠近上方的段落
   const els = Array.from(chapterEl.querySelectorAll<HTMLDivElement>('[data-cursor]'))
-  const screenRect = document.documentElement.getBoundingClientRect()
   let minLeft = Number.MAX_SAFE_INTEGER
   let minTop = Number.MAX_SAFE_INTEGER
   let target: HTMLDivElement | null = null
   els.forEach(el => {
     const rect = el.getBoundingClientRect()
-    if (rect.top >= screenRect.top
-      && rect.left >= screenRect.left
-      && rect.bottom <= screenRect.bottom
-      && rect.right <= screenRect.right) {
+    if (Math.round(rect.top) >= Math.round(visibleRect.top)
+      && Math.round(rect.left) >= Math.round(visibleRect.left)
+      && Math.round(rect.bottom) <= Math.round(visibleRect.bottom)
+      && Math.round(rect.right) <= Math.round(visibleRect.right)) {
         // 在屏幕内
-        if (rect.left < minLeft || rect.top < minTop) {
-          minTop = rect.top
-          minLeft = rect.left
+        if (Math.round(rect.left) < minLeft || Math.round(rect.top) < minTop) {
+          minTop = Math.round(rect.top)
+          minLeft = Math.round(rect.left)
           target = el
         }
       }
@@ -108,11 +110,22 @@ const getCurrentProgress = () => {
 }
 
 const scrollHandler = () => {
-  checkProgress()
+  updateProgress()
 }
 
-loadDefaultContents()
+const init = async () => {
+  await loadContents(props.defaultChapterId)
+  scrollToCursor(props.defaultCursor)
+}
 
+init()
+
+defineExpose({
+  async jump(options: { chapterId: string, cursor: number }) {
+    await loadContents(options.chapterId)
+    scrollToCursor(options.cursor)
+  }
+})
 </script>
 
 <style lang="scss" scoped>
@@ -120,13 +133,13 @@ loadDefaultContents()
   height: 100%;
   overflow: auto;
 }
-.chapter-content-list :deep(.content) {
+.chapter-content-list :deep(.chapter-wrapper) {
   box-sizing: border-box;
   margin-left: 12px;
   margin-right: 12px;
   width: calc(100% - 24px);
   line-height: 1.6;
-  font-size: 24px;
+  font-size: inherit;
   user-select: text;
   -webkit-user-select: text;
   &.column {
@@ -145,7 +158,7 @@ loadDefaultContents()
     justify-content: center;
   }
   .chapter {
-    margin-bottom: max(env(safe-area-inset-bottom), 16em);
+    padding-bottom: max(env(safe-area-inset-bottom), 16em);
   }
   p {
     text-indent: 2em;
