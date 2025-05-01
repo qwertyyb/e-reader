@@ -39,7 +39,7 @@
           }"
         >
           <chapter-content-list
-            v-if="defaultProgress"
+            v-if="chapterList.length && defaultProgress"
             :chapter-list="chapterList"
             :default-chapter-id="defaultProgress.chapterId"
             :default-cursor="defaultProgress.cursor"
@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import ControlWrapper from '@/components/ControlWrapper.vue';
-import { computed, nextTick, ref, useTemplateRef } from 'vue';
+import { computed, ref, useTemplateRef } from 'vue';
 import { localBookService as dataService } from '@/services/LocalBookService';
 import { showToast } from '@/utils';
 import { readingStateStore } from '@/services/storage';
@@ -65,11 +65,6 @@ import CVirtualList from '@/components/common/CVirtualList.vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { renderChapter } from '@/utils/chapter';
 import ChapterContentList from '@/components/ChapterContentList.vue';
-
-interface IChapterItem extends IChapter {
-  status: 'default' | 'loading' | 'loaded',
-  content?: string
-}
 
 const props = defineProps<{
   id: string
@@ -96,7 +91,7 @@ const jumpToChapter = async (chapter: IChapter, index: number) => {
   chapterContentListRef.value?.jump({ chapterId: chapter.id, cursor: chapter.cursorStart })
 }
 const loadChapter = async (chapter: IChapterItem, chapterIndex: number) => {
-  if (chapter.content) return;
+  if (chapter.content || chapter.status === 'loading') return;
   chapter.status = 'loading'
   const text = await dataService.getChapter(props.id as string)
   const content = renderChapter(chapter, text, chapterIndex)
@@ -124,10 +119,9 @@ const fetchChapterList = async () => {
     content: '',
   }))
 }
-const startRead = async () => {
+const fetchReadProgress = async () => {
   const { chapterId = chapterList.value[0].id, cursor = 0 } = await readingStateStore.get(props.id) || {}
   defaultProgress.value = { chapterId, cursor }
-  await nextTick()
 }
 
 const jump = async (options: { chapterId: string, cursor: number }) => {
@@ -135,10 +129,11 @@ const jump = async (options: { chapterId: string, cursor: number }) => {
 }
 
 const init = async () => {
-  await fetchChapterList()
-  await startRead()
+  Promise.all([
+    fetchChapterList(),
+    fetchReadProgress()
+  ])
   readingStateStore.update(props.id, { lastReadTime: Date.now() })
-  await nextTick()
 }
 
 init()

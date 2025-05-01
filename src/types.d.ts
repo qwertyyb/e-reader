@@ -36,6 +36,11 @@ interface IChapter {
   cursorEnd?: number,
 }
 
+interface IChapterItem extends IChapter {
+  status: 'default' | 'loading' | 'loaded',
+  content?: string
+}
+
 interface IKeyword {
   id: number
   bookId: number

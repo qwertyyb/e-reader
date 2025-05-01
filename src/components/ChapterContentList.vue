@@ -18,11 +18,6 @@ const emits = defineEmits<{
   progress: [{ chapter: IChapterItem, cursor: number, chapterIndex: number }]
 }>()
 
-interface IChapterItem extends IChapter {
-  status: 'default' | 'loading' | 'loaded',
-  content?: string
-}
-
 const el = useTemplateRef('el')
 
 const startChapterIndex = ref(0)
