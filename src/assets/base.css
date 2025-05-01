@@ -24,6 +24,11 @@
 
   --light-card-bg-color: #dfdfdf;
   --dark-card-bg-color: #333;
+
+  --sait: env(safe-area-inset-top);
+  --saib: env(safe-area-inset-bottom);
+  --sail: env(safe-area-inset-left);
+  --sair: env(safe-area-inset-right);
 }
 
 * {
@@ -60,6 +65,12 @@ body {
 
 html {
   color-scheme: light;
+}
+html.mock-safe-area {
+  --sait: 44px;
+  --saib: 34px;
+  --sail: 0;
+  --sair: 0;
 }
 
 /* dark mode start */

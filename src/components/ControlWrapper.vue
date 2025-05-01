@@ -221,6 +221,7 @@ const actionHandler = async (control: string) => {
     visiblePanel.value = 'autoPlay'
     actions.autoPlay.toggle()
   } else if (control === 'catalog') {
+    panelVisible.value = false
     dialog.value = 'catalog'
   }
 }
@@ -336,6 +337,12 @@ onMounted(() => {
 
 onUnmounted(() => { if (hammerInstance) { hammerInstance.destroy() } })
 
+defineExpose({
+  closeDialog() {
+    dialog.value = null
+  }
+})
+
 </script>
 
 <style lang="scss" scoped>
@@ -363,7 +370,7 @@ onUnmounted(() => { if (hammerInstance) { hammerInstance.destroy() } })
   background: light-dark(var(--light-bg-color), var(--dark-bg-color));
   border-bottom: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
   z-index: 10;
-  padding-top: env(safe-area-inset-top);
+  padding-top: var(--sait);
   box-sizing: content-box;
   box-shadow: 0 0 10px light-dark(var(--light-shadow-color), var(--dark-shadow-color));
 }
@@ -371,7 +378,7 @@ onUnmounted(() => { if (hammerInstance) { hammerInstance.destroy() } })
   content: " ";
   display: block;
   width: 100vw;
-  height: env(safe-area-inset-top);
+  height: var(--sait);
   position: absolute;
   top: 0;
   left: 0;
@@ -404,7 +411,7 @@ onUnmounted(() => { if (hammerInstance) { hammerInstance.destroy() } })
   background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
   border-top: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
   text-align: center;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: var(--saib);
   box-sizing: content-box;
   box-shadow: 0 0 10px light-dark(var(--light-shadow-color), var(--dark-shadow-color));
 }

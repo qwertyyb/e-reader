@@ -38,7 +38,7 @@
             fontWeight: settings.fontWeight
           }"
         >
-          <chapter-content-list
+          <chapter-contents
             v-if="chapterList.length && defaultProgress"
             :chapter-list="chapterList"
             :default-chapter-id="defaultProgress.chapterId"
@@ -46,8 +46,8 @@
             :load-chapter="loadChapter"
             @load="loadChapter"
             @progress="updateProgress"
-            ref="chapter-content-list"
-          ></chapter-content-list>
+            ref="chapter-contents"
+          ></chapter-contents>
         </div>
       </template>
     </control-wrapper>
@@ -64,7 +64,7 @@ import BookAnimation from '@/components/BookAnimation.vue';
 import CVirtualList from '@/components/common/CVirtualList.vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { renderChapter } from '@/utils/chapter';
-import ChapterContentList from '@/components/ChapterContentList.vue';
+import ChapterContents from '@/components/ChapterContents.vue';
 
 const props = defineProps<{
   id: string
@@ -73,7 +73,8 @@ const props = defineProps<{
 const chapterList = ref<IChapterItem[]>([])
 const curChapterIndex = ref(0)
 const animRef = useTemplateRef('anim')
-const chapterContentListRef = useTemplateRef('chapter-content-list')
+const controlWrapperRef = useTemplateRef('control-wrapper')
+const chapterContentsRef = useTemplateRef('chapter-contents')
 const defaultProgress = ref<{ chapterId: string, cursor: number } | null>(null)
 
 const chapter = computed(() => chapterList.value[curChapterIndex.value])
@@ -83,12 +84,13 @@ const pageHandler = (direction: 'prev' | 'next') => {
 }
 
 const scrollVertical = (distance: number) => {
-  chapterContentListRef.value?.scroll(distance)
+  chapterContentsRef.value?.scroll(distance)
 }
 
 const jumpToChapter = async (chapter: IChapter, index: number) => {
   curChapterIndex.value = index
-  chapterContentListRef.value?.jump({ chapterId: chapter.id, cursor: chapter.cursorStart })
+  chapterContentsRef.value?.jump({ chapterId: chapter.id, cursor: chapter.cursorStart })
+  controlWrapperRef.value?.closeDialog()
 }
 const loadChapter = async (chapter: IChapterItem, chapterIndex: number) => {
   if (chapter.content || chapter.status === 'loading') return;
@@ -125,7 +127,7 @@ const fetchReadProgress = async () => {
 }
 
 const jump = async (options: { chapterId: string, cursor: number }) => {
-  chapterContentListRef.value?.jump(options)
+  chapterContentsRef.value?.jump(options)
 }
 
 const init = async () => {
@@ -177,9 +179,6 @@ onBeforeRouteLeave((to, from, next) => {
   height: 100vh;
   box-sizing: border-box;
   z-index: 0;
-  // height: var(--read-view-content-height);
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
   background-clip: border-box;
   overflow: auto;
   position: relative;
@@ -217,7 +216,7 @@ onBeforeRouteLeave((to, from, next) => {
     justify-content: center;
   }
   .chapter {
-    margin-bottom: max(env(safe-area-inset-bottom), 16em);
+    margin-bottom: max(var(--saib), 16em);
   }
   p {
     text-indent: 2em;
@@ -229,7 +228,7 @@ onBeforeRouteLeave((to, from, next) => {
   }
 
   h4.chapter-title {
-    padding-top: env(safe-area-inset-top);
+    padding-top: var(--sait);
   }
   p.reading {
     background: yellow;

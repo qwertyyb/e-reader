@@ -4,3 +4,5 @@ export const env = {
   isHorizontal: () => document.querySelector<HTMLElement>('.content')?.classList.contains('column'),
   isInk: () => navigator.userAgent.includes('Leaf')
 }
+
+export const getSafeAreaTop = () => window.parseInt(getComputedStyle(document.documentElement).getPropertyValue("--sait"), 10)

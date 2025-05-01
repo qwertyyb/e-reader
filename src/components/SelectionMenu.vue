@@ -360,7 +360,7 @@ const actionHandler = async (event: Event, action: string) => {
   white-space: nowrap;
 }
 .thought-input-dialog .thought-input-wrapper {
-  margin: 12px max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  margin: 12px max(20px, var(--sair)) max(20px, var(--saib)) max(20px, var(--sail));
   display: flex;
   align-items: flex-end;
   width: auto;

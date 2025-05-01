@@ -25,4 +25,5 @@ if (import.meta.env.PROD) {
   register()
 } else {
   unregister()
+  document.documentElement.classList.add('mock-safe-area')
 }

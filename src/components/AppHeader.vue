@@ -48,7 +48,7 @@ onUnmounted(() => darkModeDetector.destroy())
   box-sizing: content-box;
   flex-shrink: 0;
   position: fixed;
-  padding-top: env(safe-area-inset-top);
+  padding-top: var(--sait);
   z-index: 2;
   background: light-dark(var(--light-bg-color), var(--dark-bg-color));
 }

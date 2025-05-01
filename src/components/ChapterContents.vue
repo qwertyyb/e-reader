@@ -1,10 +1,12 @@
 <template>
-  <div class="chapter-content-list" ref="el" @scroll="scrollHandler">
+  <div class="chapter-contents" ref="el">
+    <div class="chapter-contents-wrapper" @scroll="scrollHandler"></div>
     <!-- <div class="chapter-wrapper"></div> -->
   </div>
 </template>
 
 <script setup lang="ts">
+import { getSafeAreaTop } from '@/utils/env';
 import { nextTick, ref, useTemplateRef, watch } from 'vue';
 
 const props = defineProps<{
@@ -20,15 +22,19 @@ const emits = defineEmits<{
 
 const el = useTemplateRef('el')
 
-const startChapterIndex = ref(0)
+const startChapterIndex = ref(-1)
 const keeps = 5
 
-watch(startChapterIndex, () => {
+const renderChapterList = () => {
   // vue 的渲染不太可控，自行渲染
-  if (!el.value) return;
-  if (!el.value.childElementCount) {
+  if (!el.value) {
+    console.warn('dom未挂载')
+    return;
+  }
+  const wrapper = el.value.querySelector('.chapter-contents-wrapper')!
+  if (!wrapper.childElementCount) {
     // 如果是空的，直接插入进去就行，不需要考虑其他
-    el.value.innerHTML = props.chapterList
+    wrapper.innerHTML = props.chapterList
       .slice(startChapterIndex.value, startChapterIndex.value + keeps)
       .map(item => item.content)
       .join('\n')
@@ -50,18 +56,18 @@ watch(startChapterIndex, () => {
   // const top = chapterEl.offsetTop
   // const scrollTop = el.value.scrollTop
   const { top: oldTop } = chapterEl.getBoundingClientRect()
-  el.value.innerHTML = props.chapterList
+  wrapper.innerHTML = props.chapterList
     .slice(startChapterIndex.value, startChapterIndex.value + keeps)
     .map(item => item.content)
     .join('\n')
   const newChapterEl = el.value.querySelector<HTMLDivElement>(`.chapter[data-id="${progress.chapter.id}"]`)
-  if (!newChapterEl) {
-    throw new Error('没找到对应的新章节')
-  }
+  if (!newChapterEl) return;
   const { top: newTop } = newChapterEl.getBoundingClientRect()
   const distance = newTop - oldTop
-  el.value.scrollTop += distance
-})
+  wrapper.scrollTop += distance
+}
+
+watch(startChapterIndex, renderChapterList)
 
 const loadContents = async (chapterId: string) => {
   // 如果指定了 ChapterId，则加载 ChapterId 前后的几个章节
@@ -76,14 +82,15 @@ const loadContents = async (chapterId: string) => {
 const scrollToCursor = async (cursor: number) => {
   await nextTick()
   el.value?.querySelector<HTMLElement>(`[data-cursor="${cursor}"]`)?.scrollIntoView()
+  console.log(el.value?.querySelector<HTMLElement>(`[data-cursor="${cursor}"]`))
+  el.value?.querySelector('.chapter-contents-wrapper')?.scrollBy(0, -getSafeAreaTop())
 }
 
 const updateProgress = () => {
-  const { chapter, cursor, chapterIndex } = getCurrentProgress() || {}
-  if (!chapter || !cursor || !chapterIndex && chapterIndex !== 0) return;
-  loadContents(chapter.id)
+  const progress = getCurrentProgress()
+  if (!progress) return;
 
-  emits('progress', { chapter, cursor, chapterIndex })
+  emits('progress', progress)
 }
 
 const getCurrentProgress = () => {
@@ -149,15 +156,17 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
-.chapter-content-list, .chapter-content-virutal-list {
+.chapter-contents, .chapter-contents-wrapper {
   height: 100%;
   overflow: auto;
   position: relative;
 }
-.chapter-content-list :deep(.chapter-wrapper) {
+.chapter-contents :deep(.chapter-contents-wrapper) {
   box-sizing: border-box;
   margin-left: 12px;
   margin-right: 12px;
+  padding-top: var(--sait);
+  padding-bottom: var(saib);
   width: calc(100% - 24px);
   line-height: 1.6;
   font-size: inherit;
@@ -179,7 +188,7 @@ defineExpose({
     justify-content: center;
   }
   .chapter {
-    padding-bottom: max(env(safe-area-inset-bottom), 16em);
+    padding-bottom: max(var(--saib), 16em);
   }
   p {
     text-indent: 2em;
@@ -191,7 +200,7 @@ defineExpose({
   }
 
   h4.chapter-title {
-    padding-top: env(safe-area-inset-top);
+    padding-top: var(--sait);
   }
   p.reading {
     background: yellow;

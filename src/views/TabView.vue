@@ -32,14 +32,14 @@ import LastReadBook from '@/components/LastReadBook.vue';
   flex-direction: column;
 }
 .tab-panel-container {
-  padding-top: calc(env(safe-area-inset-top) + 48px);
-  padding-bottom: calc(env(safe-area-inset-bottom) + 60px);
+  padding-top: calc(var(--sait) + 48px);
+  padding-bottom: calc(var(--saib) + 60px);
   min-height: 100vh;
 }
 .tab-nav-list {
   display: flex;
   list-style: none;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: var(--saib);
   width: 100%;
   height: 54px;
   box-sizing: content-box;

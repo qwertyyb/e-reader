@@ -27,7 +27,7 @@ refresh()
 
 <style lang="scss" scoped>
 .notes-view {
-  padding: env(safe-area-inset-top) 12px env(safe-area-inset-bottom) 12px;
+  padding: var(--sait) 12px var(--saib) 12px;
   background: rgb(238, 238, 238);
 }
 .book-title {

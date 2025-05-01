@@ -80,7 +80,7 @@ onBeforeUnmount(() => {
 .update-dialog::v-deep(.c-dialog-content) {
   width: 100vw;
   box-sizing: border-box;
-  padding: 20px 20px max(20px, env(safe-area-inset-bottom)) 20px;
+  padding: 20px 20px max(20px, var(--saib)) 20px;
 }
 .update-dialog .update-title {
   font-size: 18px;

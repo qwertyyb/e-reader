@@ -55,8 +55,8 @@ watch(() => props.range, () => refresh())
   align-self: flex-start;
   background: transparent;
   box-sizing: border-box;
-  padding-top: max(60px, env(safe-area-inset-top));
-  padding-bottom: max(20px, env(safe-area-inset-bottom));
+  padding-top: max(60px, var(--sait));
+  padding-bottom: max(20px, var(--saib));
   width: 84vw;
   margin-left: 8vw;
   color: #fff;
