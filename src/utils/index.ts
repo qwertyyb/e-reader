@@ -29,3 +29,13 @@ export const getNearestTopEl = (els: HTMLElement[] | HTMLCollection): HTMLElemen
   if (!el.children.length) return el as HTMLElement
   return getNearestTopEl(el.children)
 }
+
+export const debounce = <F extends (...args: unknown[]) => unknown>(fn: F, duration: number = 200) => {
+  let timeout: ReturnType<typeof setTimeout> | null = null
+  return (...args: Parameters<F>) => {
+    if (timeout) {
+      clearTimeout(timeout)
+    }
+    timeout = setTimeout(fn, duration, ...args)
+  }
+}

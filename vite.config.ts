@@ -18,7 +18,8 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(new Date().toLocaleString('zh-CN').replace(/(\/|\s|:)/g, ''))
   },
   server: {
-    port: 8030
+    port: 8030,
+    host: '0.0.0.0',
   },
   resolve: {
     alias: {

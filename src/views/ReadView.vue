@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import ControlWrapper from '@/components/ControlWrapper.vue';
-import { computed, ref, useTemplateRef } from 'vue';
+import { computed, nextTick, ref, useTemplateRef } from 'vue';
 import { localBookService as dataService } from '@/services/LocalBookService';
 import { showToast } from '@/utils';
 import { readingStateStore } from '@/services/storage';
@@ -93,12 +93,13 @@ const jumpToChapter = async (chapter: IChapter, index: number) => {
   controlWrapperRef.value?.closeDialog()
 }
 const loadChapter = async (chapter: IChapterItem, chapterIndex: number) => {
-  if (chapter.content || chapter.status === 'loading') return;
+  if (chapter.content) return;
   chapter.status = 'loading'
   const text = await dataService.getChapter(props.id as string)
   const content = renderChapter(chapter, text, chapterIndex)
   chapter.content = content
   chapter.status = 'loaded'
+  await nextTick()
 }
 const updateProgress = (progress: { chapter: IChapterItem, cursor: number, chapterIndex: number }) => {
   curChapterIndex.value = progress.chapterIndex

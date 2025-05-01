@@ -158,6 +158,7 @@ import { env } from '@/utils/env';
 import router from '@/router';
 import { AutoPlay, DarkMode, ReadSpeak } from '@/actions';
 import { getNearestTopEl } from '@/utils';
+import Hammer from 'hammerjs';
 
 defineProps<{
   bookId: number
@@ -272,7 +273,7 @@ const initHammer = () => {
     }
     panelVisible.value = !panelVisible.value
   }
-  const hammer = new window.Hammer.Manager(contentRef.value!, {
+  const hammer = new Hammer.Manager(contentRef.value!, {
     recognizers: [
       [window.Hammer.Tap],
       [window.Hammer.Swipe, { direction: window.Hammer.DIRECTION_ALL, threshold: 10 }]

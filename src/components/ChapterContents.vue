@@ -6,6 +6,7 @@
 </template>
 
 <script setup lang="ts">
+import { debounce } from '@/utils';
 import { getSafeAreaTop } from '@/utils/env';
 import { nextTick, ref, useTemplateRef, watch } from 'vue';
 
@@ -133,9 +134,9 @@ const getCurrentProgress = () => {
   }
 }
 
-const scrollHandler = () => {
-  updateProgress()
-}
+// 经测试，发现 safari 在正在滚动时，无法接受滚动位置的突变，即修改 scrollTop 时，会出现非预期行为
+// 所以此处需要等待滚动结束后再更新内容区域，具体实现为防抖(safari 目前暂不支持 scrollend 事件)
+const scrollHandler = debounce(updateProgress)
 
 const init = async () => {
   await loadContents(props.defaultChapterId)
@@ -164,11 +165,10 @@ defineExpose({
 }
 .chapter-contents :deep(.chapter-contents-wrapper) {
   box-sizing: border-box;
-  margin-left: 12px;
-  margin-right: 12px;
+  padding-left: 12px;
+  padding-right: 12px;
   padding-top: var(--sait);
-  padding-bottom: var(saib);
-  width: calc(100% - 24px);
+  padding-bottom: var(--saib);
   line-height: 1.6;
   font-size: inherit;
   user-select: text;
