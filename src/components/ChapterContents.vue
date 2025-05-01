@@ -89,7 +89,7 @@ const scrollToCursor = async (cursor: number) => {
 const updateProgress = () => {
   const progress = getCurrentProgress()
   if (!progress) return;
-  loadContents(progress.capter.id);
+  loadContents(progress.chapter.id);
 
   emits('progress', progress)
 }
