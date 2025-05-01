@@ -72,9 +72,3 @@ getLastReadBook().then((lastReadBook) => {
   }
 })
 </script>
-
-<style lang="scss" scoped>
-.last-read-book {
-  // zoom: 1.5;
-}
-</style>

@@ -1,24 +1,11 @@
 <template>
-  <div class="chapter-content-list" ref="el">
-    <virtual-list
-      :data-sources="chapterList"
-      data-key="id"
-      :keeps="5"
-      @scroll="scrollHandler"
-      class="chapter-content-virutal-list"
-      :estimate-size="600"
-      :start="startChapterIndex"
-      ref="virtual-list"
-    >
-      <template v-slot="{ source }">
-        <div class="chapter-wrapper" v-html="source.content" :chapter-id="source.id"></div>
-      </template>
-    </virtual-list>
+  <div class="chapter-content-list" ref="el" @scroll="scrollHandler">
+    <!-- <div class="chapter-wrapper"></div> -->
   </div>
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, useTemplateRef } from 'vue';
+import { nextTick, ref, useTemplateRef, watch } from 'vue';
 
 const props = defineProps<{
   chapterList: IChapterItem[],
@@ -28,7 +15,6 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  load: [IChapterItem, number],
   progress: [{ chapter: IChapterItem, cursor: number, chapterIndex: number }]
 }>()
 
@@ -38,35 +24,70 @@ interface IChapterItem extends IChapter {
 }
 
 const el = useTemplateRef('el')
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const virtualListRef = useTemplateRef<any>('virtual-list')
-const startChapterIndex = ref(0)
 
-const loadContents = (chapterId: string) => {
+const startChapterIndex = ref(0)
+const keeps = 5
+
+watch(startChapterIndex, () => {
+  // vue 的渲染不太可控，自行渲染
+  if (!el.value) return;
+  if (!el.value.childElementCount) {
+    // 如果是空的，直接插入进去就行，不需要考虑其他
+    el.value.innerHTML = props.chapterList
+      .slice(startChapterIndex.value, startChapterIndex.value + keeps)
+      .map(item => item.content)
+      .join('\n')
+    return
+  }
+  // 如果非空，需要考虑替换 DOM 时，要保持可视区域不变
+  // 主要要考虑在可视区域之前的 DOM 替换
+  // 1. 需要先定位到目前在可视区域的章节
+  const progress = getCurrentProgress()
+  if (!progress) {
+    throw new Error('获取当前进度失败')
+  }
+
+  // 2. 获取章节在容器内的相对位置和容器的滚动跨度
+  const chapterEl = el.value.querySelector<HTMLDivElement>(`.chapter[data-id="${progress.chapter.id}"]`)
+  if (!chapterEl) {
+    throw new Error('获取当前章节 DOM 失败')
+  }
+  // const top = chapterEl.offsetTop
+  // const scrollTop = el.value.scrollTop
+  const { top: oldTop } = chapterEl.getBoundingClientRect()
+  el.value.innerHTML = props.chapterList
+    .slice(startChapterIndex.value, startChapterIndex.value + keeps)
+    .map(item => item.content)
+    .join('\n')
+  const newChapterEl = el.value.querySelector<HTMLDivElement>(`.chapter[data-id="${progress.chapter.id}"]`)
+  if (!newChapterEl) {
+    throw new Error('没找到对应的新章节')
+  }
+  const { top: newTop } = newChapterEl.getBoundingClientRect()
+  const distance = newTop - oldTop
+  el.value.scrollTop += distance
+})
+
+const loadContents = async (chapterId: string) => {
   // 如果指定了 ChapterId，则加载 ChapterId 前后的几个章节
   const targetIndex = Math.max(0, props.chapterList.findIndex(chapter => chapter.id === chapterId))
   const startIndex = Math.max(0, targetIndex - 2)
-  startChapterIndex.value = startIndex
-  console.log('loadDefaultContents', startChapterIndex)
-  return Promise.all(
+  await Promise.all(
     props.chapterList.slice(startIndex, startIndex + 5).map((chapter, i) => props.loadChapter(chapter, startIndex + i))
   )
+  startChapterIndex.value = startIndex
 }
 
 const scrollToCursor = async (cursor: number) => {
   await nextTick()
-  const p = el.value?.querySelector<HTMLElement>(`[data-cursor="${cursor}"]`)
-  if (!p) return;
-  // const visibleRect = el.value
-  virtualListRef.value?.scrollToOffset(p.offsetTop + virtualListRef.value!.getOffset() - 16)
+  el.value?.querySelector<HTMLElement>(`[data-cursor="${cursor}"]`)?.scrollIntoView()
 }
 
 const updateProgress = () => {
   const { chapter, cursor, chapterIndex } = getCurrentProgress() || {}
-  console.log(chapter, cursor)
   if (!chapter || !cursor || !chapterIndex && chapterIndex !== 0) return;
+  loadContents(chapter.id)
 
-  console.log('checkProgress', cursor)
   emits('progress', { chapter, cursor, chapterIndex })
 }
 
@@ -124,6 +145,10 @@ defineExpose({
   async jump(options: { chapterId: string, cursor: number }) {
     await loadContents(options.chapterId)
     scrollToCursor(options.cursor)
+  },
+  scroll(distance: number) {
+    if (!el.value) return;
+    el.value.scrollTop += distance
   }
 })
 </script>
@@ -132,6 +157,7 @@ defineExpose({
 .chapter-content-list, .chapter-content-virutal-list {
   height: 100%;
   overflow: auto;
+  position: relative;
 }
 .chapter-content-list :deep(.chapter-wrapper) {
   box-sizing: border-box;

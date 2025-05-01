@@ -20,7 +20,7 @@
         >
           <template v-slot="{ source, index }">
             <div class="catalog-item"
-              @click="readChapter(source, index)"
+              @click="jumpToChapter(source, index)"
               :class="{active: index === curChapterIndex}"
               :data-catalog-level="source.level || 1"
               :data-catalog-id="source.id">
@@ -32,7 +32,6 @@
       <template v-slot="{ settings }">
         <div
           class="content-wrapper"
-          ref="contentWrapper"
           :data-font="settings.fontFamily"
           :style="{
             fontSize: settings.fontSize + 'px',
@@ -49,25 +48,6 @@
             @progress="updateProgress"
             ref="chapter-content-list"
           ></chapter-content-list>
-          <!-- <virtual-list
-            :data-sources="chapterList"
-            data-key="id"
-            :keeps="3"
-          >
-            <template v-slot="{ source }">
-              <div class="chapter-wrapper" v-html="source.content">
-              </div>
-            </template>
-          </virtual-list> -->
-          <!-- <div class="content" :data-font="settings.fontFamily"
-            :style="{
-              fontSize: settings.fontSize + 'px',
-              fontWeight: settings.fontWeight
-            }"
-            :class="{ column: env.isInk() }"
-            @scroll="hScrollHandler"
-            v-html="content">
-          </div> -->
         </div>
       </template>
     </control-wrapper>
@@ -78,7 +58,6 @@
 import ControlWrapper from '@/components/ControlWrapper.vue';
 import { computed, nextTick, ref, useTemplateRef } from 'vue';
 import { localBookService as dataService } from '@/services/LocalBookService';
-import { env } from '@/utils/env';
 import { showToast } from '@/utils';
 import { readingStateStore } from '@/services/storage';
 import BookAnimation from '@/components/BookAnimation.vue';
@@ -104,22 +83,19 @@ const defaultProgress = ref<{ chapterId: string, cursor: number } | null>(null)
 
 const chapter = computed(() => chapterList.value[curChapterIndex.value])
 
-const contentWrapperRef = useTemplateRef('contentWrapper')
-
 const pageHandler = (direction: 'prev' | 'next') => {
   console.log('pageHandler', direction)
 }
 
 const scrollVertical = (distance: number) => {
-  contentWrapperRef.value!.scrollTop += distance
+  chapterContentListRef.value?.scroll(distance)
 }
 
-const readChapter = async (chapter: IChapter, index: number) => {
+const jumpToChapter = async (chapter: IChapter, index: number) => {
   curChapterIndex.value = index
   chapterContentListRef.value?.jump({ chapterId: chapter.id, cursor: chapter.cursorStart })
 }
 const loadChapter = async (chapter: IChapterItem, chapterIndex: number) => {
-  console.log('loadChapter', chapter)
   if (chapter.content) return;
   chapter.status = 'loading'
   const text = await dataService.getChapter(props.id as string)
@@ -128,7 +104,6 @@ const loadChapter = async (chapter: IChapterItem, chapterIndex: number) => {
   chapter.status = 'loaded'
 }
 const updateProgress = (progress: { chapter: IChapterItem, cursor: number, chapterIndex: number }) => {
-  console.log('updateProgress', progress)
   curChapterIndex.value = progress.chapterIndex
 
   readingStateStore.update(props.id, {
@@ -137,48 +112,6 @@ const updateProgress = (progress: { chapter: IChapterItem, cursor: number, chapt
     lastReadTime: Date.now(),
   })
 }
-
-const needAppendNextChapter = () => {
-  if (env.isInk()) {
-    const content = contentWrapperRef.value?.querySelector('.content')
-    const pageWidth = content!.getBoundingClientRect().width
-    const curPage = Math.round(content!.scrollLeft / pageWidth)
-    const totalPage = Math.round(content!.scrollWidth / pageWidth)
-    return totalPage - curPage <= 2
-  }
-  const contentWrapper = contentWrapperRef.value!
-  return contentWrapper.scrollHeight - contentWrapper.scrollTop - contentWrapper.clientHeight <= 50
-}
-
-const appendNextChapter = async () => {
-  let nextIndex = -1
-  for (let i = curChapterIndex.value; i < chapterList.value.length; i += 1) {
-    if (chapterList.value[i].status === 'loading') {
-      break;
-    }
-    if (chapterList.value[i].status === 'default') {
-      nextIndex = i;
-      break;
-    }
-  }
-  if (nextIndex < 0) return;
-
-  // await loadChapter(nextIndex)
-}
-
-const hScrollHandler = () => {
-  if (!env.isInk()) return;
-  // updateProgress()
-  if (needAppendNextChapter()) {
-    appendNextChapter()
-  }
-}
-// const vScrollHandler = () => {
-//   updateProgress()
-//   if (needAppendNextChapter()) {
-//     appendNextChapter()
-//   }
-// }
 
 const fetchChapterList = async () => {
   const catalog = await dataService.getChapterList(props.id)
@@ -214,16 +147,6 @@ onBeforeRouteLeave((to, from, next) => {
   animRef.value?.closeBook()
   next()
 })
-
-defineExpose({
-  closeBook: () => {
-    return animRef.value?.closeBook()
-  },
-  openBook: () => {
-    return animRef.value?.openBook()
-  },
-})
-
 </script>
 
 <style lang="scss" scoped>
