@@ -1,7 +1,6 @@
 <template>
   <div class="chapter-contents" ref="el">
     <div class="chapter-contents-wrapper" @scroll="scrollHandler"></div>
-    <!-- <div class="chapter-wrapper"></div> -->
   </div>
 </template>
 
@@ -83,7 +82,6 @@ const loadContents = async (chapterId: string) => {
 const scrollToCursor = async (cursor: number) => {
   await nextTick()
   el.value?.querySelector<HTMLElement>(`[data-cursor="${cursor}"]`)?.scrollIntoView()
-  console.log(el.value?.querySelector<HTMLElement>(`[data-cursor="${cursor}"]`))
   el.value?.querySelector('.chapter-contents-wrapper')?.scrollBy(0, -getSafeAreaTop())
 }
 
@@ -151,8 +149,24 @@ defineExpose({
     scrollToCursor(options.cursor)
   },
   scroll(distance: number) {
-    if (!el.value) return;
-    el.value.scrollTop += distance
+    const wrapper = el.value?.querySelector('.chapter-contents-wrapper')
+    if (!wrapper) return;
+    wrapper.scrollTop += distance
+  },
+  getNextReadElement(current?: HTMLElement) {
+    if (!current) {
+      const progress = getCurrentProgress()
+      return el.value?.querySelector<HTMLElement>(`[data-cursor="${progress?.cursor}"]`)
+    }
+    const cursor = Number(current.dataset.cursor)
+    // 找到下一个非空节点
+    let nextCursor = cursor + 1
+    let nextEl = el.value?.querySelector<HTMLElement>(`[data-cursor="${nextCursor}"]`)
+    while(nextEl && !nextEl.textContent?.trim()) {
+      nextCursor += 1
+      nextEl = el.value?.querySelector<HTMLElement>(`[data-cursor="${nextCursor}"]`)
+    }
+    return nextEl
   }
 })
 </script>
@@ -163,16 +177,29 @@ defineExpose({
   overflow: auto;
   position: relative;
 }
-.chapter-contents :deep(.chapter-contents-wrapper) {
-  box-sizing: border-box;
+.chapter-contents-wrapper {
+  height: 100%;
+  z-index: 0;
+  background-clip: border-box;
+  overflow: auto;
+  position: relative;
+  background-image: url("../assets/text-bg.png");
+  background-size: contain;
+  background-attachment: local;
+  background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
   padding-left: 12px;
   padding-right: 12px;
   padding-top: var(--sait);
   padding-bottom: var(--saib);
-  line-height: 1.6;
+  line-height: inherit;
   font-size: inherit;
   user-select: text;
   -webkit-user-select: text;
+}
+:global(html.dark-mode .chapter-contents-wrapper) {
+  background-image: none;
+}
+.chapter-contents :deep(.chapter-contents-wrapper) {
   &.column {
     margin-top: 20px;
     margin-bottom: 20px;
@@ -204,7 +231,7 @@ defineExpose({
     padding-top: var(--sait);
   }
   p.reading {
-    background: yellow;
+    color: light-dark(blue, rgb(94, 94, 255))
   }
 }
 </style>

@@ -4,6 +4,7 @@
       v-if="chapter"
       :book-id="+id"
       :chapter-id="+chapter.id"
+      :get-next-read-element="getNextReadElement"
       @prev-page="pageHandler('prev')"
       @next-page="pageHandler('next')"
       @scroll-vertical="scrollVertical"
@@ -30,25 +31,22 @@
         </c-virtual-list>
       </template>
       <template v-slot="{ settings }">
-        <div
-          class="content-wrapper"
+        <chapter-contents
+          v-if="chapterList.length && defaultProgress"
           :data-font="settings.fontFamily"
           :style="{
             fontSize: settings.fontSize + 'px',
-            fontWeight: settings.fontWeight
+            fontWeight: settings.fontWeight,
+            lineHeight: settings.lineHeight
           }"
-        >
-          <chapter-contents
-            v-if="chapterList.length && defaultProgress"
-            :chapter-list="chapterList"
-            :default-chapter-id="defaultProgress.chapterId"
-            :default-cursor="defaultProgress.cursor"
-            :load-chapter="loadChapter"
-            @load="loadChapter"
-            @progress="updateProgress"
-            ref="chapter-contents"
-          ></chapter-contents>
-        </div>
+          :chapter-list="chapterList"
+          :default-chapter-id="defaultProgress.chapterId"
+          :default-cursor="defaultProgress.cursor"
+          :load-chapter="loadChapter"
+          @load="loadChapter"
+          @progress="updateProgress"
+          ref="chapter-contents"
+        ></chapter-contents>
       </template>
     </control-wrapper>
   </book-animation>
@@ -129,6 +127,11 @@ const fetchReadProgress = async () => {
 
 const jump = async (options: { chapterId: string, cursor: number }) => {
   chapterContentsRef.value?.jump(options)
+  controlWrapperRef.value?.closeDialog()
+}
+
+const getNextReadElement = (current?: HTMLElement) => {
+  return chapterContentsRef.value?.getNextReadElement(current) || null
 }
 
 const init = async () => {
@@ -160,7 +163,6 @@ onBeforeRouteLeave((to, from, next) => {
 }
 .read-view {
   --read-view-content-height: 100vh;
-  --read-view-background-image: url("../assets/text-bg.png");
   width: 100vw;
   position: relative;
   background: light-dark(var(--light-bg-color), var(--dark-bg-color));
@@ -174,66 +176,6 @@ onBeforeRouteLeave((to, from, next) => {
   left: 0;
   background: rgba(0, 0, 0, 0.5);
   z-index: 9;
-}
-.content-wrapper {
-  width: 100%;
-  height: 100vh;
-  box-sizing: border-box;
-  z-index: 0;
-  background-clip: border-box;
-  overflow: auto;
-  position: relative;
-  background-image: var(--read-view-background-image);
-  background-size: contain;
-  background-attachment: local;
-  background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
-}
-
-:global(html.dark-mode .content-wrapper) {
-  background-image: none;
-}
-.content-wrapper :deep(.content) {
-  box-sizing: border-box;
-  margin-left: 12px;
-  margin-right: 12px;
-  width: calc(100% - 24px);
-  line-height: 1.6;
-  font-size: 24px;
-  user-select: text;
-  -webkit-user-select: text;
-  &.column {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    column-gap: 0;
-    column-width: calc(100vw - 40px);
-    overflow: hidden;
-    height: calc(100% - 40px);
-  }
-  .placeholder {
-    width: 100%;
-    z-index: 4;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .chapter {
-    margin-bottom: max(var(--saib), 16em);
-  }
-  p {
-    text-indent: 2em;
-    word-break: break-all;
-    /* content-visibility: auto; */
-  }
-  p + p {
-    margin-top: 0.8em;
-  }
-
-  h4.chapter-title {
-    padding-top: var(--sait);
-  }
-  p.reading {
-    background: yellow;
-  }
 }
 
 .catalog-content-wrapper {

@@ -2,8 +2,8 @@
   <div class="c-progress">
     <div class="c-progress-prefix" @click="action('dec')"><slot name="prefix"></slot></div>
     <div class="c-progress-bar" @click="onTap" @touchmove="onMove" ref="bar">
-      <div class="c-progress-line"></div>
-      <div class="c-progress-indicator" :style="{left: left}"></div>
+      <div class="c-progress-line" :style="{width: left}"></div>
+      <div class="c-progress-indicator" :style="{left: left}"><slot name="label">{{ modelValue }}</slot></div>
     </div>
     <div class="c-progress-suffix" @click="action('inc')"><slot name="suffix"></slot></div>
   </div>
@@ -56,7 +56,14 @@ const action = (action: 'dec' | 'inc') => {
 </script>
 
 <style lang="scss" scoped>
+.c-progress {
+  --progress-height: 32px;
+}
 .c-progress, .c-progress .c-progress-bar {
+  display: flex;
+  align-items: center;
+}
+.c-progress-prefix, .c-progress-suffix {
   display: flex;
   align-items: center;
 }
@@ -64,24 +71,34 @@ const action = (action: 'dec' | 'inc') => {
 .c-progress .c-progress-bar {
   flex: 1;
   margin: 0 10px;
-  height: 16px;
+  height: var(--progress-height);
   position: relative;
+  background-color: light-dark(#e3e3e3, #333);
+  border-radius: 9999px;
 }
 
 .c-progress .c-progress-bar .c-progress-line {
-  height: 3px;
-  background: light-dark(var(--light-text-color), var(--dark-text-color));
+  height: 100%;
+  background: light-dark(#d0d0d0, #444);
   border-radius: 9999px;
-  width: 100%;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  width: 50%;
 }
 .c-progress .c-progress-bar .c-progress-indicator {
   position: absolute;
-  width: 8px;
-  height: 8px;
+  height: 100%;
+  aspect-ratio: 1 / 1;
   border-radius: 9999px;
-  top: 4px;
+  top: 0;
   left: 50%;
-  margin-left: -4px;
-  background: light-dark(var(--light-text-color), var(--dark-text-color));
+  margin-left: calc(0px - var(--progress-height) / 2);
+  background: light-dark(#fff, #000);
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 </style>

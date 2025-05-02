@@ -3,22 +3,22 @@ import { env } from "@/utils/env"
 export class AutoPlay extends EventTarget {
   static CHANGE_EVENT_NAME = 'change'
 
-  scrollVertical = () => {}
+  scrollVertical: (distance: number) => void
   nextPage = () => {}
-  autoPlayDuration = 24
+  speed = 30 // 每秒滚动的像素
 
   #interval: ReturnType<typeof setTimeout> | null = null
 
-  constructor({ scrollVertical, nextPage, autoPlayDuration, changeHandler }: {
-    scrollVertical: () => void,
+  constructor({ scrollVertical, nextPage, speed, changeHandler }: {
+    scrollVertical: (distance: number) => void,
     nextPage: () => void,
-    autoPlayDuration: number,
+    speed: number,
     changeHandler: (event: CustomEvent<{ playing: boolean }>) => void
   }) {
     super()
     this.scrollVertical = scrollVertical
     this.nextPage = nextPage
-    this.autoPlayDuration = autoPlayDuration
+    this.speed = speed
     if (typeof changeHandler === 'function') {
       this.addEventListener(AutoPlay.CHANGE_EVENT_NAME, changeHandler as EventListenerOrEventListenerObject)
     }
@@ -29,11 +29,11 @@ export class AutoPlay extends EventTarget {
     if (env.isHorizontal()) {
       this.#interval = setInterval(() => {
         this.nextPage()
-      }, this.autoPlayDuration * 1000)
+      }, 16)
     } else {
       this.#interval = setInterval(() => {
-        this.scrollVertical()
-      }, this.autoPlayDuration)
+        this.scrollVertical(this.speed / (1000 / 16))
+      }, 16)
     }
     this.dispatchEvent(new CustomEvent(AutoPlay.CHANGE_EVENT_NAME, { detail: { playing: true } }))
   }
@@ -44,8 +44,8 @@ export class AutoPlay extends EventTarget {
     this.dispatchEvent(new CustomEvent(AutoPlay.CHANGE_EVENT_NAME, { detail: { playing: false } }))
   }
 
-  updateInterval(s: number) {
-    this.autoPlayDuration = s
+  updateSpeed(s: number) {
+    this.speed = s
     if (this.isPlaying()) {
       this.start()
     }

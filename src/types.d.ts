@@ -103,7 +103,8 @@ interface ISettings {
   fontFamily: string
   fontSize: number
   fontWeight: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900
-  autoPlayDuration: number
+  lineHeight: number
+  speed: number
 }
 
 interface Window {

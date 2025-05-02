@@ -1,9 +1,9 @@
 export class ReadSpeak extends EventTarget {
   static CHANGE_EVENT_NAME = 'change'
-  getNextElement?: () => Element | null
+  getNextElement?: (current: HTMLElement) => HTMLElement | null
 
   constructor({ getNextElement, changeHandler }: {
-    getNextElement: () => Element | null,
+    getNextElement: (current: HTMLElement) => HTMLElement | null,
     changeHandler: (event: CustomEvent<{ speaking: boolean }>) => void
   }) {
     super()
@@ -15,19 +15,19 @@ export class ReadSpeak extends EventTarget {
       this.addEventListener(ReadSpeak.CHANGE_EVENT_NAME, changeHandler as any)
     }
   }
-  #readyNext() {
-    const nextEl = this.getNextElement?.()
+  #readyNext(current: HTMLElement) {
+    const nextEl = this.getNextElement?.(current)
     if (!nextEl) return
     const utterance = this.#createUtterance(nextEl)
     window.speechSynthesis.speak(utterance)
   }
-  #createUtterance(el: Element) {
+  #createUtterance(el: HTMLElement) {
     const utter = new SpeechSynthesisUtterance(el.textContent || '');
     let nextTriggered = false
     utter.addEventListener('boundary', event => {
       if (event.charIndex > event.utterance.text.length - 10 && !nextTriggered) {
         nextTriggered = true
-        this.#readyNext()
+        this.#readyNext(el)
       }
     })
     utter.addEventListener('resume', () => {
@@ -35,7 +35,7 @@ export class ReadSpeak extends EventTarget {
     })
     utter.addEventListener('start', () => {
       el.classList.add('reading')
-      // el.scrollIntoView({ block: 'center' })
+      el.scrollIntoView({ block: 'center', behavior: 'smooth' })
       this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: true } }))
     })
     utter.addEventListener('end', () => {
@@ -56,10 +56,11 @@ export class ReadSpeak extends EventTarget {
     window.speechSynthesis.cancel()
     this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: false } }))
   }
-  toggle(el: HTMLElement) {
+  toggle(el?: HTMLElement | null) {
     if (window.speechSynthesis.speaking) {
       return this.stop()
     }
+    if (!el) return;
     this.start(el)
   }
   isSpeaking() {

@@ -3,7 +3,8 @@ export const getSettings = (): ISettings => {
     fontFamily: 'SYST',
     fontSize: 24,
     fontWeight: 500,
-    autoPlayDuration: 24, // 24s
+    speed: 30, // 每秒滚动的像素
+    lineHeight: 1.6,
   }
   const settings = JSON.parse(localStorage.getItem('settings') || '{}')
 
