@@ -148,11 +148,19 @@ defineExpose({
     await loadContents(options.chapterId)
     scrollToCursor(options.cursor)
   },
-  scroll(distance: number) {
-    const wrapper = el.value?.querySelector('.chapter-contents-wrapper')
-    if (!wrapper) return;
-    wrapper.scrollTop += distance
-  },
+  scroll: (() => {
+    let totalDistance = 0;
+    return (distance: number) => {
+      const wrapper = el.value?.querySelector('.chapter-contents-wrapper')
+      if (!wrapper) return;
+      // 某些浏览器(如safari)上不支持小于 1 的滚动量，这里积累一下，每次滚动整数量
+      totalDistance += distance
+      const scrollDistance = Math.floor(totalDistance)
+      totalDistance = totalDistance - scrollDistance
+      if (scrollDistance <= 0) return;
+      wrapper.scrollTo({ top: wrapper.scrollTop + scrollDistance })
+    }
+  })(),
   getNextReadElement(current?: HTMLElement) {
     if (!current) {
       const progress = getCurrentProgress()

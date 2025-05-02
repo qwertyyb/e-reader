@@ -33,7 +33,7 @@ export class AutoPlay extends EventTarget {
     } else {
       this.#interval = setInterval(() => {
         this.scrollVertical(this.speed / (1000 / 16))
-      }, 16)
+      }, 10)
     }
     this.dispatchEvent(new CustomEvent(AutoPlay.CHANGE_EVENT_NAME, { detail: { playing: true } }))
   }
