@@ -1,16 +1,11 @@
 <template>
   <div class="control-wrapper">
     <transition name="slide-down">
-      <div class="navigator" v-if="panelVisible && !selectMenuShowed">
-        <div class="material-symbols-outlined back-to-index"
-          @click="$router.replace('/tab/local')">arrow_back_ios</div>
-
-        <div class="navigator-menu">
-          <span class="material-symbols-outlined" @click="dialog='bookMenu'">
-            more_vert
-          </span>
-        </div>
-      </div>
+      <navigation-bar class="navigator"
+        v-show="panelVisible && !selectMenuShowed"
+        @menu="dialog='bookMenu'"
+      >
+      </navigation-bar>
     </transition>
 
     <c-dialog :visible="dialog==='chapterList'"
@@ -78,6 +73,7 @@ import SelectionMenu from '@/components/SelectionMenu.vue';
 import BookMenuDialog from '@/components/BookMenuDialog.vue';
 import MarksDialog from '@/components/MarksDialog.vue';
 import SearchDialog from '@/components/SearchDialog.vue';
+import NavigationBar from '@/components/NavigationBar.vue';
 import { env } from '@/utils/env';
 import router from '@/router';
 import ReadControl from '@/components/ReadControl.vue';
@@ -226,36 +222,5 @@ defineExpose({
   top: 0;
   left: 0;
   right: 0;
-  height: 48px;
-  width: calc(100% - 24px);
-  display: flex;
-  box-sizing: border-box;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 12px;
-  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
-  border-bottom: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
-  z-index: 10;
-  padding-top: var(--sait);
-  box-sizing: content-box;
-  box-shadow: 0 0 10px light-dark(var(--light-shadow-color), var(--dark-shadow-color));
-}
-.control-wrapper .navigator::before {
-  content: " ";
-  display: block;
-  width: 100vw;
-  height: var(--sait);
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
-}
-.control-wrapper .navigator .back-to-index {
-  font-size: 28px;
-  cursor: pointer;
-}
-.control-wrapper .navigator-menu {
-  cursor: pointer;
 }
 </style>

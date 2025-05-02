@@ -34,6 +34,7 @@ interface IChapter {
   level: number,
   cursorStart: number,
   cursorEnd?: number,
+  parentId?: string
 }
 
 interface IChapterItem extends IChapter {

@@ -123,13 +123,13 @@ interface IContent {
   bookId: number
   content: string
 }
-export const contentStore = createStore<IContent>('content')
+export const contentStore = createStore<IContent>('content', { keyPath: 'bookId' })
 
 interface IChapterEntity {
   bookId: number
   chapterList: IChapter[]
 }
-export const chapterListStore = createStore<IChapterEntity>('chapterList')
+export const chapterListStore = createStore<IChapterEntity>('chapterList', { keyPath: 'bookId' })
 
 export const marks = (() => {
   const baseMarks = createStore<IMarkEntity>('marks')

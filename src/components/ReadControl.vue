@@ -85,6 +85,10 @@
         <div class="control-icon material-symbols-outlined">{{ controlState.readSpeak ? 'pause_circle' : 'play_circle' }}</div>
         <div class="control-label"></div>
       </div>
+      <div class="control-item" data-control="progress" @click="toggleControl('progress')">
+        <div class="control-icon material-symbols-outlined">commit</div>
+        <div class="control-label"></div>
+      </div>
       <div class="control-item"
         :class="{selected: visiblePanel === 'font'}"
         data-control="font"

@@ -1,4 +1,5 @@
 
+import { level1ChapterRegexp, level2ChapterRegexp } from '@/config';
 import jschardet from 'jschardet'
 
 const decodeText = (arrayBuffer: ArrayBuffer) => {
@@ -17,26 +18,36 @@ const decodeText = (arrayBuffer: ArrayBuffer) => {
   }
 }
 
-export const parseChapterList = (content: string, { regList = [/^第.+章/] } = {}) => {
+export const parseChapterList = (
+  content: string,
+  { regList = [new RegExp(level1ChapterRegexp), new RegExp(level2ChapterRegexp)] } = {}
+) => {
   const toc: { id: string, title: string, cursorStart: number, cursorEnd?: number, level: number }[] = []
+  const parents: Record<number, string> = {}
   content.split('\n').forEach((line, row) => {
     const index = regList.findIndex(reg => reg.test(line.trim()))
     if (index < 0) return;
     if (toc.length > 0) {
       toc[toc.length - 1]!.cursorEnd = row - 1
     }
-    toc.push({
+    const level = index + 1
+    const chapter: IChapter = {
       id: String(row),
       title: line.trim(),
       cursorStart: row,
       cursorEnd: undefined,
-      level: index + 1
-    })
+      level
+    }
+    if (level > 1 && parents[level - 1]) {
+      chapter.parentId = parents[level - 1]
+    }
+    parents[level] = chapter.id
+    toc.push(chapter)
   })
   return toc
 }
 
-export const parseTxtFile = async (file: File, { tocReg = /^第.+章/ } = {}) => {
+export const parseTxtFile = async (file: File) => {
   const load = (file: File) => {
     return new Promise<string>((resolve, reject) => {
       const reader = new FileReader()
@@ -62,7 +73,7 @@ export const parseTxtFile = async (file: File, { tocReg = /^第.+章/ } = {}) =>
   return {
     title,
     content,
-    catalog: parseChapterList(content, { regList: [tocReg] })
+    catalog: parseChapterList(content)
   }
 }
 

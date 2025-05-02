@@ -12,3 +12,7 @@ export const fontFamilyList = [
 export const backgroundList = [
   { label: '仿纸', value: {} },
 ]
+
+export const level1ChapterRegexp = '^第[一二三四五六七八九十零百千万亿]+[卷部]\\s*[：:·\\-—]?\\s*(.+)$'
+
+export const level2ChapterRegexp = '^第[一二三四五六七八九十零百千万亿\\d]+[章节回]\\s*[：:·\\-—]?\\s*(.+)$'

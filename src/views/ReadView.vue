@@ -11,24 +11,11 @@
       @jump="jump"
     >
       <template v-slot:chapterList>
-        <c-virtual-list
-          class="catalog-content-wrapper"
-          data-key="id"
-          :data-sources="chapterList"
-          ref="catalog"
-          :estimate-size="42"
-          :active-index="curChapterIndex"
-        >
-          <template v-slot="{ source, index }">
-            <div class="catalog-item"
-              @click="jumpToChapter(source, index)"
-              :class="{active: index === curChapterIndex}"
-              :data-catalog-level="source.level || 1"
-              :data-catalog-id="source.id">
-              <div class="catalog-label">{{ source.title }}</div>
-            </div>
-          </template>
-        </c-virtual-list>
+        <chapter-list-vue
+          :chapter-list="chapterList"
+          :cur-chapter-index="curChapterIndex"
+          @tap="jumpToChapter"
+        ></chapter-list-vue>
       </template>
       <template v-slot="{ settings }">
         <chapter-contents
@@ -59,10 +46,10 @@ import { localBookService as dataService } from '@/services/LocalBookService';
 import { showToast } from '@/utils';
 import { readingStateStore } from '@/services/storage';
 import BookAnimation from '@/components/BookAnimation.vue';
-import CVirtualList from '@/components/common/CVirtualList.vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { renderChapter } from '@/utils/chapter';
 import ChapterContents from '@/components/ChapterContents.vue';
+import ChapterListVue from '@/components/ChapterList.vue';
 
 const props = defineProps<{
   id: string
@@ -121,8 +108,9 @@ const fetchChapterList = async () => {
   }))
 }
 const fetchReadProgress = async () => {
-  const { chapterId = chapterList.value[0].id, cursor = 0 } = await readingStateStore.get(props.id) || {}
-  defaultProgress.value = { chapterId, cursor }
+  const progress = await readingStateStore.get(props.id)
+  if (!progress) return;
+  defaultProgress.value = { chapterId: progress.chapterId, cursor: progress.cursor }
 }
 
 const jump = async (options: { chapterId: string, cursor: number }) => {
@@ -135,10 +123,14 @@ const getNextReadElement = (current?: HTMLElement) => {
 }
 
 const init = async () => {
-  Promise.all([
+  await Promise.all([
     fetchChapterList(),
     fetchReadProgress()
   ])
+  if (!defaultProgress.value) {
+    const chapter = chapterList.value[0]
+    defaultProgress.value = { chapterId: chapter.id, cursor: chapter.cursorStart }
+  }
   readingStateStore.update(props.id, { lastReadTime: Date.now() })
 }
 
@@ -151,62 +143,10 @@ onBeforeRouteLeave((to, from, next) => {
 </script>
 
 <style lang="scss" scoped>
-@property --read-view-content-height {
-  syntax: "<length-percentage>";
-  inherits: true;
-  initial-value: 100vh;
-}
-@property --cover-rotate {
-  syntax: "<angle>";
-  inherits: true;
-  initial-value: 0deg;
-}
 .read-view {
   --read-view-content-height: 100vh;
   width: 100vw;
   position: relative;
   background: light-dark(var(--light-bg-color), var(--dark-bg-color));
-}
-
-.mask {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 9;
-}
-
-.catalog-content-wrapper {
-  height: 100%;
-  overflow: auto;
-  overscroll-behavior: contain;
-  content-visibility: auto;
-  box-sizing: border-box;
-}
-.catalog-item {
-  padding: 0 16px;
-  border-bottom: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
-  cursor: pointer;
-  width: 100%;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  height: 42px;
-  cursor: pointer;
-  font-size: 15px;
-}
-.catalog-item[data-catalog-level="2"] .catalog-label {
-  margin-left: 1em;
-}
-.catalog-item .catalog-label {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.catalog-item.active .catalog-label {
-  color: rgb(29, 132, 146);
-  font-weight: bold;
 }
 </style>

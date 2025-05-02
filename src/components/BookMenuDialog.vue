@@ -28,6 +28,12 @@
         </span>
         <div class="menu-item-label">全文搜索</div>
       </li>
+      <li class="menu-item" @click="toSettingsPage">
+        <span class="material-symbols-outlined menu-item-icon">
+        settings
+        </span>
+        <div class="menu-item-label">书籍设置</div>
+      </li>
     </ul>
   </c-dialog>
 </template>
@@ -36,11 +42,12 @@
 import CDialog from '@/components/common/CDialog.vue';
 import { showToast } from '@/utils';
 import { exportBookMarkListByBookId } from '@/utils/mark';
+import { useRouter } from 'vue-router';
 
 const props = defineProps<{ visible: boolean, bookId: number }>()
 
 const emits = defineEmits<{
-  action: ['marksViewer' | 'catalogSetting' | 'exportMarks' | 'search'],
+  action: ['marksViewer' | 'catalogSetting' | 'exportMarks' | 'search' | 'settings'],
   close: []
 }>()
 
@@ -63,6 +70,10 @@ const catalogSetting = () => {
 const search = () => {
   emits('action', 'search')
 }
+const router = useRouter()
+const toSettingsPage = () => {
+  router.push({ name: 'bookSettings', params: { id: props.bookId }})
+}
 </script>
 
 <style lang="scss" scoped>
@@ -71,11 +82,12 @@ const search = () => {
   width: calc(100vw - 80px);
   list-style: none;
   display: flex;
+  flex-wrap: wrap;
   font-size: 12px;
   text-align: center;
+  gap: 13px;
 }
 .book-menu-dialog .menu-item {
-  margin-right: 32px;
   cursor: pointer;
 }
 .book-menu-dialog .menu-item-icon {
