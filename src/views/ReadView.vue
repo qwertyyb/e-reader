@@ -4,6 +4,7 @@
       v-if="chapter"
       :book-id="+id"
       :chapter-id="+chapter.id"
+      :title="chapter?.title"
       :get-next-read-element="getNextReadElement"
       @prev-page="pageHandler('prev')"
       @next-page="pageHandler('next')"
@@ -41,13 +42,12 @@
 
 <script setup lang="ts">
 import ControlWrapper from '@/components/ControlWrapper.vue';
-import { computed, nextTick, ref, useTemplateRef } from 'vue';
+import { computed, provide, ref, useTemplateRef } from 'vue';
 import { localBookService as dataService } from '@/services/LocalBookService';
 import { showToast } from '@/utils';
 import { readingStateStore } from '@/services/storage';
 import BookAnimation from '@/components/BookAnimation.vue';
 import { onBeforeRouteLeave } from 'vue-router';
-import { renderChapter } from '@/utils/chapter';
 import ChapterContents from '@/components/ChapterContents.vue';
 import ChapterListVue from '@/components/ChapterList.vue';
 
@@ -55,7 +55,7 @@ const props = defineProps<{
   id: string
 }>()
 
-const chapterList = ref<IChapterItem[]>([])
+const chapterList = ref<IChapter[]>([])
 const curChapterIndex = ref(0)
 const animRef = useTemplateRef('anim')
 const controlWrapperRef = useTemplateRef('control-wrapper')
@@ -63,6 +63,12 @@ const chapterContentsRef = useTemplateRef('chapter-contents')
 const defaultProgress = ref<{ chapterId: string, cursor: number } | null>(null)
 
 const chapter = computed(() => chapterList.value[curChapterIndex.value])
+const progress = ref<{ chapter: IChapter, chapterIndex: number, cursor: number } | null>(null)
+const book = ref<ILocalBook>()
+
+provide('chapter', chapter)
+provide('progress', progress)
+provide('book', book)
 
 const pageHandler = (direction: 'prev' | 'next') => {
   console.log('pageHandler', direction)
@@ -77,35 +83,36 @@ const jumpToChapter = async (chapter: IChapter, index: number) => {
   chapterContentsRef.value?.jump({ chapterId: chapter.id, cursor: chapter.cursorStart })
   controlWrapperRef.value?.closeDialog()
 }
-const loadChapter = async (chapter: IChapterItem, chapterIndex: number) => {
-  if (chapter.content) return;
-  chapter.status = 'loading'
-  const text = await dataService.getChapter(props.id as string)
-  const content = renderChapter(chapter, text, chapterIndex)
-  chapter.content = content
-  chapter.status = 'loaded'
-  await nextTick()
+
+const chapterLoadState = new WeakMap<IChapter, Promise<string>>()
+const loadChapter = async (chapter: IChapter) => {
+  // 如果正在加载或已加载完毕，直接返回之前的结果
+  if (!chapterLoadState.get(chapter)) {
+    chapterLoadState.set(chapter, dataService.getChapter(props.id as string))
+  }
+  return chapterLoadState.get(chapter)!
 }
-const updateProgress = (progress: { chapter: IChapterItem, cursor: number, chapterIndex: number }) => {
-  curChapterIndex.value = progress.chapterIndex
+const updateProgress = (info: { chapter: IChapter, cursor: number, chapterIndex: number }) => {
+  curChapterIndex.value = info.chapterIndex
+  progress.value = { ...info }
 
   readingStateStore.update(props.id, {
-    chapterId: progress.chapter.id,
-    cursor: progress.cursor,
+    chapterId: info.chapter.id,
+    cursor: info.cursor,
     lastReadTime: Date.now(),
   })
 }
 
 const fetchChapterList = async () => {
-  const catalog = await dataService.getChapterList(props.id)
-  if (!catalog) {
+  const [bookInfo, toc] = await Promise.all([
+    dataService.getBook(props.id),
+    dataService.getChapterList(props.id)
+  ])
+  if (!toc) {
     return showToast(`获取目录失败: ${props.id}`)
   }
-  chapterList.value = catalog.map(item => ({
-    ...item,
-    status: 'default', // default | loading | loaded
-    content: '',
-  }))
+  book.value = bookInfo
+  chapterList.value = toc
 }
 const fetchReadProgress = async () => {
   const progress = await readingStateStore.get(props.id)
@@ -137,6 +144,7 @@ const init = async () => {
 init()
 
 onBeforeRouteLeave((to, from, next) => {
+  controlWrapperRef.value?.closeDialog()
   animRef.value?.closeBook()
   next()
 })

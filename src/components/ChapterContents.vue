@@ -6,26 +6,26 @@
 
 <script setup lang="ts">
 import { debounce } from '@/utils';
+import { renderChapter } from '@/utils/chapter';
 import { getSafeAreaTop } from '@/utils/env';
-import { nextTick, ref, useTemplateRef, watch } from 'vue';
+import { nextTick, useTemplateRef } from 'vue';
 
 const props = defineProps<{
-  chapterList: IChapterItem[],
+  chapterList: IChapter[],
   defaultChapterId: string,
   defaultCursor: number,
-  loadChapter: (chapter: IChapterItem, chapterIndex: number) => Promise<void>
+  loadChapter: (chapter: IChapter, chapterIndex: number) => Promise<string>
 }>()
 
 const emits = defineEmits<{
-  progress: [{ chapter: IChapterItem, cursor: number, chapterIndex: number }]
+  progress: [{ chapter: IChapter, cursor: number, chapterIndex: number }]
 }>()
 
 const el = useTemplateRef('el')
 
-const startChapterIndex = ref(-1)
 const keeps = 5
 
-const renderChapterList = () => {
+const renderChapterContents = (contents: string[]) => {
   // vue 的渲染不太可控，自行渲染
   if (!el.value) {
     console.warn('dom未挂载')
@@ -34,10 +34,7 @@ const renderChapterList = () => {
   const wrapper = el.value.querySelector('.chapter-contents-wrapper')!
   if (!wrapper.childElementCount) {
     // 如果是空的，直接插入进去就行，不需要考虑其他
-    wrapper.innerHTML = props.chapterList
-      .slice(startChapterIndex.value, startChapterIndex.value + keeps)
-      .map(item => item.content)
-      .join('\n')
+    wrapper.innerHTML = contents.join('\n')
     return
   }
   // 如果非空，需要考虑替换 DOM 时，要保持可视区域不变
@@ -53,13 +50,8 @@ const renderChapterList = () => {
   if (!chapterEl) {
     throw new Error('获取当前章节 DOM 失败')
   }
-  // const top = chapterEl.offsetTop
-  // const scrollTop = el.value.scrollTop
   const { top: oldTop } = chapterEl.getBoundingClientRect()
-  wrapper.innerHTML = props.chapterList
-    .slice(startChapterIndex.value, startChapterIndex.value + keeps)
-    .map(item => item.content)
-    .join('\n')
+  wrapper.innerHTML = contents.join('\n')
   const newChapterEl = el.value.querySelector<HTMLDivElement>(`.chapter[data-id="${progress.chapter.id}"]`)
   if (!newChapterEl) return;
   const { top: newTop } = newChapterEl.getBoundingClientRect()
@@ -67,16 +59,20 @@ const renderChapterList = () => {
   wrapper.scrollTop += distance
 }
 
-watch(startChapterIndex, renderChapterList)
-
+let lastLoadChapterId: string | null = null
 const loadContents = async (chapterId: string) => {
+  if (chapterId === lastLoadChapterId) return;
+  lastLoadChapterId = chapterId
   // 如果指定了 ChapterId，则加载 ChapterId 前后的几个章节
   const targetIndex = Math.max(0, props.chapterList.findIndex(chapter => chapter.id === chapterId))
-  const startIndex = Math.max(0, targetIndex - 2)
-  await Promise.all(
-    props.chapterList.slice(startIndex, startIndex + 5).map((chapter, i) => props.loadChapter(chapter, startIndex + i))
+  const startIndex = Math.max(0, targetIndex - Math.floor(keeps / 2))
+  const contents = await Promise.all(
+    props.chapterList.slice(startIndex, startIndex + keeps).map(async (chapter, i) => {
+      const text = await props.loadChapter(chapter, startIndex + i)
+      return renderChapter(chapter, text, startIndex + i)
+    })
   )
-  startChapterIndex.value = startIndex
+  renderChapterContents(contents)
 }
 
 const scrollToCursor = async (cursor: number) => {
@@ -125,6 +121,7 @@ const getCurrentProgress = () => {
         }
       }
   })
+  if (!target) return;
   return {
     chapterIndex: Number(chapterEl.dataset.chapterIndex),
     chapter: props.chapterList[Number(chapterEl.dataset.chapterIndex)],

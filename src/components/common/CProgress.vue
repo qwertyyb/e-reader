@@ -17,7 +17,8 @@ const modelValue = defineModel<number>({ required: true })
 const props = defineProps<{
   min: number,
   max: number,
-  step: number
+  step: number,
+  disabled?: boolean,
 }>()
 
 const emits = defineEmits<{
@@ -30,7 +31,10 @@ const left = computed(() => `${(modelValue.value - props.min) / (props.max - pro
 
 const setValue = (value: number) => {
   modelValue.value = value
-  emits('change', value)
+  // 需要校正一下不准确的问题
+  const arr = props.step.toString().split('.')
+  const pointLength = arr[1]?.length ?? 0
+  emits('change', Number(value.toFixed(pointLength)))
 }
 const setValueFromOffset = (left: number) => {
   const { x, width } = barRef.value!.getBoundingClientRect();
@@ -39,12 +43,15 @@ const setValueFromOffset = (left: number) => {
   setValue(value)
 }
 const onTap = (e: MouseEvent) => {
+  if (props.disabled) return;
   setValueFromOffset(e.clientX)
 }
 const onMove = (e: TouchEvent) => {
+  if (props.disabled) return;
   setValueFromOffset(e.touches[0].clientX)
 }
 const action = (action: 'dec' | 'inc') => {
+  if (props.disabled) return;
   let value = modelValue.value
   if (action === 'dec') {
     value = Math.max(props.min, modelValue.value - props.step)

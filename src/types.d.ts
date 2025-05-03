@@ -11,7 +11,8 @@ interface IBook {
 }
 
 interface ILocalBook extends IBook {
-  onlineBookId?: string
+  onlineBookId?: string,
+  maxCursor: number
 }
 
 interface IBookItem extends IBook {
@@ -106,6 +107,7 @@ interface ISettings {
   fontWeight: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900
   lineHeight: number
   speed: number
+  readSpeakRate: number
 }
 
 interface Window {

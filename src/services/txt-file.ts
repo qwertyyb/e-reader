@@ -24,7 +24,8 @@ export const parseChapterList = (
 ) => {
   const toc: { id: string, title: string, cursorStart: number, cursorEnd?: number, level: number }[] = []
   const parents: Record<number, string> = {}
-  content.split('\n').forEach((line, row) => {
+  const lines = content.split('\n')
+  lines.forEach((line, row) => {
     const index = regList.findIndex(reg => reg.test(line.trim()))
     if (index < 0) return;
     if (toc.length > 0) {
@@ -44,6 +45,7 @@ export const parseChapterList = (
     parents[level] = chapter.id
     toc.push(chapter)
   })
+  toc[toc.length - 1].cursorEnd = lines.length - 1
   return toc
 }
 
@@ -110,6 +112,7 @@ export const download = async (downloadUrl: string, onUpdate?: (progress: number
   const chapterList = parseChapterList(content)
   return {
     content,
+    maxCursor: chapterList[chapterList.length - 1].cursorEnd,
     chapterList,
   }
 }

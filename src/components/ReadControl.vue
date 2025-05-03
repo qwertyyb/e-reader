@@ -18,6 +18,51 @@
     </transition>
 
     <transition name="slide-up">
+      <div class="control-panel progress-panel" v-if="visiblePanel === 'progress'">
+        <ul class="read-info">
+          <li class="read-info-item" v-if="chapterPercent">
+            <h4>
+              {{ chapterPercent }}
+            </h4>
+            <p class="read-info-subtitle">本章进度</p>
+          </li>
+          <li class="read-info-item" v-if="bookPercent">
+            <h4>
+              {{ bookPercent }}
+            </h4>
+            <p class="read-info-subtitle">全书进度</p>
+          </li>
+        </ul>
+        <div class="line-item" v-if="progress && book && ('maxCursor' in book)">
+          <c-progress
+            style="flex: 1"
+            :min="0"
+            :max="book.maxCursor"
+            :step="1"
+            :model-value="progress.cursor"
+            disabled
+          >
+            <template #label>{{ bookPercent }}</template>
+          </c-progress>
+        </div>
+        <div class="line-item">
+          <p class="read-speak-toggle" @click="toggleReadSpeak">
+            朗读
+            <span class="control-icon material-symbols-outlined">{{ controlState.readSpeak ? 'pause_circle' : 'play_circle' }}</span>
+          </p>
+          <c-progress
+            style="flex:1"
+            :min="0.1"
+            :max="3"
+            :step="0.1"
+            v-model="settings.readSpeakRate"
+            @change="changeReadSpeakRate"
+          ></c-progress>
+        </div>
+      </div>
+    </transition>
+
+    <transition name="slide-up">
       <div class="control-panel font-panel" data-target-control="font" v-if="visiblePanel === 'font'">
         <div class="font-size line-item">
           <c-progress
@@ -81,10 +126,6 @@
         <div class="control-icon material-symbols-outlined">{{ controlState.autoPlay ? 'pause' : 'play_arrow' }}</div>
         <div class="control-label"></div>
       </div>
-      <div class="control-item" data-control="readSpeak" @click="toggleControl('readSpeak')">
-        <div class="control-icon material-symbols-outlined">{{ controlState.readSpeak ? 'pause_circle' : 'play_circle' }}</div>
-        <div class="control-label"></div>
-      </div>
       <div class="control-item" data-control="progress" @click="toggleControl('progress')">
         <div class="control-icon material-symbols-outlined">commit</div>
         <div class="control-label"></div>
@@ -108,7 +149,7 @@
 
 <script setup lang="ts">
 import { AutoPlay, DarkMode, ReadSpeak } from '@/actions';
-import { onBeforeUnmount, ref } from 'vue';
+import { computed, inject, onBeforeUnmount, type Ref, ref } from 'vue';
 import CProgress from '@/components/common/CProgress.vue';
 import CSelect from '@/components/common/CSelect.vue';
 import COption from '@/components/common/COption.vue';
@@ -132,6 +173,24 @@ const controlState = ref({
   autoPlay: false
 })
 
+const progress = inject<Ref<{ chapter: IChapter, chapterIndex: number, cursor: number } | null>>('progress')
+const book = inject<Ref<IBook | ILocalBook>>('book')
+
+const chapterPercent = computed(() => {
+  if (!progress?.value) return null
+  if (!progress.value.chapter.cursorEnd) return null
+  return Math.round((progress.value.cursor - progress.value.chapter.cursorStart) / (progress.value.chapter.cursorEnd - progress.value.chapter.cursorStart + 1) * 100) + '%'
+})
+
+const bookPercent = computed(() => {
+  if (!progress?.value) return null
+  if (!book?.value) return null
+  if ('maxCursor' in book.value) {
+    return Math.round(progress.value.cursor / book.value.maxCursor * 100) + '%'
+  }
+  return null
+})
+
 const createActions = () => {
   return {
     darkMode: new DarkMode({
@@ -143,7 +202,12 @@ const createActions = () => {
         return props.getNextReadElement(current)
       },
       changeHandler: event => {
-        controlState.value.readSpeak = event.detail.speaking
+        if ('speaking' in event.detail) {
+          controlState.value.readSpeak = event.detail.speaking!
+        }
+        if ('rate' in event.detail) {
+          settings.value.readSpeakRate = event.detail.rate!
+        }
       }
     }),
     autoPlay: new AutoPlay({
@@ -170,8 +234,16 @@ const changeAutoPlaySpeed = (speed: number) => {
   actions.autoPlay.updateSpeed(speed)
 }
 
+const changeReadSpeakRate = (rate: number) => {
+  actions.readSpeak.updateRate(rate)
+}
+
+const toggleReadSpeak = () => {
+  actions.readSpeak.toggle(props.getNextReadElement())
+}
+
 const toggleControl = async (control: string) => {
-  // action: readSpeak | darkMode | autoPlay | chapterList
+  // action: darkMode | autoPlay | chapterList
   if (visiblePanel.value === control) {
     visiblePanel.value = null
   } else {
@@ -180,9 +252,7 @@ const toggleControl = async (control: string) => {
   if (control === 'darkMode') {
     actions.darkMode?.toggle()
   }
-  if (control === 'readSpeak') {
-    actions.readSpeak.toggle(props.getNextReadElement())
-  } else if (control === 'autoPlay') {
+  if (control === 'autoPlay') {
     actions.autoPlay.toggle()
   } else if (control === 'chapterList') {
     emits('open-chapter-list')
@@ -251,6 +321,9 @@ defineExpose({
   flex-direction: column;
   box-sizing: border-box;
 }
+.line-item {
+  display: flex;
+}
 .line-item + .line-item {
   margin-top: 20px;
 }
@@ -311,5 +384,35 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: space-around;
+}
+
+.read-info {
+  display: flex;
+  list-style: none;
+  margin-bottom: 16px;
+}
+.read-info-item {
+  flex: 1;
+  text-align: center;
+}
+.read-info-item + .read-info-item {
+  border-left: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
+}
+.read-info-subtitle {
+  opacity: 0.6;
+  font-size: 12px;
+}
+
+.read-speak-toggle {
+  display: flex;
+  align-items: center;
+  background-color: light-dark(#e3e3e3, #333);
+  padding: 4px 12px;
+  border-radius: 9999px;
+  width: fit-content;
+  .control-icon {
+    margin-left: 4px;
+    font-size: 22px;
+  }
 }
 </style>

@@ -12,8 +12,8 @@ export class OnlineService {
       throw new Error('Book not found')
     }
     const { id: onlineBookId, title, cover, downloadUrl } = book
-    const { content, chapterList } = await download(downloadUrl, onUpdate)
-    const bookId = await booksStore.add({ title, cover, onlineBookId })
+    const { content, chapterList, maxCursor } = await download(downloadUrl, onUpdate)
+    const bookId = await booksStore.add({ title, cover, onlineBookId, maxCursor })
     await Promise.all([
       contentStore.add({ bookId: bookId as number, content }),
       chapterListStore.add({ bookId: bookId as number, chapterList })

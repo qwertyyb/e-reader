@@ -1,10 +1,11 @@
 export const getSettings = (): ISettings => {
-  const defaultSettings = {
+  const defaultSettings: ISettings = {
     fontFamily: 'SYST',
     fontSize: 24,
     fontWeight: 500,
     speed: 30, // 每秒滚动的像素
     lineHeight: 1.6,
+    readSpeakRate: 1
   }
   const settings = JSON.parse(localStorage.getItem('settings') || '{}')
 

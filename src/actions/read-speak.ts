@@ -1,10 +1,13 @@
 export class ReadSpeak extends EventTarget {
   static CHANGE_EVENT_NAME = 'change'
+  #rate = 1
+  spearkingSSU: SpeechSynthesisUtterance | null = null
+
   getNextElement?: (current: HTMLElement) => HTMLElement | null
 
   constructor({ getNextElement, changeHandler }: {
     getNextElement: (current: HTMLElement) => HTMLElement | null,
-    changeHandler: (event: CustomEvent<{ speaking: boolean }>) => void
+    changeHandler: (event: CustomEvent<{ speaking?: boolean, rate?: number }>) => void
   }) {
     super()
     if (typeof getNextElement === 'function') {
@@ -23,6 +26,7 @@ export class ReadSpeak extends EventTarget {
   }
   #createUtterance(el: HTMLElement) {
     const utter = new SpeechSynthesisUtterance(el.textContent || '');
+    utter.rate = this.#rate
     let nextTriggered = false
     utter.addEventListener('boundary', event => {
       if (event.charIndex > event.utterance.text.length - 10 && !nextTriggered) {
@@ -36,6 +40,7 @@ export class ReadSpeak extends EventTarget {
     utter.addEventListener('start', () => {
       el.classList.add('reading')
       el.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      this.spearkingSSU = utter
       this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: true } }))
     })
     utter.addEventListener('end', () => {
@@ -48,12 +53,18 @@ export class ReadSpeak extends EventTarget {
     })
     return utter
   }
-  start(el: HTMLElement) {
+  start(el: HTMLElement, options?: { rate: number }) {
+    if (options?.rate) {
+      this.updateRate(options.rate || 1)
+    }
     const utterance = this.#createUtterance(el)
     window.speechSynthesis.speak(utterance)
   }
   stop() {
+    // 直接cancel，utter 不会接收到事件，需要先pause一下
+    window.speechSynthesis.pause()
     window.speechSynthesis.cancel()
+    this.spearkingSSU = null
     this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: false } }))
   }
   toggle(el?: HTMLElement | null) {
@@ -65,5 +76,12 @@ export class ReadSpeak extends EventTarget {
   }
   isSpeaking() {
     return window.speechSynthesis.speaking
+  }
+  updateRate(newRate: number) {
+    this.#rate = newRate
+    if (this.spearkingSSU) {
+      this.spearkingSSU.rate = newRate
+    }
+    this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { rate: newRate } }))
   }
 }

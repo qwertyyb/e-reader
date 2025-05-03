@@ -3,6 +3,7 @@
     <transition name="slide-down">
       <navigation-bar class="navigator"
         v-show="panelVisible && !selectMenuShowed"
+        :title="title"
         @menu="dialog='bookMenu'"
       >
       </navigation-bar>
@@ -82,7 +83,8 @@ import { settings } from '@/stores/settings';
 
 defineProps<{
   bookId: number
-  chapterId: number
+  chapterId: number,
+  title?: string,
   getNextReadElement: (current?: HTMLElement) => HTMLElement | null
 }>()
 
