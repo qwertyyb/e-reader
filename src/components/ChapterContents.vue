@@ -97,35 +97,22 @@ const getCurrentProgress = () => {
   const chapterEl = Array.from(chapterEls)
     .reverse()
     .find((el) => {
-      const { top, left } = el.getBoundingClientRect()
-      return Math.round(top) < Math.round(visibleRect.top) || Math.round(left) < Math.round(visibleRect.left)
+      const { top } = el.getBoundingClientRect()
+      return Math.round(top) < Math.round(visibleRect.top)
     }) || chapterEls[0]
   if (!chapterEl) return
 
   // 2. 找到章节中最靠近上方的段落
   const els = Array.from(chapterEl.querySelectorAll<HTMLDivElement>('[data-cursor]'))
-  let minLeft = Number.MAX_SAFE_INTEGER
-  let minTop = Number.MAX_SAFE_INTEGER
-  let target: HTMLDivElement | null = null
-  els.forEach(el => {
-    const rect = el.getBoundingClientRect()
-    if (Math.round(rect.top) >= Math.round(visibleRect.top)
-      && Math.round(rect.left) >= Math.round(visibleRect.left)
-      && Math.round(rect.bottom) <= Math.round(visibleRect.bottom)
-      && Math.round(rect.right) <= Math.round(visibleRect.right)) {
-        // 在屏幕内
-        if (Math.round(rect.left) < minLeft || Math.round(rect.top) < minTop) {
-          minTop = Math.round(rect.top)
-          minLeft = Math.round(rect.left)
-          target = el
-        }
-      }
-  })
+  const target: HTMLDivElement | null = els.find(el => {
+    const { top } = el.getBoundingClientRect()
+    return top > visibleRect.top
+  }) || els[els.length - 1]
   if (!target) return;
   return {
     chapterIndex: Number(chapterEl.dataset.chapterIndex),
     chapter: props.chapterList[Number(chapterEl.dataset.chapterIndex)],
-    cursor: Number((target as HTMLDListElement | null)?.dataset.cursor)
+    cursor: Number((target as HTMLElement | null)?.dataset.cursor)
   }
 }
 
@@ -232,8 +219,8 @@ defineExpose({
     margin-top: 0.8em;
   }
 
-  h4.chapter-title {
-    padding-top: var(--sait);
+  h3.chapter-title {
+    font-size: 1.2em;
   }
   p.reading {
     color: light-dark(blue, rgb(94, 94, 255))

@@ -2,6 +2,7 @@ export class ReadSpeak extends EventTarget {
   static CHANGE_EVENT_NAME = 'change'
   #rate = 1
   spearkingSSU: SpeechSynthesisUtterance | null = null
+  speakingEl: HTMLElement | null = null
 
   getNextElement?: (current: HTMLElement) => HTMLElement | null
 
@@ -39,6 +40,7 @@ export class ReadSpeak extends EventTarget {
     })
     utter.addEventListener('start', () => {
       el.classList.add('reading')
+      this.speakingEl = el
       el.scrollIntoView({ block: 'center', behavior: 'smooth' })
       this.spearkingSSU = utter
       this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: true } }))
@@ -61,10 +63,10 @@ export class ReadSpeak extends EventTarget {
     window.speechSynthesis.speak(utterance)
   }
   stop() {
-    // 直接cancel，utter 不会接收到事件，需要先pause一下
-    window.speechSynthesis.pause()
     window.speechSynthesis.cancel()
     this.spearkingSSU = null
+    this.speakingEl?.classList.remove('reading')
+    this.speakingEl = null
     this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: false } }))
   }
   toggle(el?: HTMLElement | null) {

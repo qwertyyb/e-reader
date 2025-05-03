@@ -57,7 +57,10 @@
             :step="0.1"
             v-model="settings.readSpeakRate"
             @change="changeReadSpeakRate"
-          ></c-progress>
+          >
+            <template v-slot:prefix>慢</template>
+            <template v-slot:suffix>快</template>
+          </c-progress>
         </div>
       </div>
     </transition>
@@ -126,7 +129,11 @@
         <div class="control-icon material-symbols-outlined">{{ controlState.autoPlay ? 'pause' : 'play_arrow' }}</div>
         <div class="control-label"></div>
       </div>
-      <div class="control-item" data-control="progress" @click="toggleControl('progress')">
+      <div class="control-item"
+        :class="{selected: visiblePanel === 'progress'}"
+        data-control="progress"
+        @click="toggleControl('progress')"
+      >
         <div class="control-icon material-symbols-outlined">commit</div>
         <div class="control-label"></div>
       </div>
@@ -243,11 +250,13 @@ const toggleReadSpeak = () => {
 }
 
 const toggleControl = async (control: string) => {
-  // action: darkMode | autoPlay | chapterList
-  if (visiblePanel.value === control) {
-    visiblePanel.value = null
-  } else {
-    visiblePanel.value = control
+  // action: darkMode | autoPlay | chapterList | font | progress
+  if (['autoPlay', 'progress', 'font'].includes(control)) {
+    if (visiblePanel.value === control) {
+      visiblePanel.value = null
+    } else {
+      visiblePanel.value = control
+    }
   }
   if (control === 'darkMode') {
     actions.darkMode?.toggle()
@@ -410,6 +419,7 @@ defineExpose({
   padding: 4px 12px;
   border-radius: 9999px;
   width: fit-content;
+  margin-right: 18px;
   .control-icon {
     margin-left: 4px;
     font-size: 22px;

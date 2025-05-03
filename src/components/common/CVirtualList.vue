@@ -4,6 +4,7 @@
     :data-sources="dataSources"
     ref="virtual"
     :estimate-size="estimateSize">
+    <template #header v-if="$slots.header"><slot name="header"></slot></template>
     <template v-slot="{ source, index }">
       <slot :source="source" :index="index"></slot>
     </template>
@@ -40,4 +41,10 @@ watch(() => props.activeId, scrollToTarget)
 watch(() => props.activeIndex, scrollToTarget)
 
 onMounted(scrollToTarget)
+
+defineExpose({
+  scrollToIndex(index: number) {
+    return virtualListRef.value?.scrollToIndex(index)
+  }
+})
 </script>
