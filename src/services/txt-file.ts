@@ -1,21 +1,6 @@
 
 import { level1ChapterRegexp, level2ChapterRegexp } from '@/config';
-import jschardet from 'jschardet'
-
-const decodeText = (arrayBuffer: ArrayBuffer) => {
-  const bytes = new Uint8Array(arrayBuffer.slice(0, 10000));
-  let binary = ''
-  bytes.forEach(item => {
-    binary += String.fromCharCode(item)
-  })
-  const { encoding } = jschardet.detect(binary)
-  const decoder = new TextDecoder(encoding, { fatal: true })
-  try {
-    return decoder.decode(arrayBuffer).replace(/\r\n/g, '\n')
-  } catch {
-    throw new Error('解码失败')
-  }
-}
+import { decodeText } from '@/utils';
 
 export const parseChapterList = (
   content: string,
@@ -79,43 +64,5 @@ export const parseTxtFile = async (file: File, options: { tocRegList: RegExp[] }
     content,
     maxCursor: content.split('\n').length - 1,
     chapterList
-  }
-}
-
-const downloadWithProgress = async (url: string, onUpdate?: (progress: number, total: number) => void) => {
-  const response = await fetch(url)
-  const total = Number(response.headers.get('Content-Length')) || 0
-  const result = []
-  let progress = 0
-  const reader = response.body!.getReader()
-  while(true) {
-    const { done, value } = await reader.read()
-    if (done) {
-      break;
-    }
-    result.push(value)
-    progress += value.length
-    onUpdate?.(progress, total)
-  }
-
-  const data = new Uint8Array(progress)
-
-  let position = 0
-  result.forEach(item => {
-    data.set(item, position)
-    position += item.length
-  })
-
-  return data
-}
-
-export const download = async (downloadUrl: string, onUpdate?: (progress: number, total: number) => void) => {
-  const arrayBuffer = await downloadWithProgress(downloadUrl, onUpdate)
-  const content = decodeText(arrayBuffer.buffer)
-  const chapterList = parseChapterList(content)
-  return {
-    content,
-    maxCursor: chapterList[chapterList.length - 1].cursorEnd,
-    chapterList,
   }
 }

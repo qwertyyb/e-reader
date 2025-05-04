@@ -4,7 +4,7 @@ export const renderChapter = (chapter: IChapter, content: string, chapterIndex: 
   chapterEl.dataset.id = chapter.id
   chapterEl.dataset.chapterIndex = JSON.stringify(chapterIndex)
   let chapterTextOffset = 0
-  content.split('\n').slice(chapter.cursorStart, chapter.cursorEnd! + 1).forEach((line, i) => {
+  content.split('\n').forEach((line, i) => {
     const str = line.trim()
     if (i === 0) {
       // 第一个一般是章节标题

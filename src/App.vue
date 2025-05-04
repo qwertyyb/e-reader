@@ -9,7 +9,6 @@ const route = useRoute()
 let oldRouteName: string | null | undefined | symbol = null
 
 watch(() => route.name, (newVal, oldVal) => {
-  console.log('route changed', newVal, oldVal)
   oldRouteName = oldVal
 })
 

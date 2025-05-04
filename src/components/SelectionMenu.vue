@@ -268,7 +268,6 @@ const contentTapHandler = async (e: MouseEvent) => {
   if (!markValue) return
   mark.value = markValue
   const rect = markEl.getBoundingClientRect()
-  console.log(markEl, rect)
   reference.value = {
     getBoundingClientRect() {
       return rect

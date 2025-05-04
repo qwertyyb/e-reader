@@ -25,10 +25,9 @@ export class LocalBookService implements IBookService {
   async getChapterList(bookId: string): Promise<IChapter[]> {
     return chapterListStore.get(Number(bookId)).then(result => result.chapterList)
   }
-  async getChapter(bookId: string): Promise<string> {
+  async getChapterContent(bookId: string, chapter: IChapter): Promise<string> {
     const result = await contentStore.get(Number(bookId))
-    const text = result.content
-    return text
+    return result.content.split('\n').slice(chapter.cursorStart, chapter.cursorEnd! + 1).join('\n')
   }
 }
 

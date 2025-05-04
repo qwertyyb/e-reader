@@ -1,5 +1,23 @@
+import { decodeText, downloadWithProgress } from "@/utils"
 import { booksStore, chapterListStore, contentStore } from "./storage"
-import { download } from "./txt-file"
+import { parseChapterList } from "./txt-file"
+import { parseEpubFile } from "./epub"
+
+const download = async (downloadUrl: string, onUpdate?: (progress: number, total: number) => void) => {
+  const data = await downloadWithProgress(downloadUrl, onUpdate)
+  if (downloadUrl.endsWith('.txt')) {
+    const content = decodeText(data.buffer)
+    const chapterList = parseChapterList(content)
+    return {
+      content,
+      maxCursor: chapterList[chapterList.length - 1].cursorEnd,
+      chapterList,
+    }
+  }
+  if (downloadUrl.endsWith('.epub')) {
+    return parseEpubFile(new Blob([data.buffer]))
+  }
+}
 
 export class OnlineService {
   async getBookList(): Promise<(IBook & { downloadUrl: string })[]> {

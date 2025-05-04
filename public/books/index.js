@@ -2,7 +2,7 @@ const curUrl = document.currentScript.src
 
 console.log(curUrl)
 
-const bookUrl = (bookName) => new URL(`./${bookName}.txt`, curUrl).href
+const bookUrl = (bookName, suffix = 'txt') => new URL(`./${bookName}.${suffix}`, curUrl).href
 const coverUrl = (name) => new URL(`./covers/${name}.jpeg`, curUrl).href
 
 window.remoteBooks = [
@@ -83,5 +83,11 @@ window.remoteBooks = [
     cover: coverUrl('asjct'),
     title: '傲世九重天',
     downloadUrl: bookUrl('傲世九重天')
+  },
+  {
+    id: '15',
+    cover: coverUrl('st'),
+    title: '三体(全集)',
+    downloadUrl: bookUrl('【精】三体（全集）', 'epub')
   }
 ]

@@ -121,7 +121,6 @@ const parseTocAndContent = async (doc: Document, rootDir: string, entries: Entry
   for (let i = 0; i < navPoints.length; i += 1) {
     chapterContentList = [...chapterContentList, ...(await parseNavPoint(navPoints[i], 1, { rootDir, entries }))]
   }
-  console.log(chapterContentList)
   let cursor = -1
   let bookContent = ''
   const chapterList: IChapter[] = []
@@ -137,17 +136,15 @@ const parseTocAndContent = async (doc: Document, rootDir: string, entries: Entry
     }
     chapterList.push(chapter)
   })
-  console.log(chapterList)
-  console.log(bookContent)
   return {
     chapterList,
     content: bookContent
   }
 }
 
-export const parseEpubFile = async (file: File): Promise<{ cover: Blob | undefined | null, title: string, content: string, maxCursor: number, chapterList: IChapter[] }> => {
+export const parseEpubFile = async (blob: Blob | File): Promise<{ cover: Blob | undefined | null, title: string, content: string, maxCursor: number, chapterList: IChapter[] }> => {
   // 先把 epub 文件解压
-  const reader = new ZipReader(new BlobReader(file))
+  const reader = new ZipReader(new BlobReader(blob))
   const entries = await reader.getEntries()
 
   checkIsEpubFile(entries)
@@ -161,7 +158,7 @@ export const parseEpubFile = async (file: File): Promise<{ cover: Blob | undefin
 
   const title = doc.querySelector('metadata dc\\:title')?.textContent
   return {
-    title: title || file.name.replace(/\.[^.]+$/, ''),
+    title: title || 'name' in blob ? (blob as File).name.replace(/\.[^.]+$/, '') : '',
     cover,
     maxCursor: content.split('\n').length - 1,
     content,

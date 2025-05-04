@@ -88,7 +88,7 @@ const chapterLoadState = new WeakMap<IChapter, Promise<string>>()
 const loadChapter = async (chapter: IChapter) => {
   // 如果正在加载或已加载完毕，直接返回之前的结果
   if (!chapterLoadState.get(chapter)) {
-    chapterLoadState.set(chapter, dataService.getChapter(props.id as string))
+    chapterLoadState.set(chapter, dataService.getChapterContent(props.id as string, chapter))
   }
   return chapterLoadState.get(chapter)!
 }
