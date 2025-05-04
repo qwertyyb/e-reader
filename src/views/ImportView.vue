@@ -122,6 +122,7 @@ const wordCount = computed(() => {
 const parseFile = async () => {
   if (file?.name.endsWith('.epub')) {
     const result = await parseEpubFile(file)
+    console.log(result)
     bookInfo.value = {
       content: result.content,
       cover: result.cover ? await blobToBase64(result.cover) : '',

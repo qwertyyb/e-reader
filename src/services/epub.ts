@@ -63,36 +63,51 @@ const getCover = async (rootDoc: Document, entries: Entry[], rootDir: string) =>
   return cover
 }
 
-const parseContent = async (relativePath: string, rootDir: string, entries: Entry[]) => {
-  const [path, hash] = relativePath.split('#')
-  const entry = entries.find(entry => entry.filename === pathJoin(rootDir, path))
-  if (!entry) {
-    throw new Error('未找到内容文件' + relativePath)
+const parseContent = async (chapter: IChapter & { src: string }, next: (IChapter & { src: string }) | null, entries: Entry[], rootDir: string) => {
+  const [path, hash] = chapter.src.split('#')
+  const doc = await readXML(entries, path, rootDir)
+  console.log('parseContent', doc)
+  if (!hash) {
+    return (doc.body.textContent || '').trim()
   }
-  const text = await entry.getData?.(new TextWriter())
-  if (!text) {
-    throw new Error('空内容' + relativePath)
+  if (next && next.src.split('#')[0] === path) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_, endId] = next.src.split('#')
+    // 如果下一章节的链接和当前章节的链接一致，则说明当前章节的内容是当前章节的 id 到下一章节 id 之前的内容
+    const start = doc.getElementById(hash)
+    let cur: Element | null = start
+    let content = ''
+    while(cur && cur.getAttribute('id') !== endId) {
+      content = [content, cur.textContent].join('\n')
+      cur = cur.nextElementSibling
+    }
+    return content.trim()
   }
-  const parser = new DOMParser()
-  const doc = parser.parseFromString(text, 'text/xml')
-  if (hash) {
-    return (doc.getElementById(hash)?.textContent || '').trim()
+  if (!next || next.src.split('#')[0] !== path) {
+    // 链接上有 hash 参数，并且下一下章节的链接和当前章节的链接不一致，则说明当前章节的内容是 doc id 之后的所有内容
+    const start = doc.getElementById(hash)
+    let cur: Element | null = start
+    let content = ''
+    while(cur) {
+      content = [content, cur.textContent].join('\n')
+      cur = cur.nextElementSibling
+    }
+    return content.trim()
   }
-  return (doc.body.textContent || '').trim()
+  return ''
 }
 
-const parseNavPoint = async (navPoint: Element, level: number, options: { rootDir: string, entries: Entry[] }): Promise<(IChapter & { content: string })[]> => {
+const parseNavPoint = async (navPoint: Element, level: number, options: { rootDir: string, entries: Entry[] }): Promise<(IChapter & { src: string })[]> => {
   const src = navPoint.querySelector('content')?.getAttribute('src')
   if (!src) {
     throw new Error('目录项目 src 属性不存在')
   }
   const title = navPoint.querySelector('navLabel')?.textContent?.trim() || ''
-  const content = await parseContent(src, options.rootDir, options.entries)
-  const item: IChapter & { content: string } = {
+  const item: IChapter & { src: string } = {
     id: navPoint.getAttribute('id')!,
     title,
     level,
-    content: content,
+    src,
     cursorStart: 0
   }
 
@@ -116,29 +131,29 @@ const parseTocAndContent = async (doc: Document, rootDir: string, entries: Entry
   }
   const tocHref = tocRef.getAttribute('href')
   const tocDoc = await readXML(entries, tocHref, rootDir)
+  console.log('tocDoc', tocDoc)
   const navPoints = Array.from(tocDoc.querySelectorAll('navMap > navPoint'))
-  let chapterContentList: (IChapter & { content: string })[] = []
+  let chapterContentList: (IChapter & { src: string })[] = []
   for (let i = 0; i < navPoints.length; i += 1) {
     chapterContentList = [...chapterContentList, ...(await parseNavPoint(navPoints[i], 1, { rootDir, entries }))]
   }
   let cursor = -1
   let bookContent = ''
   const chapterList: IChapter[] = []
-  chapterContentList.forEach((item, index) => {
-    const { content, ...chapter } = item
+  for (let i = 0; i < chapterContentList.length; i += 1) {
+    const item = chapterContentList[i]
+    const { ...chapter } = item
+    const next = i < chapterContentList.length - 1 ? chapterContentList[i + 1] : null
+    const content = await parseContent(item, next, entries, rootDir)
     chapter.cursorStart = cursor + 1
     chapter.cursorEnd = chapter.cursorStart + content.split('\n').length - 1
     cursor = chapter.cursorEnd
-    if (index > 0) {
-      bookContent = [bookContent, content].join('\n')
-    } else {
-      bookContent = content
-    }
+    bookContent = [bookContent, content].join('\n')
     chapterList.push(chapter)
-  })
+  }
   return {
     chapterList,
-    content: bookContent
+    content: bookContent.trim()
   }
 }
 
@@ -152,6 +167,7 @@ export const parseEpubFile = async (blob: Blob | File): Promise<{ cover: Blob | 
   const containerDoc = await readXML(entries, 'META-INF/container.xml')
   const rootfilePath = containerDoc.querySelector('rootfile')?.getAttribute('full-path')
   const doc = await readXML(entries, rootfilePath)
+  console.log('doc', doc)
   const rootDir = dirPath(rootfilePath!)
   const cover = await getCover(doc, entries, rootDir)
   const { content, chapterList } = await parseTocAndContent(doc, rootDir, entries)
