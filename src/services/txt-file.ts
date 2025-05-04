@@ -9,7 +9,6 @@ const decodeText = (arrayBuffer: ArrayBuffer) => {
     binary += String.fromCharCode(item)
   })
   const { encoding } = jschardet.detect(binary)
-  console.log('encoding', encoding)
   const decoder = new TextDecoder(encoding, { fatal: true })
   try {
     return decoder.decode(arrayBuffer).replace(/\r\n/g, '\n')
@@ -21,7 +20,7 @@ const decodeText = (arrayBuffer: ArrayBuffer) => {
 export const parseChapterList = (
   content: string,
   { regList = [new RegExp(level1ChapterRegexp), new RegExp(level2ChapterRegexp)] } = {}
-) => {
+): IChapter[] => {
   const toc: { id: string, title: string, cursorStart: number, cursorEnd?: number, level: number }[] = []
   const parents: Record<number, string> = {}
   const lines = content.split('\n')
@@ -45,11 +44,13 @@ export const parseChapterList = (
     parents[level] = chapter.id
     toc.push(chapter)
   })
-  toc[toc.length - 1].cursorEnd = lines.length - 1
+  if (toc.length) {
+    toc[toc.length - 1].cursorEnd = lines.length - 1
+  }
   return toc
 }
 
-export const parseTxtFile = async (file: File) => {
+export const parseTxtFile = async (file: File, options: { tocRegList: RegExp[] } = { tocRegList: [new RegExp(level1ChapterRegexp), new RegExp(level2ChapterRegexp)] }) => {
   const load = (file: File) => {
     return new Promise<string>((resolve, reject) => {
       const reader = new FileReader()
@@ -71,11 +72,13 @@ export const parseTxtFile = async (file: File) => {
 
   const content = await load(file)
   const title = getTitle(file.name)
+  const chapterList = parseChapterList(content, { regList: options.tocRegList })
 
   return {
     title,
     content,
-    catalog: parseChapterList(content)
+    maxCursor: content.split('\n').length - 1,
+    chapterList
   }
 }
 

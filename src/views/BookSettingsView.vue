@@ -79,8 +79,9 @@ const getToc = async () => {
     showToast('请至少配置一个目录')
     throw new Error('no avaliable toc config')
   }
-  const content = await contentStore.get(Number(props.id))
-  return parseChapterList(content.content, { regList })
+  const result = await contentStore.get(Number(props.id))
+  const content = result.content
+  return parseChapterList(content, { regList })
 }
 const previewToc = async () => {
   chapterList.value = await getToc()

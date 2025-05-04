@@ -131,9 +131,17 @@ const scrollToChapter = (chapter: IChapter) => {
 .chapter-virtual-list {
   flex: 1;
   overflow: auto;
-  // 有两个层级时，二级目录前追加边距
-  &.max-level-2 .chapter-item[data-catalog-level="2"] .chapter-item-label {
-    margin-left: 24px;
+  @mixin levelIndent($maxLevel) {
+    @for $i from 2 through $maxLevel {
+      .chapter-item[data-catalog-level="#{$i}"] .chapter-item-label {
+        margin-left: 24px * ($i - 1);
+      }
+    }
+  }
+  @for $level from 2 through 6 {
+    &.max-level-#{$level} {
+      @include levelIndent($level);
+    }
   }
 }
 .chapter-item {

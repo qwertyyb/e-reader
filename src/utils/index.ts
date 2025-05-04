@@ -39,3 +39,24 @@ export const debounce = <F extends (...args: unknown[]) => unknown>(fn: F, durat
     timeout = setTimeout(fn, duration, ...args)
   }
 }
+
+export const dirPath = (filePath: string) => {
+  const arr = filePath.split('/')
+  arr.pop()
+  return arr.join('/')
+}
+
+export const pathJoin = (base: string, relativePath: string) => {
+  if (relativePath.startsWith('/')) return relativePath
+  if (!base) return relativePath
+  return `${base}/${relativePath}`
+}
+
+export const blobToBase64 = async (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}

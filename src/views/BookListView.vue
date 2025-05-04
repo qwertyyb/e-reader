@@ -48,7 +48,7 @@ const refresh = async () => {
     })
   ])
 
-  bookList.value = window.remoteBooks.map((item) => {
+  const getRemoteBookList = () => window.remoteBooks.map((item) => {
     const localBook = localBooks.find((book) => String(book.onlineBookId) === String(item.id))
     return {
       ...item,
@@ -59,6 +59,19 @@ const refresh = async () => {
       lastReadTime: localBook && reading[localBook.id] ? reading[localBook.id].lastReadTime : 0,
     }
   })
+
+  const getLocalBookList = () => localBooks.map(item => {
+    return {
+      ...item,
+      trace: `${route.path}_${item.id}`,
+      reading: false,
+      downloaded: true,
+      localBookId: item.id,
+      lastReadTime: item && reading[item.id] ? reading[item.id].lastReadTime : 0,
+    }
+  })
+
+  bookList.value = (route.name === 'local' ? getLocalBookList() : getRemoteBookList())
     .sort((prev, next) => Number(next.downloaded) - Number(prev.downloaded) || next.lastReadTime - prev.lastReadTime)
     .filter((item) => {
       if (route.name === 'local') {

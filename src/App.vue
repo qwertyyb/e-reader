@@ -49,6 +49,7 @@ async function onLeave(el: Element, done: () => void) {
 
 <style lang="scss" scoped>
 .root-app {
+  min-height: 100vh;
   background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
 }
 

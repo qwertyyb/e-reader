@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@floating-ui/vue": "^1.1.5",
+    "@zip.js/zip.js": "^2.7.60",
     "element-plus": "^2.9.8",
     "hammerjs": "^2.0.8",
     "jschardet": "^3.1.4",

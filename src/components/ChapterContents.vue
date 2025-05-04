@@ -69,7 +69,8 @@ const loadContents = async (chapterId: string) => {
   const contents = await Promise.all(
     props.chapterList.slice(startIndex, startIndex + keeps).map(async (chapter, i) => {
       const text = await props.loadChapter(chapter, startIndex + i)
-      return renderChapter(chapter, text, startIndex + i)
+      const html = renderChapter(chapter, text, startIndex + i)
+      return html
     })
   )
   renderChapterContents(contents)
