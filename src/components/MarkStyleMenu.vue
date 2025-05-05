@@ -77,7 +77,7 @@ const { floatingStyles: floatingStyles } = useFloating(reference, floating, {
   list-style: none;
   border-radius: 99999px;
   width: 322px;
-  animation: slide-down-scale .3s ease-in;
+  animation: slide-down-scale .2s ease-in;
 }
 .underline-submenu-item {
   width: 24px;

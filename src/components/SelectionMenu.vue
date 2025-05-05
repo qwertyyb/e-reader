@@ -42,7 +42,11 @@
         </li>
       </ul>
     </div>
-    <c-dialog :visible="dialog==='thoughtInput'" class="thought-input-dialog" @close="dialog=null">
+    <c-dialog
+      :visible="dialog==='thoughtInput'"
+      class="thought-input-dialog"
+      @close="dialog=null"
+    >
       <div class="thought-input-wrapper">
         <span class="material-symbols-outlined thought-icon">record_voice_over</span>
         <textarea
@@ -311,11 +315,11 @@ const actionHandler = async (event: Event, action: string) => {
 
 <style lang="scss" scoped>
 @keyframes slide-down-scale {
-  from {
+  0% {
     opacity: 0;
-    transform: translateY(-20%) scale(1);
+    transform: translateY(-60%) scale(1);
   }
-  to {
+  100% {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
