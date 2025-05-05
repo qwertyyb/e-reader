@@ -3,7 +3,7 @@ import { RouterView, useRoute } from 'vue-router'
 import UpdateDialog from '@/components/UpdateDialog.vue'
 import { watch } from 'vue'
 import router from '@/router'
-import { clearAnimData, waits } from '@/stores/bookAnim'
+import { clearAnimData, waits, animData } from '@/stores/bookAnim'
 
 const route = useRoute()
 let oldRouteName: string | null | undefined | symbol = null
@@ -15,13 +15,13 @@ watch(() => route.name, (newVal, oldVal) => {
 // 在离开过渡开始时调用
 // 用这个来开始离开动画
 async function onLeave(el: Element, done: () => void) {
-  if (oldRouteName === 'local' && router.currentRoute.value.name === 'read') {
-    // 如果当前路由在书架，下一个路由的页面是read, 则等待开书动画完成后再移除之前的路由
+  if (animData.value.trace && router.currentRoute.value.name === 'read') {
+    // 下一个路由的页面是read, 则等待开书动画完成后再移除之前的路由
     await waits.waitOpen.promise
     done()
     return
   }
-  if (oldRouteName === 'read' && router.currentRoute.value.name === 'local') {
+  if (oldRouteName === 'read' && animData.value.trace) {
     // 如果当前路由是阅读页面，下一个路由是书架，则需要等待关书动画完成后再移除之前的路由
     await waits.waitClose.promise
     done()
