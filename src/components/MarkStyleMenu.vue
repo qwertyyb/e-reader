@@ -34,11 +34,11 @@
 
 <script setup lang="ts">
 import { useFloating, offset, shift, autoUpdate } from '@floating-ui/vue';
-import { MarkStyles, MarkStyleIcons, MarkColors, MarkData } from '@/utils/mark';
+import { MarkStyles, MarkStyleIcons, MarkColors } from '@/utils/mark';
 import { ref } from 'vue';
 
 defineProps<{
-  mark: MarkData | null
+  mark: Omit<IMarkEntity, 'id'> & { id?: number } | null
 }>()
 
 const emits = defineEmits<{

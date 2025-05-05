@@ -135,7 +135,7 @@ export const marks = (() => {
   const baseMarks = createStore<IMarkEntity>('marks')
   return {
     ...baseMarks,
-    async getListByChapterAndBook(bookId: number, chapterId: number) {
+    async getListByChapterAndBook(bookId: number, chapterId: string) {
       const list = await baseMarks.getList()
       return list.filter(item => {
         return item.bookId === bookId && item.chapterId === chapterId
@@ -145,7 +145,7 @@ export const marks = (() => {
       const list = await baseMarks.getList()
       return list.filter(item => item.bookId === bookId)
         .sort((a, b) => {
-          return a.chapterId - b.chapterId || a.range.start - b.range.start
+          return a.chapterIndex - b.chapterIndex || a.range.start - b.range.start
         })
     }
   }

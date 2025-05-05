@@ -3,7 +3,7 @@
     <control-wrapper class="control-wrapper book-anim-main" ref="control-wrapper"
       v-if="chapter"
       :book-id="+id"
-      :chapter-id="+chapter.id"
+      :chapter-id="chapter.id"
       :title="chapter?.title"
       :get-next-read-element="getNextReadElement"
       @prev-page="pageHandler('prev')"

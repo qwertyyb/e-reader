@@ -74,10 +74,11 @@ import CDialog from '@/components/common/CDialog.vue'
 import RangeMarksDialog from '@/components/RangeMarksDialog.vue';
 import MarkStyleMenu from '@/components/MarkStyleMenu.vue';
 import { marks } from '@/services/storage';
-import { ChapterMark, MarkColors, MarkData, MarkStyles } from '@/utils/mark'
+import { ChapterMark, MarkColors, MarkStyles } from '@/utils/mark'
 import { computed, onMounted, onUnmounted, ref, toRaw, useTemplateRef, watch } from 'vue'
+import { parseSelectionRange } from '@/utils/chapter';
 
-const props = defineProps<{ bookId: number, chapterId: number }>()
+const props = defineProps<{ bookId: number, chapterId: string }>()
 
 const emits = defineEmits<{
   show: [],
@@ -86,7 +87,7 @@ const emits = defineEmits<{
 
 const dialog = ref<string | null>(null)
 const marksRange = ref<{ start: number, length: number } | null>(null)
-const mark = ref<MarkData | null>(null)
+const mark = ref<Omit<IMarkEntity, 'id'> & { id?: number } | null>(null)
 const reference = ref<{ getBoundingClientRect: () => DOMRect }>()
 const floating = ref(null);
 const { floatingStyles, update: updateMenuRect } = useFloating(reference, floating, { placement: 'bottom', middleware: [offset(10), shift({ padding: 12 })] });
@@ -110,15 +111,15 @@ onUnmounted(() => {
 })
 
 let observer: MutationObserver | null = null
+const chaptersMarks = new WeakMap<HTMLElement, ChapterMark>()
 const registerMutationObserver = () => {
   observer = new MutationObserver(() => {
     const chapterEls = contentWrapperRef.value!.querySelectorAll<HTMLElement>('.chapter')
     chapterEls.forEach(chapterEl => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const el = chapterEl as any
-      if (el.chapterMark) return
-      el.chapterMark = new ChapterMark(props.bookId, Number(el.dataset.id), chapterEl)
-      el.chapterMark.refresh()
+      if (chaptersMarks.get(chapterEl)) return
+      const chapterMark = new ChapterMark(props.bookId, chapterEl.dataset.id!, chapterEl)
+      chaptersMarks.set(chapterEl, chapterMark)
+      chapterMark.refresh()
     })
   })
   observer.observe(contentWrapperRef.value!, {
@@ -131,8 +132,9 @@ const markRemovedHandler = () => {
   refreshMark()
 }
 const refreshMark = () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (contentWrapperRef.value!.querySelector(`.chapter[data-id="${props.chapterId}"]`) as any)?.chapterMark?.refresh()
+  contentWrapperRef.value!.querySelectorAll<HTMLElement>('.chapter').forEach((chapterEl) => {
+    chaptersMarks.get(chapterEl)?.refresh()
+  })
 }
 const unregisterMutationObserver = () => {
   observer?.disconnect()
@@ -160,12 +162,22 @@ const selectionChangeHandler = () => {
 
   if (!text) return
 
-  const md = new MarkData({
-    range,
+  const markRange = parseSelectionRange(range)
+  if (!markRange) return
+  const { chapterId, chapterIndex, startOffset, length } = markRange
+  mark.value = {
     bookId: props.bookId,
-    chapterId: props.chapterId
-  })
-  mark.value = md
+    chapterId,
+    chapterIndex,
+    range: {
+      start: startOffset,
+      length
+    },
+    text,
+    thought: '',
+    style: MarkStyles.NONE,
+    color: MarkColors.YELLOW
+  }
 
   const rect = range.getBoundingClientRect()
 

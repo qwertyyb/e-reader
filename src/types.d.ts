@@ -86,12 +86,11 @@ interface IRemoteBook {
 interface IMarkEntity {
   id: number
   bookId: number
-  chapterId: number
+  chapterId: string
+  chapterIndex: number
   range: {
     start: number,
     length: number,
-    markStart: { cursor: number, offset: number },
-    markEnd: { cursor: number, offset: number }
   }
 
   text: string

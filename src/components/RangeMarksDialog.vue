@@ -15,7 +15,7 @@ const props = defineProps<{
   visible: boolean
   range: { start: number, length: number } | null
   bookId: number
-  chapterId: number
+  chapterId: string
 }>()
 
 const emits = defineEmits<{

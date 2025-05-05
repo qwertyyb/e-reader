@@ -15,8 +15,11 @@ const getPreviousOffset = (node: HTMLElement | ChildNode | ParentNode | null, st
   return length + getPreviousOffset(node.parentNode, stopEl)
 }
 
-export const getClosest = (node: HTMLElement, selector: string) => {
-  return node?.closest?.(selector) || node?.parentElement?.closest?.(selector)
+export const getClosest = (node: Node, selector: string) => {
+  if (node instanceof Element) {
+    return node.closest(selector)
+  }
+  return node.parentElement?.closest(selector)
 }
 
 export const getParagraphOffset = ({ node, offset }: { node: HTMLElement, offset: number }) => {
@@ -34,21 +37,6 @@ export const getParagraphPoint = ({ node, offset }: { node: HTMLElement, offset:
   return {
     offset: getParagraphOffset({ node, offset }),
     cursor: parseInt(p.dataset.cursor || '0', 10)
-  }
-}
-
-export class ChapterMarkRange {
-  start = 0
-  length = 0
-  markStart = { cursor: 0, offset: 0 }
-  markEnd = { cursor: 0, offset: 0 }
-  constructor(range: Range) {
-    const chapterStartOffset = getChapterOffset({ node: range.startContainer as HTMLElement, offset: range.startOffset })
-    const chapterEndOffset = getChapterOffset({ node: range.endContainer as HTMLElement, offset: range.endOffset })
-    this.start = chapterStartOffset
-    this.length = chapterEndOffset - chapterStartOffset
-    this.markStart = getParagraphPoint({ node: range.startContainer as HTMLElement, offset: range.startOffset })
-    this.markEnd = getParagraphPoint({ node: range.endContainer as HTMLElement, offset: range.endOffset })
   }
 }
 
@@ -74,44 +62,24 @@ export const MarkColors = {
   RED: '#fd8492'
 }
 
-export class MarkData {
-  id?: number
-  bookId = 0
-  chapterId = 0
-  text = ''
-  range: ChapterMarkRange
-  thought = ''
-  style = MarkStyles.NONE
-  color = MarkColors.YELLOW
-
-  constructor({
-    range, bookId, chapterId
-  }: { bookId: number, chapterId: number, range: Range }) {
-    this.range = new ChapterMarkRange(range)
-    this.bookId = bookId
-    this.chapterId = chapterId
-    this.text = range.toString()
-  }
-}
-
 export class ChapterMark {
   bookId = 0
-  chapterId = 0
-  markList: MarkData[] = []
-  markInstance: Mark
-  container: HTMLElement
-  constructor(bookId: number, chapterId: number, container: HTMLElement) {
+  chapterId = ''
+  markList: IMarkEntity[] = []
+  markInstance: Mark | null
+  container: HTMLElement | null
+  constructor(bookId: number, chapterId: string, container: HTMLElement) {
     this.container = container
     this.bookId = bookId
     this.chapterId = chapterId
     this.markInstance = new Mark(this.container)
   }
   render() {
-    this.markInstance.unmark()
+    this.markInstance?.unmark()
     this.markList.forEach(markData => {
       const { range, id, color, style, thought } = markData
       const className = thought ? 'thought' : ''
-      this.markInstance.markRanges([range], {
+      this.markInstance?.markRanges([range], {
         className,
         each(markedDom) {
           const dom = markedDom as HTMLElement
@@ -134,7 +102,7 @@ export class ChapterMark {
    *
    * @param {MarkData} markData 待新增的markData
    */
-  async mark(markData: MarkData) {
+  async mark(markData: IMarkEntity) {
     await marks.add(markData)
     await this.refresh()
   }
@@ -146,6 +114,12 @@ export class ChapterMark {
     await marks.remove(id)
     await this.refresh()
   }
+
+  destroy() {
+    this.markInstance?.unmark()
+    this.markInstance = null
+    this.container = null
+  }
 }
 
 export const getBookMarkList = (markList: IMarkEntity[], chapterList: { id: string, title: string }[]) => {
@@ -156,11 +130,12 @@ export const getBookMarkList = (markList: IMarkEntity[], chapterList: { id: stri
     }
   }, {})
   return Object.values(
-    markList.reduce<Record<string, { chapterId: number, markList: IMarkEntity[], title: string }>>(
+    markList.reduce<Record<string, { chapterId: string, chapterIndex: number, markList: IMarkEntity[], title: string }>>(
       (acc, mark) => {
         if (!acc[mark.chapterId]) {
           acc[mark.chapterId] = {
             chapterId: mark.chapterId,
+            chapterIndex: mark.chapterIndex,
             title: chapterLabels[mark.chapterId] || '未知章节',
             markList: []
           }
@@ -170,7 +145,7 @@ export const getBookMarkList = (markList: IMarkEntity[], chapterList: { id: stri
       },
       {}
     )
-  ).sort((a, b) => a.chapterId - b.chapterId)
+  ).sort((a, b) => a.chapterIndex - b.chapterIndex)
 }
 
 export const exportBookMarkList = (title: string, markList: ReturnType<typeof getBookMarkList>, options: { format: 'markdown' | 'html' }) => {

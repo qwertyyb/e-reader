@@ -1,3 +1,5 @@
+import { getChapterOffset, getClosest } from "./mark"
+
 export const renderChapter = (chapter: IChapter, content: string, chapterIndex: number) => {
   const chapterEl = document.createElement('div')
   chapterEl.classList.add('chapter')
@@ -28,4 +30,34 @@ export const renderChapter = (chapter: IChapter, content: string, chapterIndex: 
   })
 
   return chapterEl.outerHTML
+}
+
+export const parseSelectionRange = (range: Range): {
+  chapterId: string,
+  chapterIndex: number,
+  startOffset: number,
+  length: number,
+  text: string,
+} | null => {
+  // 先确认 range 是否跨了章节
+  const startChapterEl = getClosest(range.startContainer, '.chapter') as HTMLElement
+  const endChapterEl = getClosest(range.endContainer, '.chapter') as HTMLElement
+  if (!startChapterEl || !endChapterEl) {
+    console.warn('未选中章节内内容')
+    return null
+  }
+  if (startChapterEl !== endChapterEl) {
+    console.warn('不支持跨章节的笔记')
+    return null
+  }
+  const startOffset = getChapterOffset({ node: range.startContainer as HTMLElement, offset: range.startOffset })
+  const endOffset = getChapterOffset({ node: range.endContainer as HTMLElement, offset: range.endOffset })
+  const length = endOffset - startOffset
+  return {
+    chapterId: startChapterEl.dataset.id!,
+    chapterIndex: Number(startChapterEl.dataset.chapterIndex),
+    startOffset,
+    length,
+    text: range.toString()
+  }
 }

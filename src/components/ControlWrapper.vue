@@ -83,7 +83,7 @@ import { settings } from '@/stores/settings';
 
 defineProps<{
   bookId: number
-  chapterId: number,
+  chapterId: string,
   title?: string,
   getNextReadElement: (current?: HTMLElement) => HTMLElement | null
 }>()
@@ -177,6 +177,9 @@ const initHammer = () => {
       let backed = false
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (e: any) => {
+        if ((window.getSelection()?.getRangeAt(0).toString().length ?? 0) > 0) {
+          return
+        }
         const { center: { x }, deltaX } = e
         const startX = x - deltaX
         if (startX <= 80 && !backed) {

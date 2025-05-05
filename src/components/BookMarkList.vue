@@ -26,7 +26,7 @@ const emits = defineEmits<{
 
 const loading = ref(false)
 
-const chapterMarkList = ref<{ chapterId: number, title: string, markList: IMarkEntity[] }[]>([])
+const chapterMarkList = ref<{ chapterId: string, title: string, markList: IMarkEntity[] }[]>([])
 
 const refresh = async () => {
   loading.value = true
