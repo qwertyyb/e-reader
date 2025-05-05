@@ -49,14 +49,14 @@
     >
       <div class="thought-input-wrapper">
         <span class="material-symbols-outlined thought-icon">record_voice_over</span>
-        <textarea
+        <c-textarea
           v-if="mark"
-          rows="1"
           class="thought-input"
           placeholder="写下这一刻的想法"
           ref="input"
           v-model="mark.thought"
-        ></textarea>
+          :max-height="90"
+        ></c-textarea>
         <button class="save-btn" @click="saveThought">保存</button>
       </div>
     </c-dialog>
@@ -81,6 +81,7 @@ import { marks } from '@/services/storage';
 import { ChapterMark, MarkColors, MarkStyles } from '@/utils/mark'
 import { computed, onMounted, onUnmounted, ref, toRaw, useTemplateRef, watch } from 'vue'
 import { parseSelectionRange } from '@/utils/chapter';
+import CTextarea from '@/components/common/CTextarea.vue';
 
 const props = defineProps<{ bookId: number, chapterId: string }>()
 
@@ -375,7 +376,7 @@ const actionHandler = async (event: Event, action: string) => {
   white-space: nowrap;
 }
 .thought-input-dialog .thought-input-wrapper {
-  margin: 12px max(20px, var(--sair)) max(20px, var(--saib)) max(20px, var(--sail));
+  padding: 12px 0;
   display: flex;
   align-items: flex-end;
   width: auto;
@@ -383,20 +384,14 @@ const actionHandler = async (event: Event, action: string) => {
   border-bottom: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
   .thought-icon {
     margin-right: 8px;
-    font-size: 20px;
-    align-self: flex-start;
-    margin-top: 8px;
+    font-size: 22px;
+    margin-bottom: 8px;
   }
 }
 .thought-input-dialog .thought-input {
   flex: 1;
-  outline: none;
-  border: none;
   font-size: 16px;
   line-height: 1.4;
-  height: fit-content;
-  line-height: 36px;
-  background: none;
 }
 .thought-input-dialog .save-btn {
   border: none;
