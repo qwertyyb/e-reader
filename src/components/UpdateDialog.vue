@@ -56,12 +56,15 @@ const getVersion = async () => {
   version.value = curVer
 }
 
-checkUpdates({ slient: true })
-
-const interval = setInterval(() => {
+let interval: ReturnType<typeof setInterval>
+if (import.meta.env.PROD) {
   checkUpdates({ slient: true })
-  // 每三个小时更新一次
-}, updateInterval)
+
+  interval = setInterval(() => {
+    checkUpdates({ slient: true })
+    // 每三个小时更新一次
+  }, updateInterval)
+}
 
 const checkUpdatesHandler = (event: CustomEvent<{ slient: boolean }>) => {
   checkUpdates({ slient: event.detail.slient })
@@ -70,7 +73,9 @@ const checkUpdatesHandler = (event: CustomEvent<{ slient: boolean }>) => {
 document.addEventListener('app:checkupdates', checkUpdatesHandler)
 
 onBeforeUnmount(() => {
-  clearInterval(interval)
+  if (interval) {
+    clearInterval(interval)
+  }
   document.removeEventListener('app:checkupdates', checkUpdatesHandler)
 })
 

@@ -29,7 +29,7 @@ export const renderChapter = (chapter: IChapter, content: string, chapterIndex: 
     chapterTextOffset += str.length
   })
 
-  return chapterEl.outerHTML
+  return chapterEl
 }
 
 export const parseSelectionRange = (range: Range): {

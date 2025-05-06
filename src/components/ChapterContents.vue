@@ -1,6 +1,6 @@
 <template>
   <div class="chapter-contents" ref="el">
-    <div class="chapter-contents-wrapper" @scroll="scrollHandler"></div>
+    <div class="chapter-contents-wrapper" @scroll="scrollHandler" @touchstart="pointerDownHandler" @touchend="pointerUpHandler"></div>
   </div>
 </template>
 
@@ -25,7 +25,16 @@ const el = useTemplateRef('el')
 
 const keeps = 5
 
-const renderChapterContents = (contents: string[]) => {
+let touching = false
+const pointerDownHandler = () => {
+  touching = true
+}
+const pointerUpHandler = () => {
+  touching = false
+  updateProgress()
+}
+
+const renderChapterContents = (contents: HTMLElement[]) => {
   // vue 的渲染不太可控，自行渲染
   if (!el.value) {
     console.warn('dom未挂载')
@@ -34,7 +43,7 @@ const renderChapterContents = (contents: string[]) => {
   const wrapper = el.value.querySelector('.chapter-contents-wrapper')!
   if (!wrapper.childElementCount) {
     // 如果是空的，直接插入进去就行，不需要考虑其他
-    wrapper.innerHTML = contents.join('\n')
+    wrapper.replaceChildren(...contents)
     return
   }
   // 如果非空，需要考虑替换 DOM 时，要保持可视区域不变
@@ -45,16 +54,22 @@ const renderChapterContents = (contents: string[]) => {
     throw new Error('获取当前进度失败')
   }
 
-  // 2. 获取章节在容器内的相对位置和容器的滚动跨度
+  // 2. 获取当前章节的位置
   const chapterEl = el.value.querySelector<HTMLDivElement>(`.chapter[data-id="${progress.chapter.id}"]`)
   if (!chapterEl) {
     throw new Error('获取当前章节 DOM 失败')
   }
   const { top: oldTop } = chapterEl.getBoundingClientRect()
-  wrapper.innerHTML = contents.join('\n')
+
+  // 3. 更新章节
+  wrapper.replaceChildren(...contents)
+
+  // 4. 获取新的章节位置
   const newChapterEl = el.value.querySelector<HTMLDivElement>(`.chapter[data-id="${progress.chapter.id}"]`)
   if (!newChapterEl) return;
   const { top: newTop } = newChapterEl.getBoundingClientRect()
+
+  // 5. 计算需要滚动的位置并滚动
   const distance = newTop - oldTop
   wrapper.scrollTop += distance
 }
@@ -66,14 +81,23 @@ const loadContents = async (chapterId: string) => {
   // 如果指定了 ChapterId，则加载 ChapterId 前后的几个章节
   const targetIndex = Math.max(0, props.chapterList.findIndex(chapter => chapter.id === chapterId))
   const startIndex = Math.max(0, targetIndex - Math.floor(keeps / 2))
-  const contents = await Promise.all(
-    props.chapterList.slice(startIndex, startIndex + keeps).map(async (chapter, i) => {
-      const text = await props.loadChapter(chapter, startIndex + i)
-      const html = renderChapter(chapter, text, startIndex + i)
-      return html
-    })
-  )
-  renderChapterContents(contents)
+  const contents: HTMLElement[] = []
+  for (let i = startIndex; i < startIndex + keeps; i += 1) {
+    const chapterEl = el.value?.querySelector<HTMLDivElement>(`.chapter[data-chapter-index="${i}"]`)
+    if (chapterEl) {
+      contents.push(chapterEl)
+    } else {
+      const chapter = props.chapterList[i]
+      const text = await props.loadChapter(chapter, i)
+      const html = renderChapter(chapter, text, i)
+      contents.push(html)
+    }
+  }
+
+  // 如果手指未离开屏幕，则不执行更新
+  if (touching) return;
+
+  renderChapterContents(contents.filter(Boolean) as HTMLElement[])
 }
 
 const scrollToCursor = async (cursor: number) => {
