@@ -92,6 +92,7 @@ const canExpand = (source: I) => {
 
   // 如果有以此章节为父章节的章节，则应该显示折叠按钮
   const hasChildren = props.chapterList.some(item => item.parentId === source.id)
+  console.log(hasChildren, source, props.chapterList.find(item => item.parentId === source.id))
   return hasChildren
 }
 

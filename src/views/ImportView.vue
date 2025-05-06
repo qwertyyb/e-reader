@@ -65,6 +65,7 @@ import NavigationBar from '@/components/NavigationBar.vue';
 import { parseEpubFile } from '@/services/epub';
 import { booksStore, chapterListStore, contentStore } from '@/services/storage';
 import { useRouter } from 'vue-router';
+import { parseMobiFile } from '@/services/mobi';
 
 const router = useRouter()
 
@@ -122,6 +123,18 @@ const wordCount = computed(() => {
 const parseFile = async () => {
   if (file?.name.endsWith('.epub')) {
     const result = await parseEpubFile(file)
+    console.log(result)
+    bookInfo.value = {
+      content: result.content,
+      cover: result.cover ? await blobToBase64(result.cover) : '',
+      title: result.title,
+      maxCursor: result.maxCursor
+    }
+    chapterList.value = result.chapterList
+    return;
+  }
+  if (file?.name.endsWith('.mobi')) {
+    const result = await parseMobiFile(file)
     console.log(result)
     bookInfo.value = {
       content: result.content,
