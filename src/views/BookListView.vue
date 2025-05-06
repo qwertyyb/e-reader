@@ -1,6 +1,6 @@
 <template>
   <div class="book-list-view">
-    <div class="category-wrapper" v-if="route.name === 'local'">
+    <div class="category-wrapper" v-if="route.name === 'local' && visibleList.length">
       <ul class="category-list">
         <li class="category-item" :class="{active: category === 'all'}" @click="category='all'">全部</li>
         <li class="category-item" :class="{active: category === 'imported'}" @click="category='imported'">导入</li>
@@ -36,6 +36,9 @@
         </div>
       </li>
     </ul>
+    <div class="empty-info">
+      暂无书籍
+    </div>
   </div>
 </template>
 
@@ -47,7 +50,7 @@ import { onlineService } from '@/services/OnlineService';
 import { formatSize, showToast } from '@/utils';
 import { localBookService } from '@/services/LocalBookService';
 import router from '@/router';
-import { readingStateStore } from '@/services/storage';
+import { booksStore, readingStateStore } from '@/services/storage';
 import { useRoute } from 'vue-router';
 import { setAnimData, animData } from '@/stores/bookAnim';
 
@@ -61,19 +64,21 @@ const selecting = ref(false)
 const selectedIds = ref(new Set<string | number>())
 
 const toggleSelect = (book: IBookItem) => {
-  if (selectedIds.value.has(book.id)) {
-    selectedIds.value.delete(book.id)
+  if (selectedIds.value.has(book.localBookId!)) {
+    selectedIds.value.delete(book.localBookId!)
   } else {
-    selectedIds.value.add(book.id)
+    selectedIds.value.add(book.localBookId!)
   }
 }
 
-const deleteSelected = () => {
+const deleteSelected = async () => {
   // @todo 二次确认
   if (window.confirm('删除所选书籍？')) {
-    console.log('delete')
+    console.log('delete');
+    await Promise.all([...selectedIds.value].map(value => booksStore.remove(Number(value))))
     selectedIds.value.clear()
     selecting.value = false
+    refresh()
   }
 }
 
@@ -268,5 +273,11 @@ watch(() => route.name, () => {
   justify-content: flex-end;
   align-items: flex-end;
   transition: background .3s;
+}
+.empty-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 120px;
 }
 </style>
