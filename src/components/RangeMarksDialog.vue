@@ -57,8 +57,6 @@ watch(() => props.range, () => refresh())
   box-sizing: border-box;
   padding-top: max(60px, var(--sait));
   padding-bottom: max(20px, var(--saib));
-  width: 84vw;
-  margin-left: 8vw;
   color: #fff;
 }
 </style>
