@@ -177,7 +177,7 @@ const initHammer = () => {
       let backed = false
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (e: any) => {
-        if ((window.getSelection()?.getRangeAt(0).toString().length ?? 0) > 0) {
+        if ((window.getSelection()?.toString().length ?? 0) > 0) {
           return
         }
         const { center: { x }, deltaX } = e
