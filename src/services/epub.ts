@@ -66,7 +66,6 @@ const getCover = async (rootDoc: Document, entries: Entry[], rootDir: string) =>
 const parseContent = async (chapter: IChapter & { src: string }, next: (IChapter & { src: string }) | null, entries: Entry[], rootDir: string) => {
   const [path, hash] = chapter.src.split('#')
   const doc = await readXML(entries, path, rootDir)
-  console.log('parseContent', doc)
   if (!hash) {
     return (doc.body.textContent || '').trim()
   }

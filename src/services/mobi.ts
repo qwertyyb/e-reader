@@ -6,10 +6,21 @@ import { MOBI, isMOBI } from 'foliate-js/mobi.js'
 const parseToc = async (book: any, toc: any[], level: number = 1, parentId?: string): (Omit<IChapter, 'cursorStart' | 'cursorEnd'> & { content: string })[] => {
   return (await Promise.all(toc.map(async (item) => {
     const { index: sectionIndex } = await book.resolveHref(item.href)
-    const doc = await book.sections[sectionIndex].createDocument()
-    const text = doc.querySelector('body')?.textContent?.trim() || item.label
+    const id = sectionIndex.toString()
+    const url = await book.sections[sectionIndex].load()
+    const text = await new Promise((resolve) => {
+      const iframe = document.createElement('iframe')
+      iframe.style.cssText = 'position:absolute;left:0;top:0;z-index:-100;width:0;height:0'
+      iframe.onload = () => {
+        resolve(iframe.contentDocument?.querySelector('body')?.innerText.trim() || item.label)
+        iframe.remove()
+        URL.revokeObjectURL(url)
+      }
+      iframe.src = url
+      document.body.appendChild(iframe)
+    })
     return [
-      { title: item.label, id: String(sectionIndex), level, cursorStart: 0, cursorEnd: 0, parentId, content: text },
+      { title: item.label, id, level, cursorStart: 0, cursorEnd: 0, parentId, content: text },
       ...(await parseToc(book, item.subitems || [], level + 1, id))
     ]
   }))).flat()
@@ -21,7 +32,7 @@ const formatChapterList = (chapterContentList: (Omit<IChapter, 'cursorStart' | '
   const chapterList: IChapter[] = []
   chapterContentList.forEach(item => {
     const { content: chapterContent, ...rest } = item
-    content = [content, chapterContent].join('\n')
+    content = [content, chapterContent].join('\n').trim()
     const cursorEnd = cursorStart + chapterContent.split('\n').length
     chapterList.push({
       ...rest,
