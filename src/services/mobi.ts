@@ -1,35 +1,92 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
-import { MOBI, isMOBI } from 'foliate-js/mobi.js'
+import { parseBook } from '@/services/foliate'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const parseToc = async (book: any, toc: any[], level: number = 1, parentId?: string): (Omit<IChapter, 'cursorStart' | 'cursorEnd'> & { content: string })[] => {
-  return (await Promise.all(toc.map(async (item) => {
-    const { index: sectionIndex } = await book.resolveHref(item.href)
-    const id = sectionIndex.toString()
-    const url = await book.sections[sectionIndex].load()
-    const text = await new Promise((resolve) => {
-      const iframe = document.createElement('iframe')
-      iframe.style.cssText = 'position:absolute;left:0;top:0;z-index:-100;width:0;height:0'
-      iframe.onload = () => {
-        resolve(iframe.contentDocument?.querySelector('body')?.innerText.trim() || item.label)
-        iframe.remove()
-        URL.revokeObjectURL(url)
-      }
-      iframe.src = url
-      document.body.appendChild(iframe)
-    })
-    return [
-      { title: item.label, id, level, cursorStart: 0, cursorEnd: 0, parentId, content: text },
-      ...(await parseToc(book, item.subitems || [], level + 1, id))
-    ]
-  }))).flat()
+const loadDoc = (() => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const loadState = new WeakMap<any, Promise<Document>>()
+  return (section: { id: string | number, createDocument: () => Promise<Document> }) => {
+    if (!loadState.get(section)) {
+      loadState.set(section, section.createDocument())
+    }
+    return loadState.get(section)!
+  }
+})()
+
+const rangeText = (startEl: HTMLElement, endEl: HTMLElement | null, doc: Document) => {
+  const range = doc.createRange();
+  range.setStartBefore(startEl)
+  range.setEndBefore(endEl || startEl.parentElement!.lastElementChild!)
+  return range.cloneContents().textContent?.trim()
 }
 
-const formatChapterList = (chapterContentList: (Omit<IChapter, 'cursorStart' | 'cursorEnd'> & { content: string })[]): { chapterList: IChapter, content: string } => {
+interface ITocItem {
+  label: string
+  href: string
+  subitems?: ITocItem[] | null
+}
+
+const flatToc = (toc: ITocItem[], level: number = 1, parentId?: string): { href: string, title: string, id: string, level: number, parentId?: string }[] => {
+  return toc.map((item) => {
+    const id: string = item.href
+    return [
+      { href: item.href, title: item.label, id, level, parentId },
+      ...flatToc(item.subitems || [], level + 1, id)
+    ]
+  }).flat()
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const parseToc = async (book: any, toc: ReturnType<typeof flatToc>): Promise<(Omit<IChapter, "cursorStart" | "cursorEnd"> & { content: string })[]> => {
+  return Promise.all(toc.map(async (item, index) => {
+    const { index: sectionIndex, anchor } = await book.resolveHref(item.href)
+    const id = `${sectionIndex.toString()}-${Math.round(Math.random() * 10 * 1000 * 1000)}`
+    const section = book.sections[sectionIndex]
+    const doc = await loadDoc(section)
+    const anchorEl: HTMLElement | null = anchor(doc)
+    let text = item.title
+    console.log(index, id, sectionIndex, item, doc, anchorEl)
+    if (!anchorEl) {
+      // 如果没有anchor,则本章内容取整个文档
+      text = doc?.body.innerText.trim() ?? item.title
+    } else {
+      const next = toc[index + 1]
+      if (next) {
+        const { index: nextSectionIndex, anchor: nextAnchor } = await book.resolveHref(next.href)
+        const nextDoc = await loadDoc(book.sections[nextSectionIndex])
+        const nextAnchorEl: HTMLElement = nextAnchor(nextDoc)
+        if (nextAnchorEl && nextAnchorEl.ownerDocument === doc) {
+          // 如果下一个节点的开始位置和上一个节点的开始位置在同一份文档中，则取这两个文档的区间内容作为本章内容
+          text = rangeText(anchorEl, nextAnchorEl, doc) || item.title
+        } else {
+          text = rangeText(anchorEl, null, doc) ?? item.title
+        }
+      } else {
+        text = rangeText(anchorEl, null, doc) ?? item.title
+      }
+    }
+
+    // const text = await new Promise<string>((resolve) => {
+    //   const iframe = document.createElement('iframe')
+    //   iframe.style.cssText = 'position:absolute;left:0;top:0;z-index:-100;width:0;height:0'
+    //   iframe.onload = () => {
+    //     console.log(item, iframe.contentDocument)
+    //     const range = anchor(iframe.contentDocument)
+    //     console.log(item, range)
+    //     resolve(item.label)
+    //     iframe.remove()
+    //     // URL.revokeObjectURL(url)
+    //   }
+    //   iframe.src = url
+    //   document.body.appendChild(iframe)
+    // })
+    return { ...item, cursorStart: 0, cursorEnd: 0, content: text }
+  }))
+}
+
+const formatChapterList = (chapterContentList: (Omit<IChapter, 'cursorStart' | 'cursorEnd'> & { content: string })[]): { chapterList: IChapter[], content: string } => {
   let cursorStart = -1
   let content = ''
   const chapterList: IChapter[] = []
+  console.log(chapterContentList)
   chapterContentList.forEach(item => {
     const { content: chapterContent, ...rest } = item
     content = [content, chapterContent].join('\n').trim()
@@ -45,14 +102,11 @@ const formatChapterList = (chapterContentList: (Omit<IChapter, 'cursorStart' | '
 }
 
 export const parseMobiFile = async (file: File): Promise<{ cover: Blob | undefined | null, title: string, content: string, maxCursor: number, chapterList: IChapter[] }> => {
-  if (!(await isMOBI(file))) {
-    throw new Error('非 mobi 文件')
-  }
-  // @ts-nocheck
-  const fflate = await import('foliate-js/vendor/fflate.js')
-  const book = await new MOBI({ unzlib: fflate.unzlibSync }).open(file)
+  const book = await parseBook(file)
+  console.log(book)
 
-  const chapterContentsList = await parseToc(book, book.toc)
+  const toc = flatToc(book.toc)
+  const chapterContentsList = await parseToc(book, toc)
   const { chapterList, content } = formatChapterList(chapterContentsList)
 
   return {

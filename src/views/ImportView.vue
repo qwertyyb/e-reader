@@ -133,7 +133,37 @@ const parseFile = async () => {
     chapterList.value = result.chapterList
     return;
   }
-  if (file?.name.endsWith('.mobi')) {
+  if (file?.name.endsWith('.txt')) {
+    const regList: RegExp[] = []
+    if (bookConfig.value.toc.level1) {
+      try {
+        regList.push(new RegExp(bookConfig.value.toc.level1))
+      } catch(err) {
+        showToast('一级目录不正确')
+        throw err
+      }
+    }
+    if (bookConfig.value.toc.level2) {
+      try {
+        regList.push(new RegExp(bookConfig.value.toc.level2))
+      } catch(err) {
+        showToast('二级目录不正确')
+        throw err
+      }
+    }
+    if (!regList) {
+      showToast('请至少配置一个目录')
+      throw new Error('no avaliable toc config')
+    }
+    if (file?.name.endsWith('.txt')) {
+      const result = await parseTxtFile(file)
+      bookInfo.value = { cover: '', title: result.title, content: result.content, maxCursor: result.maxCursor }
+      chapterList.value = result.chapterList
+    }
+    showToast('未找到可用的书籍内容')
+    throw new Error('not found book')
+  }
+  if (file) {
     const result = await parseMobiFile(file)
     console.log(result)
     bookInfo.value = {
@@ -143,40 +173,13 @@ const parseFile = async () => {
       maxCursor: result.maxCursor
     }
     chapterList.value = result.chapterList
-    return;
   }
-  const regList: RegExp[] = []
-  if (bookConfig.value.toc.level1) {
-    try {
-      regList.push(new RegExp(bookConfig.value.toc.level1))
-    } catch(err) {
-      showToast('一级目录不正确')
-      throw err
-    }
-  }
-  if (bookConfig.value.toc.level2) {
-    try {
-      regList.push(new RegExp(bookConfig.value.toc.level2))
-    } catch(err) {
-      showToast('二级目录不正确')
-      throw err
-    }
-  }
-  if (!regList) {
-    showToast('请至少配置一个目录')
-    throw new Error('no avaliable toc config')
-  }
-  if (file?.name.endsWith('.txt')) {
-    const result = await parseTxtFile(file)
-    bookInfo.value = { cover: '', title: result.title, content: result.content, maxCursor: result.maxCursor }
-    chapterList.value = result.chapterList
-  }
-  showToast('未找到可用的书籍内容')
-  throw new Error('not found book')
 }
-const previewToc = async () => {
+
+const previewToc = () => {
   dialog.value = 'chapterList'
 }
+
 const saveBook = async (refreshInfo: boolean) => {
   if (refreshInfo) {
     await parseFile()
