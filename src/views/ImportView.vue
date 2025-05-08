@@ -164,6 +164,7 @@ const parseFile = async () => {
     throw new Error('not found book')
   }
   if (file) {
+    // @todo mobi 格式的支持有问题，解析可能会出错，需要重新梳理
     const result = await parseMobiFile(file)
     console.log(result)
     bookInfo.value = {

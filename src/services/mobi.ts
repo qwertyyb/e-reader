@@ -43,10 +43,10 @@ const parseToc = async (book: any, toc: ReturnType<typeof flatToc>): Promise<(Om
     const doc = await loadDoc(section)
     const anchorEl: HTMLElement | null = anchor(doc)
     let text = item.title
-    console.log(index, id, sectionIndex, item, doc, anchorEl)
+    console.log(index, id, sectionIndex, item, doc, doc.body, anchorEl)
     if (!anchorEl) {
       // 如果没有anchor,则本章内容取整个文档
-      text = doc?.body.innerText.trim() ?? item.title
+      text = (doc?.body ?? doc.documentElement).innerText.trim() ?? item.title
     } else {
       const next = toc[index + 1]
       if (next) {
