@@ -1,4 +1,5 @@
 import { dirPath, pathJoin } from "@/utils"
+import { toText } from "@/utils/xml"
 import { ZipReader, BlobReader, TextWriter, BlobWriter, type Entry } from "@zip.js/zip.js"
 
 const xmlParser = new DOMParser()
@@ -17,6 +18,27 @@ const readXML = async (entries: Entry[], filename: string | undefined | null, ro
     throw new Error(filename + '是空的')
   }
   return xmlParser.parseFromString(text, 'text/xml')
+}
+
+const parseSpine = (doc: Document) => {
+  // 一个章节有可能跨多个文件，而 toc 指向的仅是章节的开始位置，所以需要再结合 spine 来
+  const spine = doc.querySelector('spine')
+  if (!spine) {
+    throw new Error('没有 spine 元素')
+  }
+  const manifest = doc.querySelector('manifest')
+  if (!manifest) {
+    throw new Error('没有 manifest 元素')
+  }
+  return Array.from(spine.children)
+    .map(itemRef => {
+      const id = itemRef.getAttribute('idref')
+      const item = manifest.querySelector(`[id=${JSON.stringify(id)}]`)
+      if (!item) {
+        throw new Error('没有对应的item: ' + id)
+      }
+      return item.getAttribute('href')!
+    })
 }
 
 const checkIsEpubFile = async (entries: Entry[]) => {
@@ -63,37 +85,43 @@ const getCover = async (rootDoc: Document, entries: Entry[], rootDir: string) =>
   return cover
 }
 
-const parseContent = async (chapter: IChapter & { src: string }, next: (IChapter & { src: string }) | null, entries: Entry[], rootDir: string) => {
+const parseContent = async (
+  chapter: IChapter & { src: string },
+  next: (IChapter & { src: string }) | null,
+  entries: Entry[], rootDir: string,
+  spine: string[]
+) => {
   const [path, hash] = chapter.src.split('#')
+
+  const startIndex = spine.findIndex(item => item === path)
+  const endIndex = next ? spine.findIndex(item => item === next.src.split('#')[0]) : undefined
+
   const doc = await readXML(entries, path, rootDir)
-  if (!hash) {
-    return (doc.body.textContent || '').trim()
+
+  if (startIndex === endIndex) {
+    // 两个章节同属一个 doc
+    const nextHash = next!.src.split('#')[1]
+    return toText(doc, hash, nextHash)
   }
-  if (next && next.src.split('#')[0] === path) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [_, endId] = next.src.split('#')
-    // 如果下一章节的链接和当前章节的链接一致，则说明当前章节的内容是当前章节的 id 到下一章节 id 之前的内容
-    const start = doc.getElementById(hash)
-    let cur: Element | null = start
-    let content = ''
-    while(cur && cur.getAttribute('id') !== endId) {
-      content = [content, cur.textContent].join('\n')
-      cur = cur.nextElementSibling
-    }
-    return content.trim()
+
+  let text = toText(doc, hash)
+
+  // 获取开始文件和结束文件
+  text += (await Promise.all(spine.slice(startIndex + 1, endIndex).map(async item => {
+    const fileDoc = await readXML(entries, item, rootDir)
+    return toText(fileDoc)
+  }))).join('\n')
+
+  if (next && next.src.split('#').length >= 2) {
+    // 下一个章节有 hash，则说明下一个文件可能不需要获取完整的内容，需要获取 hash 之前的文本
+    // 没有下一个章节说明当前已是最后一个章节，会在上一步中获取文本内容
+    // 下一个章节没有hash，说明下一个文件的开始位置就是下一章的起始内容，无须再获取下一个文件的内容了
+    const [nextPath, nextHash] = next.src.split('#')
+    const nextDoc = await readXML(entries, nextPath, rootDir)
+    text += (toText(nextDoc, null, nextHash) ?? '')
   }
-  if (!next || next.src.split('#')[0] !== path) {
-    // 链接上有 hash 参数，并且下一下章节的链接和当前章节的链接不一致，则说明当前章节的内容是 doc id 之后的所有内容
-    const start = doc.getElementById(hash)
-    let cur: Element | null = start
-    let content = ''
-    while(cur) {
-      content = [content, cur.textContent].join('\n')
-      cur = cur.nextElementSibling
-    }
-    return content.trim()
-  }
-  return ''
+
+  return text
 }
 
 const parseNavPoint = async (navPoint: Element, level: number, options: { rootDir: string, entries: Entry[] }): Promise<(IChapter & { src: string })[]> => {
@@ -130,12 +158,12 @@ const parseTocAndContent = async (doc: Document, rootDir: string, entries: Entry
   }
   const tocHref = tocRef.getAttribute('href')
   const tocDoc = await readXML(entries, tocHref, rootDir)
-  console.log('tocDoc', tocDoc)
   const navPoints = Array.from(tocDoc.querySelectorAll('navMap > navPoint'))
   let chapterContentList: (IChapter & { src: string })[] = []
   for (let i = 0; i < navPoints.length; i += 1) {
     chapterContentList = [...chapterContentList, ...(await parseNavPoint(navPoints[i], 1, { rootDir, entries }))]
   }
+  const spine = parseSpine(doc)
   let cursor = -1
   let bookContent = ''
   const chapterList: IChapter[] = []
@@ -143,7 +171,7 @@ const parseTocAndContent = async (doc: Document, rootDir: string, entries: Entry
     const item = chapterContentList[i]
     const { ...chapter } = item
     const next = i < chapterContentList.length - 1 ? chapterContentList[i + 1] : null
-    const content = (await parseContent(item, next, entries, rootDir)) || item.title
+    const content = (await parseContent(item, next, entries, rootDir, spine)) || item.title
     chapter.cursorStart = cursor + 1
     chapter.cursorEnd = chapter.cursorStart + content.split('\n').length - 1
     cursor = chapter.cursorEnd
