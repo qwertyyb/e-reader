@@ -114,10 +114,7 @@ const chapterInfo = computed(() => {
 const wordCount = computed(() => {
   if (!bookInfo.value) return null
   const length = bookInfo.value.content.length
-  if (length > 10 * 10000) {
-    return Math.round(length / 10000) + '万'
-  }
-  return length
+  return length.toLocaleString()
 })
 
 const parseFile = async () => {

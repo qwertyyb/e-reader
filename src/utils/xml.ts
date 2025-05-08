@@ -10,69 +10,31 @@ export const toText = (doc: Document, start?: Element | string | null, end?: Ele
     return doc.body.innerText
   }
   let iterator: NodeIterator | null = null
-  if (!startEl && endEl) {
-    // end 节点前的内容
-    iterator = doc.createNodeIterator(doc.body, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
-      acceptNode(node) {
-        if (node === endEl) {
-          // 不包含结束节点
-          return NodeFilter.FILTER_REJECT
-        }
-        if (endEl.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_PRECEDING) {
-          // 当前节点在结束节点之前
-          let el = node
-          if (node.nodeType === Node.TEXT_NODE) {
-            el = node.parentElement!
-          }
-          return BLACK_ELEMENT_LIST.includes(el.nodeName.toLowerCase()) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
-        }
+  // end 节点前的内容
+  iterator = doc.createNodeIterator(doc.body, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      if (startEl && node === startEl) {
+        return NodeFilter.FILTER_ACCEPT
+      }
+      if (endEl && node === endEl) {
+        // 不包含结束节点
         return NodeFilter.FILTER_REJECT
-      },
-    })
-  } else if (startEl && !endEl) {
-    // start 节点后的内容
-    iterator = doc.createNodeIterator(doc.body, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
-      acceptNode(node) {
-        if (node === startEl) {
-          // 包含开始节点
-          return NodeFilter.FILTER_ACCEPT
-        }
-        if (startEl.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING) {
-          // 当前节点在开始节点之后
-          let el = node
-          if (node.nodeType === Node.TEXT_NODE) {
-            el = node.parentElement!
-          }
-          return BLACK_ELEMENT_LIST.includes(el.nodeName.toLowerCase()) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
-        }
+      }
+      if (startEl && !(startEl.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING)) {
+        // 在开始节点之前
         return NodeFilter.FILTER_REJECT
-      },
-    })
-  } else {
-    // start 和 end 元素之前的
-    // start 节点后的内容
-    iterator = doc.createNodeIterator(doc.body, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
-      acceptNode(node) {
-        if (node === startEl) {
-          // 包含开始节点
-          return NodeFilter.FILTER_ACCEPT
-        }
-        if (node === endEl) {
-          // 不包含结束节点
-          return NodeFilter.FILTER_REJECT
-        }
-        if (startEl!.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING && endEl!.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_PRECEDING) {
-          // 当前节点在开始节点之后，结束节点之前
-          let el = node
-          if (node.nodeType === Node.TEXT_NODE) {
-            el = node.parentElement!
-          }
-          return BLACK_ELEMENT_LIST.includes(el.nodeName.toLowerCase()) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
-        }
+      }
+      if (endEl && !(endEl.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_PRECEDING)) {
+        // 在结束节点之后
         return NodeFilter.FILTER_REJECT
-      },
-    })
-  }
+      }
+      let el = node
+      if (node.nodeType === Node.TEXT_NODE) {
+        el = node.parentElement!
+      }
+      return BLACK_ELEMENT_LIST.includes(el.nodeName.toLowerCase()) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+    },
+  })
   let text = ''
   do {
     if (iterator.referenceNode.nodeType === Node.TEXT_NODE) {
