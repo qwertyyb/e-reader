@@ -9,8 +9,8 @@
         <div class="search-input">
           <span class="material-symbols-outlined search-icon">search</span>
           <input type="text" v-model.trim="keyword" />
-          <span class="material-symbols-outlined close-icon" v-if="keyword" @click="clearSearch">close</span>
-          <span class="material-symbols-outlined regexp-icon"
+          <span class="material-symbols-outlined close-icon pointer" v-if="keyword" @click="clearSearch">close</span>
+          <span class="material-symbols-outlined regexp-icon pointer"
             :class="{active: isRegExp}"
             @click="isRegExp = !isRegExp">regular_expression</span>
           <span class="search-btn" @click="search()">搜索</span>
@@ -30,7 +30,7 @@
         item-class="virtual-result-item"
       >
         <template v-slot="{ source }">
-          <div class="search-result-chapter"
+          <div class="search-result-chapter pointer"
             :data-catalog-level="source.level || 1"
             :data-catalog-id="source.id">
             <h3 class="chapter-title">{{ source.chapter.title }}</h3>

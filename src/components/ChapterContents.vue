@@ -103,7 +103,8 @@ const loadContents = async (chapterId: string) => {
 const scrollToCursor = async (cursor: number) => {
   await nextTick()
   el.value?.querySelector<HTMLElement>(`[data-cursor="${cursor}"]`)?.scrollIntoView()
-  el.value?.querySelector('.chapter-contents-wrapper')?.scrollBy(0, -getSafeAreaTop())
+  el.value?.querySelector('.chapter-contents-wrapper')?.scrollBy(0, -getSafeAreaTop()-5)
+  console.log('scrollToCursor')
 }
 
 const updateProgress = () => {
@@ -117,21 +118,34 @@ const updateProgress = () => {
 const getCurrentProgress = () => {
   if (!el.value) return;
   // 1. 找到当前的章节
+  const expectWidth = window.innerWidth
   const visibleRect = el.value.getBoundingClientRect()
+  const scale = visibleRect.width / expectWidth
+
+  // 这条线压着的段落或者位于这条线下方的第一个段落就是当前的进度，这条线可称之为进度线
+  const visibleTop = Math.round(visibleRect.top + getSafeAreaTop() * scale)
+
+  // 为了提高查找效率，先按章节计算位置查找到段落所在的章节
   const chapterEls = el.value.querySelectorAll<HTMLDivElement>('.chapter') || []
   const chapterEl = Array.from(chapterEls)
-    .reverse()
-    .find((el) => {
+    .findLast((el) => {
       const { top } = el.getBoundingClientRect()
-      return Math.round(top) < Math.round(visibleRect.top)
+      // 两种情况
+      // 1. 如果章节在进度线下方不远(不足 10px)，考虑到两个章节之间会有比较大的空间，可以认为上一章节已读完，所以进度落在下一个章节上
+      // 2. 从下往上，找到第一个满足章节的起始位置在进度线之上的段落，则这个段落就是正在阅读的段落
+      return top - visibleTop < 10 || Math.round(top) < visibleTop
     }) || chapterEls[0]
   if (!chapterEl) return
 
-  // 2. 找到章节中最靠近上方的段落
+  // 2. 找到章节中最靠近上方进度线的段落
   const els = Array.from(chapterEl.querySelectorAll<HTMLDivElement>('[data-cursor]'))
   const target: HTMLDivElement | null = els.find(el => {
-    const { top } = el.getBoundingClientRect()
-    return top > visibleRect.top
+    const { top, bottom } = el.getBoundingClientRect()
+    // 还是两种情况
+    // 1. 进度线刚好压着某个段落
+    // 2. 进度线未压着段落，找到第一个在进度线之下的段落(即top >= visibleTop)
+    return (top <= visibleTop && bottom >= visibleTop) || top >= visibleTop
+    // 如果都没有条件能满足，则可以认为进度线刚好落在了章节间的区域，则取本章节的最后一个段落作为进度
   }) || els[els.length - 1]
   if (!target) return;
   return {

@@ -46,7 +46,7 @@
           </c-progress>
         </div>
         <div class="line-item">
-          <p class="read-speak-toggle" @click="toggleReadSpeak">
+          <p class="read-speak-toggle pointer" @click="toggleReadSpeak">
             朗读
             <span class="control-icon material-symbols-outlined">{{ controlState.readSpeak ? 'pause_circle' : 'play_circle' }}</span>
           </p>

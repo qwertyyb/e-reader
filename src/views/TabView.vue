@@ -5,14 +5,14 @@
       <router-view></router-view>
     </div>
     <ul class="tab-nav-list">
-      <li class="tab-nav-item" @click="$router.push({ name: 'local' })" :class="{active: $route.name === 'local'}">
+      <li class="tab-nav-item pointer" @click="$router.push({ name: 'local' })" :class="{active: $route.name === 'local'}">
         <span class="material-symbols-outlined">newsstand</span>
         本地
       </li>
       <li class="last-read-item">
         <last-read-book></last-read-book>
       </li>
-      <li class="tab-nav-item" @click="$router.push({ name: 'remote' })" :class="{active: $route.name === 'remote'}">
+      <li class="tab-nav-item pointer" @click="$router.push({ name: 'remote' })" :class="{active: $route.name === 'remote'}">
         <span class="material-symbols-outlined">storefront</span>
         在线
       </li>

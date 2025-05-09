@@ -200,6 +200,8 @@ export const parseEpubFile = async (blob: Blob | File): Promise<{ cover: Blob | 
   const { content, chapterList } = await parseTocAndContent(doc, rootDir, entries)
 
   const title = doc.querySelector('metadata dc\\:title')?.textContent
+
+  reader.close()
   return {
     title: title || 'name' in blob ? (blob as File).name.replace(/\.[^.]+$/, '') : '',
     cover,

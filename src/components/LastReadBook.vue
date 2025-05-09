@@ -1,5 +1,5 @@
 <template>
-  <book-item :book="visibleBook" :no-title="true" @on-tap="toRead" v-if="visibleBook" class="last-read-book" style="width:90px"></book-item>
+  <book-item :book="visibleBook" :no-title="true" @on-tap="toRead" v-if="visibleBook" class="last-read-book pointer" style="width:90px"></book-item>
 </template>
 
 <script setup lang="ts">

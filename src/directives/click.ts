@@ -16,3 +16,24 @@ export const click: Directive = {
     })
   }
 }
+
+export const longtap: Directive = {
+  mounted(el, binding) {
+    el.addEventListener('pointerdown', (event: PointerEvent) => {
+      event.preventDefault()
+      el.longtapTimeout = setTimeout(() => {
+        binding.value()
+      }, 2000)
+    })
+    el.addEventListener('pointermove', () => {
+      if (el.longtapTimeout) {
+        clearTimeout(el.longtapTimeout);
+      }
+    })
+    el.addEventListener('pointerup', () => {
+      if (el.longtapTimeout) {
+        clearTimeout(el.longtapTimeout);
+      }
+    })
+  }
+}

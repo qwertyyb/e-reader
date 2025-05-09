@@ -3,7 +3,8 @@
     :data-key="dataKey"
     :data-sources="dataSources"
     ref="virtual"
-    :estimate-size="estimateSize">
+    :estimate-size="estimateSize"
+    @scroll="onScroll">
     <template #header v-if="$slots.header"><slot name="header"></slot></template>
     <template v-slot="{ source, index }">
       <slot :source="source" :index="index"></slot>
@@ -20,6 +21,10 @@ const props = defineProps<{
   estimateSize?: number,
   activeId?: number | string,
   activeIndex?: number
+}>()
+
+const emits = defineEmits<{
+  scroll: [Event, { start: number, end: number, padFront: number, padBehind: number }]
 }>()
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,6 +46,10 @@ watch(() => props.activeId, scrollToTarget)
 watch(() => props.activeIndex, scrollToTarget)
 
 onMounted(scrollToTarget)
+
+const onScroll = (event: Event, range: { start: number, end: number, padFront: number, padBehind: number }) => {
+  emits('scroll', event, range)
+}
 
 defineExpose({
   scrollToIndex(index: number) {

@@ -1,15 +1,15 @@
 <template>
   <div class="book-list-view">
-    <div class="category-wrapper" v-if="route.name === 'local' && visibleList.length">
+    <div class="category-wrapper" v-if="route.name === 'local' && bookList.length">
       <ul class="category-list">
         <li class="category-item" :class="{active: category === 'all'}" @click="category='all'">全部</li>
         <li class="category-item" :class="{active: category === 'imported'}" @click="category='imported'">导入</li>
         <li class="category-item" :class="{active: category === 'downloaded'}" @click="category='downloaded'">远程</li>
       </ul>
-      <div class="toggle-action" v-if="selecting" @click="selecting = false">
+      <div class="toggle-action pointer" v-if="selecting" @click="selecting = false">
         取消
       </div>
-      <div class="toggle-action" v-else @click="selecting = true">
+      <div class="toggle-action pointer" v-else @click="selecting = true">
         <span class="material-symbols-outlined icon">check_circle</span>
         选择
       </div>
@@ -25,18 +25,20 @@
         v-for="book in visibleList"
         :key="book.id"
         :class="{selected: selectedIds.has(book.id)}"
+        v-longtap="() => selecting = true"
       >
         <book-item
           :book="book"
           mode="show"
           @onTap="onTap(book)"
+          class="pointer"
         ></book-item>
         <div class="select-wrapper" @click="toggleSelect(book)" v-if="selecting">
           <span class="material-symbols-outlined checkbox-icon">check_circle</span>
         </div>
       </li>
     </ul>
-    <div class="empty-info">
+    <div class="empty-info" v-if="!visibleList.length">
       暂无书籍
     </div>
   </div>
@@ -53,6 +55,7 @@ import router from '@/router';
 import { booksStore, readingStateStore } from '@/services/storage';
 import { useRoute } from 'vue-router';
 import { setAnimData, animData } from '@/stores/bookAnim';
+import { longtap as vLongtap } from '@/directives/click';
 
 const route = useRoute()
 
@@ -72,7 +75,6 @@ const toggleSelect = (book: IBookItem) => {
 }
 
 const deleteSelected = async () => {
-  // @todo 二次确认
   if (window.confirm('删除所选书籍？')) {
     console.log('delete');
     await Promise.all([...selectedIds.value].map(value => booksStore.remove(Number(value))))
@@ -177,6 +179,8 @@ const onTap = async (book: IBookItem) => {
 refresh()
 
 watch(() => route.name, () => {
+  category.value = ''
+  selecting.value = false
   refresh()
 })
 
@@ -204,6 +208,7 @@ watch(() => route.name, () => {
   gap: 16px;
   margin-right: auto;
   .category-item {
+    cursor: pointer;
     &.active {
       color: light-dark(blue, rgb(58, 127, 255));
     }
@@ -219,6 +224,7 @@ watch(() => route.name, () => {
     align-items: center;
     font-weight: 500;
     padding: 4px 8px;
+    cursor: pointer;
     .icon {
       color: inherit;
       font-weight: 200;

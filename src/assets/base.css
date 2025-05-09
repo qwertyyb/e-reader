@@ -62,6 +62,9 @@ body {
   background: rgba(0, 0, 0, 0.85);
   z-index: 9;
 }
+.pointer {
+  cursor: pointer;
+}
 
 html {
   color-scheme: light;

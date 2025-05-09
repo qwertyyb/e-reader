@@ -1,18 +1,18 @@
 <template>
   <div class="chapter-list">
-    <div class="chapter-item"
+    <div class="chapter-item fixed-item"
       v-if="curParentChapter"
-      :data-catalog-level="curParentChapter.chapter.level || 1"
-      :data-catalog-id="curParentChapter.chapter.id">
+      :data-catalog-level="curParentChapter.level || 1"
+      :data-catalog-id="curParentChapter.id">
       <span class="material-symbols-outlined expand-icon"
-        :class="{fold: foldState[curParentChapter.chapter.id]}"
-        @click="toggleExpand(curParentChapter.chapter)"
+        :class="{fold: foldState[curParentChapter.id]}"
+        @click="toggleExpand(curParentChapter)"
       >chevron_right</span>
       <div class="chapter-item-label"
-        @click="emits('tap', curParentChapter.chapter, curParentChapter.index)"
-      >{{ curParentChapter.chapter.title }}</div>
+        @click="jumpTo(curParentChapter)"
+      >{{ curParentChapter.title }}</div>
       <span class="material-symbols-outlined location-icon"
-        @click="scrollToChapter(curParentChapter.chapter)"
+        @click="scrollToChapter(curParentChapter)"
       >my_location</span>
     </div>
     <c-virtual-list
@@ -23,10 +23,11 @@
       ref="virtual-list"
       :estimate-size="42"
       :active-index="curVisibleChapterListIndex"
+      @scroll="scrollHandler"
     >
       <template v-slot="{ source, index }">
         <div class="chapter-item"
-          @click="emits('tap', source, index)"
+          @click="jumpTo(source)"
           :class="{active: index === curVisibleChapterListIndex}"
           :data-catalog-level="source.level || 1"
           :data-catalog-id="source.id">
@@ -77,14 +78,13 @@ const levels = computed(() => {
   return [...new Set(props.chapterList.map(item => item.level))]
 })
 
-const curParentChapter = computed(() => {
-  if (typeof props.curChapterIndex ==='undefined') return null
-  const curChapter = props.chapterList[props.curChapterIndex]
-  if (typeof curChapter.parentId === 'undefined') return null
-  const parentIndex = props.chapterList.findIndex(item => item.id === curChapter.parentId)
-  if (parentIndex < 0) return null
-  return { index: parentIndex, chapter: props.chapterList[parentIndex]}
-})
+const curParentChapter = ref<I | null>()
+
+const jumpTo = (chapter: I) => {
+  const index = props.chapterList.indexOf(chapter)
+  if (index < 0) return;
+  emits('tap', chapter, index)
+}
 
 const canExpand = (source: I) => {
   // 如果此目录有已折叠或未折叠状态，则应该显示折叠按钮
@@ -92,7 +92,6 @@ const canExpand = (source: I) => {
 
   // 如果有以此章节为父章节的章节，则应该显示折叠按钮
   const hasChildren = props.chapterList.some(item => item.parentId === source.id)
-  console.log(hasChildren, source, props.chapterList.find(item => item.parentId === source.id))
   return hasChildren
 }
 
@@ -105,7 +104,19 @@ const toggleExpand = (source: I) => {
 const scrollToChapter = (chapter: IChapter) => {
   // 查找在列表中的index
   const visibleChapterIndex = visibleChapterList.value.findIndex(item => item.id === chapter.id)
+  curParentChapter.value = null
   virtualListRef.value?.scrollToIndex(visibleChapterIndex)
+}
+
+const scrollHandler = (event: Event, range: { start: number, end: number }) => {
+  // 查找一下当前的范围落在哪个上级目录了
+  const start = visibleChapterList.value[range.start]
+  if (!start?.parentId) {
+    curParentChapter.value = null
+    return
+  }
+  const parent = props.chapterList.find(item => item.id === start.parentId)
+  curParentChapter.value = parent || null
 }
 
 </script>
@@ -115,6 +126,7 @@ const scrollToChapter = (chapter: IChapter) => {
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
   & > * {
     width: 100%;
   }
@@ -156,6 +168,13 @@ const scrollToChapter = (chapter: IChapter) => {
   height: 42px;
   cursor: pointer;
   font-size: 15px;
+  &.fixed-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: light-dark(var(--light-bg-color), var(--dark-bg-color));
+    z-index: 1;
+  }
 }
 .chapter-item-label {
   white-space: nowrap;
