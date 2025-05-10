@@ -1,28 +1,22 @@
 <template>
   <div class="tab-view book-shelf">
-    <app-header></app-header>
     <div class="tab-panel-container">
       <router-view></router-view>
     </div>
     <ul class="tab-nav-list">
       <li class="tab-nav-item pointer" @click="$router.push({ name: 'local' })" :class="{active: $route.name === 'local'}">
         <span class="material-symbols-outlined">newsstand</span>
-        本地
-      </li>
-      <li class="last-read-item">
-        <last-read-book></last-read-book>
+        书架
       </li>
       <li class="tab-nav-item pointer" @click="$router.push({ name: 'remote' })" :class="{active: $route.name === 'remote'}">
         <span class="material-symbols-outlined">storefront</span>
-        在线
+        阅读
       </li>
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import AppHeader from '@/components/AppHeader.vue';
-import LastReadBook from '@/components/LastReadBook.vue';
 </script>
 
 <style lang="scss" scoped>
@@ -32,7 +26,7 @@ import LastReadBook from '@/components/LastReadBook.vue';
   flex-direction: column;
 }
 .tab-panel-container {
-  padding-top: calc(var(--sait) + 48px);
+  padding-top: var(--sait);
   padding-bottom: calc(var(--saib) + 60px);
   min-height: 100vh;
 }
@@ -64,11 +58,5 @@ import LastReadBook from '@/components/LastReadBook.vue';
   .material-symbols-outlined {
     color: inherit;
   }
-}
-.last-read-item {
-  align-self: flex-end;
-  margin-bottom: 12px;
-  position: relative;
-  z-index: 1;
 }
 </style>

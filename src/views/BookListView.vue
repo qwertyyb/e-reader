@@ -1,31 +1,54 @@
 <template>
   <div class="book-list-view">
+    <div class="navigation-bar">
+      <template v-if="selecting">
+        <div class="action-btn pointer">全选</div>
+        <div class="navigation-title">
+          <h3>选择书籍</h3>
+          <p class="select-tips" v-if="selectedIds.size">已选择 {{ selectedIds.size }} 本书籍</p>
+        </div>
+        <div class="action-btn pointer" @click="selecting = false">
+          取消
+        </div>
+      </template>
+      <template v-else>
+        <img class="logo" @click="menuDialogVisible=true" src="/icons/icon96.png" />
+        <div class="action-btn pointer" @click="selecting = true" v-if="$route.name === 'local'">
+          <span class="material-symbols-outlined icon">check_circle</span>
+          选择
+        </div>
+        <template v-else>
+          <span class="material-symbols-outlined mode-toggle-action header-action"
+            v-if="isDarkMode"
+            @click="toggleDarkMode">dark_mode</span>
+          <span class="material-symbols-outlined mode-toggle-action header-action"
+            v-else
+            @click="toggleDarkMode">light_mode</span>
+        </template>
+      </template>
+    </div>
     <div class="category-wrapper" v-if="route.name === 'local' && bookList.length">
       <ul class="category-list">
         <li class="category-item" :class="{active: category === 'all'}" @click="category='all'">全部</li>
         <li class="category-item" :class="{active: category === 'imported'}" @click="category='imported'">导入</li>
         <li class="category-item" :class="{active: category === 'downloaded'}" @click="category='downloaded'">远程</li>
       </ul>
-      <div class="toggle-action pointer" v-if="selecting" @click="selecting = false">
-        取消
-      </div>
-      <div class="toggle-action pointer" v-else @click="selecting = true">
-        <span class="material-symbols-outlined icon">check_circle</span>
-        选择
-      </div>
+      <span class="material-symbols-outlined import-action pointer" @click="$router.push({ name: 'import' })">add</span>
     </div>
-    <ul class="actions-wrapper" v-if="selecting">
-      <li class="action-item delete-action" :class="{disabled: selectedIds.size <= 0}" @click="deleteSelected">
-        <span class="material-symbols-outlined icon">delete</span>
-        删除
-      </li>
-    </ul>
+    <teleport to="#app">
+      <ul class="actions-wrapper" v-if="selecting">
+        <li class="action-item delete-action" :class="{disabled: selectedIds.size <= 0}" @click="deleteSelected">
+          <span class="material-symbols-outlined icon">delete</span>
+          删除
+        </li>
+      </ul>
+    </teleport>
     <ul class="book-list">
       <li class="book-item-wrapper"
         v-for="book in visibleList"
         :key="book.id"
         :class="{selected: selectedIds.has(book.id)}"
-        v-longtap="() => selecting = true"
+        v-longtap="() => onLongtap(book)"
       >
         <book-item
           :book="book"
@@ -41,6 +64,7 @@
     <div class="empty-info" v-if="!visibleList.length">
       暂无书籍
     </div>
+    <app-menu-dialog :visible="menuDialogVisible" @close="menuDialogVisible=false"></app-menu-dialog>
   </div>
 </template>
 
@@ -48,6 +72,7 @@
 import { computed, ref, watch } from 'vue';
 
 import BookItem from '@/components/BookItem.vue';
+import AppMenuDialog from '@/components/AppMenuDialog.vue';
 import { onlineService } from '@/services/OnlineService';
 import { formatSize, showToast } from '@/utils';
 import { localBookService } from '@/services/LocalBookService';
@@ -56,8 +81,23 @@ import { booksStore, readingStateStore } from '@/services/storage';
 import { useRoute } from 'vue-router';
 import { setAnimData, animData } from '@/stores/bookAnim';
 import { longtap as vLongtap } from '@/directives/click';
+import { DarkMode } from '@/actions';
 
 const route = useRoute()
+
+const isDarkMode = ref(false);
+const menuDialogVisible = ref(false);
+
+const toggleDarkMode = () => {
+  darkModeDetector.toggle()
+}
+
+const darkModeDetector = new DarkMode({
+  auto: true,
+  changeHandler: event => {
+    isDarkMode.value = event.detail.enabled
+  }
+})
 
 const category = ref(['all', 'imported', 'downloaded'].includes(route.query.category as string) ? route.query.category as string : 'all')
 
@@ -176,6 +216,12 @@ const onTap = async (book: IBookItem) => {
   await download(book)
 }
 
+const onLongtap = (book: IBookItem) => {
+  selectedIds.value.clear()
+  selectedIds.value.add(book.id)
+  selecting.value = true
+}
+
 refresh()
 
 watch(() => route.name, () => {
@@ -187,19 +233,46 @@ watch(() => route.name, () => {
 </script>
 
 <style lang="scss" scoped>
+.navigation-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 48px;
+  border-bottom: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
+  .logo {
+    width: 24px;
+    height: 24px;
+  }
+  .navigation-title {
+    text-align: center;
+    h3 {
+      font-size: 16px;
+    }
+    .select-tips {
+      font-size: 12px;
+      font-weight: bold;
+    }
+  }
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  .icon {
+    font-size: 18px;
+    font-weight: 400;
+  }
+}
+
 .category-wrapper {
   display: flex;
   padding: 16px 16px 4px 16px;
   font-weight: 500;
   font-size: 16px;
-  .toggle-action {
-    display: flex;
-    align-items: center;
-    .icon {
-      font-size: 20px;
-      font-weight: inherit;
-      margin-right: 2px;
-    }
+  .import-action {
+    margin-left: auto;
   }
 }
 .category-list {
@@ -217,8 +290,16 @@ watch(() => route.name, () => {
 .actions-wrapper {
   list-style: none;
   display: flex;
-  padding: 0 16px;
+  padding: 0 16px var(--saib) 16px;
+  box-sizing: content-box;
+  height: 54px;
   justify-content: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
   .action-item {
     display: flex;
     align-items: center;
@@ -254,6 +335,9 @@ watch(() => route.name, () => {
 }
 .book-item-wrapper {
   position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
   .checkbox-icon {
     color: #bbb;
   }

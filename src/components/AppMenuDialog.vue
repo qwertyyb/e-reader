@@ -41,7 +41,6 @@ const checkUpdates = async () => {
   padding: 0 20px;
   padding-right: 28px;
   display: flex;
-  width: 100vw;
   box-sizing: border-box;
   flex-direction: column;
   justify-content: flex-end;

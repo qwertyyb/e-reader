@@ -1,8 +1,8 @@
 <template>
-  <navigation-bar title="测试解析"></navigation-bar>
+  <navigation-bar title="本地导入"></navigation-bar>
   <div class="upload-book-section">
-    <input type="file" @change="onFileChange">
-    支持 txt 和 epub 文件
+    <button class="btn primary-btn file-selector-btn" @click="selectFile">选择文件</button>
+    <p class="select-tips">支持 txt 和 epub 文件</p>
   </div>
   <div class="import-view">
     <section class="settings-section" v-if="fileName.endsWith('.txt')">
@@ -85,12 +85,19 @@ const bookInfo = shallowRef<{
 
 let file: File | null = null
 const fileName = ref('')
-const onFileChange = (event: Event) => {
-  file = (event.target as HTMLInputElement).files?.[0] || null
-  fileName.value = file?.name || ''
-  if (file) {
-    parseFile()
-  }
+const selectFile = async () => {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = '.txt,.epub,.mobi,.azw3'
+  const selectedFile = await new Promise<File | undefined>(resolve => {
+    input.addEventListener('change', () => {
+      resolve(input.files?.[0])
+    })
+    input.click()
+  })
+  if (!selectedFile) return;
+  file = selectedFile
+  parseFile()
 }
 
 const dialog = ref<string | null>('')
@@ -118,19 +125,24 @@ const wordCount = computed(() => {
 })
 
 const parseFile = async () => {
-  if (file?.name.endsWith('.epub')) {
-    const result = await parseEpubFile(file)
-    console.log(result)
-    bookInfo.value = {
-      content: result.content,
-      cover: result.cover ? await blobToBase64(result.cover) : '',
-      title: result.title,
-      maxCursor: result.maxCursor
+  if (!file) return;
+  if (file.name.endsWith('.epub')) {
+    try {
+      const result = await parseEpubFile(file)
+      bookInfo.value = {
+        content: result.content,
+        cover: result.cover ? await blobToBase64(result.cover) : '',
+        title: result.title,
+        maxCursor: result.maxCursor
+      }
+      chapterList.value = result.chapterList
+    } catch (err) {
+      showToast('导入失败')
+      throw err
     }
-    chapterList.value = result.chapterList
     return;
   }
-  if (file?.name.endsWith('.txt')) {
+  if (file.name.endsWith('.txt')) {
     const regList: RegExp[] = []
     if (bookConfig.value.toc.level1) {
       try {
@@ -152,18 +164,18 @@ const parseFile = async () => {
       showToast('请至少配置一个目录')
       throw new Error('no avaliable toc config')
     }
-    if (file?.name.endsWith('.txt')) {
+    try {
       const result = await parseTxtFile(file)
       bookInfo.value = { cover: '', title: result.title, content: result.content, maxCursor: result.maxCursor }
       chapterList.value = result.chapterList
+    } catch (err) {
+      showToast('导入失败')
+      throw err
     }
-    showToast('未找到可用的书籍内容')
-    throw new Error('not found book')
   }
-  if (file) {
-    // @todo mobi 格式的支持有问题，解析可能会出错，需要重新梳理
+  // @todo mobi 格式的支持有问题，解析可能会出错，需要重新梳理
+  try {
     const result = await parseMobiFile(file)
-    console.log(result)
     bookInfo.value = {
       content: result.content,
       cover: result.cover ? await blobToBase64(result.cover) : '',
@@ -171,6 +183,9 @@ const parseFile = async () => {
       maxCursor: result.maxCursor
     }
     chapterList.value = result.chapterList
+  } catch (err) {
+    showToast('导入失败')
+    throw err
   }
 }
 
@@ -211,16 +226,26 @@ const saveBook = async (refreshInfo: boolean) => {
   padding: 16px 16px max(var(--saib), 10em) 16px;
 }
 .upload-book-section {
-  margin: 16px 32px;
+  margin: 60px 32px 16px 32px;
   display: flex;
   flex-direction: column;
+  .file-selector-btn {
+    max-width: 160px;
+    margin: 0 auto;
+    font-size: 18px;
+    padding: 8px 32px;
+  }
+  .select-tips {
+    text-align: center;
+    margin-top: 6px;
+    opacity: 0.6;
+  }
 }
 .book-info {
   display: flex;
   flex-direction: column;
   align-items: center;
   .book-info-title {
-    width: 100%;
     opacity: 0.6;
     font-size: 14px;
     margin-bottom: 24px;

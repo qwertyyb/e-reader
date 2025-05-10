@@ -23,7 +23,7 @@ export const longtap: Directive = {
       event.preventDefault()
       el.longtapTimeout = setTimeout(() => {
         binding.value()
-      }, 2000)
+      }, 600)
     })
     el.addEventListener('pointermove', () => {
       if (el.longtapTimeout) {

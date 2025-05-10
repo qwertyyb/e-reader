@@ -40,6 +40,8 @@ const onTap = () => {
   width: 100px;
   position: relative;
   opacity: 0.4;
+  -webkit-touch-callout: none;
+  user-select: none;
   &.is-reading .book-cover {
     opacity: 0;
   }
@@ -50,6 +52,8 @@ const onTap = () => {
 }
 .book-item img {
   box-shadow: var(--mdc-protected-button-container-elevation, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));
+  -webkit-touch-callout: none;
+  user-select: none;
 }
 .book-item .book-title {
   display: flex;

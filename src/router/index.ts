@@ -49,8 +49,8 @@ const router = createRouter({
       component: () => import('@/views/NotesView.vue')
     },
     {
-      path: '/test',
-      name: 'test',
+      path: '/import',
+      name: 'import',
       props: true,
       component: ImportView
     }
