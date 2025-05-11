@@ -26,9 +26,9 @@
   flex-direction: column;
 }
 .tab-panel-container {
-  padding-top: var(--sait);
   padding-bottom: calc(var(--saib) + 60px);
-  min-height: 100vh;
+  height: 100vh;
+  position: relative;
 }
 .tab-nav-list {
   display: flex;

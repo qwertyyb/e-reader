@@ -27,6 +27,7 @@
         </template>
       </template>
     </div>
+    <div class="navigation-bar-space"></div>
     <div class="category-wrapper" v-if="route.name === 'local' && bookList.length">
       <ul class="category-list">
         <li class="category-item" :class="{active: category === 'all'}" @click="category='all'">全部</li>
@@ -233,13 +234,25 @@ watch(() => route.name, () => {
 </script>
 
 <style lang="scss" scoped>
+.book-list-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
 .navigation-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: var(--sait) 16px 0 16px;
   height: 48px;
+  box-sizing: content-box;
   border-bottom: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
   .logo {
     width: 24px;
     height: 24px;
@@ -254,6 +267,10 @@ watch(() => route.name, () => {
       font-weight: bold;
     }
   }
+}
+.navigation-bar-space {
+  height: calc(var(--sait) + 48px);
+  flex-shrink: 0;
 }
 
 .action-btn {
@@ -332,6 +349,8 @@ watch(() => route.name, () => {
   box-sizing: border-box;
   perspective: 600px;
   list-style: none;
+  flex: 1;
+  overflow: auto;
 }
 .book-item-wrapper {
   position: relative;
