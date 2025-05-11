@@ -5,34 +5,24 @@
 
     <ul class="book-menu">
       <li class="menu-item" @click="viewMarks">
-        <span class="material-symbols-outlined menu-item-icon">
-        overview
-        </span>
+        <span class="material-symbols-outlined menu-item-icon">overview</span>
         <div class="menu-item-label">查看笔记</div>
       </li>
       <li class="menu-item" @click="exportMarks">
-        <span class="material-symbols-outlined menu-item-icon">
-        export_notes
-        </span>
+        <span class="material-symbols-outlined menu-item-icon">export_notes</span>
         <div class="menu-item-label">导出笔记</div>
       </li>
-      <li class="menu-item" @click="catalogSetting">
-        <span class="material-symbols-outlined menu-item-icon">
-        toc
-        </span>
-        <div class="menu-item-label">目录设置</div>
-      </li>
       <li class="menu-item" @click="search">
-        <span class="material-symbols-outlined menu-item-icon">
-        search
-        </span>
+        <span class="material-symbols-outlined menu-item-icon">search</span>
         <div class="menu-item-label">全文搜索</div>
       </li>
       <li class="menu-item" @click="toSettingsPage">
-        <span class="material-symbols-outlined menu-item-icon">
-        settings
-        </span>
+        <span class="material-symbols-outlined menu-item-icon">settings</span>
         <div class="menu-item-label">书籍设置</div>
+      </li>
+      <li class="menu-item" @click="() => $emit('action', 'info')">
+        <span class="material-symbols-outlined menu-item-icon">info</span>
+        <div class="menu-item-label">书籍信息</div>
       </li>
     </ul>
   </c-dialog>
@@ -47,7 +37,7 @@ import { useRouter } from 'vue-router';
 const props = defineProps<{ visible: boolean, bookId: number }>()
 
 const emits = defineEmits<{
-  action: ['marksViewer' | 'catalogSetting' | 'exportMarks' | 'search' | 'settings'],
+  action: ['marksViewer' | 'exportMarks' | 'search' | 'settings' | 'info'],
   close: []
 }>()
 
@@ -63,9 +53,6 @@ const exportMarks = async () => {
     })
   ])
   showToast('已复制到剪贴板')
-}
-const catalogSetting = () => {
-  emits('action', 'catalogSetting')
 }
 const search = () => {
   emits('action', 'search')

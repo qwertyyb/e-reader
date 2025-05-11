@@ -10,7 +10,6 @@
         <li class="menu-item" @click="dialog='about'">关于EInk Reader</li>
       </ul>
       <about-dialog :visible="dialog==='about'" @close="dialog=null"></about-dialog>
-      <!-- <fonts-dialog :visible="dialog==='fonts'" @close="dialog=null"></fonts-dialog> -->
     </c-dialog>
   </div>
 </template>
@@ -38,8 +37,6 @@ const checkUpdates = async () => {
 <style lang="scss" scoped>
 .menu-dialog .menu {
   box-sizing: border-box;
-  padding: 0 20px;
-  padding-right: 28px;
   display: flex;
   box-sizing: border-box;
   flex-direction: column;
@@ -51,5 +48,6 @@ const checkUpdates = async () => {
 .menu-dialog .menu-item {
   padding: 8px 0;
   font-size: 18px;
+  cursor: pointer;
 }
 </style>

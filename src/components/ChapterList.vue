@@ -1,19 +1,21 @@
 <template>
   <div class="chapter-list">
-    <div class="chapter-item fixed-item"
-      v-if="curParentChapter"
-      :data-catalog-level="curParentChapter.level || 1"
-      :data-catalog-id="curParentChapter.id">
-      <span class="material-symbols-outlined expand-icon"
-        :class="{fold: foldState[curParentChapter.id]}"
-        @click="toggleExpand(curParentChapter)"
-      >chevron_right</span>
+    <div class="chapter-item">
       <div class="chapter-item-label"
+        v-if="curParentChapter"
         @click="jumpTo(curParentChapter)"
       >{{ curParentChapter.title }}</div>
       <span class="material-symbols-outlined location-icon"
+        v-if="curParentChapter"
         @click="scrollToChapter(curParentChapter)"
       >my_location</span>
+      <span
+        class="material-symbols-outlined collapse-icon"
+        @click="toggleFoldAll"
+        :title="isAllFold ? '展开所有' : '折叠所有'"
+      >
+        {{ isAllFold ? 'unfold_more' : 'unfold_less' }}
+      </span>
     </div>
     <c-virtual-list
       class="chapter-virtual-list"
@@ -22,7 +24,7 @@
       :data-sources="visibleChapterList"
       ref="virtual-list"
       :estimate-size="42"
-      :active-index="curVisibleChapterListIndex"
+      :active-index="curVisibleChapterListIndex - 2"
       @scroll="scrollHandler"
     >
       <template v-slot="{ source, index }">
@@ -96,8 +98,14 @@ const canExpand = (source: I) => {
 }
 
 const foldState = ref<Record<string, boolean>>({})
+const isAllFold = computed(() => {
+  const parentIds = new Set(props.chapterList.map(chapter => chapter.parentId).filter(Boolean) as string[])
+  const fold = [...parentIds].every(id => foldState.value[id])
+  return fold
+})
 
 const toggleExpand = (source: I) => {
+  console.log('toggleExpand', source)
   foldState.value[source.id] = !foldState.value[source.id]
 }
 
@@ -119,6 +127,16 @@ const scrollHandler = (event: Event, range: { start: number, end: number }) => {
   curParentChapter.value = parent || null
 }
 
+const toggleFoldAll = () => {
+  // 折叠全部，把带有 parentId 的章节的 parent 全部设置为已折叠
+  const parentIds = new Set(props.chapterList.map(chapter => chapter.parentId).filter(Boolean) as string[])
+  const newFoldState: Record<string, boolean> = {}
+  parentIds.forEach(id => {
+    newFoldState[id] = !isAllFold.value
+  })
+  foldState.value = newFoldState
+}
+
 </script>
 
 <style lang="scss" scoped>
@@ -131,23 +149,26 @@ const scrollHandler = (event: Event, range: { start: number, end: number }) => {
     width: 100%;
   }
 }
-.location-icon {
+.location-icon, .collapse-icon {
   font-size: 20px;
   margin-left: auto;
   height: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 0.8 / 1;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   opacity: 0.7;
+}
+.location-icon + .collapse-icon {
+  margin-left: 0
 }
 .chapter-virtual-list {
   flex: 1;
   overflow: auto;
   @mixin levelIndent($maxLevel) {
     @for $i from 2 through $maxLevel {
-      .chapter-item[data-catalog-level="#{$i}"] .chapter-item-label {
-        margin-left: 24px * ($i - 1);
+      .chapter-item[data-catalog-level="#{$i}"] {
+        padding-left: 24px * ($i - 1);
       }
     }
   }

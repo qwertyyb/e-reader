@@ -69,6 +69,7 @@ const book = ref<ILocalBook>()
 provide('chapter', chapter)
 provide('progress', progress)
 provide('book', book)
+provide('chapterList', chapterList)
 
 const pageHandler = (direction: 'prev' | 'next') => {
   console.log('pageHandler', direction)

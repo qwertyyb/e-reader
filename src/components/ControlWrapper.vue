@@ -33,6 +33,11 @@
       @jump="dialog=null;emits('jump', $event)"
     ></search-dialog>
 
+    <book-info-dialog
+      :visible="dialog==='info'"
+      @close="dialog=null"
+    ></book-info-dialog>
+
     <!-- <catalog-setting-dialog :visible="dialog==='catalogSetting'" @close="dialog=null">
     </catalog-setting-dialog> -->
 
@@ -74,6 +79,7 @@ import SelectionMenu from '@/components/SelectionMenu.vue';
 import BookMenuDialog from '@/components/BookMenuDialog.vue';
 import MarksDialog from '@/components/MarksDialog.vue';
 import SearchDialog from '@/components/SearchDialog.vue';
+import BookInfoDialog from '@/components/BookInfoDialog.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import { env } from '@/utils/env';
 import router from '@/router';
