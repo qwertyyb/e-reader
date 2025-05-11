@@ -60,20 +60,34 @@ const emits = defineEmits<{
 
 const virtualListRef = useTemplateRef('virtual-list')
 
+const isParentFold = (chapter?: I) => {
+  if (!chapter) return false
+  if (!chapter.parentId) return false
+  if (foldState.value[chapter.parentId]) return true
+  const parent = props.chapterList.find(item => item.id === chapter.parentId)
+  return isParentFold(parent)
+}
+
 const visibleChapterList = computed(() => {
   return props.chapterList.filter(chapter => {
-    return !chapter.parentId || !foldState.value[chapter.parentId]
+    if (!chapter.parentId) return true
+    return !isParentFold(chapter)
   })
 })
+
+const findVisibleChapterListIndex = (chapter?: I) => {
+  if (!chapter) return 0
+  const index = visibleChapterList.value.findIndex(item => item.id === chapter.id)
+  if (index >= 0) return index
+  // 未在列表中找到，说明很可能被折叠起来了，定位父级章节
+  const parent = props.chapterList.find(item => item.id === chapter.parentId)
+  return findVisibleChapterListIndex(parent)
+}
 
 const curVisibleChapterListIndex = computed(() => {
   if (typeof props.curChapterIndex === 'undefined') return 0
   const target = props.chapterList[props.curChapterIndex]
-  const index = visibleChapterList.value.findIndex(item => item.id === target.id)
-  if (index >= 0) return index
-  // 如果在列表中没有找到，说明被折叠起来了，则需要定位到上级目录
-  const parentIndex = visibleChapterList.value.findIndex(item => item.id === target.parentId)
-  return parentIndex
+  return findVisibleChapterListIndex(target)
 })
 
 const levels = computed(() => {
@@ -168,7 +182,7 @@ const toggleFoldAll = () => {
   @mixin levelIndent($maxLevel) {
     @for $i from 2 through $maxLevel {
       .chapter-item[data-catalog-level="#{$i}"] {
-        padding-left: 24px * ($i - 1);
+        padding-left: 16px + 24px * ($i - 1);
       }
     }
   }
