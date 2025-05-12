@@ -38,9 +38,6 @@
       @close="dialog=null"
     ></book-info-dialog>
 
-    <!-- <catalog-setting-dialog :visible="dialog==='catalogSetting'" @close="dialog=null">
-    </catalog-setting-dialog> -->
-
     <marks-dialog
       :book-id="bookId"
       :visible="dialog==='marksViewer'"

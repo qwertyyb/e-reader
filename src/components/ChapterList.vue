@@ -5,17 +5,22 @@
         v-if="curParentChapter"
         @click="jumpTo(curParentChapter)"
       >{{ curParentChapter.title }}</div>
-      <span class="material-symbols-outlined location-icon"
-        v-if="curParentChapter"
-        @click="scrollToChapter(curParentChapter)"
-      >my_location</span>
-      <span
-        class="material-symbols-outlined collapse-icon"
-        @click="toggleFoldAll"
-        :title="isAllFold ? '展开所有' : '折叠所有'"
-      >
-        {{ isAllFold ? 'unfold_more' : 'unfold_less' }}
-      </span>
+      <div class="chapter-item-actions">
+        <span class="material-symbols-outlined location-icon action-icon"
+          v-if="curParentChapter"
+          @click="scrollToChapter(curParentChapter)"
+        >my_location</span>
+        <span class="material-symbols-outlined settings-icon action-icon"
+          v-if="enableSettings"
+          @click="$emit('settings')"
+        >settings</span>
+        <span class="material-symbols-outlined collapse-icon action-icon"
+          @click="toggleFoldAll"
+          :title="isAllFold ? '展开所有' : '折叠所有'"
+        >
+          {{ isAllFold ? 'unfold_more' : 'unfold_less' }}
+        </span>
+      </div>
     </div>
     <c-virtual-list
       class="chapter-virtual-list"
@@ -52,10 +57,12 @@ import { computed, ref, useTemplateRef } from 'vue';
 const props = defineProps<{
   chapterList: I[]
   curChapterIndex?: number
+  enableSettings?: boolean
 }>()
 
 const emits = defineEmits<{
-  tap: [I, number]
+  tap: [I, number],
+  settings: []
 }>()
 
 const virtualListRef = useTemplateRef('virtual-list')
@@ -119,8 +126,17 @@ const isAllFold = computed(() => {
 })
 
 const toggleExpand = (source: I) => {
-  console.log('toggleExpand', source)
   foldState.value[source.id] = !foldState.value[source.id]
+}
+
+const toggleFoldAll = () => {
+  // 折叠全部，把带有 parentId 的章节的 parent 全部设置为已折叠
+  const parentIds = new Set(props.chapterList.map(chapter => chapter.parentId).filter(Boolean) as string[])
+  const newFoldState: Record<string, boolean> = {}
+  parentIds.forEach(id => {
+    newFoldState[id] = !isAllFold.value
+  })
+  foldState.value = newFoldState
 }
 
 const scrollToChapter = (chapter: IChapter) => {
@@ -141,16 +157,6 @@ const scrollHandler = (event: Event, range: { start: number, end: number }) => {
   curParentChapter.value = parent || null
 }
 
-const toggleFoldAll = () => {
-  // 折叠全部，把带有 parentId 的章节的 parent 全部设置为已折叠
-  const parentIds = new Set(props.chapterList.map(chapter => chapter.parentId).filter(Boolean) as string[])
-  const newFoldState: Record<string, boolean> = {}
-  parentIds.forEach(id => {
-    newFoldState[id] = !isAllFold.value
-  })
-  foldState.value = newFoldState
-}
-
 </script>
 
 <style lang="scss" scoped>
@@ -163,18 +169,22 @@ const toggleFoldAll = () => {
     width: 100%;
   }
 }
-.location-icon, .collapse-icon {
-  font-size: 20px;
+.chapter-item-actions {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+.action-icon {
+  font-size: 24px;
   height: 100%;
-  aspect-ratio: 0.8 / 1;
+  aspect-ratio: 1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0.7;
-}
-.location-icon + .collapse-icon {
-  margin-left: 0
+  & + .action-icon {
+    margin-left: 8px;
+  }
 }
 .chapter-virtual-list {
   flex: 1;

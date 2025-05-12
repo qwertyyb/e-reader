@@ -1,20 +1,22 @@
 <template>
-  <div class="c-dialog" :class="`dialog-position-${position}`" v-if="containerVisible">
-    <div class="mask" @pointerdown="$emit('close')" ref="mask"></div>
-    <section class="c-dialog-content"
-      ref="dialog"
-      :style="{ height: props.height || 'auto', width: props.width }"
-    >
-      <header class="c-dialog-header" v-if="$slots.header || title">
-        <slot name="header">
-          <h2 class="c-dialog-title" v-if="title">{{ title }}</h2>
-        </slot>
-      </header>
-      <main class="c-dialog-main" :style="bodyStyle">
-        <slot></slot>
-      </main>
-    </section>
-  </div>
+  <teleport to="#app">
+    <div class="c-dialog" :class="`dialog-position-${position || 'default'} ${props.class}`" v-if="containerVisible">
+      <div class="mask" @pointerdown="$emit('close')" ref="mask"></div>
+      <section class="c-dialog-content"
+        ref="dialog"
+        :style="{ height: props.height || 'auto', width: props.width }"
+      >
+        <header class="c-dialog-header" v-if="$slots.header || title">
+          <slot name="header">
+            <h2 class="c-dialog-title" v-if="title">{{ title }}</h2>
+          </slot>
+        </header>
+        <main class="c-dialog-main" :style="bodyStyle">
+          <slot></slot>
+        </main>
+      </section>
+    </div>
+  </teleport>
 </template>
 
 <script setup lang="ts">
@@ -26,6 +28,7 @@ const props = defineProps<{
   height?: string,
   title?: string,
   width?: string,
+  class?: string,
   bodyStyle?: StyleValue
 }>()
 

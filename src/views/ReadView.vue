@@ -15,6 +15,8 @@
         <chapter-list-vue
           :chapter-list="chapterList"
           :cur-chapter-index="curChapterIndex"
+          enable-settings
+          @settings="openTocSettings"
           @tap="jumpToChapter"
         ></chapter-list-vue>
       </template>
@@ -37,6 +39,7 @@
         ></chapter-contents>
       </template>
     </control-wrapper>
+    <book-toc-settings-dialog :visible="dialog==='tocSettings'" @close="dialog=null" :book-id="id"></book-toc-settings-dialog>
   </book-animation>
 </template>
 
@@ -50,6 +53,7 @@ import BookAnimation from '@/components/BookAnimation.vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import ChapterContents from '@/components/ChapterContents.vue';
 import ChapterListVue from '@/components/ChapterList.vue';
+import BookTocSettingsDialog from '@/components/BookTocSettingsDialog.vue';
 
 const props = defineProps<{
   id: string
@@ -61,6 +65,7 @@ const animRef = useTemplateRef('anim')
 const controlWrapperRef = useTemplateRef('control-wrapper')
 const chapterContentsRef = useTemplateRef('chapter-contents')
 const defaultProgress = ref<{ chapterId: string, cursor: number } | null>(null)
+const dialog = ref<string | null>(null)
 
 const chapter = computed(() => chapterList.value[curChapterIndex.value])
 const progress = ref<{ chapter: IChapter, chapterIndex: number, cursor: number } | null>(null)
@@ -128,6 +133,11 @@ const jump = async (options: { chapterId: string, cursor: number }) => {
 
 const getNextReadElement = (current?: HTMLElement) => {
   return chapterContentsRef.value?.getNextReadElement(current) || null
+}
+
+const openTocSettings = () => {
+  controlWrapperRef.value?.closeDialog()
+  dialog.value = 'tocSettings'
 }
 
 const init = async () => {

@@ -16,10 +16,6 @@
         <span class="material-symbols-outlined menu-item-icon">search</span>
         <div class="menu-item-label">全文搜索</div>
       </li>
-      <li class="menu-item" @click="toSettingsPage">
-        <span class="material-symbols-outlined menu-item-icon">settings</span>
-        <div class="menu-item-label">书籍设置</div>
-      </li>
       <li class="menu-item" @click="() => $emit('action', 'info')">
         <span class="material-symbols-outlined menu-item-icon">info</span>
         <div class="menu-item-label">书籍信息</div>
@@ -32,12 +28,11 @@
 import CDialog from '@/components/common/CDialog.vue';
 import { showToast } from '@/utils';
 import { exportBookMarkListByBookId } from '@/utils/mark';
-import { useRouter } from 'vue-router';
 
 const props = defineProps<{ visible: boolean, bookId: number }>()
 
 const emits = defineEmits<{
-  action: ['marksViewer' | 'exportMarks' | 'search' | 'settings' | 'info'],
+  action: ['marksViewer' | 'exportMarks' | 'search' | 'info'],
   close: []
 }>()
 
@@ -56,10 +51,6 @@ const exportMarks = async () => {
 }
 const search = () => {
   emits('action', 'search')
-}
-const router = useRouter()
-const toSettingsPage = () => {
-  router.push({ name: 'bookSettings', params: { id: props.bookId }})
 }
 </script>
 

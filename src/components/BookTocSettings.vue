@@ -1,30 +1,29 @@
 <template>
-  <navigation-bar title="书籍设置"></navigation-bar>
-  <div class="book-settings-view">
-    <section class="settings-section">
-      <h2 class="settings-section-title">目录设置</h2>
-      <ul class="toc-settings settings-content">
-        <li class="setting-item" v-for="(reg, index) in bookConfig.toc" :key="index">
-          <div class="setting-item-header">
-            <h3 class="setting-item-label">{{ index + 1 }}级目录</h3>
-            <span class="material-symbols-outlined icon"
-              v-if="index > 0"
-              @click="upTocItem(index)"
-            >arrow_upward</span>
-            <span class="material-symbols-outlined icon"
-              v-if="index < bookConfig.toc.length - 1"
-              @click="downTocItem(index)"
-            >arrow_downward</span>
-          </div>
-          <input type="text" class="setting-input" v-model.trim="bookConfig.toc[index]">
-        </li>
-        <li class="setting-item btns-item">
-          <button class="preview-toc-btn btn" @click="addToc">添加</button>
-          <button class="preview-toc-btn btn" @click="previewToc">预览</button>
-          <button class="save-toc-btn btn primary-btn" @click="saveToc(true)">保存</button>
-        </li>
-      </ul>
-    </section>
+  <div class="book-toc-settings">
+    <ul class="toc-settings settings-content">
+      <li class="setting-item" v-for="(reg, index) in bookConfig.toc" :key="index">
+        <div class="setting-item-header">
+          <h3 class="setting-item-label">{{ index + 1 }}级目录</h3>
+          <span class="material-symbols-outlined icon"
+            v-if="index > 0"
+            @click="upTocItem(index)"
+          >arrow_upward</span>
+          <span class="material-symbols-outlined icon"
+            v-if="index < bookConfig.toc.length - 1"
+            @click="downTocItem(index)"
+          >arrow_downward</span>
+          <span class="material-symbols-outlined icon"
+            @click="deleteTocItem(index)"
+          >delete</span>
+        </div>
+        <input type="text" class="setting-input" v-model.trim="bookConfig.toc[index]">
+      </li>
+      <li class="setting-item btns-item">
+        <button class="preview-toc-btn btn" @click="addToc">添加</button>
+        <button class="preview-toc-btn btn" @click="previewToc">预览</button>
+        <button class="save-toc-btn btn primary-btn" @click="saveToc(true)">保存</button>
+      </li>
+    </ul>
     <c-dialog
       height="90vh"
       title="预览目录"
@@ -51,9 +50,8 @@ import { parseChapterList } from '@/services/txt-file';
 import { showToast } from '@/utils';
 import { ref, toRaw } from 'vue';
 import { level1ChapterRegexp, level2ChapterRegexp } from '@/config';
-import NavigationBar from '@/components/NavigationBar.vue';
 
-const props = defineProps<{ id: string | number }>()
+const props = defineProps<{ bookId: string | number }>()
 
 const bookConfig = ref({
   toc: [
@@ -78,20 +76,21 @@ const getToc = async () => {
     showToast('请至少配置一个目录')
     throw new Error('no avaliable toc config')
   }
-  const result = await contentStore.get(Number(props.id))
+  const result = await contentStore.get(Number(props.bookId))
   const content = result.content
   return parseChapterList(content, { regList })
 }
 const previewToc = async () => {
   chapterList.value = await getToc()
   dialog.value = 'chapterList'
+  console.log('hello')
 }
 const saveToc = async (refreshToc: boolean) => {
   if (refreshToc) {
     chapterList.value = await getToc()
   }
   dialog.value = null
-  chapterListStore.update(Number(props.id), { chapterList: toRaw(chapterList.value) })
+  chapterListStore.update(Number(props.bookId), { chapterList: toRaw(chapterList.value) })
 }
 
 const upTocItem = (index: number) => {
@@ -109,13 +108,13 @@ const downTocItem = (index: number) => {
 const addToc = () => {
   bookConfig.value.toc.push('')
 }
+const deleteTocItem = (index: number) => {
+  bookConfig.value.toc.splice(index, 1)
+}
 
 </script>
 
 <style lang="scss" scoped>
-.book-settings-view {
-  padding: 16px;
-}
 .toc-settings {
   list-style: none;
 }
