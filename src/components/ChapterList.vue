@@ -7,8 +7,8 @@
       >{{ curParentChapter.title }}</div>
       <div class="chapter-item-actions">
         <span class="material-symbols-outlined location-icon action-icon"
-          v-if="curParentChapter"
-          @click="scrollToChapter(curParentChapter)"
+          v-if="typeof props.curChapterIndex !== 'undefined'"
+          @click="scrollToChapter(props.chapterList[props.curChapterIndex])"
         >my_location</span>
         <span class="material-symbols-outlined settings-icon action-icon"
           v-if="enableSettings"
@@ -29,7 +29,7 @@
       :data-sources="visibleChapterList"
       ref="virtual-list"
       :estimate-size="42"
-      :active-index="curVisibleChapterListIndex - 2"
+      :active-index="curVisibleChapterListIndex"
       @scroll="scrollHandler"
     >
       <template v-slot="{ source, index }">

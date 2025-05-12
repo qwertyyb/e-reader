@@ -22,8 +22,9 @@
   --light-shadow-color: rgba(0, 0, 0, 0.2);
   --dark-shadow-color: rgba(227, 227, 227, 0.1);
 
-  --light-card-bg-color: #dfdfdf;
-  --dark-card-bg-color: #333;
+  --light-card-bg-color: #e2e2e2;
+  --dark-card-bg-color: #2a2a2a;
+  --card-bg-color: light-dark(var(--light-card-bg-color), var(--dark-card-bg-color));
 
   --sait: env(safe-area-inset-top);
   --saib: env(safe-area-inset-bottom);

@@ -144,7 +144,7 @@ const deleteTocItem = (index: number) => {
   }
 }
 .setting-item-label {
-  font-size: 14px;
+  font-size: 16px;
   opacity: 0.6;
 }
 .settings-section-title {
@@ -153,7 +153,7 @@ const deleteTocItem = (index: number) => {
   margin: 0 0 8px 12px;
 }
 .settings-content {
-  background: #fff;
+  background-color: var(--card-bg-color);
   border-radius: 4px;
   padding: 16px;
 }
@@ -165,10 +165,12 @@ const deleteTocItem = (index: number) => {
   outline: none;
   padding-bottom: 4px;
   font-weight: 500;
+  background: none;
 }
 .btn {
-  padding: 4px 12px;
+  padding: 4px 16px;
   border-radius: 4px;
+  font-size: 14px;
   border: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
   font-weight: 500;
   &.primary-btn {
