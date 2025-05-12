@@ -342,14 +342,14 @@ watch(() => route.name, () => {
   padding: 12px 16px;
   display: grid;
   grid-template-columns: repeat(auto-fill, 100px);
-  grid-gap: 10px;
-  gap: 10px;
+  column-gap: 10px;
+  row-gap: 24px;
   justify-content: space-around;
+  align-items: start;
   position: relative;
   box-sizing: border-box;
   perspective: 600px;
   list-style: none;
-  flex: 1;
   overflow: auto;
 }
 .book-item-wrapper {
