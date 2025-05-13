@@ -33,6 +33,7 @@ const checkUpdates = async ({ slient = false } = {}) => {
   const json = await r.json()
   const releases = json.releases as { version: string, buildVersion: number, changelog: string }[] || []
   const latest = releases[0]
+  console.log(latest, version)
   if (!latest || latest.version === version) {
     if (!slient) showToast('当前已是最新版本')
     return;
@@ -78,6 +79,9 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
+:global(.c-dialog.update-dialog) {
+  z-index: 11;
+}
 .markdown-changelog {
   max-height: 60vh;
   overflow: auto;

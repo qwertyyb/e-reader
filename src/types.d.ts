@@ -123,5 +123,6 @@ interface DocumentEventMap {
 }
 
 declare const __APP_VERSION__: string
+declare const __BUILD_VERSION__: string
 
 declare module 'vue-virtual-list-v3'

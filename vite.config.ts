@@ -15,7 +15,8 @@ export default defineConfig({
     vueDevTools(),
   ],
   define: {
-    __APP_VERSION__: JSON.stringify(process.env.BUILDVERSION || 'local')
+    __BUILD_VERSION__: JSON.stringify(process.env.BUILDVERSION || '0'),
+    __APP_VERSION__: JSON.stringify(process.env.APP_VERSION || 'local')
   },
   server: {
     port: 8030,
