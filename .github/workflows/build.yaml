@@ -51,6 +51,7 @@ jobs:
           github-token: ${{ secrets.github_token }}
           skip-commit: "true"
           output-file: "false"
+          skip-on-empty: 'false'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
