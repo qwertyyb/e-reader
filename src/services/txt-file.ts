@@ -6,10 +6,22 @@ import { generateBookCover } from '@/utils/cover';
 export const parseChapterList = (
   content: string,
   { regList = defaultTocRegList } = {}
-): IChapter[] => {
+): { chapterList: IChapter[], content: string } => {
   const toc: { id: string, title: string, cursorStart: number, cursorEnd?: number, level: number }[] = []
   const parents: Record<number, string> = {}
   const lines = content.split('\n')
+  const startIsChapter = regList[0].test(lines[0].trim()) || lines[0].trim() === '章前内容'
+  // 如果起始不是章节，插入一个章前内容
+  if (!startIsChapter) {
+    lines.unshift('章前内容')
+    toc.push({
+      id: '0',
+      title: '章前内容',
+      cursorStart: 0,
+      cursorEnd: undefined,
+      level: 1
+    })
+  }
   lines.forEach((line, row) => {
     const index = regList.findIndex(reg => reg.test(line.trim()))
     if (index < 0) return;
@@ -33,7 +45,7 @@ export const parseChapterList = (
   if (toc.length) {
     toc[toc.length - 1].cursorEnd = lines.length - 1
   }
-  return toc
+  return { chapterList: toc, content: lines.join('\n') }
 }
 
 export const parseTxtFile = async (file: File, options: { tocRegList: RegExp[] } = { tocRegList: defaultTocRegList }) => {
@@ -56,9 +68,9 @@ export const parseTxtFile = async (file: File, options: { tocRegList: RegExp[] }
 
   const getTitle = (fileName: string) => fileName.replace(/\.[^.]+$/, '')
 
-  const content = await load(file)
+  const text = await load(file)
   const title = getTitle(file.name)
-  const chapterList = parseChapterList(content, { regList: options.tocRegList })
+  const { chapterList, content } = parseChapterList(text, { regList: options.tocRegList })
 
   return {
     title,

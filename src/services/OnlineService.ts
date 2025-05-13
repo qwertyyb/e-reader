@@ -7,8 +7,8 @@ import { defaultTocRegList } from "@/config"
 const download = async (downloadUrl: string, options: { tocRegList: RegExp[] }, onUpdate?: (progress: number, total: number) => void) => {
   const data = await downloadWithProgress(downloadUrl, onUpdate)
   if (downloadUrl.endsWith('.txt')) {
-    const content = decodeText(data.buffer)
-    const chapterList = parseChapterList(content, { regList: options.tocRegList })
+    const text = decodeText(data.buffer)
+    const { chapterList, content } = parseChapterList(text, { regList: options.tocRegList })
     return {
       content,
       maxCursor: chapterList[chapterList.length - 1].cursorEnd,

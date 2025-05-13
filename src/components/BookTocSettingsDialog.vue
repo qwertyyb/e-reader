@@ -23,7 +23,6 @@
 import CDialog from '@/components/common/CDialog.vue';
 import BookTocSettings from '@/components/BookTocSettings.vue';
 import ChapterList from '@/components/ChapterList.vue';
-// import { level1ChapterRegexp, level2ChapterRegexp } from '@/config';
 import { ref, toRaw } from 'vue';
 import { showToast } from '@/utils';
 import { chapterListStore, contentStore } from '@/services/storage';
@@ -31,10 +30,6 @@ import { parseChapterList } from '@/services/txt-file';
 
 const props = defineProps<{ visible: boolean, bookId: number | string }>()
 defineEmits<{ close: [] }>()
-
-// const tocSettings = ref<string[]>([
-//   level1ChapterRegexp, level2ChapterRegexp
-// ])
 
 const chapterDialogVisible = ref(false)
 const chapterList = ref<IChapter[]>([])
@@ -55,7 +50,7 @@ const getToc = async (tocSettings: string[]) => {
   }
   const result = await contentStore.get(Number(props.bookId))
   const content = result.content
-  return parseChapterList(content, { regList })
+  return parseChapterList(content, { regList }).chapterList
 }
 
 const previewToc = async (tocSettings: string[]) => {
@@ -64,7 +59,16 @@ const previewToc = async (tocSettings: string[]) => {
 }
 
 const saveToc = async () => {
-  chapterListStore.update(Number(props.bookId), { chapterList: toRaw(chapterList.value) })
+  await chapterListStore.update(Number(props.bookId), { chapterList: toRaw(chapterList.value) })
+  location.reload()
 }
 
 </script>
+
+<style lang="scss" scoped>
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+</style>
