@@ -50,16 +50,13 @@ import { chapterListStore, contentStore } from '@/services/storage';
 import { parseChapterList } from '@/services/txt-file';
 import { showToast } from '@/utils';
 import { ref, toRaw } from 'vue';
-import { level1ChapterRegexp, level2ChapterRegexp } from '@/config';
 import NavigationBar from '@/components/NavigationBar.vue';
+import { defaultTocRegList } from '@/config';
 
 const props = defineProps<{ id: string | number }>()
 
 const bookConfig = ref({
-  toc: [
-    level1ChapterRegexp,
-    level2ChapterRegexp
-  ]
+  toc: defaultTocRegList.map(reg => reg.source)
 })
 
 const dialog = ref<string | null>('')

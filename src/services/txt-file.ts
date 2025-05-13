@@ -1,11 +1,11 @@
 
-import { level1ChapterRegexp, level2ChapterRegexp } from '@/config';
+import { defaultTocRegList } from '@/config';
 import { decodeText } from '@/utils';
 import { generateBookCover } from '@/utils/cover';
 
 export const parseChapterList = (
   content: string,
-  { regList = [new RegExp(level1ChapterRegexp), new RegExp(level2ChapterRegexp)] } = {}
+  { regList = defaultTocRegList } = {}
 ): IChapter[] => {
   const toc: { id: string, title: string, cursorStart: number, cursorEnd?: number, level: number }[] = []
   const parents: Record<number, string> = {}
@@ -36,7 +36,7 @@ export const parseChapterList = (
   return toc
 }
 
-export const parseTxtFile = async (file: File, options: { tocRegList: RegExp[] } = { tocRegList: [new RegExp(level1ChapterRegexp), new RegExp(level2ChapterRegexp)] }) => {
+export const parseTxtFile = async (file: File, options: { tocRegList: RegExp[] } = { tocRegList: defaultTocRegList }) => {
   const load = (file: File) => {
     return new Promise<string>((resolve, reject) => {
       const reader = new FileReader()

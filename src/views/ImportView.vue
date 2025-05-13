@@ -3,9 +3,10 @@
   <div class="upload-book-section">
     <button class="btn primary-btn file-selector-btn" @click="selectFile">选择文件</button>
     <p class="select-tips">支持 txt 和 epub 文件</p>
+    <p class="select-tips" v-if="fileName">已选择文件: {{ fileName }}</p>
   </div>
   <div class="import-view">
-    <book-toc-settings v-model="bookConfig.toc" v-if="fileName.endsWith('.txt')" @click="parseFile()"></book-toc-settings>
+    <book-toc-settings v-model="bookConfig.toc" v-if="fileName.endsWith('.txt')" @confirm="reParseFile"></book-toc-settings>
     <section class="book-info" v-if="bookInfo">
       <h3 class="book-info-title">书籍信息</h3>
       <img :src="bookInfo.cover" alt="" class="book-cover">
@@ -45,20 +46,17 @@ import BookTocSettings from '@/components/BookTocSettings.vue';
 import { parseTxtFile } from '@/services/txt-file';
 import { blobToBase64, showToast } from '@/utils';
 import { computed, ref, shallowRef, toRaw } from 'vue';
-import { level1ChapterRegexp, level2ChapterRegexp } from '@/config';
 import NavigationBar from '@/components/NavigationBar.vue';
 import { parseEpubFile } from '@/services/epub';
 import { booksStore, chapterListStore, contentStore } from '@/services/storage';
 import { useRouter } from 'vue-router';
 import { parseMobiFile } from '@/services/mobi';
+import { defaultTocRegList } from '@/config';
 
 const router = useRouter()
 
 const bookConfig = ref({
-  toc: [
-    level1ChapterRegexp,
-    level2ChapterRegexp
-  ]
+  toc: defaultTocRegList.map(reg => reg.source)
 })
 
 const bookInfo = shallowRef<{
@@ -155,6 +153,13 @@ const parseFile = async () => {
   }
 }
 
+const reParseFile = async () => {
+  await parseFile()
+  showToast('目录已更新')
+  document.querySelector('.import-view .btns')?.scrollIntoView()
+  dialog.value = 'chapterList'
+}
+
 const getTocRegList = () => {
   const regList: RegExp[] = []
   bookConfig.value.toc.forEach(reg => {
@@ -228,10 +233,10 @@ const saveBook = async (refreshInfo: boolean) => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: 16px;
   .book-info-title {
-    opacity: 0.6;
-    font-size: 14px;
-    margin-bottom: 24px;
+    font-size: 16px;
+    margin-bottom: 12px;
   }
   .book-cover {
     width: 200px;
@@ -248,54 +253,6 @@ const saveBook = async (refreshInfo: boolean) => {
   .chapter-info {
     margin: 16px 0;
     list-style-position: inside;
-  }
-}
-.toc-settings {
-  list-style: none;
-}
-.setting-item + .setting-item {
-  margin-top: 24px;
-}
-.setting-item-label {
-  font-size: 14px;
-  margin-bottom: 8px;
-  opacity: 0.6;
-}
-.settings-section-title {
-  font-size: 14px;
-  opacity: 0.6;
-  margin: 0 0 8px 12px;
-}
-.settings-content {
-  background: #fff;
-  border-radius: 4px;
-  padding: 16px;
-}
-.setting-input {
-  font-size: 14px;
-  width: 100%;
-  border: none;
-  border-bottom: 1px solid #ccc;
-  outline: none;
-  padding-bottom: 4px;
-  font-weight: 500;
-}
-.btn {
-  padding: 4px 12px;
-  border-radius: 4px;
-  border: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
-  font-weight: 500;
-  &.primary-btn {
-    background: rgb(56, 66, 255);
-    color: #fff;
-    border: none;
-  }
-  &.text-btn {
-    color: rgb(56, 66, 255);
-    border: none;
-  }
-  & + .btn {
-    margin-left: 12px;
   }
 }
 

@@ -1,6 +1,6 @@
 <template>
   <c-dialog title="目录设置" :visible="visible" @close="$emit('close')">
-    <book-toc-settings @preview="previewToc"></book-toc-settings>
+    <book-toc-settings @confirm="previewToc"></book-toc-settings>
     <c-dialog
       height="90vh"
       title="预览目录"

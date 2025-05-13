@@ -2,12 +2,13 @@ import { decodeText, downloadWithProgress } from "@/utils"
 import { booksStore, chapterListStore, contentStore } from "./storage"
 import { parseChapterList } from "./txt-file"
 import { parseEpubFile } from "./epub"
+import { defaultTocRegList } from "@/config"
 
-const download = async (downloadUrl: string, onUpdate?: (progress: number, total: number) => void) => {
+const download = async (downloadUrl: string, options: { tocRegList: RegExp[] }, onUpdate?: (progress: number, total: number) => void) => {
   const data = await downloadWithProgress(downloadUrl, onUpdate)
   if (downloadUrl.endsWith('.txt')) {
     const content = decodeText(data.buffer)
-    const chapterList = parseChapterList(content)
+    const chapterList = parseChapterList(content, { regList: options.tocRegList })
     return {
       content,
       maxCursor: chapterList[chapterList.length - 1].cursorEnd,
@@ -29,13 +30,13 @@ export class OnlineService {
     if (!book) {
       throw new Error('Book not found')
     }
-    const { id: onlineBookId, title, cover, downloadUrl } = book
-    const result = await download(downloadUrl, onUpdate)
+    const { id: onlineBookId, title, cover, downloadUrl, tocRegList = defaultTocRegList } = book
+    const result = await download(downloadUrl, { tocRegList }, onUpdate)
     if (!result) {
       throw new Error('下载失败')
     }
     const { content, maxCursor, chapterList } = result
-    const bookId = await booksStore.add({ title, cover, onlineBookId, maxCursor })
+    const bookId = await booksStore.add({ title, cover, onlineBookId, maxCursor, tocRegList })
     await Promise.all([
       contentStore.add({ bookId: bookId as number, content }),
       chapterListStore.add({ bookId: bookId as number, chapterList })

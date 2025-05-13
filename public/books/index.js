@@ -76,13 +76,22 @@ window.remoteBooks = [
     id: '13',
     cover: coverUrl('wxkb'),
     title: '无限恐怖',
-    downloadUrl: bookUrl('无限恐怖')
+    downloadUrl: bookUrl('无限恐怖'),
+    tocRegList: [
+      /^(上半部|下半部)/,
+      /^第[一二三四五六七八九十零百千万亿]+[集]\s*[：:·\-—]?\s*(.+)$/,
+      /^第[一二三四五六七八九十零百千万亿\d]+[章]\s*[：:·\-—]?\s*(.+)$/,
+    ]
   },
   {
     id: '14',
     cover: coverUrl('asjct'),
     title: '傲世九重天',
-    downloadUrl: bookUrl('傲世九重天')
+    downloadUrl: bookUrl('傲世九重天'),
+    tocRegList: [
+      /^第[一二三四五六七八九十]部\s/,
+      /^第[一二三四五六七八九十零百千万亿\d]+[章]\s*[：:·\-—]?\s*(.+)$/,
+    ]
   },
   {
     id: '15',
@@ -94,6 +103,10 @@ window.remoteBooks = [
     id: '16',
     cover: coverUrl('tsxk'),
     title: '吞噬星空',
-    downloadUrl: bookUrl('吞噬星空')
+    downloadUrl: bookUrl('吞噬星空'),
+    tocRegList: [
+      /^第.{1,5}篇\s/,
+      /^第[一二三四五六七八九十零百千万亿\d]+[章]\s*[：:·\-—]?\s*(.+)$/
+    ]
   }
 ]

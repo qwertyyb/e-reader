@@ -12,7 +12,8 @@ interface IBook {
 
 interface ILocalBook extends IBook {
   onlineBookId?: string,
-  maxCursor: number
+  maxCursor: number,
+  tocRegList?: RegExp[]
 }
 
 interface IBookItem extends IBook {
@@ -82,6 +83,7 @@ interface IRemoteBook {
   title: string
   cover: string
   downloadUrl: string
+  tocRegList?: RegExp[]
 }
 
 interface IMarkEntity {

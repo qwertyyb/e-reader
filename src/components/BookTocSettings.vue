@@ -25,18 +25,19 @@
         <input type="text" class="setting-input" v-model.trim="tocSettings[index]">
       </li>
       <li class="setting-item btns-item">
-        <button class="preview-toc-btn btn" @click="$emit('preview', tocSettings)">预览</button>
+        <button class="preview-toc-btn btn" @click="$emit('confirm', tocSettings)">确认</button>
       </li>
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import { level1ChapterRegexp, level2ChapterRegexp } from '@/config';
+import { defaultTocRegList } from '@/config';
 
-defineEmits<{ preview: [string[]] }>()
+
+defineEmits<{ confirm: [string[]] }>()
 const tocSettings = defineModel<string[]>('model-value', {
-  default: () => ([level1ChapterRegexp, level2ChapterRegexp])
+  default: () => defaultTocRegList.map(reg => reg.source)
 })
 
 const upTocItem = (index: number) => {
@@ -118,10 +119,11 @@ const insertAfter = (index: number) => {
   font-weight: 500;
   background: none;
 }
-
-.preview-header {
+.btns-item {
   display: flex;
-  justify-content: space-between;
-  width: 100%;
+  justify-content: center;
+  &:deep(.btn) {
+    font-size: 16px;
+  }
 }
 </style>
