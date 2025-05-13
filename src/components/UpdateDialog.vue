@@ -17,7 +17,7 @@ import { onBeforeUnmount, ref } from "vue";
 import { updateInterval } from '@/constant';
 import { version } from '@/version';
 
-const visible = ref(true)
+const visible = ref(false)
 const newVersionInfo = ref({
   version: '',
   changelog: ''
@@ -80,7 +80,16 @@ onBeforeUnmount(() => {
 .markdown-changelog {
   max-height: 60vh;
   overflow: auto;
-  margin: 12px 0;
+  margin-bottom: 12px;
+  margin-top: -12px;
+  &:deep() {
+    h2 {
+      margin-block: 0.5em;
+    }
+    h3 {
+      margin-block: 0.4em;
+    }
+  }
 }
 .update-dialog .update-actions {
   display: flex;
