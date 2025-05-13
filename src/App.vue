@@ -46,10 +46,28 @@ async function onLeave(el: Element, done: () => void) {
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .root-app {
   min-height: 100vh;
   background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
 }
-
+.btn {
+  padding: 4px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  border: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
+  font-weight: 500;
+  &.primary-btn {
+    background: rgb(56, 66, 255);
+    color: #fff;
+    border: none;
+  }
+  &.text-btn {
+    color: rgb(56, 66, 255);
+    border: none;
+  }
+  & + .btn {
+    margin-left: 12px;
+  }
+}
 </style>

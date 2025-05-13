@@ -1,6 +1,7 @@
 
 import { level1ChapterRegexp, level2ChapterRegexp } from '@/config';
 import { decodeText } from '@/utils';
+import { generateBookCover } from '@/utils/cover';
 
 export const parseChapterList = (
   content: string,
@@ -62,6 +63,7 @@ export const parseTxtFile = async (file: File, options: { tocRegList: RegExp[] }
   return {
     title,
     content,
+    cover: await generateBookCover(title),
     maxCursor: content.split('\n').length - 1,
     chapterList
   }

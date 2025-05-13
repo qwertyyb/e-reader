@@ -89,5 +89,11 @@ window.remoteBooks = [
     cover: coverUrl('st'),
     title: '三体(全集)',
     downloadUrl: bookUrl('【精】三体（全集）', 'epub')
+  },
+  {
+    id: '16',
+    cover: coverUrl('tsxk'),
+    title: '吞噬星空',
+    downloadUrl: bookUrl('吞噬星空')
   }
 ]

@@ -5,23 +5,7 @@
     <p class="select-tips">支持 txt 和 epub 文件</p>
   </div>
   <div class="import-view">
-    <section class="settings-section" v-if="fileName.endsWith('.txt')">
-      <h2 class="settings-section-title">目录设置</h2>
-      <ul class="toc-settings settings-content">
-        <li class="setting-item">
-          <h3 class="setting-item-label">一级目录</h3>
-          <input type="text" class="setting-input" v-model.trim="bookConfig.toc.level1">
-        </li>
-        <li class="setting-item">
-          <h3 class="setting-item-label">二级目录</h3>
-          <input type="text" class="setting-input" v-model.trim="bookConfig.toc.level2">
-        </li>
-        <li class="setting-item btns-item">
-          <button class="preview-toc-btn btn" @click="previewToc">预览</button>
-          <button class="save-toc-btn btn primary-btn" @click="saveBook(true)">保存</button>
-        </li>
-      </ul>
-    </section>
+    <book-toc-settings v-model="bookConfig.toc" v-if="fileName.endsWith('.txt')" @click="parseFile()"></book-toc-settings>
     <section class="book-info" v-if="bookInfo">
       <h3 class="book-info-title">书籍信息</h3>
       <img :src="bookInfo.cover" alt="" class="book-cover">
@@ -29,7 +13,7 @@
       <p class="word-count">{{ wordCount }}字</p>
       <ul class="chapter-info">
         <li class="chapter-info-item">{{ chapterInfo.levelsCount }}个目录层级</li>
-        <li class="chapter-info-item" v-for="(count, key) in chapterInfo.levelCount" :key="key">{{count}} 个一级目录</li>
+        <li class="chapter-info-item" v-for="(count, key) in chapterInfo.levelCount" :key="key">{{count}} 个{{key}}级目录</li>
       </ul>
       <div class="btns">
         <button class="btn" @click="previewToc">预览目录</button>
@@ -57,6 +41,7 @@
 <script setup lang="ts">
 import CDialog from '@/components/common/CDialog.vue';
 import ChapterList from '@/components/ChapterList.vue'
+import BookTocSettings from '@/components/BookTocSettings.vue';
 import { parseTxtFile } from '@/services/txt-file';
 import { blobToBase64, showToast } from '@/utils';
 import { computed, ref, shallowRef, toRaw } from 'vue';
@@ -70,10 +55,10 @@ import { parseMobiFile } from '@/services/mobi';
 const router = useRouter()
 
 const bookConfig = ref({
-  toc: {
-    level1: level1ChapterRegexp,
-    level2: level2ChapterRegexp
-  }
+  toc: [
+    level1ChapterRegexp,
+    level2ChapterRegexp
+  ]
 })
 
 const bookInfo = shallowRef<{
@@ -97,6 +82,7 @@ const selectFile = async () => {
   })
   if (!selectedFile) return;
   file = selectedFile
+  fileName.value = selectedFile.name
   parseFile()
 }
 
@@ -143,31 +129,11 @@ const parseFile = async () => {
     return;
   }
   if (file.name.endsWith('.txt')) {
-    const regList: RegExp[] = []
-    if (bookConfig.value.toc.level1) {
-      try {
-        regList.push(new RegExp(bookConfig.value.toc.level1))
-      } catch(err) {
-        showToast('一级目录不正确')
-        throw err
-      }
-    }
-    if (bookConfig.value.toc.level2) {
-      try {
-        regList.push(new RegExp(bookConfig.value.toc.level2))
-      } catch(err) {
-        showToast('二级目录不正确')
-        throw err
-      }
-    }
-    if (!regList) {
-      showToast('请至少配置一个目录')
-      throw new Error('no avaliable toc config')
-    }
     try {
-      const result = await parseTxtFile(file)
-      bookInfo.value = { cover: '', title: result.title, content: result.content, maxCursor: result.maxCursor }
+      const result = await parseTxtFile(file, { tocRegList: getTocRegList() })
+      bookInfo.value = { cover: await blobToBase64(result.cover), title: result.title, content: result.content, maxCursor: result.maxCursor }
       chapterList.value = result.chapterList
+      return
     } catch (err) {
       showToast('导入失败')
       throw err
@@ -187,6 +153,23 @@ const parseFile = async () => {
     showToast('导入失败')
     throw err
   }
+}
+
+const getTocRegList = () => {
+  const regList: RegExp[] = []
+  bookConfig.value.toc.forEach(reg => {
+    try {
+      regList.push(new RegExp(reg))
+    } catch(err) {
+      showToast('一级目录不正确')
+      throw err
+    }
+  })
+  if (!regList) {
+    showToast('请至少配置一个目录')
+    throw new Error('no avaliable toc config')
+  }
+  return regList
 }
 
 const previewToc = () => {
