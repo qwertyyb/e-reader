@@ -1,31 +1,23 @@
 <template>
-  <c-dialog class="update-dialog" :visible="visible" @close="visible=false">
-    <div class="update-title">
-      已检测到新的版本
-    </div>
-    <div class="version-info">
-      最新版本: {{ newVersionInfo.version }} <br>
-      当前版本: {{ version }}
-    </div>
-    <div class="changelog" v-if="false">
-      更新内容: xxxx
-    </div>
+  <c-dialog class="update-dialog" :title="`新的版本已发布`" :visible="visible" @close="visible=false">
+    <vue-markdown :source="newVersionInfo.changelog" class="markdown-changelog"></vue-markdown>
     <div class="update-actions">
-      <button class="cancel-btn" @click="visible=false">取消</button>
-      <button class="confirm-btn" @click="update">更新</button>
+      <button class="btn" @click="visible=false">取消</button>
+      <button class="btn primary-btn" @click="update">更新</button>
     </div>
   </c-dialog>
 </template>
 
 <script setup lang="ts">
 import CDialog from "@/components/common/CDialog.vue";
+import VueMarkdown from "vue-markdown-render";
 import { bridge } from "@/register-sw";
 import { showToast } from "@/utils";
 import { onBeforeUnmount, ref } from "vue";
 import { updateInterval } from '@/constant';
+import { version } from '@/version';
 
 const visible = ref(true)
-const version = ref('')
 const newVersionInfo = ref({
   version: '',
   changelog: ''
@@ -33,27 +25,32 @@ const newVersionInfo = ref({
 
 const checkUpdates = async ({ slient = false } = {}) => {
   if (!slient) showToast('正在检查更新')
-  await getVersion()
-  const { version: newVer } = await import(/* @vite-ignore */`${new URL('./version.js?remote=true&_t' + Date.now(), location.href)}`)
-  if (newVer !== version.value) {
-    newVersionInfo.value = {
-      version: newVer,
-      changelog: ''
-    }
-    visible.value = true
-  } else {
+  const r = await fetch(`https://qwertyyb.github.io/e-reader/releases.json?_t=${Date.now()}`)
+  console.log(r)
+  if (!r.ok) {
     if (!slient) showToast('当前已是最新版本')
+    return;
   }
+  const json = await r.json()
+  const releases = json.releases as { version: string, buildVersion: number, changelog: string }[] || []
+  const latest = releases[0]
+  if (!latest || latest.version === version) {
+    if (!slient) showToast('当前已是最新版本')
+    return;
+  }
+  const curVersionIndex = releases.findIndex(item => item.version === version)
+  const versions = curVersionIndex >= 0 ? releases.slice(0, curVersionIndex + 1) : releases.slice()
+  const changelog = versions.map(item => `## v${item.version}\n${item.changelog.trim() || '暂无更新内容'}`).join('\n')
+  newVersionInfo.value = {
+    version: latest.version,
+    changelog,
+  }
+  console.log(newVersionInfo.value)
 }
 
 const update = async () => {
   await bridge.invoke('deleteAllCache')
   location.reload()
-}
-
-const getVersion = async () => {
-  const { version: curVer } = await import('@/version.ts')
-  version.value = curVer
 }
 
 let interval: ReturnType<typeof setInterval>
@@ -82,31 +79,18 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
-// .update-dialog::v-deep(.c-dialog-content) {
-//   width: 100vw;
-//   box-sizing: border-box;
-//   padding: 20px 20px max(20px, var(--saib)) 20px;
-// }
-.update-dialog .update-title {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 12px;
-}
-.update-dialog .version-info {
-  font-size: 16px;
-  margin-bottom: 12px;
+.markdown-changelog {
+  max-height: 60vh;
+  overflow: auto;
+  margin: 12px 0;
 }
 .update-dialog .update-actions {
   display: flex;
   justify-content: space-between;
 }
 .update-dialog .update-actions button {
-  border: none;
   font-size: 18px;
   flex: 1;
   padding: 6px 0;
-}
-.update-dialog .update-actions .confirm-btn {
-  margin-left: 20px;
 }
 </style>
