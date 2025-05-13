@@ -8,7 +8,7 @@ const updateFilePath = join(fileURLToPath(import.meta.url), '../../dist/releases
 console.log('update file path', updateFilePath)
 
 const insertVersion = async (version = 'v0.1.0', changelog = '##feature \n - 添加新的特性', { buildVersion }) => {
-  const releases = []
+  let releases = []
   const r = await fetch(`${updateUrl}?_t=${Date.now()}`)
   if (r.ok) {
     const json = await r.json()

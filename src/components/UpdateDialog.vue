@@ -24,7 +24,7 @@ import { showToast } from "@/utils";
 import { onBeforeUnmount, ref } from "vue";
 import { updateInterval } from '@/constant';
 
-const visible = ref(false)
+const visible = ref(true)
 const version = ref('')
 const newVersionInfo = ref({
   version: '',
@@ -82,11 +82,11 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
-.update-dialog::v-deep(.c-dialog-content) {
-  width: 100vw;
-  box-sizing: border-box;
-  padding: 20px 20px max(20px, var(--saib)) 20px;
-}
+// .update-dialog::v-deep(.c-dialog-content) {
+//   width: 100vw;
+//   box-sizing: border-box;
+//   padding: 20px 20px max(20px, var(--saib)) 20px;
+// }
 .update-dialog .update-title {
   font-size: 18px;
   font-weight: bold;
