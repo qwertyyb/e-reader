@@ -1,0 +1,28 @@
+import { writeFileSync } from "node:fs"
+import { join } from "node:path"
+import { fileURLToPath } from "node:url"
+
+const updateUrl = 'https://qwertyyb.github.io/e-reader/releases.json'
+
+const updateFilePath = join(fileURLToPath(import.meta.url), 'releases.json')
+
+const insertVersion = async (version = 'v0.1.0', changelog = '##feature \n - 添加新的特性', { buildVersion }) => {
+  const releases = []
+  const r = await fetch(`${updateUrl}?_t=${Date.now()}`)
+  if (r.ok) {
+    const json = await r.json()
+    releases = json.releases || []
+  }
+  releases.unshift({
+    version,
+    buildVersion,
+    changelog,
+    pubDate: new Date().toISOString()
+  })
+  const json = JSON.stringify({ releases })
+  writeFileSync(updateFilePath, json)
+}
+
+console.log('env', process.env)
+
+insertVersion(process.env.APP_VERSION, process.env.CHANGELOG, { buildVersion: Number(process.env.BUILDVERSION) })

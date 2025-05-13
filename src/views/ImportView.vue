@@ -129,8 +129,8 @@ const parseFile = async () => {
   if (file.name.endsWith('.txt')) {
     try {
       const result = await parseTxtFile(file, { tocRegList: getTocRegList() })
-      bookInfo.value = { cover: await blobToBase64(result.cover), title: result.title, content: result.content, maxCursor: result.maxCursor }
       chapterList.value = result.chapterList
+      bookInfo.value = { cover: await blobToBase64(result.cover), title: result.title, content: result.content, maxCursor: result.maxCursor }
       return
     } catch (err) {
       showToast('导入失败')
