@@ -52,6 +52,7 @@ jobs:
           skip-commit: "true"
           output-file: "false"
           skip-on-empty: 'false'
+          skip-tag: 'false'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
