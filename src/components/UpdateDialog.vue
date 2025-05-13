@@ -44,6 +44,7 @@ const checkUpdates = async ({ slient = false } = {}) => {
     version: latest.version,
     changelog,
   }
+  visible.value = true
 }
 
 const update = async () => {
