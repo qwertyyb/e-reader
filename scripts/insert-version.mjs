@@ -4,7 +4,8 @@ import { fileURLToPath } from "node:url"
 
 const updateUrl = 'https://qwertyyb.github.io/e-reader/releases.json'
 
-const updateFilePath = join(fileURLToPath(import.meta.url), 'releases.json')
+const updateFilePath = join(fileURLToPath(import.meta.url), '../../dist/releases.json')
+console.log('update file path', updateFilePath)
 
 const insertVersion = async (version = 'v0.1.0', changelog = '##feature \n - 添加新的特性', { buildVersion }) => {
   const releases = []
@@ -22,7 +23,5 @@ const insertVersion = async (version = 'v0.1.0', changelog = '##feature \n - 添
   const json = JSON.stringify({ releases })
   writeFileSync(updateFilePath, json)
 }
-
-console.log('env', process.env)
 
 insertVersion(process.env.APP_VERSION, process.env.CHANGELOG, { buildVersion: Number(process.env.BUILDVERSION) })
