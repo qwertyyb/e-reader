@@ -26,7 +26,6 @@ const newVersionInfo = ref({
 const checkUpdates = async ({ slient = false } = {}) => {
   if (!slient) showToast('正在检查更新')
   const r = await fetch(`https://qwertyyb.github.io/e-reader/releases.json?_t=${Date.now()}`)
-  console.log(r)
   if (!r.ok) {
     if (!slient) showToast('当前已是最新版本')
     return;
@@ -45,7 +44,6 @@ const checkUpdates = async ({ slient = false } = {}) => {
     version: latest.version,
     changelog,
   }
-  console.log(newVersionInfo.value)
 }
 
 const update = async () => {
