@@ -4,7 +4,6 @@
       class="menu-dialog"
       @close="$emit('close')">
       <ul class="menu">
-        <li class="menu-item" @click="dialog='fonts'">字体管理</li>
         <li class="menu-item" @click="clearCache()">清除缓存</li>
         <li class="menu-item" @click="checkUpdates()">检查更新</li>
         <li class="menu-item" @click="dialog='about'">关于EInk Reader</li>
@@ -23,6 +22,8 @@ import { ref } from 'vue';
 
 defineProps<{ visible: boolean }>()
 
+const emits = defineEmits<{ close: [] }>()
+
 const dialog = ref<string | null>(null)
 
 const clearCache = async () => {
@@ -30,6 +31,7 @@ const clearCache = async () => {
   showToast('缓存已清除')
 }
 const checkUpdates = async () => {
+  emits('close')
   document.dispatchEvent(new CustomEvent('app:checkupdates', { detail: { slient: false } }))
 }
 </script>
