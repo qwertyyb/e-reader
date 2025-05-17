@@ -1,6 +1,8 @@
 <template>
   <div class="chapter-contents" ref="el">
-    <div class="chapter-contents-wrapper" @scroll="scrollHandler" @touchstart="pointerDownHandler" @touchend="pointerUpHandler"></div>
+    <div class="chapter-contents-wrapper" @scroll="scrollHandler"
+      @touchstart="abortUpdate"
+      @touchmove="abortUpdate"></div>
   </div>
 </template>
 
@@ -25,13 +27,10 @@ const el = useTemplateRef('el')
 
 const keeps = 5
 
-let touching = false
-const pointerDownHandler = () => {
-  touching = true
-}
-const pointerUpHandler = () => {
-  touching = false
-  updateProgress()
+let updateAbortController: AbortController | null = null
+
+const abortUpdate = () => {
+  updateAbortController?.abort()
 }
 
 const renderChapterContents = (contents: HTMLElement[]) => {
@@ -40,7 +39,7 @@ const renderChapterContents = (contents: HTMLElement[]) => {
     console.warn('dom未挂载')
     return;
   }
-  const wrapper = el.value.querySelector('.chapter-contents-wrapper')!
+  const wrapper = el.value.querySelector<HTMLElement>('.chapter-contents-wrapper')!
   if (!wrapper.childElementCount) {
     // 如果是空的，直接插入进去就行，不需要考虑其他
     wrapper.replaceChildren(...contents)
@@ -70,13 +69,14 @@ const renderChapterContents = (contents: HTMLElement[]) => {
   const { top: newTop } = newChapterEl.getBoundingClientRect()
 
   // 5. 计算需要滚动的位置并滚动
+  // 需要先停掉正在进行的滚动，避免设置 scrollTop 不生效
+  wrapper.style.overflow = 'hidden'
   const distance = newTop - oldTop
   wrapper.scrollTop += distance
+  wrapper.style.overflow = ''
 }
 
-let lastLoadChapterId: string | null = null
-const loadContents = async (chapterId: string) => {
-  if (chapterId === lastLoadChapterId) return;
+const loadContents = async (chapterId: string, options?: { signal: AbortSignal }) => {
   lastLoadChapterId = chapterId
   // 如果指定了 ChapterId，则加载 ChapterId 前后的几个章节
   const targetIndex = Math.max(0, props.chapterList.findIndex(chapter => chapter.id === chapterId))
@@ -94,10 +94,26 @@ const loadContents = async (chapterId: string) => {
     }
   }
 
-  // 如果手指未离开屏幕，则不执行更新
-  if (touching) return;
+  // 如果已取消，就不再渲染了
+  if (options?.signal.aborted) {
+    throw new Error('render cancelled')
+  }
 
   renderChapterContents(contents.filter(Boolean) as HTMLElement[])
+}
+
+let lastLoadChapterId: string | null = null
+const loadContentsWithSignal = (chapterId: string) => {
+  // 当前的 chapterId 和即将要加载的 chapterId 一致，则无须加载
+  if (chapterId === lastLoadChapterId) return;
+
+  updateAbortController?.abort()
+  updateAbortController = new AbortController()
+  return loadContents(chapterId, { signal: updateAbortController.signal })
+    .then((res) => {
+      lastLoadChapterId = null
+      return res
+    })
 }
 
 const scrollToCursor = async (cursor: number) => {
@@ -110,7 +126,7 @@ const scrollToCursor = async (cursor: number) => {
 const updateProgress = () => {
   const progress = getCurrentProgress()
   if (!progress) return;
-  loadContents(progress.chapter.id);
+  loadContentsWithSignal(progress.chapter.id)
 
   emits('progress', progress)
 }
@@ -157,10 +173,10 @@ const getCurrentProgress = () => {
 
 // 经测试，发现 safari 在正在滚动时，无法接受滚动位置的突变，即修改 scrollTop 时，会出现非预期行为
 // 所以此处需要等待滚动结束后再更新内容区域，具体实现为防抖(safari 目前暂不支持 scrollend 事件)
-const scrollHandler = debounce(updateProgress)
+const scrollHandler = debounce(updateProgress, 500)
 
 const init = async () => {
-  await loadContents(props.defaultChapterId)
+  await loadContentsWithSignal(props.defaultChapterId)
   scrollToCursor(props.defaultCursor)
 }
 
@@ -168,7 +184,7 @@ init()
 
 defineExpose({
   async jump(options: { chapterId: string, cursor: number }) {
-    await loadContents(options.chapterId)
+    await loadContentsWithSignal(options.chapterId)
     scrollToCursor(options.cursor)
   },
   scroll: (() => {
