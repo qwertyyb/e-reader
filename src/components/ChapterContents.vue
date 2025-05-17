@@ -106,12 +106,12 @@ let lastLoadChapterId: string | null = null
 const loadContentsWithSignal = (chapterId: string) => {
   // 当前的 chapterId 和即将要加载的 chapterId 一致，则无须加载
   if (chapterId === lastLoadChapterId) return;
-
+  
   updateAbortController?.abort()
   updateAbortController = new AbortController()
   return loadContents(chapterId, { signal: updateAbortController.signal })
     .then((res) => {
-      lastLoadChapterId = null
+      lastLoadChapterId = chapterId
       return res
     })
 }
