@@ -1,5 +1,5 @@
 <template>
- <c-dialog :visible="visible" @close="$emit('close')" class="range-marks-dialog">
+ <c-dialog :visible="visible" title="笔记" @close="$emit('close')" class="range-marks-dialog">
     <mark-list :mark-list="markDataList" @remove="removeMark"></mark-list>
   </c-dialog>
 </template>
@@ -35,6 +35,7 @@ const refresh = async() => {
     const end = start + length
     return rs <= start && start <= re || rs <= end && end <= re
   })
+  console.log(markDataList.value)
 }
 
 const removeMark = async (mark: IMarkEntity) => {
