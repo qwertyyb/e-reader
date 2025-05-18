@@ -38,6 +38,15 @@
       @close="dialog=null"
     ></book-info-dialog>
 
+    <c-dialog
+      title="AI问书"
+      :visible="dialog==='ai'"
+      class="ai-chat-dialog"
+      @close="dialog=null"
+    >
+      <a-i-chat-view></a-i-chat-view>
+    </c-dialog>
+
     <marks-dialog
       :book-id="bookId"
       :visible="dialog==='marksViewer'"
@@ -78,6 +87,7 @@ import MarksDialog from '@/components/MarksDialog.vue';
 import SearchDialog from '@/components/SearchDialog.vue';
 import BookInfoDialog from '@/components/BookInfoDialog.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
+import AIChatView from '@/views/AIChatView.vue';
 import { env } from '@/utils/env';
 import router from '@/router';
 import ReadControl from '@/components/ReadControl.vue';
@@ -230,5 +240,9 @@ defineExpose({
   top: 0;
   left: 0;
   right: 0;
+}
+:global(.ai-chat-dialog .ai-chat-view) {
+  height: 70vh;
+  padding: 0;
 }
 </style>

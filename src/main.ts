@@ -1,7 +1,9 @@
 import { register, unregister } from './register-sw'
+import MateChat from '@matechat/core';
 import './assets/main.css'
 import 'material-symbols/outlined.css'
-// import 'scrollyfills'
+
+import '@devui-design/icons/icomoon/devui-icon.css';
 
 import VirtualList from 'vue-virtual-list-v3'
 import { createApp } from 'vue'
@@ -19,6 +21,7 @@ app.use(createPinia())
 app.use(router)
 app.use(VirtualList)
 app.directive('loading', ElLoadingDirective)
+app.use(MateChat)
 
 app.mount('#app')
 

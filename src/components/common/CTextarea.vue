@@ -51,6 +51,7 @@ textarea {
   font-size: 16px;
   height: calc(16px + 16px * 1.4);
   box-sizing: border-box;
+  border-radius: inherit;
   &::-webkit-scrollbar {
     display: none;
   }

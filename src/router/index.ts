@@ -3,6 +3,7 @@ import TabView from '@/views/TabView.vue'
 import BookListView from '@/views/BookListView.vue'
 import ReadView from '@/views/ReadView.vue'
 import ImportView from '@/views/ImportView.vue'
+import AIChatView from '@/views/AIChatView.vue'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -46,6 +47,18 @@ const router = createRouter({
       name: 'import',
       props: true,
       component: ImportView
+    },
+    {
+      path: '/ai',
+      name: 'ai',
+      children: [
+        {
+          path: 'chat',
+          name: 'ai-chat',
+          props: true,
+          component: AIChatView
+        }
+      ]
     }
   ],
 })

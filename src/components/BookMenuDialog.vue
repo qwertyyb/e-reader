@@ -20,6 +20,10 @@
         <span class="material-symbols-outlined menu-item-icon">info</span>
         <div class="menu-item-label">书籍信息</div>
       </li>
+      <li class="menu-item" @click="() => $emit('action', 'ai')">
+        <span class="material-symbols-outlined menu-item-icon">info</span>
+        <div class="menu-item-label">AI问书</div>
+      </li>
     </ul>
   </c-dialog>
 </template>
@@ -32,7 +36,7 @@ import { exportBookMarkListByBookId } from '@/utils/mark';
 const props = defineProps<{ visible: boolean, bookId: number }>()
 
 const emits = defineEmits<{
-  action: ['marksViewer' | 'exportMarks' | 'search' | 'info'],
+  action: ['marksViewer' | 'exportMarks' | 'search' | 'info' | 'ai'],
   close: []
 }>()
 

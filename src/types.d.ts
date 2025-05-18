@@ -110,6 +110,12 @@ interface ISettings {
   lineHeight: number
   speed: number
   readSpeakRate: number
+
+  openai?: {
+    baseURL: string,
+    model: string,
+    apiKey: string
+  }
 }
 
 interface Window {
