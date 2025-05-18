@@ -49,5 +49,6 @@ defineEmits<{ menu: [] }>()
   width: 28px;
   text-align: center;
   cursor: pointer;
+  font-size: 24px;
 }
 </style>

@@ -21,7 +21,7 @@
         <div class="menu-item-label">书籍信息</div>
       </li>
       <li class="menu-item" @click="() => $emit('action', 'ai')">
-        <span class="material-symbols-outlined menu-item-icon">info</span>
+        <span class="material-symbols-outlined menu-item-icon">mindfulness</span>
         <div class="menu-item-label">AI问书</div>
       </li>
     </ul>
