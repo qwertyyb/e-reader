@@ -1,7 +1,7 @@
 import { register, unregister } from './register-sw'
 import './assets/main.css'
 import 'material-symbols/outlined.css'
-import 'scrollyfills'
+// import 'scrollyfills'
 
 import VirtualList from 'vue-virtual-list-v3'
 import { createApp } from 'vue'

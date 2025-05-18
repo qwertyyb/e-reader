@@ -1,6 +1,10 @@
 <template>
   <div class="chapter-contents" ref="el">
-    <div class="chapter-contents-wrapper" @scrollend="scrollHandler"></div>
+    <div class="chapter-contents-wrapper"
+      @scroll="scrollHandler"
+      @touchstart="touchStartHandler"
+      @touchend="touchEndHandler"
+      @touchcancel="touchCancelHandler"></div>
   </div>
 </template>
 
@@ -26,6 +30,20 @@ const el = useTemplateRef('el')
 const keeps = 5
 
 let updateAbortController: AbortController | null = null
+
+const abortUpdate = () => {
+  updateAbortController?.abort()
+}
+
+let touching = false
+const touchStartHandler = () => {
+  touching = true
+  abortUpdate()
+}
+const touchCancelHandler = () => {
+  touching = false
+}
+const touchEndHandler = () => { touching = false }
 
 const renderChapterContents = (contents: HTMLElement[]) => {
   // vue 的渲染不太可控，自行渲染
@@ -89,7 +107,7 @@ const loadContents = async (chapterId: string, options?: { signal: AbortSignal }
   }
 
   // 如果已取消，就不再渲染了
-  if (options?.signal.aborted) {
+  if (options?.signal.aborted || touching) {
     throw new Error('render cancelled')
   }
 
@@ -167,7 +185,7 @@ const getCurrentProgress = () => {
 
 // 经测试，发现 safari 在正在滚动时，无法接受滚动位置的突变，即修改 scrollTop 时，会出现非预期行为
 // 所以此处需要等待滚动结束后再更新内容区域，具体实现为防抖(safari 目前暂不支持 scrollend 事件)
-const scrollHandler = debounce(updateProgress, 500)
+const scrollHandler = debounce(() => { if (!touching) { updateProgress() } }, 500)
 
 const init = async () => {
   await loadContentsWithSignal(props.defaultChapterId)

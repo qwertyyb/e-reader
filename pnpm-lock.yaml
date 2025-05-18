@@ -87,9 +87,6 @@ importers:
       sass-embedded:
         specifier: ^1.83.0
         version: 1.83.0
-      scrollyfills:
-        specifier: ^1.0.3
-        version: 1.0.3
       typescript:
         specifier: ~5.6.3
         version: 5.6.3
@@ -1652,9 +1649,6 @@ packages:
     resolution: {integrity: sha512-/8cYZeL39evUqe0o//193na51Q1VWZ61qhxioQvLJwOtWIrX+PgNhCyD8RSuTtmzc4+6+waFZf899bfp/MCUwA==}
     engines: {node: '>=16.0.0'}
     hasBin: true
-
-  scrollyfills@1.0.3:
-    resolution: {integrity: sha512-lJCEJbk/o8BFJbJYKyQn1njf9o3U6O9mDpM8gOAsA+yKbXk6gFClfsChnbPPm1eb4pjaJmSwxka5im0cBoKefw==}
 
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
@@ -3464,8 +3458,6 @@ snapshots:
       sass-embedded-win32-arm64: 1.83.0
       sass-embedded-win32-ia32: 1.83.0
       sass-embedded-win32-x64: 1.83.0
-
-  scrollyfills@1.0.3: {}
 
   semver@6.3.1: {}
 
