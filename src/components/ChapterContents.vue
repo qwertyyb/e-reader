@@ -1,8 +1,6 @@
 <template>
   <div class="chapter-contents" ref="el">
-    <div class="chapter-contents-wrapper" @scroll="scrollHandler"
-      @touchstart="abortUpdate"
-      @touchmove="abortUpdate"></div>
+    <div class="chapter-contents-wrapper" @scrollend="scrollHandler"></div>
   </div>
 </template>
 
@@ -28,10 +26,6 @@ const el = useTemplateRef('el')
 const keeps = 5
 
 let updateAbortController: AbortController | null = null
-
-const abortUpdate = () => {
-  updateAbortController?.abort()
-}
 
 const renderChapterContents = (contents: HTMLElement[]) => {
   // vue 的渲染不太可控，自行渲染
@@ -106,7 +100,7 @@ let lastLoadChapterId: string | null = null
 const loadContentsWithSignal = (chapterId: string) => {
   // 当前的 chapterId 和即将要加载的 chapterId 一致，则无须加载
   if (chapterId === lastLoadChapterId) return;
-  
+
   updateAbortController?.abort()
   updateAbortController = new AbortController()
   return loadContents(chapterId, { signal: updateAbortController.signal })
