@@ -75,7 +75,6 @@
 import { computed, nextTick, ref, toRaw } from 'vue';
 import OpenAI from 'openai';
 import CTextarea from '@/components/common/CTextarea.vue';
-import 'vue-devui/button/style.css';
 import type { Stream } from 'openai/streaming.mjs';
 import { showToast } from '@/utils';
 import { settings } from '@/stores/settings';
