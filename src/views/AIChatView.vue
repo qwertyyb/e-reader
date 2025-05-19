@@ -1,5 +1,8 @@
 <template>
   <section class="container ai-chat-view">
+    <header class="chat-header" v-if="!noHeader">
+      <span class="material-symbols-outlined settings-icon" @click="aisettingsVisible=true">settings</span>
+    </header>
     <main class="message-list-container start-page" v-if="startPage">
       <div class="start-page-logo-container" @click="aisettingsVisible=true">
         <img :src="'./icons/icon64.png'" alt="" class="start-page-logo">
@@ -27,7 +30,7 @@
               <span>已深度思考(用时{{msg.timeCost}}秒)</span>
               <span class="material-symbols-outlined toggle-icon">keyboard_arrow_down</span>
             </div>
-            <McMarkdownCard :content="msg.content"></McMarkdownCard>
+            <markdown-viewer :markdown="msg.content"></markdown-viewer>
             <span class="material-symbols-outlined loading-icon">progress_activity</span>
           </div>
         </li>
@@ -77,7 +80,12 @@ import type { Stream } from 'openai/streaming.mjs';
 import { showToast } from '@/utils';
 import { settings } from '@/stores/settings';
 import CDialog from '@/components/common/CDialog.vue';
+import MarkdownViewer from '@/components/MarkdownViewer.vue';
 import { saveSettings } from '@/utils/settings';
+
+defineProps<{
+  noHeader?: boolean
+}>()
 
 let client: OpenAI | null = settings.value.openai?.baseURL && settings.value.openai.apiKey ? new OpenAI({
   apiKey: settings.value.openai?.apiKey, // 模型APIKey
@@ -197,8 +205,18 @@ const fetchData = async (query: string) => {
 <style lang="scss" scoped>
 .ai-chat-view {
   height: 100vh;
-  padding: 20px;
   gap: 8px;
+}
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 16px;
+  height: 32px;
+  font-size: 24px;
+  .settings-icon {
+    cursor: pointer;
+  }
 }
 
 .message-list-container {
@@ -233,6 +251,7 @@ const fetchData = async (query: string) => {
   width: 100%;
   margin-top: auto;
   font-size: 14px;
+  padding: 0 16px;
   .start-page-prompt {
     padding: 4px 16px;
     border: 1px solid light-dark(#dadada, #333);
@@ -246,6 +265,7 @@ const fetchData = async (query: string) => {
   flex-direction: column;
   gap: 16px;
   list-style: none;
+  padding: 0 16px;
 }
 .message-item {
   padding: 6px 12px;
@@ -323,12 +343,12 @@ const fetchData = async (query: string) => {
 .chat-footer {
   display: flex;
   align-items: flex-end;
+  padding: 0 16px;
   .text-input {
     border-radius: 6px;
     flex: 1;
   }
   button {
-    color: #fff;
     margin-left: 12px;
     display: flex;
     align-items: center;

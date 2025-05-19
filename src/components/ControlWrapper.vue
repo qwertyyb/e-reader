@@ -44,7 +44,7 @@
       class="ai-chat-dialog"
       @close="dialog=null"
     >
-      <a-i-chat-view></a-i-chat-view>
+      <a-i-chat-view no-header></a-i-chat-view>
     </c-dialog>
 
     <marks-dialog

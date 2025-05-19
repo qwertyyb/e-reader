@@ -1,6 +1,6 @@
 <template>
   <c-dialog class="update-dialog" :title="`新的版本已发布`" :visible="visible" @close="visible=false">
-    <vue-markdown :source="newVersionInfo.changelog" class="markdown-changelog"></vue-markdown>
+    <markdown-viewer :markdown="newVersionInfo.changelog" class="markdown-changelog"></markdown-viewer>
     <div class="update-actions">
       <button class="btn" @click="visible=false">取消</button>
       <button class="btn primary-btn" @click="update">更新</button>
@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import CDialog from "@/components/common/CDialog.vue";
-import VueMarkdown from "vue-markdown-render";
+import MarkdownViewer from "@/components/MarkdownViewer.vue";
 import { bridge } from "@/register-sw";
 import { showToast } from "@/utils";
 import { onBeforeUnmount, ref } from "vue";
@@ -87,14 +87,6 @@ onBeforeUnmount(() => {
   overflow: auto;
   margin-bottom: 12px;
   margin-top: -12px;
-  &:deep() {
-    h2 {
-      margin-block: 0.5em;
-    }
-    h3 {
-      margin-block: 0.4em;
-    }
-  }
 }
 .update-dialog .update-actions {
   display: flex;
