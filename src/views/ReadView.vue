@@ -22,7 +22,7 @@
       </template>
       <template v-slot="{ settings }">
         <chapter-contents
-          v-if="chapterList.length && defaultProgress"
+          v-if="chapterList.length && defaultProgress && !$route.query.horization"
           :data-font="settings.fontFamily"
           :style="{
             fontSize: settings.fontSize + 'px',
@@ -33,10 +33,24 @@
           :default-chapter-id="defaultProgress.chapterId"
           :default-cursor="defaultProgress.cursor"
           :load-chapter="loadChapter"
-          @load="loadChapter"
           @progress="updateProgress"
           ref="chapter-contents"
         ></chapter-contents>
+        <horizational-chapter-contents
+          v-else-if="chapterList.length && defaultProgress && $route.query.horization"
+          :data-font="settings.fontFamily"
+          :style="{
+            fontSize: settings.fontSize + 'px',
+            fontWeight: settings.fontWeight,
+            lineHeight: settings.lineHeight
+          }"
+          :chapter-list="chapterList"
+          :default-chapter-id="defaultProgress.chapterId"
+          :default-cursor="defaultProgress.cursor"
+          :load-chapter="loadChapter"
+          @progress="updateProgress"
+          ref="chapter-contents"
+        ></horizational-chapter-contents>
       </template>
     </control-wrapper>
     <book-toc-settings-dialog :visible="dialog==='tocSettings'" @close="dialog=null" :book-id="id"></book-toc-settings-dialog>
@@ -52,6 +66,7 @@ import { readingStateStore } from '@/services/storage';
 import BookAnimation from '@/components/BookAnimation.vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import ChapterContents from '@/components/ChapterContents.vue';
+import HorizationalChapterContents from '@/components/HorizationalChapterContents.vue';
 import ChapterListVue from '@/components/ChapterList.vue';
 import BookTocSettingsDialog from '@/components/BookTocSettingsDialog.vue';
 
