@@ -29,7 +29,7 @@ export class AutoPlay extends EventTarget {
     if (env.isHorizontal()) {
       this.#interval = setInterval(() => {
         this.nextPage()
-      }, 16)
+      }, 300 / this.speed * 1000)
     } else {
       this.#interval = setInterval(() => {
         this.scrollVertical(this.speed / (1000 / 16))

@@ -159,9 +159,8 @@ const initHammer = () => {
         area = x < centerLeft ? 7 : x < centerRight ? 8 : 9
       }
 
-      const nextPageArea = [3, 7, 9]
-      const prevPageArea = [1, 4, 6]
-
+      const nextPageArea = [3, 6, 9]
+      const prevPageArea = [1, 4, 7]
       if (nextPageArea.includes(area)) {
         emits('next-page')
       } else if (prevPageArea.includes(area)) {

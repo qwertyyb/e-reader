@@ -22,7 +22,7 @@
       </template>
       <template v-slot="{ settings }">
         <chapter-contents
-          v-if="chapterList.length && defaultProgress && !$route.query.horization"
+          v-if="chapterList.length && defaultProgress && !isHorization"
           :data-font="settings.fontFamily"
           :style="{
             fontSize: settings.fontSize + 'px',
@@ -37,7 +37,7 @@
           ref="chapter-contents"
         ></chapter-contents>
         <horizational-chapter-contents
-          v-else-if="chapterList.length && defaultProgress && $route.query.horization"
+          v-else-if="chapterList.length && defaultProgress && isHorization"
           :data-font="settings.fontFamily"
           :style="{
             fontSize: settings.fontSize + 'px',
@@ -69,6 +69,7 @@ import ChapterContents from '@/components/ChapterContents.vue';
 import HorizationalChapterContents from '@/components/HorizationalChapterContents.vue';
 import ChapterListVue from '@/components/ChapterList.vue';
 import BookTocSettingsDialog from '@/components/BookTocSettingsDialog.vue';
+import { env } from '@/utils/env';
 
 const props = defineProps<{
   id: string
@@ -85,6 +86,7 @@ const dialog = ref<string | null>(null)
 const chapter = computed(() => chapterList.value[curChapterIndex.value])
 const progress = ref<{ chapter: IChapter, chapterIndex: number, cursor: number } | null>(null)
 const book = ref<ILocalBook>()
+const isHorization = env.isInk()
 
 provide('chapter', chapter)
 provide('progress', progress)
@@ -93,6 +95,11 @@ provide('chapterList', chapterList)
 
 const pageHandler = (direction: 'prev' | 'next') => {
   console.log('pageHandler', direction)
+  if (direction === 'prev') {
+    chapterContentsRef.value?.prevPage()
+  } else {
+    chapterContentsRef.value?.nextPage()
+  }
 }
 
 const scrollVertical = (distance: number) => {
