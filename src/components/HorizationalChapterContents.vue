@@ -1,6 +1,11 @@
 <template>
   <div class="horizontal-chapter-contents" ref="el">
-    <div class="chapter-contents-wrapper" @scroll="scrollHandler">
+    <div class="chapter-contents-wrapper"
+      @scroll="scrollHandler"
+      @pointerdown="pointerDownHandler"
+      @pointermove="pointerMoveHandler"
+      @pointerup="pointerUpHandler"
+    >
     </div>
   </div>
 </template>
@@ -23,7 +28,12 @@ const emits = defineEmits<{
 
 const el = useTemplateRef('el')
 const keeps = 3
-const getPageWidth = () => document.querySelector<HTMLElement>('.chapter-contents-wrapper')?.clientWidth ?? window.innerWidth
+const columnGap = 12
+const getPageWidth = () => (document.querySelector<HTMLElement>('.chapter-contents-wrapper')?.clientWidth ?? window.innerWidth) - columnGap
+
+let startX = -1
+let startScrollLeft = 0
+let touching = false
 
 const renderContents = (contents: HTMLElement[]) => {
   // vue 的渲染不太可控，自行渲染
@@ -78,6 +88,7 @@ const loadContents = async (chapterId: string) => {
       return renderChapter(chapter, text, startIndex + i)
     })
   )
+  if (touching) return;
   renderContents(contents)
 }
 
@@ -123,7 +134,26 @@ const getCurrentProgress = () => {
   }
 }
 
+const pointerDownHandler = (event: PointerEvent) => {
+  startX = event.screenX
+  startScrollLeft = (event.currentTarget as HTMLElement).scrollLeft
+  touching = true
+}
+const pointerMoveHandler = (event: PointerEvent) => {
+  const scrollLeft = startScrollLeft + (startX - event.screenX)
+  el.value?.querySelector<HTMLElement>('.chapter-contents-wrapper')?.scrollTo({ left: scrollLeft })
+}
+const pointerUpHandler = () => {
+  startX = -1
+  const wrapper = el.value!.querySelector<HTMLElement>('.chapter-contents-wrapper')!
+  touching = false
+  const pw = getPageWidth()
+  const scrollLeft = Math.round(wrapper.scrollLeft / pw) * pw
+  wrapper.scrollTo({ left: scrollLeft, behavior: 'smooth' })
+}
+
 const scrollHandler = debounce(() => {
+  if (touching) return;
   const progress = getCurrentProgress()
   if (!progress) return;
 
@@ -138,6 +168,7 @@ const scrollToPage = (getNextPage: (page: number) => number) => {
   const pageWidth = getPageWidth()
   const curPage = Math.round(wrapper.scrollLeft / pageWidth)
   const scrollLeft = getNextPage(curPage) * pageWidth
+  console.log(scrollLeft, getNextPage(curPage))
   wrapper.scrollTo({ left: scrollLeft, behavior: 'smooth' })
 }
 
@@ -191,6 +222,7 @@ defineExpose({
   column-width: 100vw;
   width: 100vw;
   padding: var(--sait) 12px var(--saib) 12px;
+  column-gap: 12px;
   height: var(--page-height);
   background-image: url("../assets/text-bg.png");
   background-size: cover;

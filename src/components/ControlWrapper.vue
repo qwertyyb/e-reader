@@ -181,8 +181,8 @@ const initHammer = () => {
     ]
   })
   if (settings.value.turnPageType === 'horizontal-scroll') {
-    hammer.on('swipeleft', () => emits('next-page'))
-    hammer.on('swiperight', () => emits('prev-page'))
+    // hammer.on('swipeleft', () => emits('next-page'))
+    // hammer.on('swiperight', () => emits('prev-page'))
   } else {
     hammer.on('swiperight', (() => {
       let backed = false

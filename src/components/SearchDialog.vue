@@ -172,7 +172,7 @@ const toResult = (source: IResult, result: { cursor: number, text: string }) => 
   flex: 1;
   background: light-dark(#d8d8d8, #333);
   border-radius: 9999px;
-  padding: 0 8px;
+  padding: 4px 8px;
   height: 30px;
 }
 .search-icon {
@@ -185,17 +185,20 @@ const toResult = (source: IResult, result: { cursor: number, text: string }) => 
   border: none;
   background: none;
   padding: 4px 32px 4px 4px;
-  font-size: 13px;
+  font-size: 14px;
   flex: 1;
 }
 .search-btn {
-  font-size: 12px;
+  font-size: 14px;
   padding-left: 12px;
   padding-right: 8px;
   height: 100%;
-  line-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
   cursor: pointer;
+  white-space: nowrap;
   &::before {
     position: absolute;
     left: 0;
@@ -212,7 +215,7 @@ const toResult = (source: IResult, result: { cursor: number, text: string }) => 
   font-size: 18px;
   color: light-dark(#555, #aaa);
   padding: 0 4px;
-  height: 100%;
+  height: 30px;
   line-height: 30px;
   margin-right: 8px;
 }
@@ -255,7 +258,7 @@ const toResult = (source: IResult, result: { cursor: number, text: string }) => 
   display: flex;
   align-items: center;
   padding: 8px 12px;
-  font-size: 13px;
+  font-size: 16px;
   color: #555;
   background: light-dark(var(--light-card-bg-color), var(--dark-card-bg-color));
   border-radius: 4px;
