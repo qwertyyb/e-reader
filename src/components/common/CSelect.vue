@@ -41,9 +41,10 @@ provide(Symbol.for('c-select:onOptionSelected'), onOptionSelected)
 .c-select-label {
   display: flex;
   align-items: center;
-  font-size: 14px;
+  font-size: 18px;
   .arrow-icon {
     margin-left: auto;
+    font-size: 24px;
   }
 }
 </style>

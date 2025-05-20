@@ -25,6 +25,7 @@ const select = () => {
   height: 42px;
   line-height: 42px;
   text-align: center;
+  font-size: 18px;
 }
 .c-option.selected {
   color: var(--theme-color);

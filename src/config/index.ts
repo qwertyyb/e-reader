@@ -5,7 +5,7 @@ export const fontFamilyList = [
   { value: '方正黑体', label: '方正黑体' },
   { value: '方正楷体', label: '方正楷体' },
   { value: '落霞文楷', label: '落霞文楷' },
-  { value: '落霞文楷 屏幕阅读版', label: '落霞文楷 屏幕阅读版' },
+  { value: '落霞文楷 屏幕阅读版', label: '落霞文楷 阅读版' },
   { value: '975圆体', label: '975圆体' }
 ]
 

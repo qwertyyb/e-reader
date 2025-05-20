@@ -45,6 +45,11 @@ export const parseChapterList = (
   if (toc.length) {
     toc[toc.length - 1].cursorEnd = lines.length - 1
   }
+  // level 可能缺失，此处重新校正一下
+  const minLevel = Math.min(...toc.slice(1).map(item => item.level))
+  toc.slice(1).forEach(item => {
+    item.level = item.level - minLevel + 1
+  })
   return { chapterList: toc, content: lines.join('\n') }
 }
 

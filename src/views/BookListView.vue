@@ -359,6 +359,7 @@ watch(() => route.name, () => {
   -webkit-touch-callout: none;
   .checkbox-icon {
     color: #bbb;
+    font-size: 24px;
   }
   &.selected {
     .select-wrapper {

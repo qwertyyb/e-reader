@@ -16,7 +16,9 @@
           :chapter-list="chapterList"
           :cur-chapter-index="curChapterIndex"
           enable-settings
+          enable-search
           @settings="openTocSettings"
+          @search="openSearchDialog"
           @tap="jumpToChapter"
         ></chapter-list-vue>
       </template>
@@ -162,6 +164,10 @@ const getNextReadElement = (current?: HTMLElement) => {
 const openTocSettings = () => {
   controlWrapperRef.value?.closeDialog()
   dialog.value = 'tocSettings'
+}
+
+const openSearchDialog = () => {
+  controlWrapperRef.value?.openDialog('search')
 }
 
 const init = async () => {

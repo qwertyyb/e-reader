@@ -217,6 +217,10 @@ defineExpose({
   closeDialog() {
     dialog.value = null
     panelVisible.value = false
+  },
+  openDialog(name: 'search') {
+    panelVisible.value = false
+    dialog.value = name
   }
 })
 

@@ -103,8 +103,8 @@
             <template v-slot:suffix>松</template>
           </c-progress>
         </div>
-        <div class="font-family line-item">
-          <c-select v-model="settings.fontFamily">
+        <div class="font-family-and-turn-page line-item">
+          <c-select v-model="settings.fontFamily" class="font-family-select">
             <template v-slot:label="{ value }">
               <div class="font-family-label"
                 :data-font="settings.fontFamily">
@@ -119,9 +119,7 @@
               :key="family.value"
             >{{ family.label }}</c-option>
           </c-select>
-        </div>
-        <div class="turn-page-type line-item">
-          <c-select v-model="settings.turnPageType" @update:model-value="updateTurnPage">
+          <c-select v-model="settings.turnPageType" @update:model-value="updateTurnPage" class="turn-page-type-select">
             <template v-slot:label="{ value }">
               {{ turnPageType.find(item => item.value === value)?.label || turnPageType[0]?.label }}
             </template>
@@ -354,6 +352,19 @@ defineExpose({
 }
 .line-item {
   display: flex;
+  gap: 20px;
+  .font-family-select {
+    flex: 3;
+    background: #e3e3e3;
+    padding: 6px 12px;
+    border-radius: 9999px;
+  }
+  .turn-page-type-select {
+    flex: 2;
+    background: #e3e3e3;
+    padding: 6px 12px;
+    border-radius: 9999px;
+  }
 }
 .line-item + .line-item {
   margin-top: 20px;

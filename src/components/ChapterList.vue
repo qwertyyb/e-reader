@@ -10,6 +10,10 @@
           v-if="typeof props.curChapterIndex !== 'undefined'"
           @click="scrollToChapter(props.chapterList[props.curChapterIndex])"
         >my_location</span>
+        <span class="material-symbols-outlined search-icon action-icon"
+          v-if="enableSearch"
+          @click="$emit('search')"
+        >search</span>
         <span class="material-symbols-outlined settings-icon action-icon"
           v-if="enableSettings"
           @click="$emit('settings')"
@@ -17,6 +21,7 @@
         <span class="material-symbols-outlined collapse-icon action-icon"
           @click="toggleFoldAll"
           :title="isAllFold ? '展开所有' : '折叠所有'"
+          v-if="toggleFoldVisible"
         >
           {{ isAllFold ? 'unfold_more' : 'unfold_less' }}
         </span>
@@ -58,11 +63,13 @@ const props = defineProps<{
   chapterList: I[]
   curChapterIndex?: number
   enableSettings?: boolean
+  enableSearch?: boolean
 }>()
 
 const emits = defineEmits<{
   tap: [I, number],
-  settings: []
+  settings: [],
+  search: []
 }>()
 
 const virtualListRef = useTemplateRef('virtual-list')
@@ -117,6 +124,19 @@ const canExpand = (source: I) => {
   const hasChildren = props.chapterList.some(item => item.parentId === source.id)
   return hasChildren
 }
+
+const toggleFoldVisible = computed(() => {
+  let level = -1
+  for(let i = 0; i < props.chapterList.length; i += 1) {
+    const curLevel = props.chapterList[i].level
+    if (level > 0 && curLevel !== level) {
+      console.log(level, curLevel)
+      return true
+    }
+    level = curLevel
+  }
+  return false
+})
 
 const foldState = ref<Record<string, boolean>>({})
 const isAllFold = computed(() => {
