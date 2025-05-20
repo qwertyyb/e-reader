@@ -48,7 +48,7 @@ async function onLeave(el: Element, done: () => void) {
 
 <style lang="scss">
 .root-app {
-  min-height: 100vh;
+  min-height: var(--page-height);
   background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
 }
 .btn {

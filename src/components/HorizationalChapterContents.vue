@@ -23,8 +23,7 @@ const emits = defineEmits<{
 
 const el = useTemplateRef('el')
 const keeps = 3
-const padding = 12
-const pageWidth = window.innerWidth - padding
+const getPageWidth = () => document.querySelector<HTMLElement>('.chapter-contents-wrapper')?.clientWidth ?? window.innerWidth
 
 const renderContents = (contents: HTMLElement[]) => {
   // vue 的渲染不太可控，自行渲染
@@ -87,6 +86,7 @@ const scrollToCursor = async (cursor: number) => {
   const target = el.value?.querySelector<HTMLElement>(`[data-cursor="${cursor}"]`)
   if (!target) return
   // 计算这个矩形落在哪一页
+  const pageWidth = getPageWidth()
   const distance = Math.round(target.offsetLeft / pageWidth) * pageWidth
   el.value?.querySelector<HTMLElement>(`.chapter-contents-wrapper`)?.scrollTo({ left: distance })
 }
@@ -132,20 +132,17 @@ const scrollHandler = debounce(() => {
   emits('progress', progress)
 }, 100)
 
-const nextPage = () => {
+const scrollToPage = (getNextPage: (page: number) => number) => {
   const wrapper = el.value?.querySelector<HTMLElement>('.chapter-contents-wrapper')
   if (!wrapper) return;
+  const pageWidth = getPageWidth()
   const curPage = Math.round(wrapper.scrollLeft / pageWidth)
-  const scrollLeft = (curPage + 1) * pageWidth
+  const scrollLeft = getNextPage(curPage) * pageWidth
   wrapper.scrollTo({ left: scrollLeft, behavior: 'smooth' })
 }
-const prevPage = () => {
-  const wrapper = el.value?.querySelector<HTMLElement>('.chapter-contents-wrapper')
-  if (!wrapper) return;
-  const curPage = Math.round(wrapper.scrollLeft / pageWidth)
-  const scrollLeft = Math.max(0, (curPage - 1)) * pageWidth
-  wrapper.scrollTo({ left: scrollLeft, behavior: 'smooth' })
-}
+
+const nextPage = () => scrollToPage(page => page + 1)
+const prevPage = () => scrollToPage(page => Math.max(0, (page - 1)))
 
 const init = async () => {
   await loadContents(props.defaultChapterId)
@@ -193,14 +190,14 @@ defineExpose({
 .chapter-contents-wrapper {
   column-width: 100vw;
   width: 100vw;
-  padding: 12px;
-  column-gap: 12px;
-  height: 100vh;
+  padding: var(--sait) 12px var(--saib) 12px;
+  height: var(--page-height);
   background-image: url("../assets/text-bg.png");
   background-size: cover;
   background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
   overflow-x: hidden;
   position: relative;
+  touch-action: none;
 }
 .horizontal-chapter-contents :deep(.chapter-contents-wrapper) {
   .placeholder {
@@ -211,9 +208,8 @@ defineExpose({
     justify-content: center;
   }
   .chapter {
-    // padding-bottom: max(var(--saib), 16em);
     min-height: 100%;
-    break-before: column;
+    break-after: column;
   }
   p {
     text-indent: 2em;

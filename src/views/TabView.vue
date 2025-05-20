@@ -27,7 +27,7 @@
 }
 .tab-panel-container {
   padding-bottom: calc(var(--saib) + 60px);
-  height: 100vh;
+  height: var(--page-height);
   position: relative;
 }
 .tab-nav-list {

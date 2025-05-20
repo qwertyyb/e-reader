@@ -1,3 +1,5 @@
+import { env } from "./env"
+
 export const getSettings = (): ISettings => {
   const defaultSettings: ISettings = {
     fontFamily: 'SYST',
@@ -5,7 +7,8 @@ export const getSettings = (): ISettings => {
     fontWeight: 500,
     speed: 30, // 每秒滚动的像素
     lineHeight: 1.6,
-    readSpeakRate: 1
+    readSpeakRate: 1,
+    turnPageType: env.isInk() ? 'horizontal-scroll' : 'vertical-scroll'
   }
   const settings = JSON.parse(localStorage.getItem('settings') || '{}')
 

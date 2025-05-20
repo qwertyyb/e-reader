@@ -3,16 +3,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject } from 'vue';
+import { computed, inject, type ModelRef } from 'vue';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const props = defineProps<{ value: any }>()
 
-const selectedValue = inject(Symbol.for('c-select:modelValue'))
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const selectedValue = inject<ModelRef<any>>(Symbol.for('c-select:modelValue'))
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const onOptionSelected = inject<(value: any) => void>(Symbol.for('c-select:onOptionSelected'))
 
-const selected = computed(() => selectedValue === props.value)
+const selected = computed(() => selectedValue?.value === props.value)
 
 const select = () => {
   onOptionSelected?.(props.value)
@@ -26,7 +27,6 @@ const select = () => {
   text-align: center;
 }
 .c-option.selected {
-  background: #000;
-  color: #fff;
+  color: var(--theme-color);
 }
 </style>

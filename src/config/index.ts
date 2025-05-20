@@ -9,6 +9,11 @@ export const fontFamilyList = [
   { value: '975圆体', label: '975圆体' }
 ]
 
+export const turnPageType = [
+  { value: 'vertical-scroll', label: '上下滚动' },
+  { value: 'horizontal-scroll', label: '左右滑动' }
+]
+
 export const backgroundList = [
   { label: '仿纸', value: {} },
 ]

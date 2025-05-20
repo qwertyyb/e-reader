@@ -103,6 +103,8 @@ interface IMarkEntity {
   color: string
 }
 
+type TurnPageType = 'horizontal-scroll' | 'vertical-scroll'
+
 interface ISettings {
   fontFamily: string
   fontSize: number
@@ -110,6 +112,8 @@ interface ISettings {
   lineHeight: number
   speed: number
   readSpeakRate: number
+  // 翻页方式
+  turnPageType?: TurnPageType
 
   openai?: {
     baseURL: string,

@@ -111,7 +111,22 @@
                 {{ fontFamilyList.find(item => item.value === value)?.label || fontFamilyList[0]?.label }}
               </div>
             </template>
-            <c-option :value="family.value" :data-font="family.value" v-for="family in fontFamilyList" :key="family.value">{{ family.label }}</c-option>
+            <c-option
+              :value="family.value"
+              :data-font="family.value"
+              :label="family.label"
+              v-for="family in fontFamilyList"
+              :key="family.value"
+            >{{ family.label }}</c-option>
+          </c-select>
+        </div>
+        <div class="turn-page-type line-item">
+          <c-select v-model="settings.turnPageType" @update:model-value="updateTurnPage">
+            <template v-slot:label="{ value }">
+              {{ turnPageType.find(item => item.value === value)?.label || turnPageType[0]?.label }}
+            </template>
+            <c-option value="vertical-scroll">上下滚动</c-option>
+            <c-option value="horizontal-scroll">左右滑动</c-option>
           </c-select>
         </div>
       </div>
@@ -160,8 +175,10 @@ import { computed, inject, onBeforeUnmount, type Ref, ref } from 'vue';
 import CProgress from '@/components/common/CProgress.vue';
 import CSelect from '@/components/common/CSelect.vue';
 import COption from '@/components/common/COption.vue';
-import { fontFamilyList } from '@/config';
+import { fontFamilyList, turnPageType } from '@/config';
 import { settings } from '@/stores/settings';
+
+console.log(settings)
 
 const props = defineProps<{
   getNextReadElement: (current?: HTMLElement) => HTMLElement | null
@@ -221,6 +238,7 @@ const createActions = () => {
       nextPage: () => emits('next-page'),
       scrollVertical: (distance) => emits('scroll-vertical', distance),
       speed: settings.value.speed,
+      turnPageType: settings.value.turnPageType || 'vertical-scroll',
       changeHandler: (event) => {
         controlState.value.autoPlay = event.detail.playing
       }
@@ -239,6 +257,10 @@ onBeforeUnmount(() => {
 const changeAutoPlaySpeed = (speed: number) => {
   settings.value.speed = speed
   actions.autoPlay.updateSpeed(speed)
+}
+
+const updateTurnPage = (t: TurnPageType) => {
+  actions.autoPlay.updateTurnPageType(t)
 }
 
 const changeReadSpeakRate = (rate: number) => {

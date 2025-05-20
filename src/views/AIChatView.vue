@@ -203,7 +203,7 @@ const fetchData = async (query: string) => {
 
 <style lang="scss" scoped>
 .ai-chat-view {
-  height: 100vh;
+  height: var(--page-height);
   gap: 8px;
 }
 .chat-header {

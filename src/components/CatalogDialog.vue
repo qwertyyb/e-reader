@@ -59,7 +59,7 @@ watch(() => props.visible, () => {
   max-width: 330px;
   background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
   z-index: 10;
-  height: 100vh;
+  height: var(--page-height);
   display: flex;
   flex-direction: column;
   padding-top: var(--sait);

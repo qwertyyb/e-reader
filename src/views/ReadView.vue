@@ -20,37 +20,37 @@
           @tap="jumpToChapter"
         ></chapter-list-vue>
       </template>
-      <template v-slot="{ settings }">
-        <chapter-contents
-          v-if="chapterList.length && defaultProgress && !isHorization"
-          :data-font="settings.fontFamily"
-          :style="{
-            fontSize: settings.fontSize + 'px',
-            fontWeight: settings.fontWeight,
-            lineHeight: settings.lineHeight
-          }"
-          :chapter-list="chapterList"
-          :default-chapter-id="defaultProgress.chapterId"
-          :default-cursor="defaultProgress.cursor"
-          :load-chapter="loadChapter"
-          @progress="updateProgress"
-          ref="chapter-contents"
-        ></chapter-contents>
-        <horizational-chapter-contents
-          v-else-if="chapterList.length && defaultProgress && isHorization"
-          :data-font="settings.fontFamily"
-          :style="{
-            fontSize: settings.fontSize + 'px',
-            fontWeight: settings.fontWeight,
-            lineHeight: settings.lineHeight
-          }"
-          :chapter-list="chapterList"
-          :default-chapter-id="defaultProgress.chapterId"
-          :default-cursor="defaultProgress.cursor"
-          :load-chapter="loadChapter"
-          @progress="updateProgress"
-          ref="chapter-contents"
-        ></horizational-chapter-contents>
+      <template v-slot="{ settings }" v-if="chapterList.length && defaultProgress">
+          <horizational-chapter-contents
+            v-if="settings.turnPageType === 'horizontal-scroll'"
+            :data-font="settings.fontFamily"
+            :style="{
+              fontSize: settings.fontSize + 'px',
+              fontWeight: settings.fontWeight,
+              lineHeight: settings.lineHeight
+            }"
+            :chapter-list="chapterList"
+            :default-chapter-id="defaultProgress.chapterId"
+            :default-cursor="defaultProgress.cursor"
+            :load-chapter="loadChapter"
+            @progress="updateProgress"
+            ref="chapter-contents"
+          ></horizational-chapter-contents>
+          <chapter-contents
+            v-else
+            :data-font="settings.fontFamily"
+            :style="{
+              fontSize: settings.fontSize + 'px',
+              fontWeight: settings.fontWeight,
+              lineHeight: settings.lineHeight
+            }"
+            :chapter-list="chapterList"
+            :default-chapter-id="defaultProgress.chapterId"
+            :default-cursor="defaultProgress.cursor"
+            :load-chapter="loadChapter"
+            @progress="updateProgress"
+            ref="chapter-contents"
+          ></chapter-contents>
       </template>
     </control-wrapper>
     <book-toc-settings-dialog :visible="dialog==='tocSettings'" @close="dialog=null" :book-id="id"></book-toc-settings-dialog>
@@ -69,7 +69,6 @@ import ChapterContents from '@/components/ChapterContents.vue';
 import HorizationalChapterContents from '@/components/HorizationalChapterContents.vue';
 import ChapterListVue from '@/components/ChapterList.vue';
 import BookTocSettingsDialog from '@/components/BookTocSettingsDialog.vue';
-import { env } from '@/utils/env';
 
 const props = defineProps<{
   id: string
@@ -79,14 +78,13 @@ const chapterList = ref<IChapter[]>([])
 const curChapterIndex = ref(0)
 const animRef = useTemplateRef('anim')
 const controlWrapperRef = useTemplateRef('control-wrapper')
-const chapterContentsRef = useTemplateRef('chapter-contents')
+const chapterContentsRef = useTemplateRef<InstanceType<typeof ChapterContents> | InstanceType<typeof HorizationalChapterContents>>('chapter-contents')
 const defaultProgress = ref<{ chapterId: string, cursor: number } | null>(null)
 const dialog = ref<string | null>(null)
 
 const chapter = computed(() => chapterList.value[curChapterIndex.value])
 const progress = ref<{ chapter: IChapter, chapterIndex: number, cursor: number } | null>(null)
 const book = ref<ILocalBook>()
-const isHorization = env.isInk()
 
 provide('chapter', chapter)
 provide('progress', progress)
@@ -94,11 +92,15 @@ provide('book', book)
 provide('chapterList', chapterList)
 
 const pageHandler = (direction: 'prev' | 'next') => {
-  console.log('pageHandler', direction)
+  if (!chapterContentsRef.value) return;
   if (direction === 'prev') {
-    chapterContentsRef.value?.prevPage()
+    if ('prevPage' in chapterContentsRef.value) {
+      chapterContentsRef.value?.prevPage()
+    }
   } else {
-    chapterContentsRef.value?.nextPage()
+    if ('nextPage' in chapterContentsRef.value) {
+      chapterContentsRef.value?.nextPage()
+    }
   }
 }
 
@@ -185,7 +187,6 @@ onBeforeRouteLeave((to, from, next) => {
 
 <style lang="scss" scoped>
 .read-view {
-  --read-view-content-height: 100vh;
   width: 100vw;
   position: relative;
   background: light-dark(var(--light-bg-color), var(--dark-bg-color));

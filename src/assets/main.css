@@ -3,7 +3,7 @@
 @import './fonts.css';
 
 #app {
-  min-height: 100vh;
+  min-height: var(--page-height);
   display: flex;
   flex-direction: column;
   position: relative;

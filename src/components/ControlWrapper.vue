@@ -10,7 +10,7 @@
     </transition>
 
     <c-dialog :visible="dialog==='chapterList'"
-      height="100vh"
+      height="var(--page-height)"
       width="85vw"
       position="left"
       body-style="padding-left:0;padding-right:0"
@@ -88,7 +88,6 @@ import SearchDialog from '@/components/SearchDialog.vue';
 import BookInfoDialog from '@/components/BookInfoDialog.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import AIChatView from '@/views/AIChatView.vue';
-import { env } from '@/utils/env';
 import router from '@/router';
 import ReadControl from '@/components/ReadControl.vue';
 import Hammer from 'hammerjs';
@@ -137,7 +136,7 @@ const initHammer = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const contentTapHandler = (event: any) => {
     if (event.srcEvent.target.nodeName.toLowerCase() === 'mark') return
-    if (env.isInk()) {
+    if (settings.value.turnPageType === 'horizontal-scroll') {
       /**
        * 把点击区域分为九个区域，如下
        * 1|2|3
@@ -181,7 +180,7 @@ const initHammer = () => {
       [window.Hammer.Swipe, { direction: window.Hammer.DIRECTION_ALL, threshold: 10 }]
     ]
   })
-  if (env.isInk()) {
+  if (settings.value.turnPageType === 'horizontal-scroll') {
     hammer.on('swipeleft', () => emits('next-page'))
     hammer.on('swiperight', () => emits('prev-page'))
   } else {

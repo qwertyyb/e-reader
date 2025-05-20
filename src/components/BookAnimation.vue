@@ -83,7 +83,7 @@ const runBookAnimation = async (options: {
   const anim4 = async () => {
     await bookEl.animate([
       { '--read-view-content-height': 'calc(100vw / 3 * 4)' },
-      { '--read-view-content-height': '100vh' }
+      { '--read-view-content-height': '100dvh' }
     ], { duration: 200, easing: 'ease', fill: 'both', direction: options.direction }).finished
   }
 
@@ -129,7 +129,7 @@ defineExpose({
 @property --read-view-content-height {
   syntax: "<length-percentage>";
   inherits: true;
-  initial-value: 100vh;
+  initial-value: 100dvh;
 }
 @property --cover-rotate {
   syntax: "<angle>";
@@ -137,13 +137,13 @@ defineExpose({
   initial-value: 0deg;
 }
 .book-animation {
-  --read-view-content-height: 100vh;
+  --read-view-content-height: var(--page-height);
   --read-view-background-image: url("../assets/text-bg.png");
   width: 100vw;
   position: relative;
   background: light-dark(var(--light-bg-color), var(--dark-bg-color));
   &.animting {
-    height: 100vh;
+    height: var(--page-height);
     position: fixed;
     top: 0;
     right: 0;
@@ -155,7 +155,7 @@ defineExpose({
     perspective: 1000px;
     --read-view-content-height: calc(100vw / 3 * 4);
     &.closing {
-      --read-view-content-height: 100vh;
+      --read-view-content-height: var(--page-height);
       --cover-rotate: -180deg;
     }
     .book-anim {

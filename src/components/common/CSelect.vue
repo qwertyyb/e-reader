@@ -35,9 +35,13 @@ provide(Symbol.for('c-select:onOptionSelected'), onOptionSelected)
 </script>
 
 <style lang="scss" scoped>
+.c-select {
+  width: 100%;
+}
 .c-select-label {
   display: flex;
   align-items: center;
+  font-size: 14px;
   .arrow-icon {
     margin-left: auto;
   }
