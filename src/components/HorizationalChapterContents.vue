@@ -226,6 +226,14 @@ defineExpose({
 
   h3.chapter-title {
     font-size: 1.2em;
+    // 如果章节只有标题，没有内容，则把标题居中
+    text-align: center;
+    padding-top: 40vh;
+    // 如果章节有非空内容，则把标题居左并移除上边距
+    &:has(+ p:not(:empty)) {
+      text-align: left;
+      padding-top: 0;
+    }
   }
   p.reading {
     color: light-dark(blue, rgb(94, 94, 255))
