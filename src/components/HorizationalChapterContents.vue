@@ -212,6 +212,7 @@ defineExpose({
   }
   .chapter {
     // padding-bottom: max(var(--saib), 16em);
+    min-height: 100%;
     break-before: column;
   }
   p {
