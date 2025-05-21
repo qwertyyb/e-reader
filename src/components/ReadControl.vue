@@ -175,11 +175,10 @@ import CSelect from '@/components/common/CSelect.vue';
 import COption from '@/components/common/COption.vue';
 import { fontFamilyList, turnPageType } from '@/config';
 import { settings } from '@/stores/settings';
-
-console.log(settings)
+import type { GetNextElement } from '@/actions/read-speak';
 
 const props = defineProps<{
-  getNextReadElement: (current?: HTMLElement) => HTMLElement | null
+  getNextReadElement: GetNextElement
 }>()
 
 const emits = defineEmits<{
@@ -266,7 +265,7 @@ const changeReadSpeakRate = (rate: number) => {
 }
 
 const toggleReadSpeak = () => {
-  actions.readSpeak.toggle(props.getNextReadElement())
+  actions.readSpeak.toggle()
 }
 
 const toggleControl = async (control: string) => {

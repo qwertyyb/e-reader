@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { debounce } from '@/utils';
+import { debounce, showToast } from '@/utils';
 import { renderChapter } from '@/utils/chapter';
 import { nextTick, useTemplateRef } from 'vue'
 
@@ -93,14 +93,14 @@ const loadContents = async (chapterId: string) => {
   renderContents(contents)
 }
 
-const scrollToCursor = async (cursor: number) => {
+const scrollToCursor = async (cursor: number, options: { anim: boolean } = { anim: false }) => {
   await nextTick()
   const target = el.value?.querySelector<HTMLElement>(`[data-cursor="${cursor}"]`)
   if (!target) return
   // 计算这个矩形落在哪一页
   const pageWidth = getPageWidth()
   const distance = Math.round(target.offsetLeft / pageWidth) * pageWidth
-  el.value?.querySelector<HTMLElement>(`.chapter-contents-wrapper`)?.scrollTo({ left: distance })
+  el.value?.querySelector<HTMLElement>(`.chapter-contents-wrapper`)?.scrollTo({ left: distance, behavior: options.anim ? 'smooth' : 'auto' })
 }
 
 const getCurrentProgress = () => {
@@ -207,7 +207,15 @@ defineExpose({
   getNextReadElement(current?: HTMLElement) {
     if (!current) {
       const progress = getCurrentProgress()
-      return el.value?.querySelector<HTMLElement>(`[data-cursor="${progress?.cursor}"]`)
+      if (!progress) {
+        const msg = '获取当前进度失败'
+        showToast(msg);
+        throw new Error;
+      }
+      return {
+        nextEl: el.value?.querySelector<HTMLElement>(`[data-cursor="${progress.cursor}"]`),
+        scrollIntoView: () => scrollToCursor(progress.cursor, { anim: true })
+      }
     }
     const cursor = Number(current.dataset.cursor)
     // 找到下一个非空节点
@@ -217,7 +225,10 @@ defineExpose({
       nextCursor += 1
       nextEl = el.value?.querySelector<HTMLElement>(`[data-cursor="${nextCursor}"]`)
     }
-    return nextEl
+    return {
+      nextEl,
+      scrollIntoView: () => nextEl?.dataset.cursor && scrollToCursor(Number(nextEl.dataset.cursor), { anim: true })
+    }
   }
 })
 

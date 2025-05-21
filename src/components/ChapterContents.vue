@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { debounce } from '@/utils';
+import { debounce, showToast } from '@/utils';
 import { renderChapter } from '@/utils/chapter';
 import { getSafeAreaTop } from '@/utils/env';
 import { nextTick, useTemplateRef } from 'vue';
@@ -215,7 +215,16 @@ defineExpose({
   getNextReadElement(current?: HTMLElement) {
     if (!current) {
       const progress = getCurrentProgress()
-      return el.value?.querySelector<HTMLElement>(`[data-cursor="${progress?.cursor}"]`)
+      if (!progress) {
+        const msg = '获取当前进度失败'
+        showToast(msg);
+        throw new Error;
+      }
+      const nextEl = el.value?.querySelector<HTMLElement>(`[data-cursor="${progress.cursor}"]`)
+      return {
+        nextEl,
+        scrollIntoView: () => nextEl?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      }
     }
     const cursor = Number(current.dataset.cursor)
     // 找到下一个非空节点
@@ -225,7 +234,7 @@ defineExpose({
       nextCursor += 1
       nextEl = el.value?.querySelector<HTMLElement>(`[data-cursor="${nextCursor}"]`)
     }
-    return nextEl
+    return { nextEl, scrollIntoView: () => nextEl?.scrollIntoView({ block: 'center', behavior: 'smooth' }) }
   }
 })
 </script>

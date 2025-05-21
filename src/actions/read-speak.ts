@@ -1,13 +1,15 @@
+export type GetNextElement = (current?: HTMLElement) => { nextEl: HTMLElement | null | undefined, scrollIntoView: () => void } | null
+
 export class ReadSpeak extends EventTarget {
   static CHANGE_EVENT_NAME = 'change'
   #rate = 1
   spearkingSSU: SpeechSynthesisUtterance | null = null
   speakingEl: HTMLElement | null = null
 
-  getNextElement?: (current: HTMLElement) => HTMLElement | null
+  getNextElement?: GetNextElement
 
   constructor({ getNextElement, changeHandler }: {
-    getNextElement: (current: HTMLElement) => HTMLElement | null,
+    getNextElement: GetNextElement,
     changeHandler: (event: CustomEvent<{ speaking?: boolean, rate?: number }>) => void
   }) {
     super()
@@ -21,11 +23,16 @@ export class ReadSpeak extends EventTarget {
   }
   #readyNext(current: HTMLElement) {
     const nextEl = this.getNextElement?.(current)
-    if (!nextEl) return
-    const utterance = this.#createUtterance(nextEl)
+    if (!nextEl?.nextEl) return
+    const utterance = this.#createUtterance(nextEl)!
     window.speechSynthesis.speak(utterance)
   }
-  #createUtterance(el: HTMLElement) {
+  #createUtterance(next?: ReturnType<GetNextElement>) {
+    if (!next?.nextEl) {
+      this.stop()
+      return;
+    }
+    const { nextEl: el, scrollIntoView } = next
     const utter = new SpeechSynthesisUtterance(el.textContent || '');
     utter.rate = this.#rate
     let nextTriggered = false
@@ -41,7 +48,7 @@ export class ReadSpeak extends EventTarget {
     utter.addEventListener('start', () => {
       el.classList.add('reading')
       this.speakingEl = el
-      el.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      scrollIntoView()
       this.spearkingSSU = utter
       this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: true } }))
     })
@@ -55,12 +62,14 @@ export class ReadSpeak extends EventTarget {
     })
     return utter
   }
-  start(el: HTMLElement, options?: { rate: number }) {
+  start(options?: { rate: number }) {
     if (options?.rate) {
       this.updateRate(options.rate || 1)
     }
-    const utterance = this.#createUtterance(el)
-    window.speechSynthesis.speak(utterance)
+    const utterance = this.#createUtterance(this.getNextElement?.())
+    if (utterance) {
+      window.speechSynthesis.speak(utterance)
+    }
   }
   stop() {
     window.speechSynthesis.cancel()
@@ -69,12 +78,11 @@ export class ReadSpeak extends EventTarget {
     this.speakingEl = null
     this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: false } }))
   }
-  toggle(el?: HTMLElement | null) {
+  toggle() {
     if (window.speechSynthesis.speaking) {
       return this.stop()
     }
-    if (!el) return;
-    this.start(el)
+    this.start()
   }
   isSpeaking() {
     return window.speechSynthesis.speaking

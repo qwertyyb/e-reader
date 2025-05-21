@@ -92,12 +92,13 @@ import router from '@/router';
 import ReadControl from '@/components/ReadControl.vue';
 import Hammer from 'hammerjs';
 import { settings } from '@/stores/settings';
+import type { GetNextElement } from '@/actions/read-speak';
 
 defineProps<{
   bookId: number
   chapterId: string,
   title?: string,
-  getNextReadElement: (current?: HTMLElement) => HTMLElement | null
+  getNextReadElement: GetNextElement
 }>()
 
 const emits = defineEmits<{
