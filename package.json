@@ -19,6 +19,7 @@
     "fflate": "^0.8.2",
     "foliate-js": "github:johnfactotum/foliate-js",
     "hammerjs": "^2.0.8",
+    "js-logger": "^1.6.1",
     "jschardet": "^3.1.4",
     "mark.js": "^8.11.1",
     "markdown-it": "^14.1.0",

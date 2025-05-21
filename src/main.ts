@@ -6,11 +6,22 @@ import VirtualList from 'vue-virtual-list-v3'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { ElLoadingDirective } from 'element-plus'
+import Logger from 'js-logger'
 import 'element-plus/theme-chalk/base.css'
 import 'element-plus/theme-chalk/el-loading.css'
 
 import App from './App.vue'
 import router from './router'
+
+Logger.useDefaults({
+  formatter: function (messages, context) {
+    if (context.name) {
+      messages.unshift(`[${context.name}]`)
+    }
+    const time = new Date(Date.now() - new Date().getTimezoneOffset() * 60 * 1000).toISOString().replace('Z', '')
+    messages.unshift(`[${time}]`)
+  }
+})
 
 const app = createApp(App)
 
