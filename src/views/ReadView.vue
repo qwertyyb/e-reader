@@ -127,6 +127,8 @@ const loadChapter = async (chapter: IChapter) => {
 const updateProgress = (info: { chapter: IChapter, cursor: number, chapterIndex: number }) => {
   curChapterIndex.value = info.chapterIndex
   progress.value = { ...info }
+  // 默认状态也更新一下，这样在切换横竖滚动的时候，进度才不会丢失
+  defaultProgress.value = { chapterId: info.chapter.id, cursor: info.cursor }
 
   readingStateStore.update(props.id, {
     chapterId: info.chapter.id,
