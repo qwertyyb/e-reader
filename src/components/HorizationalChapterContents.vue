@@ -34,6 +34,7 @@ const getPageWidth = () => (document.querySelector<HTMLElement>('.chapter-conten
 let startX = -1
 let startScrollLeft = 0
 let touching = false
+let startTime = 0
 
 const renderContents = (contents: HTMLElement[]) => {
   // vue 的渲染不太可控，自行渲染
@@ -137,19 +138,31 @@ const getCurrentProgress = () => {
 const pointerDownHandler = (event: PointerEvent) => {
   startX = event.screenX
   startScrollLeft = (event.currentTarget as HTMLElement).scrollLeft
+  startTime = Date.now()
   touching = true
 }
 const pointerMoveHandler = (event: PointerEvent) => {
   const scrollLeft = startScrollLeft + (startX - event.screenX)
   el.value?.querySelector<HTMLElement>('.chapter-contents-wrapper')?.scrollTo({ left: scrollLeft })
 }
-const pointerUpHandler = () => {
-  startX = -1
+const pointerUpHandler = (event: PointerEvent) => {
   const wrapper = el.value!.querySelector<HTMLElement>('.chapter-contents-wrapper')!
-  touching = false
+  const distance = event.screenX - startX
   const pw = getPageWidth()
-  const scrollLeft = Math.round(wrapper.scrollLeft / pw) * pw
+  const v = distance / (Date.now() - startTime)
+  const minV = 0.1
+  let scrollLeft = 0
+  if (v > 0.5) {
+    scrollLeft = Math.max(0, Math.round(startScrollLeft / pw) - 1) * pw
+  } else if (v < -minV) {
+    scrollLeft = (Math.round(startScrollLeft / pw) + 1) * pw
+  } else {
+    // 如果滚动的距离超过了一半，则以当前落点计算应该滚动的位置
+    scrollLeft = Math.round(wrapper.scrollLeft / pw) * pw
+  }
   wrapper.scrollTo({ left: scrollLeft, behavior: 'smooth' })
+  startX = -1
+  touching = false
 }
 
 const scrollHandler = debounce(() => {
@@ -168,7 +181,6 @@ const scrollToPage = (getNextPage: (page: number) => number) => {
   const pageWidth = getPageWidth()
   const curPage = Math.round(wrapper.scrollLeft / pageWidth)
   const scrollLeft = getNextPage(curPage) * pageWidth
-  console.log(scrollLeft, getNextPage(curPage))
   wrapper.scrollTo({ left: scrollLeft, behavior: 'smooth' })
 }
 
