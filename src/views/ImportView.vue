@@ -1,41 +1,43 @@
 <template>
-  <navigation-bar title="本地导入"></navigation-bar>
-  <div class="upload-book-section">
-    <button class="btn primary-btn file-selector-btn" @click="selectFile">选择文件</button>
-    <p class="select-tips">支持 txt 和 epub 文件</p>
-    <p class="select-tips" v-if="fileName">已选择文件: {{ fileName }}</p>
-  </div>
   <div class="import-view">
-    <book-toc-settings v-model="bookConfig.toc" v-if="fileName.endsWith('.txt')" @confirm="reParseFile"></book-toc-settings>
-    <section class="book-info" v-if="bookInfo">
-      <h3 class="book-info-title">书籍信息</h3>
-      <img :src="bookInfo.cover" alt="" class="book-cover">
-      <h2 class="book-title">{{ bookInfo.title }}</h2>
-      <p class="word-count">{{ wordCount }}字</p>
-      <ul class="chapter-info">
-        <li class="chapter-info-item">{{ chapterInfo.levelsCount }}个目录层级</li>
-        <li class="chapter-info-item" v-for="(count, key) in chapterInfo.levelCount" :key="key">{{count}} 个{{key}}级目录</li>
-      </ul>
-      <div class="btns">
-        <button class="btn" @click="previewToc">预览目录</button>
-        <button class="btn primary-btn" @click="saveBook(true)">添加到书架</button>
-      </div>
-    </section>
-    <c-dialog
-      height="90vh"
-      title="预览目录"
-      :visible="dialog === 'chapterList'"
-      @close="dialog=null"
-      body-style="padding:0"
-    >
-      <template #header>
-        <div class="preview-header">
-          <h3 class="preview-title">预览目录</h3>
-          <button class="btn primary-btn" @click="saveBook(false)">添加</button>
+    <navigation-bar title="本地导入"></navigation-bar>
+    <div class="upload-book-section">
+      <button class="btn primary-btn file-selector-btn" @click="selectFile">选择文件</button>
+      <p class="select-tips">支持 txt 和 epub 文件</p>
+      <p class="select-tips" v-if="fileName">已选择文件: {{ fileName }}</p>
+    </div>
+    <div class="import-main">
+      <book-toc-settings v-model="bookConfig.toc" v-if="fileName.endsWith('.txt')" @confirm="reParseFile"></book-toc-settings>
+      <section class="book-info" v-if="bookInfo">
+        <h3 class="book-info-title">书籍信息</h3>
+        <img :src="bookInfo.cover" alt="" class="book-cover">
+        <h2 class="book-title">{{ bookInfo.title }}</h2>
+        <p class="word-count">{{ wordCount }}字</p>
+        <ul class="chapter-info">
+          <li class="chapter-info-item">{{ chapterInfo.levelsCount }}个目录层级</li>
+          <li class="chapter-info-item" v-for="(count, key) in chapterInfo.levelCount" :key="key">{{count}} 个{{key}}级目录</li>
+        </ul>
+        <div class="btns">
+          <button class="btn" @click="previewToc">预览目录</button>
+          <button class="btn primary-btn" @click="saveBook(true)">添加到书架</button>
         </div>
-      </template>
-      <ChapterList :chapter-list="chapterList"></ChapterList>
-    </c-dialog>
+      </section>
+      <c-dialog
+        height="90vh"
+        title="预览目录"
+        :visible="dialog === 'chapterList'"
+        @close="dialog=null"
+        body-style="padding:0"
+      >
+        <template #header>
+          <div class="preview-header">
+            <h3 class="preview-title">预览目录</h3>
+            <button class="btn primary-btn" @click="saveBook(false)">添加</button>
+          </div>
+        </template>
+        <ChapterList :chapter-list="chapterList"></ChapterList>
+      </c-dialog>
+    </div>
   </div>
 </template>
 
@@ -210,7 +212,7 @@ const saveBook = async (refreshInfo: boolean) => {
 </script>
 
 <style lang="scss" scoped>
-.import-view {
+.import-main {
   padding: 16px 16px max(var(--saib), 10em) 16px;
 }
 .upload-book-section {

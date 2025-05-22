@@ -2,7 +2,7 @@
 import { RouterView, useRoute } from 'vue-router'
 import UpdateDialog from '@/components/UpdateDialog.vue'
 import { watch } from 'vue'
-import router from '@/router'
+import router, { transitionName } from '@/router'
 import { clearAnimData, waits, animData } from '@/stores/bookAnim'
 const route = useRoute()
 let oldRouteName: string | null | undefined | symbol = null
@@ -35,8 +35,8 @@ async function onLeave(el: Element, done: () => void) {
   <div class="root-app">
     <router-view v-slot="{ Component }">
       <transition
+        :name="transitionName"
         @leave="onLeave"
-        :css="false"
       >
         <component :is="Component" />
       </transition>

@@ -4,11 +4,11 @@
       <router-view></router-view>
     </div>
     <ul class="tab-nav-list">
-      <li class="tab-nav-item pointer" @click="$router.push({ name: 'local' })" :class="{active: $route.name === 'local'}">
+      <li class="tab-nav-item pointer" @click="$router.replace({ name: 'local' })" :class="{active: $route.name === 'local'}">
         <span class="material-symbols-outlined tab-icon">newsstand</span>
         书架
       </li>
-      <li class="tab-nav-item pointer" @click="$router.push({ name: 'remote' })" :class="{active: $route.name === 'remote'}">
+      <li class="tab-nav-item pointer" @click="$router.replace({ name: 'remote' })" :class="{active: $route.name === 'remote'}">
         <span class="material-symbols-outlined tab-icon">storefront</span>
         阅读
       </li>
