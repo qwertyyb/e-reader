@@ -17,14 +17,6 @@
           <span class="material-symbols-outlined icon">check_circle</span>
           选择
         </div>
-        <template v-else>
-          <span class="material-symbols-outlined mode-toggle-action header-action"
-            v-if="isDarkMode"
-            @click="toggleDarkMode">dark_mode</span>
-          <span class="material-symbols-outlined mode-toggle-action header-action"
-            v-else
-            @click="toggleDarkMode">light_mode</span>
-        </template>
       </template>
     </div>
     <div class="navigation-bar-space"></div>
@@ -82,23 +74,10 @@ import { booksStore, readingStateStore } from '@/services/storage';
 import { useRoute } from 'vue-router';
 import { setAnimData, animData } from '@/stores/bookAnim';
 import { longtap as vLongtap } from '@/directives/click';
-import { DarkMode } from '@/actions';
 
 const route = useRoute()
 
-const isDarkMode = ref(false);
 const menuDialogVisible = ref(false);
-
-const toggleDarkMode = () => {
-  darkModeDetector.toggle()
-}
-
-const darkModeDetector = new DarkMode({
-  auto: true,
-  changeHandler: event => {
-    isDarkMode.value = event.detail.enabled
-  }
-})
 
 const category = ref(['all', 'imported', 'downloaded'].includes(route.query.category as string) ? route.query.category as string : 'all')
 

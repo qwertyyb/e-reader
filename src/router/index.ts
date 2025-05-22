@@ -4,6 +4,7 @@ import BookListView from '@/views/BookListView.vue'
 import ReadView from '@/views/ReadView.vue'
 import ImportView from '@/views/ImportView.vue'
 import AIChatView from '@/views/AIChatView.vue'
+import PreferencesView from '@/views/PreferencesView.vue'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -59,6 +60,11 @@ const router = createRouter({
           component: AIChatView
         }
       ]
+    },
+    {
+      path: '/preferences',
+      name: 'preferences',
+      component: PreferencesView
     }
   ],
 })

@@ -28,6 +28,7 @@ const fetchResources = async () => {
     'favicon.ico',
     'manifest.json',
     'version.json',
+    'https://cdn.jsdelivr.net/npm/eruda'
   ]
   const url = new URL('.vite/manifest.json?t=' + Date.now(), location.origin + location.pathname)
   const response = await fetch(url)

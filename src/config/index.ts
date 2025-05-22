@@ -22,3 +22,11 @@ export const defaultTocRegList = [
   /^第[一二三四五六七八九十零百千万亿]+[卷部]\s*[：:·\-—]?\s*(.+)$/,
   /^第[一二三四五六七八九十零百千万亿\d]+[章]\s*[：:·\-—]?\s*(.+)$/,
 ]
+
+export const defaultPreferences: {
+  screenKeepAlive: 'always' | 'reading' | 'never';
+  darkMode: 'system' | 'light' | 'dark';
+  debugMode: boolean;
+} = { screenKeepAlive: 'reading', darkMode: 'system', debugMode: false }
+
+export const preferencesStorageKey = 'preferences'

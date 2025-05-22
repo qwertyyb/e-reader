@@ -4,7 +4,6 @@ import UpdateDialog from '@/components/UpdateDialog.vue'
 import { watch } from 'vue'
 import router from '@/router'
 import { clearAnimData, waits, animData } from '@/stores/bookAnim'
-
 const route = useRoute()
 let oldRouteName: string | null | undefined | symbol = null
 

@@ -4,6 +4,7 @@
       class="menu-dialog"
       @close="$emit('close')">
       <ul class="menu">
+        <li class="menu-item" @click="$router.push({ name: 'preferences' })">设置</li>
         <li class="menu-item" @click="clearCache()">清除缓存</li>
         <li class="menu-item" @click="checkUpdates()">检查更新</li>
         <li class="menu-item" @click="dialog='about'">关于EInk Reader</li>

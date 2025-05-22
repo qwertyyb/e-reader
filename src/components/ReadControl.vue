@@ -168,7 +168,7 @@
 </template>
 
 <script setup lang="ts">
-import { AutoPlay, DarkMode, ReadSpeak } from '@/actions';
+import { AutoPlay, ReadSpeak } from '@/actions';
 import { computed, inject, onBeforeUnmount, type Ref, ref } from 'vue';
 import CProgress from '@/components/common/CProgress.vue';
 import CSelect from '@/components/common/CSelect.vue';
@@ -176,6 +176,7 @@ import COption from '@/components/common/COption.vue';
 import { fontFamilyList, turnPageType } from '@/config';
 import { settings } from '@/stores/settings';
 import type { GetNextElement } from '@/actions/read-speak';
+import { darkMode } from '@/stores/preferences';
 
 const props = defineProps<{
   getNextReadElement: GetNextElement
@@ -189,7 +190,7 @@ const emits = defineEmits<{
 
 const visiblePanel = ref<string | null>()
 const controlState = ref({
-  darkMode: false,
+  darkMode: darkMode.isActivated(),
   readSpeak: false,
   autoPlay: false
 })
@@ -214,10 +215,6 @@ const bookPercent = computed(() => {
 
 const createActions = () => {
   return {
-    darkMode: new DarkMode({
-      auto: true,
-      changeHandler: event => controlState.value.darkMode = event.detail.enabled
-    }),
     readSpeak: new ReadSpeak({
       getNextElement: (current?: HTMLElement) => {
         return props.getNextReadElement(current)
@@ -244,11 +241,11 @@ const createActions = () => {
 }
 
 const actions = createActions()
+darkMode.addEventListener('change', (event) => controlState.value.darkMode = (event as CustomEvent<{ enabled: boolean }>).detail.enabled)
 
 onBeforeUnmount(() => {
   actions.autoPlay.stop()
   actions.readSpeak.stop()
-  actions.darkMode.destroy()
 })
 
 const changeAutoPlaySpeed = (speed: number) => {
@@ -278,7 +275,7 @@ const toggleControl = async (control: string) => {
     }
   }
   if (control === 'darkMode') {
-    actions.darkMode?.toggle()
+    darkMode.toggle()
   }
   if (control === 'autoPlay') {
     actions.autoPlay.toggle()
