@@ -28,17 +28,7 @@ export default defineConfig({
     },
   },
   build: {
-    manifest: true,
-    rollupOptions: {
-      output: {
-        chunkFileNames(chunkInfo) {
-          if (chunkInfo.facadeModuleId && relative(fileURLToPath(import.meta.url), chunkInfo.facadeModuleId) === '../src/version.ts') {
-            return 'version.js'
-          }
-          return 'assets/[name]-[hash].js'
-        },
-      }
-    }
+    manifest: true
   },
   worker: {
     rollupOptions: {
