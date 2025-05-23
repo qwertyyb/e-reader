@@ -32,6 +32,8 @@ app.directive('loading', ElLoadingDirective)
 
 app.mount('#app')
 
+router.push(location.hash.replace('#', '') || '/')
+
 if (import.meta.env.PROD) {
   register()
 } else {

@@ -1,5 +1,5 @@
 <template>
-  <div class="prfs-view">
+  <slide-back class="prfs-view">
     <NavigationBar title="设置" :no-menu="true"/>
 
     <div class="prfs-item">
@@ -34,20 +34,39 @@
       </div>
     </div>
 
-  </div>
+    <div class="prfs-item" @click="clearCache">
+      <div class="prfs-label">清除缓存</div>
+    </div>
+    <div class="prfs-item" @click="$router.push('/about')">
+      <div class="prfs-label">关于E Reader</div>
+      <div class="prfs-control">{{ version }}</div>
+    </div>
+
+  </slide-back>
 </template>
 
 <script lang="ts" setup>
+import SlideBack from '@/components/SlideBack.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import CSelect from '@/components/common/CSelect.vue';
 import COption from '@/components/common/COption.vue';
 import CSwitch from '@/components/common/CSwitch.vue';
-import { preferences } from '@/stores/preferences'
+import { preferences } from '@/stores/preferences';
+import { bridge } from '@/register-sw';
+import { showToast } from '@/utils';
+import { version } from '@/version';
+
+const clearCache = async () => {
+  await bridge.invoke('deleteAllCache')
+  showToast('缓存已清除')
+}
+
 </script>
 
 <style lang="scss" scoped>
 .prfs-view {
   max-width: 600px;
+  height: var(--page-height);
 }
 
 .prfs-item {
@@ -62,6 +81,7 @@ import { preferences } from '@/stores/preferences'
 .prfs-control {
   width: auto;
   margin-left: auto;
+  font-size: 18px;
 }
 
 .prfs-label {

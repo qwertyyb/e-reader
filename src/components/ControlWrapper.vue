@@ -177,8 +177,8 @@ const initHammer = () => {
   }
   const hammer = new Hammer.Manager(contentRef.value!, {
     recognizers: [
-      [window.Hammer.Tap],
-      [window.Hammer.Swipe, { direction: window.Hammer.DIRECTION_ALL, threshold: 10 }]
+      [Hammer.Tap],
+      [Hammer.Swipe, { direction: Hammer.DIRECTION_ALL, threshold: 10 }]
     ]
   })
   if (settings.value.turnPageType === 'horizontal-scroll') {

@@ -12,7 +12,7 @@
         </div>
       </template>
       <template v-else>
-        <img class="logo" @click="menuDialogVisible=true" src="/icons/icon96.png" />
+        <img class="logo" @click="$router.push({ name: 'preferences' })" src="/icons/icon96.png" />
         <div class="action-btn pointer" @click="selecting = true" v-if="$route.name === 'local'">
           <span class="material-symbols-outlined icon">check_circle</span>
           选择
@@ -57,7 +57,6 @@
     <div class="empty-info" v-if="!visibleList.length">
       暂无书籍
     </div>
-    <app-menu-dialog :visible="menuDialogVisible" @close="menuDialogVisible=false"></app-menu-dialog>
   </div>
 </template>
 
@@ -65,7 +64,6 @@
 import { computed, ref, watch } from 'vue';
 
 import BookItem from '@/components/BookItem.vue';
-import AppMenuDialog from '@/components/AppMenuDialog.vue';
 import { onlineService } from '@/services/OnlineService';
 import { formatSize, showToast } from '@/utils';
 import { localBookService } from '@/services/LocalBookService';
@@ -76,8 +74,6 @@ import { setAnimData, animData } from '@/stores/bookAnim';
 import { longtap as vLongtap } from '@/directives/click';
 
 const route = useRoute()
-
-const menuDialogVisible = ref(false);
 
 const category = ref(['all', 'imported', 'downloaded'].includes(route.query.category as string) ? route.query.category as string : 'all')
 
@@ -269,6 +265,7 @@ watch(() => route.name, () => {
   font-size: 16px;
   .import-action {
     margin-left: auto;
+    font-size: 24px;
   }
 }
 .category-list {

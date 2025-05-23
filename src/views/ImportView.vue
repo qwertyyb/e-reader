@@ -1,5 +1,5 @@
 <template>
-  <div class="import-view">
+  <slide-back class="import-view">
     <navigation-bar title="本地导入"></navigation-bar>
     <div class="upload-book-section">
       <button class="btn primary-btn file-selector-btn" @click="selectFile">选择文件</button>
@@ -38,12 +38,13 @@
         <ChapterList :chapter-list="chapterList"></ChapterList>
       </c-dialog>
     </div>
-  </div>
+  </slide-back>
 </template>
 
 <script setup lang="ts">
 import CDialog from '@/components/common/CDialog.vue';
 import ChapterList from '@/components/ChapterList.vue'
+import SlideBack from '@/components/SlideBack.vue';
 import BookTocSettings from '@/components/BookTocSettings.vue';
 import { parseTxtFile } from '@/services/txt-file';
 import { blobToBase64, showToast } from '@/utils';
@@ -212,6 +213,9 @@ const saveBook = async (refreshInfo: boolean) => {
 </script>
 
 <style lang="scss" scoped>
+.import-view {
+  min-height: var(--page-height);
+}
 .import-main {
   padding: 16px 16px max(var(--saib), 10em) 16px;
 }

@@ -49,6 +49,7 @@ async function onLeave(el: Element, done: () => void) {
 .root-app {
   min-height: var(--page-height);
   background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
+  touch-action: none;
 }
 .btn {
   padding: 4px 16px;
