@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { enableAnim } from '@/utils/env';
+import { disableAnim } from '@/utils/env';
 import { nextTick, ref, useTemplateRef, watch, type StyleValue } from 'vue';
 
 const props = defineProps<{
@@ -68,7 +68,7 @@ const slideUpInKeyframes = [
 const getInKeyframes = () => props.position === 'left' ? slideLeftInKeyframes : slideUpInKeyframes
 
 const closeDialog = async () => {
-  if (!enableAnim.value) {
+  if (disableAnim.value) {
     containerVisible.value = false
     return;
   }
@@ -81,7 +81,7 @@ const closeDialog = async () => {
 }
 const openDialog = async () => {
   containerVisible.value = true
-  if (!enableAnim.value) return;
+  if (disableAnim.value) return;
   await nextTick()
   await Promise.all([
     dialog.value?.animate(getInKeyframes(), { duration: 200, easing: 'ease-out', fill: 'both' }).finished,
@@ -110,7 +110,7 @@ const openDialog = async () => {
 
 .c-dialog-content {
   width: 100%;
-  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
+  background: var(--bg-color);
   z-index: 10;
   padding-bottom: var(--saib);
   box-sizing: border-box;

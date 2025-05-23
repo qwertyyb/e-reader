@@ -53,7 +53,7 @@ const markListWithStyle = computed(() => {
   list-style: none;
 }
 .mark-list .mark-item {
-  background: light-dark(var(--light-card-bg-color), var(--dark-card-bg-color));
+  background: var(--card-bg-color);
   border-radius: 4px;
   overflow: hidden;
   display: flex;

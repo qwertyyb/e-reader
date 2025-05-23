@@ -1,0 +1,109 @@
+html.disable-anim * {
+  transition-duration: 1ms !important;
+}
+html:not(.disable-anim) {
+  .slide-down-enter-from,
+  .slide-down-leave-to {
+    transform: translateY(-100%);
+  }
+  .slide-down-enter-active,
+  .slide-down-leave-active,
+  .slide-up-enter-active,
+  .slide-up-leave-active,
+  .slide-right-enter-active,
+  .slide-right-leave-active,
+  .slide-left-enter-active,
+  .slide-left-leave-active {
+    will-change: transform;
+    transition: transform .2s ease-out;
+  }
+  .slide-down-enter-to,
+  .slide-down-leave-from,
+  .slide-up-enter-to,
+  .slide-up-leave-from {
+    transform: translateY(0)
+  }
+
+  .slide-up-enter-from,
+  .slide-up-leave-to {
+    transform: translateY(100%);
+  }
+
+  .slide-right-enter-from,
+  .slide-right-leave-to {
+    transform: translateX(-100%);
+  }
+  .slide-right-enter-to,
+  .slide-right-leave-from,
+  .slide-left-enter-to
+  .slide-left-leave-from {
+    transform: translateX(0);
+  }
+  .slide-left-enter-from,
+  .slide-left-leave-to {
+    transform: translateX(100%)
+  }
+
+  .fade-in-enter-from,
+  .fade-in-leave-to {
+    opacity: 0;
+  }
+  .fade-in-enter-active,
+  .fade-in-leave-active {
+    will-change: opacity;
+    transition: opacity .2s ease-out;
+  }
+  .fade-in-enter-to,
+  .fade-in-leave-from {
+    opacity: 1;
+  }
+
+  @keyframes slide-right {
+    0% {
+      transform: translateX(-100%)
+    }
+    100% {
+      transform: translateX(0)
+    }
+  }
+  @keyframes slide-left {
+    0% { transform: translateX(100%) }
+    100% { transform: translateX(0) }
+  }
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  .slide-right {
+    animation: slide-right .2s forwards ease-out;
+  }
+  .slide-right-leave {
+    animation: slide-right .2s reverse forwards ease-out;
+  }
+  .slide-left {
+    animation: slide-left .2s forwards ease-out;
+  }
+  .slide-left-leave {
+    animation: slide-left .2s reverse forwards ease-out;
+  }
+  .fade-in {
+    animation: fade-in .2s forwards ease-out;
+  }
+  .fade-out {
+    animation: fade-in .2s reverse forwards ease-out;
+  }
+
+  .transform-transition {
+    transition: transform .2s ease-out;
+  }
+  .opacity-transition {
+    transition: opacity .3s ease-out;
+  }
+  .all-transition {
+    transition: all .2s ease-out;
+  }
+}

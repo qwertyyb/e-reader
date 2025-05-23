@@ -28,7 +28,7 @@
           <div class="message-content markdown-content" :class="{'think-closed': msg.thinkClosed}" v-else>
             <div class="toggle-think-btn" v-if="msg.content.includes('<think>')" @click="msg.thinkClosed = !msg.thinkClosed">
               <span>已深度思考(用时{{msg.timeCost}}秒)</span>
-              <span class="material-symbols-outlined toggle-icon">keyboard_arrow_down</span>
+              <span class="material-symbols-outlined toggle-icon transform-transition">keyboard_arrow_down</span>
             </div>
             <markdown-viewer :markdown="msg.content"></markdown-viewer>
             <span class="material-symbols-outlined loading-icon">progress_activity</span>
@@ -318,7 +318,6 @@ const fetchData = async (query: string) => {
       width: fit-content;
       .toggle-icon {
         font-weight: 600;
-        transition: transform .2s;
       }
     }
     :deep(.mc-markdown-render) {

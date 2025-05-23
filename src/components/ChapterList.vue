@@ -43,7 +43,7 @@
           :class="{active: index === curVisibleChapterListIndex}"
           :data-catalog-level="source.level || 1"
           :data-catalog-id="source.id">
-          <span class="material-symbols-outlined expand-icon"
+          <span class="material-symbols-outlined expand-icon transform-transition"
             :class="{fold: foldState[source.id]}"
             v-if="canExpand(source)"
             @click.stop="toggleExpand(source)"
@@ -224,7 +224,7 @@ const scrollHandler = (event: Event, range: { start: number, end: number }) => {
 }
 .chapter-item {
   padding: 0 16px;
-  border-bottom: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
+  border-bottom: 1px solid var(--border-color);
   cursor: pointer;
   width: 100%;
   box-sizing: border-box;
@@ -237,7 +237,7 @@ const scrollHandler = (event: Event, range: { start: number, end: number }) => {
     position: absolute;
     top: 0;
     left: 0;
-    background: light-dark(var(--light-bg-color), var(--dark-bg-color));
+    background: var(--bg-color);
     z-index: 1;
   }
 }
@@ -252,14 +252,8 @@ const scrollHandler = (event: Event, range: { start: number, end: number }) => {
 }
 .expand-icon {
   transform: rotate(90deg);
-  transition: transform .2s;
-  @keyframes rotate0 {
-    0% { transform: rotate(90deg) }
-    100% { transform: rotate(0) }
-  }
   &.fold {
     transform: rotate(0);
-    // animation: rotate0 .2s both;
   }
 }
 </style>

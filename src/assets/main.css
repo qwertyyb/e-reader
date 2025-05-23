@@ -1,5 +1,7 @@
 @import './base.css';
-@import './animation.css';
+@import './animation.scss';
+@import './contrast.css';
+@import './dark-mode.css';
 @import './fonts.css';
 
 #app {
@@ -20,4 +22,27 @@ mark {
   text-decoration-line: underline;
   text-decoration-color: rgb(253, 145, 163);
   text-underline-offset: 0.3em;
+}
+
+body .material-symbols-outlined {
+  color: inherit;
+  font-size: inherit;
+}
+
+.selected {
+  background: var(--selected-bg-color);
+  color: var(--selected-text-color);
+}
+
+.mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 9;
+}
+.pointer {
+  cursor: pointer;
 }

@@ -1,0 +1,29 @@
+/* 高对比度模式 */
+html.more-contrast {
+  --card-bg-color: #eee;
+  --border-color: #000;
+  --bg-color: #fff;
+  --text-color: #000;
+  --shadow-color: none;
+  --selected-text-color: #fff;
+  --selected-bg-color: #000;
+  --read-bg-image: none;
+  --read-bg-color: #fff;
+}
+html.more-contrast img {
+  filter: grayscale(100%) contrast(140%);
+}
+
+html.more-contrast.dark-mode {
+  color-scheme: dark;
+
+  --card-bg-color: #333;
+  --border-color: #fff;
+  --bg-color: #000;
+  --text-color: #fff;
+  --shadow-color: none;
+  --selected-text-color: #000;
+  --selected-bg-color: #fff;
+  --read-bg-image: none;
+  --read-bg-color: #000;
+}

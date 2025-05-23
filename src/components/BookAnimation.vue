@@ -1,5 +1,5 @@
 <template>
-  <div class="book-animation" :class="{ animting: enableAnim && direction !== 'none', closing: enableAnim && direction === 'reverse' }">
+  <div class="book-animation" :class="{ animting: !disableAnim && direction !== 'none', closing: !disableAnim && direction === 'reverse' }">
     <div class="book-anim">
       <div class="book-cover book-anim-cover">
         <img class="book-cover-img" :src="animData.cover" :alt="animData.title" />
@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { animData, setWait } from '@/stores/bookAnim';
-import { enableAnim } from '@/utils/env';
+import { disableAnim } from '@/utils/env';
 
 const direction = ref<'normal' | 'reverse' | 'none'>('normal')
 
@@ -101,7 +101,7 @@ const { promise: waitOpen, resolve: openDone } = Promise.withResolvers<void>()
 const { promise: waitClose, resolve: closeDone } = Promise.withResolvers<void>()
 
 const openBook = async () => {
-  if (!enableAnim.value) {
+  if (disableAnim.value) {
     openDone()
     return
   }
@@ -112,7 +112,7 @@ const openBook = async () => {
 }
 
 const closeBook = async () => {
-  if (!enableAnim.value) {
+  if (disableAnim.value) {
     closeDone()
     return
   }
@@ -150,7 +150,7 @@ defineExpose({
   --read-view-background-image: url("../assets/text-bg.png");
   width: 100vw;
   position: relative;
-  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
+  background: var(--bg-color);
   &.animting {
     height: var(--page-height);
     position: fixed;
@@ -200,7 +200,7 @@ defineExpose({
     height: 100%;
     position: absolute;
     inset: 0;
-    background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
+    background-color: var(--bg-color);
     background-image: var(--read-view-background-image);
     background-size: cover;
     transform: rotateY(-180deg);

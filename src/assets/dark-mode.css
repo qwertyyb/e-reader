@@ -1,0 +1,11 @@
+html.dark-mode {
+  color-scheme: dark;
+
+  --card-bg-color: #2a2a2a;
+  --border-color: #444;
+  --bg-color: #1a1a1a;
+  --text-color: #b4b3b3;
+  --shadow-color: rgba(227, 227, 227, 0.1);
+  --read-bg-color: #1a1a1a;
+  --read-bg-image: none;
+}

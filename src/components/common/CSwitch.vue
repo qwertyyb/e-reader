@@ -1,8 +1,8 @@
 <template>
-  <div class="c-switch" :class="{ 'is-checked': modelValue }" @click="toggle">
-    <span class="c-switch__inner">
-      <span class="c-switch__text c-switch__text--on">{{ activeText }}</span>
-      <span class="c-switch__text c-switch__text--off">{{ inactiveText }}</span>
+  <div class="c-switch all-transition" :class="{ 'is-checked': modelValue }" @click="toggle">
+    <span class="c-switch__inner transform-transition">
+      <span class="c-switch__text c-switch__text--on opacity-transition">{{ activeText }}</span>
+      <span class="c-switch__text c-switch__text--off opacity-transition">{{ inactiveText }}</span>
     </span>
     <input
       type="checkbox"
@@ -53,7 +53,6 @@ const handleChange = () => {
   border-radius: 16px; /* Increased from 12px */
   background-color: #dcdfe6;
   cursor: pointer;
-  transition: all 0.3s;
 }
 
 .c-switch.is-checked {
@@ -66,7 +65,6 @@ const handleChange = () => {
   height: 32px; /* Increased from 24px */
   border-radius: 50%;
   background-color: white;
-  transition: transform 0.3s;
 }
 
 .c-switch.is-checked .c-switch__inner {
@@ -85,7 +83,6 @@ const handleChange = () => {
 .c-switch__text--on {
   left: 8px; /* Adjusted to match new size */
   opacity: 0;
-  transition: opacity 0.3s;
 }
 
 .c-switch__text--off {

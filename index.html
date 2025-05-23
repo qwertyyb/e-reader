@@ -7,15 +7,8 @@
     <meta name="referrer" content="unsafe-url">
     <title>E Reader</title>
     <link rel="manifest" href="./manifest.json">
-    <script>
-      (function () {
-          var src = 'https://cdn.jsdelivr.net/npm/eruda';
-          if (!/eruda=true/.test(window.location) && localStorage.getItem('enable-debug') != 'true') return;
-          document.write('<scr' + 'ipt src="' + src + '"></scr' + 'ipt>');
-          document.write('<scr' + 'ipt>eruda.init();</scr' + 'ipt>');
-      })();
-    </script>
     <script async src="https://unpkg.com/pwacompat" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
     <style>
       html {
         --page-height: 100dvh;

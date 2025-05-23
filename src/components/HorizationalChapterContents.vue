@@ -249,7 +249,7 @@ defineExpose({
   height: var(--page-height);
   background-image: url("../assets/text-bg.png");
   background-size: cover;
-  background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
+  background-color: var(--bg-color);
   overflow-x: hidden;
   position: relative;
   touch-action: none;

@@ -116,7 +116,7 @@ refreshCandidates()
 .candidate-item {
   padding: 0 12px;
   border-radius: 9999px;
-  background: light-dark(var(--light-card-bg-color), var(--dark-card-bg-color));
+  background: var(--card-bg-color);
   font-weight: 500;
   color: #444;
   cursor: pointer;

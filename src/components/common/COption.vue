@@ -27,7 +27,4 @@ const select = () => {
   text-align: center;
   font-size: 18px;
 }
-.c-option.selected {
-  color: var(--theme-color);
-}
 </style>

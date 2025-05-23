@@ -197,6 +197,6 @@ onBeforeRouteLeave((to, from, next) => {
 .read-view {
   width: 100vw;
   position: relative;
-  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
+  background: var(--bg-color);
 }
 </style>

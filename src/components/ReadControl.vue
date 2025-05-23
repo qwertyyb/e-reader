@@ -104,27 +104,30 @@
           </c-progress>
         </div>
         <div class="font-family-and-turn-page line-item">
-          <c-select v-model="settings.fontFamily" class="font-family-select">
+          <c-select
+            v-model="settings.fontFamily"
+            class="font-family-select"
+            :options="fontFamilyList"
+          >
             <template v-slot:label="{ value }">
               <div class="font-family-label"
                 :data-font="settings.fontFamily">
                 {{ fontFamilyList.find(item => item.value === value)?.label || fontFamilyList[0]?.label }}
               </div>
             </template>
-            <c-option
-              :value="family.value"
-              :data-font="family.value"
-              :label="family.label"
-              v-for="family in fontFamilyList"
-              :key="family.value"
-            >{{ family.label }}</c-option>
           </c-select>
-          <c-select v-model="settings.turnPageType" @update:model-value="updateTurnPage" class="turn-page-type-select">
+          <c-select
+            v-model="settings.turnPageType"
+            @change="updateTurnPage"
+            class="turn-page-type-select"
+            :options="[
+              { label: '上下滚动', value: 'vertical-scroll' },
+              { label: '左右滑动', value: 'horizontal-scroll' }
+            ]"
+          >
             <template v-slot:label="{ value }">
               {{ turnPageType.find(item => item.value === value)?.label || turnPageType[0]?.label }}
             </template>
-            <c-option value="vertical-scroll">上下滚动</c-option>
-            <c-option value="horizontal-scroll">左右滑动</c-option>
           </c-select>
         </div>
       </div>
@@ -172,7 +175,6 @@ import { AutoPlay, ReadSpeak } from '@/actions';
 import { computed, inject, onBeforeUnmount, type Ref, ref } from 'vue';
 import CProgress from '@/components/common/CProgress.vue';
 import CSelect from '@/components/common/CSelect.vue';
-import COption from '@/components/common/COption.vue';
 import { fontFamilyList, turnPageType } from '@/config';
 import { settings } from '@/stores/settings';
 import type { GetNextElement } from '@/actions/read-speak';
@@ -253,8 +255,9 @@ const changeAutoPlaySpeed = (speed: number) => {
   actions.autoPlay.updateSpeed(speed)
 }
 
-const updateTurnPage = (t: TurnPageType) => {
-  actions.autoPlay.updateTurnPageType(t)
+const updateTurnPage = (t?: string) => {
+  if (!t) return;
+  actions.autoPlay.updateTurnPageType(t as TurnPageType)
 }
 
 const changeReadSpeakRate = (rate: number) => {
@@ -312,28 +315,28 @@ defineExpose({
   align-items: center;
   padding: 0 12px;
   height: var(--control-height);
-  background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
-  border-top: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
+  background-color: var(--bg-color);
+  border-top: 1px solid var(--border-color);
   text-align: center;
   padding-bottom: var(--saib);
   box-sizing: content-box;
   position: relative;
   z-index: 4;
-  // box-shadow: 0 0 10px light-dark(var(--light-shadow-color), var(--dark-shadow-color));
 }
 .control-item {
   cursor: pointer;
-  &.selected > * {
-    color: rgb(0, 4, 255);
-  }
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  border-radius: 2px;
 }
 .material-symbols-outlined {
   font-size: 32px;
 }
 .control-panel {
-  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
+  background: var(--bg-color);
   padding: 16px;
-  border-top: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
+  border-top: 1px solid var(--border-color);
   box-sizing: content-box;
 }
 .control-panel + .control-list {
@@ -386,10 +389,6 @@ defineExpose({
   align-items: center;
   justify-content: space-between;
 }
-.control-panel.font-panel .font-weight.selected {
-  background: #000;
-  color: #fff;
-}
 .control-panel.font-panel .font-size {
   display: flex;
   align-items: center;
@@ -433,7 +432,7 @@ defineExpose({
   text-align: center;
 }
 .read-info-item + .read-info-item {
-  border-left: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
+  border-left: 1px solid var(--border-color);
 }
 .read-info-subtitle {
   opacity: 0.6;

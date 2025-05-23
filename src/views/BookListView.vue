@@ -22,9 +22,9 @@
     <div class="navigation-bar-space"></div>
     <div class="category-wrapper" v-if="route.name === 'local' && bookList.length">
       <ul class="category-list">
-        <li class="category-item" :class="{active: category === 'all'}" @click="category='all'">全部</li>
-        <li class="category-item" :class="{active: category === 'imported'}" @click="category='imported'">导入</li>
-        <li class="category-item" :class="{active: category === 'downloaded'}" @click="category='downloaded'">远程</li>
+        <li class="category-item" :class="{selected: category === 'all'}" @click="category='all'">全部</li>
+        <li class="category-item" :class="{selected: category === 'imported'}" @click="category='imported'">导入</li>
+        <li class="category-item" :class="{selected: category === 'downloaded'}" @click="category='downloaded'">远程</li>
       </ul>
       <span class="material-symbols-outlined import-action pointer" @click="$router.push({ name: 'import' })">add</span>
     </div>
@@ -50,7 +50,8 @@
           class="pointer"
         ></book-item>
         <div class="select-wrapper" @click="toggleSelect(book)" v-if="selecting">
-          <span class="material-symbols-outlined checkbox-icon">check_circle</span>
+          <span class="material-symbols-outlined checkbox-icon" v-if="selectedIds.has(book.id)">check_circle</span>
+          <span class="material-symbols-outlined checkbox-icon" v-else>radio_button_unchecked</span>
         </div>
       </li>
     </ul>
@@ -221,13 +222,13 @@ watch(() => route.name, () => {
   padding: var(--sait) 16px 0 16px;
   height: 48px;
   box-sizing: content-box;
-  border-bottom: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
+  border-bottom: 1px solid var(--border-color);
   position: fixed;
   top: 0;
   right: 0;
   left: 0;
   z-index: 1;
-  background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
+  background-color: var(--bg-color);
   .logo {
     width: 24px;
     height: 24px;
@@ -271,13 +272,12 @@ watch(() => route.name, () => {
 .category-list {
   display: flex;
   list-style: none;
-  gap: 16px;
+  gap: 8px;
   margin-right: auto;
   .category-item {
     cursor: pointer;
-    &.active {
-      color: light-dark(blue, rgb(58, 127, 255));
-    }
+    border-radius: 2px;
+    padding: 0 8px;
   }
 }
 .actions-wrapper {
@@ -292,7 +292,7 @@ watch(() => route.name, () => {
   left: 0;
   right: 0;
   z-index: 1;
-  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
+  background: var(--bg-color);
   .action-item {
     display: flex;
     align-items: center;
@@ -336,14 +336,10 @@ watch(() => route.name, () => {
   .checkbox-icon {
     color: #bbb;
     font-size: 24px;
+    transition: color .2s;
   }
-  &.selected {
-    .select-wrapper {
-      background: rgba(0, 0, 0, 0.5);
-    }
-    .checkbox-icon {
-      color:rgb(138, 179, 254);
-    }
+  &.selected .select-wrapper {
+    background: rgba(0, 0, 0, 0.5);
   }
 }
 .select-wrapper {

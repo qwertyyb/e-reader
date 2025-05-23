@@ -103,7 +103,7 @@ watch(() => props.visible, async (visible) => {
   list-style: none;
   padding: 0;
   margin-top: 16px;
-  border-top: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
+  border-top: 1px solid var(--border-color);
   overflow: auto;
   &::-webkit-scrollbar {
     display: none;

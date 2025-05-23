@@ -381,7 +381,7 @@ const actionHandler = async (event: Event, action: string) => {
   align-items: flex-end;
   width: auto;
   box-sizing: border-box;
-  border-bottom: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
+  border-bottom: 1px solid var(--border-color);
   .thought-icon {
     margin-right: 8px;
     font-size: 22px;

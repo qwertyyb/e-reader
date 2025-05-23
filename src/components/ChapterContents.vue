@@ -251,10 +251,10 @@ defineExpose({
   background-clip: border-box;
   overflow: auto;
   position: relative;
-  background-image: url("../assets/text-bg.png");
+  background-image: var(--read-bg-image);
   background-size: contain;
   background-attachment: local;
-  background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
+  background-color: var(--read-bg-color);
   padding-left: 12px;
   padding-right: 12px;
   padding-top: var(--sait);
@@ -263,9 +263,6 @@ defineExpose({
   font-size: inherit;
   user-select: text;
   -webkit-user-select: text;
-}
-:global(html.dark-mode .chapter-contents-wrapper) {
-  background-image: none;
 }
 .chapter-contents :deep(.chapter-contents-wrapper) {
   &.column {

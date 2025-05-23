@@ -1,5 +1,5 @@
 import { register, unregister } from './register-sw'
-import { initEnableAnim } from '@/utils/env'
+import { initDisableAnim, initEruda, initMoreContrast } from '@/utils/env'
 import './assets/main.css'
 import 'material-symbols/outlined.css'
 
@@ -24,7 +24,9 @@ Logger.useDefaults({
   }
 })
 
-initEnableAnim()
+initEruda()
+initDisableAnim()
+initMoreContrast()
 
 const app = createApp(App)
 
@@ -35,7 +37,8 @@ app.directive('loading', ElLoadingDirective)
 
 app.mount('#app')
 
-router.push(location.hash.replace('#', '') || '/')
+const defaultPath = location.hash.replace('#', '') || '/'
+router.push(defaultPath)
 
 if (import.meta.env.PROD) {
   register()

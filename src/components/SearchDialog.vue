@@ -260,7 +260,7 @@ const toResult = (source: IResult, result: { cursor: number, text: string }) => 
   padding: 8px 12px;
   font-size: 16px;
   color: #555;
-  background: light-dark(var(--light-card-bg-color), var(--dark-card-bg-color));
+  background: var(--card-bg-color);
   border-radius: 4px;
   letter-spacing: 0.5px;
   &:deep(mark) {

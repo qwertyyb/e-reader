@@ -20,7 +20,6 @@ const getPreferences = () => {
 export const preferences = ref<{
   screenKeepAlive: 'always' | 'reading' | 'never';
   darkMode: 'system' | 'light' | 'dark';
-  debugMode: boolean;
 }>(getPreferences());
 
 export const darkMode = new DarkMode({
@@ -40,15 +39,4 @@ watch(preferences, (newConfig) => {
   }
   darkMode.updateAuto(newConfig.darkMode === 'system')
   localStorage.setItem(preferencesStorageKey, JSON.stringify(newConfig));
-  if (newConfig.debugMode && localStorage.getItem('enable-debug') !== 'true') {
-    localStorage.setItem('enable-debug', 'true')
-    if (window.confirm('需要重新启动才能进入开发模式，是否重启？')) {
-      location.reload()
-    }
-  } else if (!newConfig.debugMode && localStorage.getItem('enable-debug') === 'true') {
-    localStorage.removeItem('enable-debug')
-    if (window.confirm('需要重新启动才能关闭开发模式，是否重启？')) {
-      location.reload()
-    }
-  }
 }, { deep: true });

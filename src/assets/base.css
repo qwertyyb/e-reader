@@ -14,22 +14,17 @@
     'Helvetica Neue',
     sans-serif;
   
-  --theme-color: light-dark(rgb(0, 64, 255), rgb(70, 116, 255));
+  --theme-color: #3563A9;
 
-  --light-bg-color: #f0f0f0;
-  --dark-bg-color: #1a1a1a;
-  --light-border-color: #ccc;
-  --dark-border-color: #444;
-  --border-color: light-dark(var(--light-border-color), var(--dark-border-color));
-
-  --light-text-color: #333;
-  --dark-text-color: #b4b3b3;
-  --light-shadow-color: rgba(0, 0, 0, 0.2);
-  --dark-shadow-color: rgba(227, 227, 227, 0.1);
-
-  --light-card-bg-color: #e2e2e2;
-  --dark-card-bg-color: #2a2a2a;
-  --card-bg-color: light-dark(var(--light-card-bg-color), var(--dark-card-bg-color));
+  --bg-color: #f0f0f0;
+  --border-color: #ccc;
+  --text-color: #333;
+  --shadow-color: rgba(0, 0, 0, 0.2);
+  --card-bg-color: #e2e2e2;
+  --selected-bg-color: none;
+  --selected-text-color: var(--theme-color);
+  --read-bg-image: url("./text-bg.png?url");
+  --read-bg-color: none;
 
   --sait: env(safe-area-inset-top);
   --saib: env(safe-area-inset-bottom);
@@ -39,7 +34,7 @@
 
 * {
   box-sizing: border-box;
-  color: light-dark(var(--light-text-color), var(--dark-text-color));
+  color: var(--text-color);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -47,9 +42,6 @@ body {
   min-height: var(--page-height);
   color: var(--color-text);
   background: var(--color-background);
-  transition:
-    color 0.5s,
-    background-color 0.5s;
   line-height: 1.6;
   font-family: var(--font-family);
   font-size: 15px;
@@ -63,22 +55,9 @@ ul, h1, h2, h3, h4, h5, h6, p {
   padding: 0;
   margin: 0;
 }
-body .material-symbols-outlined {
-  color: inherit;
-  font-size: inherit;
-}
-
-.mask {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: rgba(0, 0, 0, 0.85);
-  z-index: 9;
-}
-.pointer {
-  cursor: pointer;
+button {
+  border: none;
+  background: none;
 }
 
 html {
@@ -91,15 +70,4 @@ html.mock-safe-area {
   --saib: 34px;
   --sail: 0;
   --sair: 0;
-}
-
-/* dark mode start */
-html.dark-mode {
-  color-scheme: dark;
-}
-/* dark mode end */
-
-button {
-  border: none;
-  background: none;
 }

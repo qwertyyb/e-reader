@@ -48,14 +48,14 @@ async function onLeave(el: Element, done: () => void) {
 <style lang="scss">
 .root-app {
   min-height: var(--page-height);
-  background-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
+  background-color: var(--bg-color);
   touch-action: none;
 }
 .btn {
   padding: 4px 16px;
   border-radius: 4px;
   font-size: 14px;
-  border: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
+  border: 1px solid var(--border-color);
   font-weight: 500;
   &.primary-btn {
     background: rgb(56, 66, 255);

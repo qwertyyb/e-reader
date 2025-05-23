@@ -81,7 +81,7 @@ const insertAfter = (index: number) => {
     font-size: 20px;
     color: inherit;
     cursor: pointer;
-    border: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     aspect-ratio: 1 / 1;
     display: flex;

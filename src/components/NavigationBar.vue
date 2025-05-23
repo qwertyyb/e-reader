@@ -30,8 +30,8 @@ defineEmits<{ menu: [] }>()
 <style lang="scss" scoped>
 .navigation-bar {
   width: 100%;
-  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
-  border-bottom: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
+  background: var(--bg-color);
+  border-bottom: 1px solid var(--border-color);
   z-index: 10;
   padding-top: var(--sait);
   position: relative;

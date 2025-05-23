@@ -4,11 +4,11 @@
       <router-view></router-view>
     </div>
     <ul class="tab-nav-list">
-      <li class="tab-nav-item pointer" @click="$router.replace({ name: 'local' })" :class="{active: $route.name === 'local'}">
+      <li class="tab-nav-item pointer" @click="$router.replace({ name: 'local' })" :class="{selected: $route.name === 'local'}">
         <span class="material-symbols-outlined tab-icon">newsstand</span>
         书架
       </li>
-      <li class="tab-nav-item pointer" @click="$router.replace({ name: 'remote' })" :class="{active: $route.name === 'remote'}">
+      <li class="tab-nav-item pointer" @click="$router.replace({ name: 'remote' })" :class="{selected: $route.name === 'remote'}">
         <span class="material-symbols-outlined tab-icon">storefront</span>
         阅读
       </li>
@@ -37,13 +37,13 @@
   width: 100%;
   height: 54px;
   box-sizing: content-box;
-  border-top: 1px solid light-dark(var(--light-border-color), var(--dark-border-color));
+  border-top: 1px solid var(--border-color);
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 1;
-  background: light-dark(var(--light-bg-color), var(--dark-bg-color));
+  background: var(--bg-color);
 }
 .tab-nav-item {
   flex: 1;
@@ -52,9 +52,6 @@
   justify-content: center;
   align-items: center;
   font-weight: 500;
-  &.active {
-    color: light-dark(blue, rgb(58, 127, 255));
-  }
   .material-symbols-outlined {
     color: inherit;
     font-size: 24px;

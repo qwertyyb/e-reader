@@ -7,6 +7,7 @@ import AIChatView from '@/views/AIChatView.vue'
 import PreferencesView from '@/views/PreferencesView.vue'
 import { ref, type Ref } from 'vue'
 import AboutView from '@/views/AboutView.vue'
+import DebugView from '@/views/DebugView.vue'
 
 export const transitionName = ref('')
 
@@ -136,6 +137,11 @@ const router = createRouter({
       path: '/about',
       name: 'about',
       component: AboutView
+    },
+    {
+      path: '/debug',
+      name: 'debug',
+      component: DebugView
     }
   ],
 })
