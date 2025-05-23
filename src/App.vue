@@ -37,6 +37,7 @@ async function onLeave(el: Element, done: () => void) {
       <transition
         :name="transitionName"
         @leave="onLeave"
+        :css="false"
       >
         <component :is="Component" />
       </transition>

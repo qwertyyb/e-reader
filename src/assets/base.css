@@ -25,6 +25,8 @@
   --selected-text-color: var(--theme-color);
   --read-bg-image: url("./text-bg.png?url");
   --read-bg-color: none;
+  --reading-text-color: var(--theme-color);
+  --reading-bg-color: none;
 
   --sait: env(safe-area-inset-top);
   --saib: env(safe-area-inset-bottom);

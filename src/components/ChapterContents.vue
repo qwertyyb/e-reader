@@ -11,7 +11,7 @@
 <script setup lang="ts">
 import { debounce, showToast } from '@/utils';
 import { renderChapter } from '@/utils/chapter';
-import { getSafeAreaTop } from '@/utils/env';
+import { disableAnim, getSafeAreaTop } from '@/utils/env';
 import { nextTick, useTemplateRef } from 'vue';
 
 const props = defineProps<{
@@ -223,7 +223,7 @@ defineExpose({
       const nextEl = el.value?.querySelector<HTMLElement>(`[data-cursor="${progress.cursor}"]`)
       return {
         nextEl,
-        scrollIntoView: () => nextEl?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+        scrollIntoView: () => nextEl?.scrollIntoView({ block: 'center', behavior:  disableAnim.value ? 'instant' : 'smooth' })
       }
     }
     const cursor = Number(current.dataset.cursor)
@@ -234,7 +234,7 @@ defineExpose({
       nextCursor += 1
       nextEl = el.value?.querySelector<HTMLElement>(`[data-cursor="${nextCursor}"]`)
     }
-    return { nextEl, scrollIntoView: () => nextEl?.scrollIntoView({ block: 'center', behavior: 'smooth' }) }
+    return { nextEl, scrollIntoView: () => nextEl?.scrollIntoView({ block: 'center', behavior:  disableAnim.value ? 'instant' : 'smooth' }) }
   }
 })
 </script>
@@ -296,7 +296,8 @@ defineExpose({
     font-size: 1.2em;
   }
   p.reading {
-    color: light-dark(blue, rgb(94, 94, 255))
+    color: var(--reading-text-color);
+    background: var(--reading-bg-color);
   }
 }
 </style>

@@ -13,6 +13,7 @@
 <script setup lang="ts">
 import { debounce, showToast } from '@/utils';
 import { renderChapter } from '@/utils/chapter';
+import { disableAnim } from '@/utils/env';
 import { nextTick, useTemplateRef } from 'vue'
 
 const props = defineProps<{
@@ -100,7 +101,7 @@ const scrollToCursor = async (cursor: number, options: { anim: boolean } = { ani
   // 计算这个矩形落在哪一页
   const pageWidth = getPageWidth()
   const distance = Math.round(target.offsetLeft / pageWidth) * pageWidth
-  el.value?.querySelector<HTMLElement>(`.chapter-contents-wrapper`)?.scrollTo({ left: distance, behavior: options.anim ? 'smooth' : 'auto' })
+  el.value?.querySelector<HTMLElement>(`.chapter-contents-wrapper`)?.scrollTo({ left: distance, behavior: options.anim && !disableAnim.value ? 'smooth' : 'instant' })
 }
 
 const getCurrentProgress = () => {
@@ -160,7 +161,7 @@ const pointerUpHandler = (event: PointerEvent) => {
     // 如果滚动的距离超过了一半，则以当前落点计算应该滚动的位置
     scrollLeft = Math.round(wrapper.scrollLeft / pw) * pw
   }
-  wrapper.scrollTo({ left: scrollLeft, behavior: 'smooth' })
+  wrapper.scrollTo({ left: scrollLeft, behavior:  disableAnim.value ? 'instant' : 'smooth' })
   startX = -1
   touching = false
 }
@@ -181,7 +182,7 @@ const scrollToPage = (getNextPage: (page: number) => number) => {
   const pageWidth = getPageWidth()
   const curPage = Math.round(wrapper.scrollLeft / pageWidth)
   const scrollLeft = getNextPage(curPage) * pageWidth
-  wrapper.scrollTo({ left: scrollLeft, behavior: 'smooth' })
+  wrapper.scrollTo({ left: scrollLeft, behavior:  disableAnim.value ? 'instant' : 'smooth' })
 }
 
 const nextPage = () => scrollToPage(page => page + 1)
@@ -247,9 +248,9 @@ defineExpose({
   padding: var(--sait) 12px var(--saib) 12px;
   column-gap: 12px;
   height: var(--page-height);
-  background-image: url("../assets/text-bg.png");
+  background-image: var(--read-bg-image);
   background-size: cover;
-  background-color: var(--bg-color);
+  background-color: var(--read-bg-color);
   overflow-x: hidden;
   position: relative;
   touch-action: none;
@@ -287,7 +288,8 @@ defineExpose({
     }
   }
   p.reading {
-    color: light-dark(blue, rgb(94, 94, 255))
+    color: var(--reading-text-color);
+    background: var(--reading-bg-color);
   }
 }
 </style>

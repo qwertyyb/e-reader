@@ -1,5 +1,6 @@
 html.disable-anim * {
-  transition-duration: 1ms !important;
+  transition: none !important;
+  // transition-duration: 1ms !important;
 }
 html:not(.disable-anim) {
   .slide-down-enter-from,

@@ -1,6 +1,6 @@
 <template>
   <div class="read-control">
-    <transition name="slide-up">
+    <transition name="slide-up" :css="!disableAnim">
       <div class="control-panel play-panel" data-target-control="autoPlay" v-if="visiblePanel === 'autoPlay'">
         <div class="speed">
           <c-progress
@@ -17,7 +17,7 @@
       </div>
     </transition>
 
-    <transition name="slide-up">
+    <transition name="slide-up" :css="!disableAnim">
       <div class="control-panel progress-panel" v-if="visiblePanel === 'progress'">
         <ul class="read-info">
           <li class="read-info-item" v-if="chapterPercent">
@@ -65,7 +65,7 @@
       </div>
     </transition>
 
-    <transition name="slide-up">
+    <transition name="slide-up" :css="!disableAnim">
       <div class="control-panel font-panel" data-target-control="font" v-if="visiblePanel === 'font'">
         <div class="font-size line-item">
           <c-progress
@@ -179,6 +179,7 @@ import { fontFamilyList, turnPageType } from '@/config';
 import { settings } from '@/stores/settings';
 import type { GetNextElement } from '@/actions/read-speak';
 import { darkMode } from '@/stores/preferences';
+import { disableAnim } from '@/utils/env';
 
 const props = defineProps<{
   getNextReadElement: GetNextElement

@@ -202,7 +202,7 @@ const onLongtap = (book: IBookItem) => {
 refresh()
 
 watch(() => route.name, () => {
-  category.value = ''
+  category.value = 'all'
   selecting.value = false
   refresh()
 })

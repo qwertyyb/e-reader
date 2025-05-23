@@ -9,6 +9,8 @@ html.more-contrast {
   --selected-bg-color: #000;
   --read-bg-image: none;
   --read-bg-color: #fff;
+  --reading-text-color: #fff;
+  --reading-bg-color: #000;
 }
 html.more-contrast img {
   filter: grayscale(100%) contrast(140%);
@@ -26,4 +28,6 @@ html.more-contrast.dark-mode {
   --selected-bg-color: #fff;
   --read-bg-image: none;
   --read-bg-color: #000;
+  --reading-text-color: #000;
+  --reading-bg-color: #fff;
 }

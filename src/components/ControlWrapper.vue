@@ -1,6 +1,6 @@
 <template>
   <div class="control-wrapper">
-    <transition name="slide-down">
+    <transition name="slide-down" :css="!disableAnim">
       <navigation-bar class="navigator"
         v-show="panelVisible && !selectMenuShowed"
         :title="title"
@@ -65,7 +65,7 @@
       </div>
     </selection-menu>
 
-    <transition name="slide-up">
+    <transition name="slide-up" :css="!disableAnim">
       <read-control
         ref="read-control"
         v-show="panelVisible && !selectMenuShowed"
@@ -93,6 +93,7 @@ import ReadControl from '@/components/ReadControl.vue';
 import Hammer from 'hammerjs';
 import { settings } from '@/stores/settings';
 import type { GetNextElement } from '@/actions/read-speak';
+import { disableAnim } from '@/utils/env';
 
 defineProps<{
   bookId: number
