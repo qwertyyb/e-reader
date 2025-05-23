@@ -4,6 +4,7 @@ import UpdateDialog from '@/components/UpdateDialog.vue'
 import { watch } from 'vue'
 import router, { transitionName } from '@/router'
 import { clearAnimData, waits, animData } from '@/stores/bookAnim'
+import { disableAnim } from '@/utils/env'
 const route = useRoute()
 let oldRouteName: string | null | undefined | symbol = null
 
@@ -37,7 +38,7 @@ async function onLeave(el: Element, done: () => void) {
       <transition
         :name="transitionName"
         @leave="onLeave"
-        :css="false"
+        :css="!disableAnim"
       >
         <component :is="Component" />
       </transition>
