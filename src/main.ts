@@ -1,4 +1,5 @@
 import { register, unregister } from './register-sw'
+import { initEnableAnim } from '@/utils/env'
 import './assets/main.css'
 import 'material-symbols/outlined.css'
 
@@ -22,6 +23,8 @@ Logger.useDefaults({
     messages.unshift(`[${time}]`)
   }
 })
+
+initEnableAnim()
 
 const app = createApp(App)
 

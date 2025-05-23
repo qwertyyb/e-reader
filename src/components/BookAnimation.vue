@@ -1,5 +1,5 @@
 <template>
-  <div class="book-animation" :class="{ animting: direction !== 'none', closing: direction === 'reverse' }">
+  <div class="book-animation" :class="{ animting: enableAnim && direction !== 'none', closing: enableAnim && direction === 'reverse' }">
     <div class="book-anim">
       <div class="book-cover book-anim-cover">
         <img class="book-cover-img" :src="animData.cover" :alt="animData.title" />
@@ -15,6 +15,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { animData, setWait } from '@/stores/bookAnim';
+import { enableAnim } from '@/utils/env';
 
 const direction = ref<'normal' | 'reverse' | 'none'>('normal')
 
@@ -100,6 +101,10 @@ const { promise: waitOpen, resolve: openDone } = Promise.withResolvers<void>()
 const { promise: waitClose, resolve: closeDone } = Promise.withResolvers<void>()
 
 const openBook = async () => {
+  if (!enableAnim.value) {
+    openDone()
+    return
+  }
   direction.value = 'normal'
   await runBookAnimation({ direction: 'normal' })
   direction.value = 'none'
@@ -107,6 +112,10 @@ const openBook = async () => {
 }
 
 const closeBook = async () => {
+  if (!enableAnim.value) {
+    closeDone()
+    return
+  }
   direction.value = 'reverse'
   await runBookAnimation({ direction: 'reverse' })
   direction.value = 'none'
@@ -171,7 +180,6 @@ defineExpose({
     }
   }
 }
-
 .book-anim {
   transform-origin: center center;
 }
