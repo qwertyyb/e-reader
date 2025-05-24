@@ -12,6 +12,10 @@
         <span class="material-symbols-outlined tab-icon">storefront</span>
         阅读
       </li>
+      <li class="tab-nav-item pointer" @click="$router.push({ name: 'opds' })" :class="{selected: $route.name === 'remote'}">
+        <span class="material-symbols-outlined tab-icon">public</span>
+        阅读
+      </li>
     </ul>
   </div>
 </template>

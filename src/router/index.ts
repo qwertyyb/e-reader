@@ -142,6 +142,11 @@ const router = createRouter({
       path: '/debug',
       name: 'debug',
       component: DebugView
+    },
+    {
+      path: '/opds',
+      name: 'opds',
+      component: () => import('@/views/OPDSView.vue')
     }
   ],
 })

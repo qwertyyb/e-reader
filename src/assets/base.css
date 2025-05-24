@@ -20,7 +20,7 @@
   --border-color: #ccc;
   --text-color: #333;
   --shadow-color: rgba(0, 0, 0, 0.2);
-  --card-bg-color: #e2e2e2;
+  --card-bg-color: #fff;
   --selected-bg-color: none;
   --selected-text-color: var(--theme-color);
   --read-bg-image: url("./text-bg.png?url");
