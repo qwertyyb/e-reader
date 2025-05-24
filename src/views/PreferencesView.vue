@@ -30,6 +30,16 @@
       </c-select>
     </div>
 
+    <div class="prfs-item" @click="prompt('shelfServerUrl')">
+      <div class="prfs-label">书架服务URL</div>
+      <div class="prfs-control"><p>{{ preferences.shelfServerUrl }}</p></div>
+    </div>
+
+    <div class="prfs-item" @click="prompt('opdsServerUrl')">
+      <div class="prfs-label">OPDS URL</div>
+      <div class="prfs-control"><p>{{ preferences.opdsServerUrl }}</p></div>
+    </div>
+
     <div class="prfs-item" @click="$router.push('/debug')">
       <div class="prfs-label">开发</div>
       <div class="prfs-control">
@@ -65,6 +75,15 @@ const clearCache = async () => {
   showToast('缓存已清除')
 }
 
+const prompt = (name: 'shelfServerUrl' | 'opdsServerUrl') => {
+  const newValue = window.prompt(`请输入${name}`, preferences.value[name])
+  // 对用户输入的 URL 进行校验
+
+  if (newValue !== null) {
+    preferences.value[name] = newValue.trim()
+  }
+}
+
 </script>
 
 <style lang="scss" scoped>
@@ -87,7 +106,15 @@ const clearCache = async () => {
   margin-left: auto;
   font-size: 18px;
   display: flex;
-  align-items: center;
+  p {
+    word-break: break-all;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 16px;
+  }
   .arrow-icon {
     font-size: 24px;
   }

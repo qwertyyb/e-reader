@@ -40,7 +40,10 @@ async function onLeave(el: Element, done: () => void) {
         @leave="onLeave"
         :css="!disableAnim"
       >
-        <component :is="Component" />
+        <keep-alive exclude="TabView,ReadView">
+          <component :is="Component"
+            :key="typeof $route.meta.getKey === 'function' ? $route.meta.getKey($route) : undefined" />
+        </keep-alive>
       </transition>
     </router-view>
     <update-dialog></update-dialog>

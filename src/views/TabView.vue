@@ -3,24 +3,27 @@
     <div class="tab-panel-container">
       <router-view></router-view>
     </div>
-    <ul class="tab-nav-list">
-      <li class="tab-nav-item pointer" @click="$router.replace({ name: 'local' })" :class="{selected: $route.name === 'local'}">
+    <ul class="tab-nav-list" v-if="preferences.opdsServerUrl">
+      <li class="tab-nav-item pointer"
+        @click="$router.replace({ name: 'local' })"
+        :class="{selected: $route.name === 'local'}">
         <span class="material-symbols-outlined tab-icon">newsstand</span>
         书架
       </li>
-      <li class="tab-nav-item pointer" @click="$router.replace({ name: 'remote' })" :class="{selected: $route.name === 'remote'}">
-        <span class="material-symbols-outlined tab-icon">storefront</span>
-        阅读
-      </li>
-      <li class="tab-nav-item pointer" @click="$router.push({ name: 'opds' })" :class="{selected: $route.name === 'remote'}">
+      <li class="tab-nav-item pointer"
+        v-if="preferences.opdsServerUrl"
+        @click="$router.push({ name: 'opds' })"
+        :class="{selected: $route.name === 'remote'}">
         <span class="material-symbols-outlined tab-icon">public</span>
-        阅读
+        图书馆
       </li>
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
+import { preferences } from '@/stores/preferences';
+
 </script>
 
 <style lang="scss" scoped>
@@ -28,11 +31,12 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  height: var(--page-height);
 }
 .tab-panel-container {
-  padding-bottom: calc(var(--saib) + 60px);
-  height: var(--page-height);
   position: relative;
+  flex: 1;
+  overflow: auto;
 }
 .tab-nav-list {
   display: flex;
@@ -42,10 +46,7 @@
   height: 54px;
   box-sizing: content-box;
   border-top: 1px solid var(--border-color);
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
   z-index: 1;
   background: var(--bg-color);
 }
@@ -56,6 +57,7 @@
   justify-content: center;
   align-items: center;
   font-weight: 500;
+  padding-top: 12px;
   .material-symbols-outlined {
     color: inherit;
     font-size: 24px;

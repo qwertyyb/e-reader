@@ -1,4 +1,4 @@
-import { createMemoryHistory, createRouter, type RouterHistory } from 'vue-router'
+import { createMemoryHistory, createRouter, type RouteLocation, type RouterHistory } from 'vue-router'
 import TabView from '@/views/TabView.vue'
 import BookListView from '@/views/BookListView.vue'
 import ReadView from '@/views/ReadView.vue'
@@ -146,9 +146,19 @@ const router = createRouter({
     {
       path: '/opds',
       name: 'opds',
-      component: () => import('@/views/OPDSView.vue')
+      component: () => import('@/views/OPDSView.vue'),
+      meta: {
+        getKey(route: RouteLocation) {
+          return `${String(route.name)}-${route.query.url}`
+        }
+      }
     }
   ],
+})
+
+window.addEventListener('hashchange', event => {
+  const hash = event.newURL.split('#')[1] || '/'
+  router.replace(hash || '/')
 })
 
 export default router

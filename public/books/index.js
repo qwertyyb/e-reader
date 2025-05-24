@@ -1,11 +1,11 @@
-const curUrl = document.currentScript.src
+const curUrl = import.meta.url
 
 console.log(curUrl)
 
 const bookUrl = (bookName, suffix = 'txt') => new URL(`./${bookName}.${suffix}`, curUrl).href
 const coverUrl = (name) => new URL(`./covers/${name}.jpeg`, curUrl).href
 
-window.remoteBooks = [
+export const books = [
   {
     id: '1',
     cover: coverUrl('wzzj'),

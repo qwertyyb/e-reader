@@ -1,13 +1,10 @@
 <template>
   <div class="navigation-bar">
     <div class="navigation-bar-wrapper">
-      <div class="back-slot-wrapper" v-if="!noBack">
-        <slot name="back">
-          <div class="material-symbols-outlined back-icon"
-            @click="$router.back()"
-          >arrow_back_ios</div>
-        </slot>
-      </div>
+      <div class="material-symbols-outlined back-icon"
+        @click="$router.back()"
+        v-if="!noBack"
+      >arrow_back_ios</div>
       <div class="navigation-title">
         <slot>{{ title }}</slot>
       </div>
@@ -54,22 +51,17 @@ defineEmits<{ menu: [] }>()
   font-weight: 500;
   text-align: center;
 }
-.back-slot-wrapper {
+.back-icon, .navigation-menu {
   width: 28px;
   text-align: center;
+  cursor: pointer;
   position: absolute;
-  left: 16px;
   top: 50%;
   transform: translateY(-50%);
 }
-
-.back-icon, .navigation-menu {
-  width: 100%;
-  text-align: center;
-  cursor: pointer;
-}
 .back-icon {
   font-size: 20px;
+  left: 16px;
 }
 .navigation-menu {
   font-size: 24px;

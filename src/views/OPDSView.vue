@@ -1,91 +1,140 @@
 <template>
-  <div class="opds-view">
-    <NavigationBar :title="cur ? cur.feed.title : 'OPDS'" noMenu>
-      <template #back>
-        <div class="material-symbols-outlined back-icon"
-          @click="stack.length > 1 ? slide?.pop() : $router.back()"
-        >arrow_back_ios</div>
-      </template>
-    </NavigationBar>
-    <div class="opds-main">
-      <c-slide :list="stack" @pop="stack.pop()" ref="slide">
-        <template #item="{ item }">
-          <div class="opds-content">
-            <ul class="entry-list"
-              v-if="[FeedType.Navigation].includes(item.type)"
-            >
-              <li class="entry-item"
-                v-for="entry in item.feed.entry"
-                :key="entry.id"
-                @click="onEntryTap(entry, item.url)"
-                :title="entry.title"
-              >
-                {{ entry.title }}
-              </li>
-            </ul>
-            <ul class="content-list" v-else-if="[FeedType.Acquisition].includes(item.type)">
-              <li class="content-item"
-                v-for="entry in item.feed.entry"
-                :key="entry.id"
-                @click="onEntryTap(entry, item.url)"
-                :title="entry.title"
-              >
-                <img :src="getEntryThumbnail(entry, item.url)" alt="" class="content-thumbnail">
-                <div class="content-right">
-                  <h3 class="content-title">{{ entry.title }}</h3>
-                  <p class="content-desc content-authors">{{ (entry as IContentEntry).author?.map(item => item.name).join('、') }}</p>
-                  <p class="content-desc content-udpated-at">更新时间: {{ formatDate(entry.updated) }}</p>
-                </div>
-              </li>
-            </ul>
+  <slide-back class="opds-view">
+    <NavigationBar :title="cur ? cur.feed.title : '加载中...'" noMenu></NavigationBar>
+    <div class="opds-main" v-if="cur" @scroll="scrollHandler">
+      <div class="search-input" v-if="searchDescUrl">
+        <span class="material-symbols-outlined search-icon">search</span>
+        <input type="text" v-model.trim="keyword" />
+        <span class="material-symbols-outlined close-icon pointer"
+          v-if="keyword"
+          @click="keyword= ''"
+        >close</span>
+        <span class="search-btn" @click="search()">搜索</span>
+      </div>
+      <ul class="entry-list"
+        v-if="[FeedType.Navigation].includes(cur.type)"
+      >
+        <li class="entry-item"
+          v-for="entry in cur.feed.entry"
+          :key="entry.id"
+          @click="onEntryTap(entry)"
+          :title="entry.title"
+        >
+          {{ entry.title }}
+        </li>
+      </ul>
+      <ul class="content-list" v-else-if="[FeedType.Acquisition].includes(cur.type)">
+        <li class="content-item"
+          v-for="entry in cur.feed.entry"
+          :key="entry.id"
+          @click="onEntryTap(entry)"
+          :title="entry.title"
+        >
+          <img :src="getEntryThumbnail(entry)" alt="" class="content-thumbnail">
+          <div class="content-right">
+            <h3 class="content-title">{{ entry.title }}</h3>
+            <p class="content-desc content-authors">{{ (entry as IContentEntry).author?.map(item => item.name).join('、') }}</p>
+            <p class="content-desc content-udpated-at">更新时间: {{ formatDate(entry.updated) }}</p>
           </div>
-        </template>
-      </c-slide>
+        </li>
+      </ul>
     </div>
-  </div>
+  </slide-back>
 </template>
 
 <script setup lang="ts">
 import NavigationBar from '../components/NavigationBar.vue';
-import CSlide from '@/components/common/CSlide.vue';
-import { FeedType, OPDSClient, type IContentEntry, type IEntry, type IFeed } from '@/services/opds';
-import { computed, ref, useTemplateRef } from 'vue';
+import SlideBack from '@/components/SlideBack.vue';
+import { FeedType, fetchFeed, getSearchUrl, getUrlByRel, getUrlByType, LinkRel, type IContentEntry, type IEntry, type IFeed } from '@/services/opds';
+import { preferences } from '@/stores/preferences';
+import { showToast } from '@/utils';
+import { computed, nextTick, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
-const isPushing = ref(false);
+const route = useRoute()
+const router = useRouter()
 
-const opds = new OPDSClient('https://feedbooks.github.io/opds-test-catalog/catalog/root.xml');
+const cur = ref<{ feed: IFeed, url: string, type: string }>()
 
-const stack = ref<{ feed: IFeed, url: string, type: string }[]>([])
-
-const slide = useTemplateRef('slide')
-
-const cur = computed(() => stack.value[stack.value.length - 1])
+const fetchFeedWithError = async (url: string) => {
+  try {
+    cur.value = await fetchFeed(url)
+  } catch (error) {
+    showToast((error as Error).message)
+    throw error
+  }
+}
 
 const init = async () => {
-  stack.value = []
-  stack.value.push(await opds.getRootFeed())
+  if (!route.query.url && !preferences.value.opdsServerUrl) {
+    showToast('请先设置OPDS服务器地址')
+    return
+  }
+  fetchFeedWithError(route.query.url as string | undefined ? route.query.url as string : preferences.value.opdsServerUrl)
 }
 
 init()
 
-const getEntryThumbnail = (entry: IEntry, url: string) => {
-  const links = Array.isArray(entry.link) ? entry.link : [entry.link]
-  const thumbnail = links.find(link => link.rel === 'http://opds-spec.org/image/thumbnail')
-  return thumbnail?.href ? opds.resolveLHref(thumbnail.href, url) : ''
+const getEntryThumbnail = (entry: IEntry) => {
+  return getUrlByRel(entry.link, LinkRel.Thumbnail)
+    || getUrlByRel(entry.link, LinkRel.Image)
+    || ''
+}
+
+const loading = ref(false)
+let completed = false
+const scrollHandler = async (e: Event) => {
+  if (loading.value || completed) return;
+  const target = e.currentTarget as HTMLElement
+  const { scrollTop, clientHeight, scrollHeight } = target
+  const distance = scrollHeight - scrollTop - clientHeight
+  if (distance > 100) return;
+  loading.value = true
+  const nextUrl = getUrlByRel(cur.value?.feed.link || [], LinkRel.Next)
+  if (!nextUrl) {
+    completed = true
+    return
+  }
+  const nextFeed = await fetchFeed(nextUrl)
+  cur.value = {
+    ...cur.value,
+    ...nextFeed,
+    feed: {
+      ...cur.value?.feed,
+      ...nextFeed.feed,
+      entry: [...cur.value?.feed.entry || [], ...nextFeed.feed.entry]
+    }
+  }
+  await nextTick()
+  loading.value = false
 }
 
 
-const onEntryTap = async (entry: IEntry, url: string) => {
-  isPushing.value = true;
-  const feed = await opds.getEntryFeed(entry, url)
-  stack.value.push(feed)
-  console.log(feed.feed.entry.filter(i => !('author' in i)))
+const onEntryTap = async (entry: IEntry) => {
+  const url = getUrlByType(entry.link, [FeedType.Acquisition, FeedType.Navigation])
+  router.push({ name: 'opds', query: { url } })
 }
 
 const formatDate = (date: string) => {
   const dateObj = new Date(date)
   return `${dateObj.getFullYear()}-${dateObj.getMonth() + 1}-${dateObj.getDate()}`
 }
+
+const keyword = ref('')
+const searchDescUrl = computed(() => getUrlByRel(cur.value?.feed.link || [], LinkRel.Search))
+const search = async () => {
+  if (!keyword.value || !searchDescUrl.value) return;
+  const searchUrl = await getSearchUrl(searchDescUrl.value, { keyword: keyword.value })
+    .catch(err => {
+      showToast('搜索失败,' + err.message)
+      throw err
+    })
+  router.push({
+    name: 'opds',
+    query: { url: searchUrl }
+  })
+}
+
 
 </script>
 
@@ -98,11 +147,12 @@ const formatDate = (date: string) => {
     flex: 1;
     height: 0;
     display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100vw;
+    flex-shrink: 0;
+    overflow: auto;
   }
-}
-.opds-content {
-  width: 100vw;
-  flex-shrink: 0;
 }
 .entry-list {
   display: flex;
@@ -117,7 +167,9 @@ const formatDate = (date: string) => {
   padding: 8px 16px;
   max-width: calc(50% - 6px);
   min-width: calc(50% - 6px);
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -127,6 +179,7 @@ const formatDate = (date: string) => {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
 }
 .content-item {
   width: 100%;
@@ -166,5 +219,63 @@ const formatDate = (date: string) => {
   .content-udpated-at {
     font-size: 12px;
   }
+}
+
+
+.search-input {
+  display: flex;
+  align-items: center;
+  position: relative;
+  background: light-dark(#d8d8d8, #333);
+  border-radius: 9999px;
+  padding: 4px 8px;
+  height: 30px;
+  margin: 16px auto 0 auto;
+  width: calc(100% - 32px);
+}
+.search-icon {
+  font-size: 20px;
+  color: gray;
+
+}
+.search-input input {
+  outline: none;
+  border: none;
+  background: none;
+  padding: 4px 32px 4px 4px;
+  font-size: 14px;
+  flex: 1;
+}
+.search-btn {
+  font-size: 14px;
+  padding-left: 12px;
+  padding-right: 8px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  white-space: nowrap;
+  &::before {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    content: '';
+    display: block;
+    width: 1px;
+    height: 14px;
+    background: light-dark(#bbb, #777);
+  }
+}
+.close-icon {
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+  background: light-dark(#acacac, #888);
+  padding: 2px;
+  color: light-dark(#fff, #444);
+  margin-right: 8px;
 }
 </style>

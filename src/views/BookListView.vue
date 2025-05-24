@@ -13,18 +13,18 @@
       </template>
       <template v-else>
         <img class="logo" @click="$router.push({ name: 'preferences' })" src="/icons/icon96.png" />
-        <div class="action-btn pointer" @click="selecting = true" v-if="$route.name === 'local'">
+        <div class="action-btn pointer" @click="selecting = true">
           <span class="material-symbols-outlined icon">check_circle</span>
           选择
         </div>
       </template>
     </div>
     <div class="navigation-bar-space"></div>
-    <div class="category-wrapper" v-if="route.name === 'local' && bookList.length">
+    <div class="category-wrapper" v-if="bookList.length">
       <ul class="category-list">
         <li class="category-item" :class="{selected: category === 'all'}" @click="category='all'">全部</li>
-        <li class="category-item" :class="{selected: category === 'imported'}" @click="category='imported'">导入</li>
-        <li class="category-item" :class="{selected: category === 'downloaded'}" @click="category='downloaded'">远程</li>
+        <li class="category-item" :class="{selected: category === 'imported'}" @click="category='imported'">已导入</li>
+        <li class="category-item" :class="{selected: category === 'downloaded'}" @click="category='downloaded'">已下载</li>
       </ul>
       <span class="material-symbols-outlined import-action pointer" @click="$router.push({ name: 'import' })">add</span>
     </div>
@@ -73,6 +73,7 @@ import { booksStore, readingStateStore } from '@/services/storage';
 import { useRoute } from 'vue-router';
 import { setAnimData, animData } from '@/stores/bookAnim';
 import { longtap as vLongtap } from '@/directives/click';
+import { preferences } from '@/stores/preferences';
 
 const route = useRoute()
 
@@ -112,14 +113,26 @@ const visibleList = computed(() => {
     return list.filter(item => !item.onlineBookId)
   }
   if (category.value === 'downloaded') {
-    return list.filter(item => item.onlineBookId)
+    return list.filter(item => item.onlineBookId && item.localBookId)
   }
   return list
 })
 
+const fetchRemoteBookList = async (): Promise<IRemoteBook[]> => {
+  const server = preferences.value.shelfServerUrl
+  if (!server) return []
+  const url = server.startsWith('https://') ? server : new URL(server, location.href).href;
+  const u = new URL(url)
+  u.searchParams.set('_t', Date.now().toString())
+  const mod = await import(/* @vite-ignore */u.href);
+  return mod.books
+}
+
 const refresh = async () => {
-  const [localBooks, reading] = await Promise.all([
+
+  const [localBooks, remoteBooks, reading] = await Promise.all([
     localBookService.getBookList(),
+    fetchRemoteBookList(),
     readingStateStore.getList().then((list) => {
       return list.reduce((acc, item) => {
         acc[item.bookId] = item
@@ -128,7 +141,8 @@ const refresh = async () => {
     })
   ])
 
-  const getRemoteBookList = () => window.remoteBooks.map((item) => {
+  // 把远程的书和本地的状态合并一下
+  let books: IBookItem[] = remoteBooks.map((item) => {
     const localBook = localBooks.find((book) => String(book.onlineBookId) === String(item.id))
     return {
       ...item,
@@ -141,7 +155,10 @@ const refresh = async () => {
     }
   })
 
-  const getLocalBookList = () => localBooks.map(item => {
+  // 把本地导入的书籍和远程的书籍合并并去重
+  const importedBooks = localBooks.filter((item) => {
+    return !books.some((book) => String(book.onlineBookId) === String(item.onlineBookId))
+  }).map((item) => {
     return {
       ...item,
       trace: `${route.path}_${item.id}`,
@@ -151,15 +168,10 @@ const refresh = async () => {
       lastReadTime: item && reading[item.id] ? reading[item.id].lastReadTime : 0,
     }
   })
+  books = books.concat(importedBooks)
 
-  bookList.value = (route.name === 'local' ? getLocalBookList() : getRemoteBookList())
-    .sort((prev, next) => Number(next.downloaded) - Number(prev.downloaded) || next.lastReadTime - prev.lastReadTime)
-    .filter((item) => {
-      if (route.name === 'local') {
-        return item.downloaded
-      }
-      return true
-  })
+  bookList.value = books
+    .sort((prev, next) => Number(next.downloaded) - Number(prev.downloaded) || next.lastReadTime! - prev.lastReadTime!)
 }
 
 const download = async ({ id }: IBookItem) => {

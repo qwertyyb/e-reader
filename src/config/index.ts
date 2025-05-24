@@ -26,7 +26,8 @@ export const defaultTocRegList = [
 export const defaultPreferences: {
   screenKeepAlive: 'always' | 'reading' | 'never';
   darkMode: 'system' | 'light' | 'dark';
-  debugMode: boolean;
-} = { screenKeepAlive: 'reading', darkMode: 'system', debugMode: false }
+  shelfServerUrl: string;
+  opdsServerUrl?: string;
+} = { screenKeepAlive: 'reading', darkMode: 'system', shelfServerUrl: './books/index.js' }
 
 export const preferencesStorageKey = 'preferences'

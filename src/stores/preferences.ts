@@ -20,6 +20,8 @@ const getPreferences = () => {
 export const preferences = ref<{
   screenKeepAlive: 'always' | 'reading' | 'never';
   darkMode: 'system' | 'light' | 'dark';
+  shelfServerUrl: string;
+  opdsServerUrl: string
 }>(getPreferences());
 
 export const darkMode = new DarkMode({

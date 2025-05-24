@@ -26,7 +26,7 @@ export interface IEntry {
   id: string;
   title: string;
   updated: string;
-  link: ILink[] | ILink;
+  link: ILink[];
   content: string;
 }
 
@@ -43,73 +43,93 @@ export interface IFeed<E extends IEntry = IEntry> {
 }
 
 export const FeedType = {
-  Acquisition: 'application/atom+xml; profile=opds-catalog; kind=acquisition',
-  Navigation: 'application/atom+xml; profile=opds-catalog; kind=navigation',
+  Acquisition: 'application/atom+xml;profile=opds-catalog;kind=acquisition',
+  Navigation: 'application/atom+xml;profile=opds-catalog;kind=navigation',
 }
 
-const LinkRel = {
+export const LinkRel = {
   Self: 'self',
   Start: 'start',
-  Search: 'search'
+  Search: 'search',
+  Up: 'up',
+  Next: 'next',
+  Collect: 'collect',
+  Subsection: 'subsection',
+  Thumbnail: 'http://opds-spec.org/image/thumbnail',
+  Image: '​​http://opds-spec.org/image',
+  Shelf: 'http://opds-spec.org/shelf',
+  Facet: 'http://opds-spec.org/facet'
 }
 
-export class OPDSClient {
-  private parser = new XMLParser({
-    ignoreAttributes: false,
-    attributeNamePrefix: "",
-    textNodeName: "text",
-    allowBooleanAttributes: true,
-    parseAttributeValue: true,
-    isArray(tagName) {
-      return ['entry', 'author'].includes(tagName)
-    },
-  });
-  readonly rootUrl: string;
-  constructor(rootUrl: string) {
-    this.rootUrl = rootUrl;
+const resolveLinkHref = (href: string, baseUrl: string) => {
+  if (href.startsWith('http://') || href.startsWith('https://')) return href
+  return new URL(href, baseUrl).href
+}
+
+const getUrl = (links: ILink[], key: keyof ILink, valueOrValues: string | string[]) => {
+  const values = Array.isArray(valueOrValues) ? valueOrValues : [valueOrValues]
+  const link = links.find(item => values.includes(item[key]))
+  return link?.href
+}
+
+export const getUrlByType = (links: ILink[], typeOrTypes: string | string[]) => getUrl(links, 'type', typeOrTypes)
+
+export const getUrlByRel = (links: ILink[], relOrRels: string | string[]) => getUrl(links, 'rel', relOrRels)
+
+const trimLinkType = (type: string) => type.replace(/;\s+/g, ';')
+
+const normalizeLink = (links: ILink[], baseUrl: string) => links.map(item => ({
+  ...item,
+  type: trimLinkType(item.type),
+  href: resolveLinkHref(item.href, baseUrl),
+}))
+
+const parser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: "",
+  textNodeName: "text",
+  allowBooleanAttributes: true,
+  parseAttributeValue: true,
+  isArray(tagName) {
+    return ['entry', 'author', 'link'].includes(tagName)
+  },
+});
+
+const fetchXMLFeed = async <E extends IEntry = IEntry>(url: string) => {
+  const r = await fetch(url);
+  const xml = await r.text();
+
+  const { feed } = parser.parse(xml);
+  const { link, entry, ...rest } = feed as IFeed<E>;
+  return {
+    ...rest,
+    link: normalizeLink(link, url),
+    entry: entry.map(item => ({
+      ...item,
+      link: normalizeLink(item.link, url),
+    }))
   }
+}
 
-  async fetchXML<E extends IEntry = IEntry>(url: string) {
-    const r = await fetch(url);
-    const xml = await r.text();
-
-    const { feed } = this.parser.parse(xml);
-    return feed as IFeed<E>;
+export const fetchFeed = async <E extends IEntry = IEntry>(url: string): Promise<{
+    type: string, url: string, feed: IFeed<E>
+}> => {
+  const feed = await fetchXMLFeed<E>(url);
+  logger.info('getEntry', feed)
+  const selfLink = Array.isArray(feed.link) ? feed.link.find(item => item.rel === LinkRel.Self) : feed.link
+  return {
+    feed,
+    url,
+    type: selfLink?.type || FeedType.Navigation
   }
+}
 
-  async getRootFeed() {
-    const feed = await this.fetchXML(this.rootUrl);
-    logger.info('getRootFeed', feed)
-    const selfLink = Array.isArray(feed.link) ? feed.link.find(item => item.rel === LinkRel.Self) : feed.link
-    return { feed, url: this.rootUrl, type: selfLink?.type || FeedType.Navigation }
-  }
+export const getSearchUrl = async (searchDescUrl: string, options: { keyword: string }) => {
+  const r = await fetch(searchDescUrl);
+  const xml = await r.text();
 
-  resolveLHref(href: string, baseUrl: string ) {
-    return new URL(href, baseUrl).href
-  }
-
-  async getEntryFeed<E extends IEntry = IEntry>(entry: IEntry, feedUrl: string): Promise<{
-    type: string,
-    url: string,
-    feed: IFeed<E>
-  }> {
-    if (Array.isArray(entry.link)) {
-      const msg = 'entry has multiple links, cant load entry'
-      logger.error(msg, entry)
-      throw new Error(msg)
-    }
-
-    if (![FeedType.Acquisition, FeedType.Navigation].includes(entry.link.type)) {
-      throw new Error('entry link type is not supported')
-    }
-
-    const url = this.resolveLHref(entry.link.href, feedUrl)
-    const feed = await this.fetchXML<E>(url);
-    logger.info('getEntry', feed)
-    return {
-      feed,
-      url,
-      type: entry.link.type
-    }
-  }
+  const result = parser.parse(xml);
+  const template = result.OpenSearchDescription.Url.template
+  const searchUrl = resolveLinkHref(template, searchDescUrl).replaceAll('{searchTerms}', encodeURIComponent(options.keyword))
+  return searchUrl
 }
