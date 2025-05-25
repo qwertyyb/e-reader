@@ -1,4 +1,4 @@
-import { parseBook } from '@/services/foliate'
+import { parseBook } from './foliate'
 
 const loadDoc = (() => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -63,21 +63,6 @@ const parseToc = async (book: any, toc: ReturnType<typeof flatToc>): Promise<(Om
         text = rangeText(anchorEl, null, doc) ?? item.title
       }
     }
-
-    // const text = await new Promise<string>((resolve) => {
-    //   const iframe = document.createElement('iframe')
-    //   iframe.style.cssText = 'position:absolute;left:0;top:0;z-index:-100;width:0;height:0'
-    //   iframe.onload = () => {
-    //     console.log(item, iframe.contentDocument)
-    //     const range = anchor(iframe.contentDocument)
-    //     console.log(item, range)
-    //     resolve(item.label)
-    //     iframe.remove()
-    //     // URL.revokeObjectURL(url)
-    //   }
-    //   iframe.src = url
-    //   document.body.appendChild(iframe)
-    // })
     return { ...item, cursorStart: 0, cursorEnd: 0, content: text }
   }))
 }

@@ -39,6 +39,7 @@ const dialog = useTemplateRef('dialog')
 const emits = defineEmits<{
   open: []
   close: []
+  closed: []
 }>()
 
 const containerVisible = ref(props.visible)
@@ -70,6 +71,7 @@ const getInKeyframes = () => props.position === 'left' ? slideLeftInKeyframes : 
 const closeDialog = async () => {
   if (disableAnim.value) {
     containerVisible.value = false
+    emits('closed')
     return;
   }
   await nextTick()
@@ -78,6 +80,7 @@ const closeDialog = async () => {
     mask.value?.animate(fadeInKeyframes.toReversed(), { duration: 200, easing: 'ease-in', fill: 'both' }).finished
   ])
   containerVisible.value = false
+  emits('closed')
 }
 const openDialog = async () => {
   containerVisible.value = true
@@ -103,7 +106,7 @@ const openDialog = async () => {
   &.dialog-position-left {
     left: initial;
     .c-dialog-content {
-      padding-top: var(--sait);
+      padding-top: max(16px, var(--sait));
     }
   }
 }
@@ -112,7 +115,7 @@ const openDialog = async () => {
   width: 100%;
   background: var(--bg-color);
   z-index: 10;
-  padding-bottom: var(--saib);
+  padding-bottom: max(16px, var(--saib));
   box-sizing: border-box;
   overflow: auto;
   display: flex;

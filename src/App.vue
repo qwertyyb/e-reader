@@ -57,19 +57,23 @@ async function onLeave(el: Element, done: () => void) {
   touch-action: none;
 }
 .btn {
-  padding: 4px 16px;
+  padding: 8px 16px;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 16px;
   border: 1px solid var(--border-color);
   font-weight: 500;
   &.primary-btn {
-    background: rgb(56, 66, 255);
+    background: var(--primary-btn-color);
     color: #fff;
     border: none;
   }
   &.text-btn {
-    color: rgb(56, 66, 255);
+    color: var(--primary-btn-color);
     border: none;
+  }
+  &[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
   & + .btn {
     margin-left: 12px;

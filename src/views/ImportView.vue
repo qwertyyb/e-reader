@@ -46,14 +46,14 @@ import CDialog from '@/components/common/CDialog.vue';
 import ChapterList from '@/components/ChapterList.vue'
 import SlideBack from '@/components/SlideBack.vue';
 import BookTocSettings from '@/components/BookTocSettings.vue';
-import { parseTxtFile } from '@/services/txt-file';
+import { parseTxtFile } from '@/services/parser/txt-file';
 import { blobToBase64, showToast } from '@/utils';
 import { computed, ref, shallowRef, toRaw } from 'vue';
 import NavigationBar from '@/components/NavigationBar.vue';
-import { parseEpubFile } from '@/services/epub';
+import { parseEpubFile } from '@/services/parser/epub';
 import { booksStore, chapterListStore, contentStore } from '@/services/storage';
 import { useRouter } from 'vue-router';
-import { parseMobiFile } from '@/services/mobi';
+import { parseMobiFile } from '@/services/parser/mobi';
 import { defaultTocRegList } from '@/config';
 
 const router = useRouter()

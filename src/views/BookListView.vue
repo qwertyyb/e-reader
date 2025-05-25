@@ -45,7 +45,7 @@
       >
         <book-item
           :book="book"
-          mode="show"
+          :progress="downloadState[book.id]"
           @onTap="onTap(book)"
           class="pointer"
         ></book-item>
@@ -65,8 +65,7 @@
 import { computed, ref, watch } from 'vue';
 
 import BookItem from '@/components/BookItem.vue';
-import { onlineService } from '@/services/OnlineService';
-import { formatSize, showToast } from '@/utils';
+import { showToast } from '@/utils';
 import { localBookService } from '@/services/LocalBookService';
 import router from '@/router';
 import { booksStore, readingStateStore } from '@/services/storage';
@@ -74,6 +73,7 @@ import { useRoute } from 'vue-router';
 import { setAnimData, animData } from '@/stores/bookAnim';
 import { longtap as vLongtap } from '@/directives/click';
 import { preferences } from '@/stores/preferences';
+import { download } from '@/services/ImportService';
 
 const route = useRoute()
 
@@ -83,6 +83,8 @@ const bookList = ref<IBookItem[]>([])
 
 const selecting = ref(false)
 const selectedIds = ref(new Set<string | number>())
+
+const downloadState = ref<Record<string, number>>({})
 
 const toggleSelect = (book: IBookItem) => {
   if (selectedIds.value.has(book.localBookId!)) {
@@ -174,21 +176,20 @@ const refresh = async () => {
     .sort((prev, next) => Number(next.downloaded) - Number(prev.downloaded) || next.lastReadTime! - prev.lastReadTime!)
 }
 
-const download = async ({ id }: IBookItem) => {
-  const book = bookList.value.find((item) => item.id === id)!
-  book.downloading = true
-  onlineService.downloadBook(book.id, (progress, total) => {
-    book.downloadProgress = {
-      total,
-      downloaded: progress,
-      percent: Math.floor((progress / total) * 100),
-      progress: `${formatSize(progress)}/${formatSize(total)}`
-    }
+const downloadItem = async (item: IBookItem) => {
+  if (!item.downloadUrl) {
+    throw new Error('没有下载地址')
+  }
+  item.downloading = true
+  download(item.downloadUrl, { ...item }, (progress) => {
+    downloadState.value[item.id] = progress
   }).then(() => {
     showToast('下载完成')
+    delete downloadState.value[item.id]
     refresh()
   }).catch((err) => {
     showToast('下载失败')
+    delete downloadState.value[item.id]
     throw err;
   })
 }
@@ -202,7 +203,7 @@ const onTap = async (book: IBookItem) => {
     })
     return;
   }
-  await download(book)
+  await downloadItem(book)
 }
 
 const onLongtap = (book: IBookItem) => {

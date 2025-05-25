@@ -1,7 +1,7 @@
 import { decodeText, downloadWithProgress } from "@/utils"
 import { booksStore, chapterListStore, contentStore } from "./storage"
-import { parseChapterList } from "./txt-file"
-import { parseEpubFile } from "./epub"
+import { parseChapterList } from "./parser/txt-file"
+import { parseEpubFile } from "./parser/epub"
 import { defaultTocRegList } from "@/config"
 
 const download = async (downloadUrl: string, options: { tocRegList: RegExp[] }, onUpdate?: (progress: number, total: number) => void) => {

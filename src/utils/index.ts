@@ -1,4 +1,6 @@
+import CPicker from '@/components/common/CPicker.vue'
 import jschardet from 'jschardet'
+import { createApp, h, ref } from 'vue'
 
 export const formatSize = (size: number) => {
   const kB = size / 1024
@@ -104,3 +106,52 @@ export const decodeText = (arrayBuffer: ArrayBuffer) => {
     throw new Error('解码失败')
   }
 }
+
+export const showPicker = (() => {
+  const pickerOptions = ref<{
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    options: { label: string, value: any }[]
+    visible: boolean,
+    title?: string,
+    onClose: () => void
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onSelect: (option: { label: string, value: any }) => void
+  } | null>(null)
+  return <V extends string = string>(
+    options: { label: string, value: V }[],
+    config?: { title: string }
+  ) => {
+    return new Promise<V>((resolve, reject) => {
+      if (pickerOptions.value) {
+        pickerOptions.value = {
+          options,
+          visible: true,
+          title: config?.title,
+          onClose: () => {
+            pickerOptions.value!.visible = false
+            reject(new Error('user cancel'));
+          },
+          onSelect: (option: { label: string, value: V }) => resolve(option.value)
+        }
+      } else {
+        pickerOptions.value = {
+          options,
+          visible: false,
+          title: config?.title,
+          onClose: () => {
+            pickerOptions.value!.visible = false
+            reject(new Error('user cancel'));
+          },
+          onSelect: (option: { label: string, value: string | number }) => resolve(option.value as V)
+        }
+        const app = createApp({
+          render: () => h(CPicker<V>, pickerOptions.value)
+        })
+        const div = document.createElement('div')
+        document.body.appendChild(div)
+        app.mount(div)
+        pickerOptions.value.visible = true
+      }
+    })
+  }
+})()

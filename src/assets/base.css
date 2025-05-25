@@ -27,6 +27,7 @@
   --read-bg-color: none;
   --reading-text-color: var(--theme-color);
   --reading-bg-color: none;
+  --primary-btn-color: var(--theme-color);
 
   --sait: env(safe-area-inset-top);
   --saib: env(safe-area-inset-bottom);

@@ -77,12 +77,12 @@ const createStore = <E, I extends IDBKeyRange | IDBValidKey = number>(storeName:
   keyPath?: string
 } = {}) => {
   return {
-    add(info: Partial<E>) {
+    add(info: Partial<E>): Promise<I> {
       return wrap(db =>
         db.transaction([storeName], 'readwrite')
           .objectStore(storeName)
           .add(info)
-      )
+      ) as Promise<I>
     },
     getList(): Promise<E[]> {
       return wrap(db =>
@@ -117,7 +117,19 @@ const createStore = <E, I extends IDBKeyRange | IDBValidKey = number>(storeName:
   }
 }
 
-export const booksStore = createStore<ILocalBook>('books')
+const baseBooksStore = createStore<ILocalBook>('books')
+
+export const booksStore = {
+  ...baseBooksStore,
+  getByOnlineId(onlineId: string) {
+    return wrap(db =>
+      db.transaction(['books'], 'readonly')
+        .objectStore('books')
+        .index('onlineBookId')
+        .get(onlineId)
+    )
+  }
+}
 
 interface IContent {
   bookId: number

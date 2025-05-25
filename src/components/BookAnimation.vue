@@ -1,5 +1,5 @@
 <template>
-  <div class="book-animation" :class="{ animting: !disableAnim && direction !== 'none', closing: !disableAnim && direction === 'reverse' }">
+  <div class="book-animation" :class="{ animting: !noAnim && direction !== 'none', closing: !noAnim && direction === 'reverse' }">
     <div class="book-anim">
       <div class="book-cover book-anim-cover">
         <img class="book-cover-img" :src="animData.cover" :alt="animData.title" />
@@ -13,9 +13,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { animData, setWait } from '@/stores/bookAnim';
 import { disableAnim } from '@/utils/env';
+import { useRoute } from 'vue-router';
+
+const route = useRoute()
+
+const noAnim = computed(() => {
+  return disableAnim.value || route.query.noAnim
+})
 
 const direction = ref<'normal' | 'reverse' | 'none'>('normal')
 
@@ -101,7 +108,7 @@ const { promise: waitOpen, resolve: openDone } = Promise.withResolvers<void>()
 const { promise: waitClose, resolve: closeDone } = Promise.withResolvers<void>()
 
 const openBook = async () => {
-  if (disableAnim.value) {
+  if (noAnim.value) {
     openDone()
     return
   }
@@ -112,7 +119,7 @@ const openBook = async () => {
 }
 
 const closeBook = async () => {
-  if (disableAnim.value) {
+  if (noAnim.value) {
     closeDone()
     return
   }

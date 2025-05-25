@@ -27,11 +27,15 @@ export interface IEntry {
   title: string;
   updated: string;
   link: ILink[];
-  content: string;
 }
 
 export interface IContentEntry extends IEntry {
   author?: IAuthor[]
+  summary?: string | { type: 'text', text: string } // 为非富文本的纯文本内容
+  content?: string | { type: string, text: string }  // 可能为HTML富文本内容
+  published?: string
+  category?: { label: string }[],
+  'dcterms:extent'?: string[]
 }
 
 export interface IFeed<E extends IEntry = IEntry> {
@@ -58,7 +62,12 @@ export const LinkRel = {
   Thumbnail: 'http://opds-spec.org/image/thumbnail',
   Image: '​​http://opds-spec.org/image',
   Shelf: 'http://opds-spec.org/shelf',
-  Facet: 'http://opds-spec.org/facet'
+  Facet: 'http://opds-spec.org/facet',
+  Acquisition: 'http://opds-spec.org/acquisition',
+  AcquisitionOpenAccess: 'http://opds-spec.org/acquisition/open-access',
+  AcquisitionBorrow: 'http://opds-spec.org/acquisition/borrow',
+  AcquisitionBuy: 'http://opds-spec.org/acquisition/buy',
+  AcquisitionSample: 'http://opds-spec.org/acquisition/sample'
 }
 
 const resolveLinkHref = (href: string, baseUrl: string) => {
@@ -76,6 +85,12 @@ export const getUrlByType = (links: ILink[], typeOrTypes: string | string[]) => 
 
 export const getUrlByRel = (links: ILink[], relOrRels: string | string[]) => getUrl(links, 'rel', relOrRels)
 
+export const getLinksByRel = (links: ILink[], valueOrValues: string | string[]) => {
+  const values = Array.isArray(valueOrValues) ? valueOrValues : [valueOrValues]
+  const link = links.filter(item => values.includes(item.rel))
+  return link
+}
+
 const trimLinkType = (type: string) => type.replace(/;\s+/g, ';')
 
 const normalizeLink = (links: ILink[], baseUrl: string) => links.map(item => ({
@@ -91,7 +106,7 @@ const parser = new XMLParser({
   allowBooleanAttributes: true,
   parseAttributeValue: true,
   isArray(tagName) {
-    return ['entry', 'author', 'link'].includes(tagName)
+    return ['entry', 'author', 'link', 'category', 'dcterms:extent'].includes(tagName)
   },
 });
 
@@ -133,3 +148,20 @@ export const getSearchUrl = async (searchDescUrl: string, options: { keyword: st
   const searchUrl = resolveLinkHref(template, searchDescUrl).replaceAll('{searchTerms}', encodeURIComponent(options.keyword))
   return searchUrl
 }
+
+export const getEntryImage = (entry: IEntry, prefer: string = 'thumbnail') => {
+  const orders = prefer === 'thumbnail' ? [LinkRel.Thumbnail, LinkRel.Image] : [LinkRel.Image, LinkRel.Thumbnail]
+  for (let i = 0; i < orders.length; i++) {
+    const url = getUrlByRel(entry.link, orders[i])
+    if (url) {
+      return url
+    }
+  }
+  return ''
+}
+
+export const formatDate = (date: string) => {
+  const dateObj = new Date(date)
+  return `${dateObj.getFullYear()}-${dateObj.getMonth() + 1}-${dateObj.getDate()}`
+}
+

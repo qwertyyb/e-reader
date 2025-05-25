@@ -8,8 +8,9 @@
     :data-book-trace="book.trace">
     <div class="book-cover" @click="onTap">
       <img class="book-cover-img" :src="book.cover" :alt="book.title" />
-      <div class="download-progress-percent" v-if="book.downloading && book.downloadProgress">
-        ({{ book.downloadProgress.percent }}%)
+      <div class="download-progress-percent" v-if="typeof progress !== 'undefined'">
+        <div class="download-label">下载中</div>
+        <div class="download-progress">{{ progress }}%</div>
       </div>
     </div>
     <div class="book-title" v-if="!noTitle">
@@ -23,6 +24,7 @@
 defineProps<{
   book: IBookItem,
   noTitle?: boolean,
+  progress?: number
 }>()
 const emits = defineEmits<{
   download: [],
@@ -77,8 +79,12 @@ const onTap = () => {
   background: rgba(0, 0, 0, 0.65);
   color: #fff;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  & > * {
+    color: inherit;
+  }
 }
 .book-item .book-title .title {
   width: 0;

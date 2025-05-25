@@ -26,7 +26,7 @@ import ChapterList from '@/components/ChapterList.vue';
 import { ref, toRaw } from 'vue';
 import { showToast } from '@/utils';
 import { chapterListStore, contentStore } from '@/services/storage';
-import { parseChapterList } from '@/services/txt-file';
+import { parseChapterList } from '@/services/parser/txt-file';
 
 const props = defineProps<{ visible: boolean, bookId: number | string }>()
 defineEmits<{ close: [] }>()

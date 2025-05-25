@@ -25,40 +25,68 @@
       </ul>
       <ul class="content-list" v-else-if="[FeedType.Acquisition].includes(cur.type)">
         <li class="content-item"
-          v-for="entry in cur.feed.entry"
+          v-for="(entry, index) in cur.feed.entry"
           :key="entry.id"
-          @click="onEntryTap(entry)"
+          @click="entryIndex = index; entryVisible=true"
           :title="entry.title"
         >
-          <img :src="getEntryThumbnail(entry)" alt="" class="content-thumbnail">
+          <img :src="getEntryImage(entry)" alt="" class="content-thumbnail">
           <div class="content-right">
             <h3 class="content-title">{{ entry.title }}</h3>
             <p class="content-desc content-authors">{{ (entry as IContentEntry).author?.map(item => item.name).join('、') }}</p>
             <p class="content-desc content-udpated-at">更新时间: {{ formatDate(entry.updated) }}</p>
+            <p class="content-desc content-download-state" v-if="downloadState[entry.id]">
+              <span class="material-symbols-outlined download-icon">check_circle</span>
+              <span class="download-label">已下载</span>
+            </p>
           </div>
         </li>
       </ul>
     </div>
+    <o-p-d-s-entry-dialog :entry="entry"
+      :visible="entryVisible"
+      :downloaded="entry ? downloadState[entry.id] : false"
+      @close="entryVisible=false"
+      @downloaded="downloadSuccess"
+    ></o-p-d-s-entry-dialog>
   </slide-back>
 </template>
 
 <script setup lang="ts">
 import NavigationBar from '../components/NavigationBar.vue';
 import SlideBack from '@/components/SlideBack.vue';
-import { FeedType, fetchFeed, getSearchUrl, getUrlByRel, getUrlByType, LinkRel, type IContentEntry, type IEntry, type IFeed } from '@/services/opds';
+import OPDSEntryDialog from '@/components/OPDSEntryDialog.vue';
+import { FeedType, fetchFeed, getSearchUrl, getUrlByRel, getUrlByType, LinkRel, getEntryImage, formatDate, type IContentEntry, type IEntry, type IFeed } from '@/services/opds';
 import { preferences } from '@/stores/preferences';
 import { showToast } from '@/utils';
 import { computed, nextTick, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { booksStore } from '@/services/storage';
 
 const route = useRoute()
 const router = useRouter()
 
 const cur = ref<{ feed: IFeed, url: string, type: string }>()
+const entryIndex = ref(-1)
+const entry = computed(() => (cur.value?.feed.entry[entryIndex.value] || null) as IContentEntry | null)
+const entryVisible = ref(false)
+const downloadState = ref<Record<string, { id: number }>>({})
+
+const refreshDownloadState = async (entryList: IContentEntry[]) => {
+  entryList.forEach(async entry => {
+    downloadState.value[entry.id] = await booksStore.getByOnlineId(entry.id)
+  })
+}
+
+const downloadSuccess = (event: { id: number }) => {
+  if (!entry.value) return;
+  downloadState.value[entry.value.id] = event
+}
 
 const fetchFeedWithError = async (url: string) => {
   try {
     cur.value = await fetchFeed(url)
+    refreshDownloadState(cur.value.feed.entry)
   } catch (error) {
     showToast((error as Error).message)
     throw error
@@ -74,12 +102,6 @@ const init = async () => {
 }
 
 init()
-
-const getEntryThumbnail = (entry: IEntry) => {
-  return getUrlByRel(entry.link, LinkRel.Thumbnail)
-    || getUrlByRel(entry.link, LinkRel.Image)
-    || ''
-}
 
 const loading = ref(false)
 let completed = false
@@ -105,6 +127,7 @@ const scrollHandler = async (e: Event) => {
       entry: [...cur.value?.feed.entry || [], ...nextFeed.feed.entry]
     }
   }
+  refreshDownloadState(nextFeed.feed.entry)
   await nextTick()
   loading.value = false
 }
@@ -113,11 +136,6 @@ const scrollHandler = async (e: Event) => {
 const onEntryTap = async (entry: IEntry) => {
   const url = getUrlByType(entry.link, [FeedType.Acquisition, FeedType.Navigation])
   router.push({ name: 'opds', query: { url } })
-}
-
-const formatDate = (date: string) => {
-  const dateObj = new Date(date)
-  return `${dateObj.getFullYear()}-${dateObj.getMonth() + 1}-${dateObj.getDate()}`
 }
 
 const keyword = ref('')
@@ -216,8 +234,18 @@ const search = async () => {
     text-overflow: ellipsis;
     margin-top: 8px;
   }
-  .content-udpated-at {
+  .content-udpated-at, .content-download-state {
     font-size: 12px;
+  }
+  .content-download-state {
+    display: flex;
+    align-items: center;
+  }
+  .download-icon {
+    font-size: 18px;
+    font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+    margin-right: 4px;
+    color: var(--theme-color);
   }
 }
 
@@ -278,4 +306,5 @@ const search = async () => {
   color: light-dark(#fff, #444);
   margin-right: 8px;
 }
+
 </style>
