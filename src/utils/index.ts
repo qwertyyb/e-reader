@@ -65,33 +65,6 @@ export const blobToBase64 = async (blob: Blob): Promise<string> => {
   });
 }
 
-export const downloadWithProgress = async (url: string, onUpdate?: (progress: number, total: number) => void) => {
-  const response = await fetch(url)
-  const total = Number(response.headers.get('Content-Length')) || 0
-  const result = []
-  let progress = 0
-  const reader = response.body!.getReader()
-  while(true) {
-    const { done, value } = await reader.read()
-    if (done) {
-      break;
-    }
-    result.push(value)
-    progress += value.length
-    onUpdate?.(progress, total)
-  }
-
-  const data = new Uint8Array(progress)
-
-  let position = 0
-  result.forEach(item => {
-    data.set(item, position)
-    position += item.length
-  })
-
-  return data
-}
-
 export const decodeText = (arrayBuffer: ArrayBuffer) => {
   const bytes = new Uint8Array(arrayBuffer.slice(0, 10000));
   let binary = ''
@@ -105,6 +78,12 @@ export const decodeText = (arrayBuffer: ArrayBuffer) => {
   } catch {
     throw new Error('解码失败')
   }
+}
+
+export const disableCache = (url: string) => {
+  const u = new URL(url, location.href)
+  u.searchParams.set('remote', '1')
+  return u.href
 }
 
 export const showPicker = (() => {

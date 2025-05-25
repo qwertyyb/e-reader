@@ -26,7 +26,9 @@
         <li class="category-item" :class="{selected: category === 'imported'}" @click="category='imported'">已导入</li>
         <li class="category-item" :class="{selected: category === 'downloaded'}" @click="category='downloaded'">已下载</li>
       </ul>
-      <span class="material-symbols-outlined import-action pointer" @click="$router.push({ name: 'import' })">add</span>
+      <span class="material-symbols-outlined import-action pointer"
+        @click="importLocalBook"
+      >add</span>
     </div>
     <teleport to="#app">
       <ul class="actions-wrapper" v-if="selecting">
@@ -65,7 +67,7 @@
 import { computed, ref, watch } from 'vue';
 
 import BookItem from '@/components/BookItem.vue';
-import { showToast } from '@/utils';
+import { disableCache, showToast } from '@/utils';
 import { localBookService } from '@/services/LocalBookService';
 import router from '@/router';
 import { booksStore, readingStateStore } from '@/services/storage';
@@ -73,7 +75,7 @@ import { useRoute } from 'vue-router';
 import { setAnimData, animData } from '@/stores/bookAnim';
 import { longtap as vLongtap } from '@/directives/click';
 import { preferences } from '@/stores/preferences';
-import { download } from '@/services/ImportService';
+import { download, importFile } from '@/services/ImportService';
 
 const route = useRoute()
 
@@ -126,7 +128,7 @@ const fetchRemoteBookList = async (): Promise<IRemoteBook[]> => {
   const url = server.startsWith('https://') ? server : new URL(server, location.href).href;
   const u = new URL(url)
   u.searchParams.set('_t', Date.now().toString())
-  const mod = await import(/* @vite-ignore */u.href);
+  const mod = await import(/* @vite-ignore */disableCache(u.href));
   return mod.books
 }
 
@@ -204,6 +206,27 @@ const onTap = async (book: IBookItem) => {
     return;
   }
   await downloadItem(book)
+}
+
+const importLocalBook = async () => {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = '.txt,.epub,.mobi,.azw3'
+  const selectedFile = await new Promise<File | undefined>(resolve => {
+    input.addEventListener('change', () => {
+      resolve(input.files?.[0])
+    })
+    input.click()
+  })
+  if (!selectedFile) return;
+  showToast('正在导入...')
+  return importFile(selectedFile).then(() => {
+    showToast('导入成功')
+    refresh()
+  }).catch((err) => {
+    showToast('导入失败')
+    throw err;
+  })
 }
 
 const onLongtap = (book: IBookItem) => {

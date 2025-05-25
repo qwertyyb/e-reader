@@ -133,7 +133,6 @@ const downloadEntry = async () => {
       showToast('下载完成')
       downloading.value = false
       emits('downloaded', { id: result.id })
-      emits('close')
     })
     .catch(err => {
       showToast('下载失败, ' + err.message)

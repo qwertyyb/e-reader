@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"
+      xmlns:dc="http://purl.org/dc/terms/"
+      xmlns:opds="http://opds-spec.org/2010/catalog">
+  
+  <id>urn:uuid:5d0f5f5d-1215-4cfe-9295-2802b9d4e67e</id>
+  <title>E-Reader 图书目录</title>
+  <updated>2023-11-01T00:00:00Z</updated>
+  <author>
+    <name>E-Reader</name>
+  </author>
+  <link rel="self" href="/opds/catalog.xml" type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+  <link rel="start" href="/opds/catalog.xml" type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+  
+  <!-- 万族之劫 -->
+  <entry>
+    <title>万族之劫</title>
+    <id>urn:uuid:book-1</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <author>
+      <name>老鹰吃小鸡</name>
+    </author>
+    <link rel="http://opds-spec.org/image" href="../books/covers/wzzj.jpeg" type="image/jpeg"/>
+    <link rel="http://opds-spec.org/acquisition" href="../books/万族之劫.txt" type="text/plain" title="下载"/>
+    <link rel="http://opds-spec.org/acquisition/open-access" href="../books/万族之劫.txt" type="text/plain" title="在线阅读"/>
+    <content type="text">万族之劫</content></entry>
+  
+  <!-- 全球高武 -->
+  <entry>
+    <title>全球高武</title>
+    <id>urn:uuid:book-2</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <author>
+      <name>老鹰吃小鸡</name>
+    </author>
+    <link rel="http://opds-spec.org/image" href="../books/covers/qqgw.jpeg" type="image/jpeg"/>
+    <link rel="http://opds-spec.org/acquisition" href="../books/全球高武.txt" type="text/plain" title="下载"/>
+    <link rel="http://opds-spec.org/acquisition/open-access" href="../books/全球高武.txt" type="text/plain" title="在线阅读"/>
+    <content type="text">全球高武</content></entry>
+  
+  <!-- 遮天 -->
+  <entry>
+    <title>遮天</title>
+    <id>urn:uuid:book-3</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <author>
+      <name>辰东</name>
+    </author>
+    <link rel="http://opds-spec.org/image" href="../books/covers/zt.jpeg" type="image/jpeg"/>
+    <link rel="http://opds-spec.org/acquisition" href="../books/遮天.txt" type="text/plain" title="下载"/>
+    <link rel="http://opds-spec.org/acquisition/open-access" href="../books/遮天.txt" type="text/plain" title="在线阅读"/>
+    <content type="text">遮天</content></entry>
+  
+  <!-- 完美世界 -->
+  <entry>
+    <title>完美世界</title>
+    <id>urn:uuid:book-4</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <author>
+      <name>辰东</name>
+    </author>
+    <link rel="http://opds-spec.org/image" href="../books/covers/wmsj.jpeg" type="image/jpeg"/>
+    <link rel="http://opds-spec.org/acquisition" href="../books/完美世界.txt" type="text/plain" title="下载"/>
+    <link rel="http://opds-spec.org/acquisition/open-access" href="../books/完美世界.txt" type="text/plain" title="在线阅读"/>
+    <content type="text">完美世界</content></entry>
+  
+  <!-- 大奉打更人 -->
+  <entry>
+    <title>大奉打更人</title>
+    <id>urn:uuid:book-5</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <author>
+      <name>卖报小郎君</name>
+    </author>
+    <link rel="http://opds-spec.org/image" href="../books/covers/dfdgr.jpeg" type="image/jpeg"/>
+    <link rel="http://opds-spec.org/acquisition" href="../books/大奉打更人.txt" type="text/plain" title="下载"/>
+    <link rel="http://opds-spec.org/acquisition/open-access" href="../books/大奉打更人.txt" type="text/plain" title="在线阅读"/>
+    <content type="text">大奉打更人</content></entry>
+  
+  <!-- 诡秘之主 -->
+  <entry>
+    <title>诡秘之主</title>
+    <id>urn:uuid:book-6</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <author>
+      <name>爱潜水的乌贼</name>
+    </author>
+    <link rel="http://opds-spec.org/image" href="../books/covers/gmzz.jpeg" type="image/jpeg"/>
+    <link rel="http://opds-spec.org/acquisition" href="../books/诡秘之主.txt" type="text/plain" title="下载"/>
+    <link rel="http://opds-spec.org/acquisition/open-access" href="../books/诡秘之主.txt" type="text/plain" title="在线阅读"/>
+    <content type="text">诡秘之主</content></entry>
+  
+  <!-- 神墓 -->
+  <entry>
+    <title>神墓</title>
+    <id>urn:uuid:book-7</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <author>
+      <name>辰东</name>
+    </author>
+    <link rel="http://opds-spec.org/image" href="../books/covers/sm.jpeg" type="image/jpeg"/>
+    <link rel="http://opds-spec.org/acquisition" href="../books/神墓.txt" type="text/plain" title="下载"/>
+    <link rel="http://opds-spec.org/acquisition/open-access" href="../books/神墓.txt" type="text/plain" title="在线阅读"/>
+    <content type="text">神墓</content></entry>
+  
+  <!-- 佛本是道 -->
+  <entry>
+    <title>佛本是道</title>
+    <id>urn:uuid:book-9</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <author>
+      <name>梦入神机</name>
+    </author>
+    <link rel="http://opds-spec.org/image" href="../books/covers/nocover.jpeg" type="image/jpeg"/>
+    <link rel="http://opds-spec.org/acquisition" href="../books/佛本是道.txt" type="text/plain" title="下载"/>
+    <link rel="http://opds-spec.org/acquisition/open-access" href="../books/佛本是道.txt" type="text/plain" title="在线阅读"/>
+    <content type="text">佛本是道</content></entry>
+  
+  <!-- 我师兄实在太稳健了 -->
+  <entry>
+    <title>我师兄实在太稳健了</title>
+    <id>urn:uuid:book-10</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <author>
+      <name>言归正传</name>
+    </author>
+    <link rel="http://opds-spec.org/image" href="../books/covers/wsxsztwjl.jpeg" type="image/jpeg"/>
+    <link rel="http://opds-spec.org/acquisition" href="../books/我师兄实在太稳健了.txt" type="text/plain" title="下载"/>
+    <link rel="http://opds-spec.org/acquisition/open-access" href="../books/我师兄实在太稳健了.txt" type="text/plain" title="在线阅读"/>
+    <content type="text">我师兄实在太稳健了</content></entry>
+  
+  <!-- 修真聊天群 -->
+  <entry>
+    <title>修真聊天群</title>
+    <id>urn:uuid:book-11</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <author>
+      <name>圣骑士的传说</name>
+    </author>
+    <link rel="http://opds-spec.org/image" href="../books/covers/xzltq.jpeg" type="image/jpeg"/>
+    <link rel="http://opds-spec.org/acquisition" href="../books/修真聊天群.txt" type="text/plain" title="下载"/>
+    <link rel="http://opds-spec.org/acquisition/open-access" href="../books/修真聊天群.txt" type="text/plain" title="在线阅读"/>
+    <content type="text">修真聊天群</content></entry>
+  
+  <!-- 牧神记 -->
+  <entry>
+    <title>牧神记</title>
+    <id>urn:uuid:book-12</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <author>
+      <name>宅猪</name>
+    </author>
+    <link rel="http://opds-spec.org/image" href="../books/covers/msj.jpeg" type="image/jpeg"/>
+    <link rel="http://opds-spec.org/acquisition" href="../books/牧神记.txt" type="text/plain" title="下载"/>
+    <link rel="http://opds-spec.org/acquisition/open-access" href="../books/牧神记.txt" type="text/plain" title="在线阅读"/>
+    <content type="text">牧神记</content></entry>
+  
+  <!-- 无限恐怖 -->
+  <entry>
+    <title>无限恐怖</title>
+    <id>urn:uuid:book-13</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <author>
+      <name>zhttty</name>
+    </author>
+    <link rel="http://opds-spec.org/image" href="../books/covers/wxkb.jpeg" type="image/jpeg"/>
+    <link rel="http://opds-spec.org/acquisition" href="../books/无限恐怖.txt" type="text/plain" title="下载"/>
+    <link rel="http://opds-spec.org/acquisition/open-access" href="../books/无限恐怖.txt" type="text/plain" title="在线阅读"/>
+    <content type="text">无限恐怖</content></entry>
+  
+  <!-- 傲世九重天 -->
+  <entry>
+    <title>傲世九重天</title>
+    <id>urn:uuid:book-14</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <author>
+      <name>风凌天下</name>
+    </author>
+    <link rel="http://opds-spec.org/image" href="../books/covers/asjct.jpeg" type="image/jpeg"/>
+    <link rel="http://opds-spec.org/acquisition" href="../books/傲世九重天.txt" type="text/plain" title="下载"/>
+    <link rel="http://opds-spec.org/acquisition/open-access" href="../books/傲世九重天.txt" type="text/plain" title="在线阅读"/>
+    <content type="text">傲世九重天</content></entry>
+  
+  <!-- 三体(全集) -->
+  <entry>
+    <title>三体(全集)</title>
+    <id>urn:uuid:book-15</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <author>
+      <name>刘慈欣</name>
+    </author>
+    <link rel="http://opds-spec.org/image" href="../books/covers/st.jpeg" type="image/jpeg"/>
+    <link rel="http://opds-spec.org/acquisition" href="../books/【精】三体（全集）.epub" type="application/epub+zip" title="下载"/>
+    <link rel="http://opds-spec.org/acquisition/open-access" href="../books/【精】三体（全集）.epub" type="application/epub+zip" title="在线阅读"/>
+    <content type="text">三体(全集)</content></entry>
+  
+  <!-- 吞噬星空 -->
+  <entry>
+    <title>吞噬星空</title>
+    <id>urn:uuid:book-16</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <author>
+      <name>我吃西红柿</name>
+    </author>
+    <link rel="http://opds-spec.org/image" href="../books/covers/tsxk.jpeg" type="image/jpeg"/>
+    <link rel="http://opds-spec.org/acquisition" href="../books/吞噬星空.txt" type="text/plain" title="下载"/>
+    <link rel="http://opds-spec.org/acquisition/open-access" href="../books/吞噬星空.txt" type="text/plain" title="在线阅读"/>
+    <content type="text">吞噬星空</content></entry>
+  
+</feed>

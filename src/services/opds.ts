@@ -5,6 +5,7 @@
  * It uses fetch API for HTTP requests and fast-xml-parser for XML parsing.
  */
 
+import { disableCache } from '@/utils';
 import { XMLParser } from 'fast-xml-parser';
 import Logger from 'js-logger';
 
@@ -60,7 +61,7 @@ export const LinkRel = {
   Collect: 'collect',
   Subsection: 'subsection',
   Thumbnail: 'http://opds-spec.org/image/thumbnail',
-  Image: '​​http://opds-spec.org/image',
+  Image: 'http://opds-spec.org/image',
   Shelf: 'http://opds-spec.org/shelf',
   Facet: 'http://opds-spec.org/facet',
   Acquisition: 'http://opds-spec.org/acquisition',
@@ -72,7 +73,7 @@ export const LinkRel = {
 
 const resolveLinkHref = (href: string, baseUrl: string) => {
   if (href.startsWith('http://') || href.startsWith('https://')) return href
-  return new URL(href, baseUrl).href
+  return new URL(href, new URL(baseUrl, location.href).href).href
 }
 
 const getUrl = (links: ILink[], key: keyof ILink, valueOrValues: string | string[]) => {
@@ -111,7 +112,7 @@ const parser = new XMLParser({
 });
 
 const fetchXMLFeed = async <E extends IEntry = IEntry>(url: string) => {
-  const r = await fetch(url);
+  const r = await fetch(disableCache(url));
   const xml = await r.text();
 
   const { feed } = parser.parse(xml);
@@ -140,7 +141,7 @@ export const fetchFeed = async <E extends IEntry = IEntry>(url: string): Promise
 }
 
 export const getSearchUrl = async (searchDescUrl: string, options: { keyword: string }) => {
-  const r = await fetch(searchDescUrl);
+  const r = await fetch(disableCache(searchDescUrl));
   const xml = await r.text();
 
   const result = parser.parse(xml);
@@ -153,6 +154,7 @@ export const getEntryImage = (entry: IEntry, prefer: string = 'thumbnail') => {
   const orders = prefer === 'thumbnail' ? [LinkRel.Thumbnail, LinkRel.Image] : [LinkRel.Image, LinkRel.Thumbnail]
   for (let i = 0; i < orders.length; i++) {
     const url = getUrlByRel(entry.link, orders[i])
+    console.log('url', url, entry.link, orders[i])
     if (url) {
       return url
     }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"
+      xmlns:dc="http://purl.org/dc/terms/"
+      xmlns:opds="http://opds-spec.org/2010/catalog">
+  
+  <id>urn:uuid:5d0f5f5d-1215-4cfe-9295-2802b9d4e67e-root</id>
+  <title>E-Reader OPDS 目录</title>
+  <updated>2023-11-01T00:00:00Z</updated>
+  <author>
+    <name>E-Reader</name>
+  </author>
+  <link rel="self" href="./root.xml" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
+  <link rel="start" href="./root.xml" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
+  
+  <entry>
+    <title>所有图书</title>
+    <id>urn:uuid:catalog-all</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <content type="text">浏览所有可用的电子书</content>
+    <link rel="subsection" href="./catalog.xml" type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+  </entry>
+  
+  <entry>
+    <title>我的书架</title>
+    <id>urn:uuid:catalog-shelf</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <content type="text">查看已加入书架的图书</content>
+    <link rel="subsection" href="./catalog.xml" type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+  </entry>
+  
+</feed>

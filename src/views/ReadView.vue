@@ -150,7 +150,7 @@ const fetchChapterList = async () => {
 }
 const fetchReadProgress = async () => {
   const progress = await readingStateStore.get(props.id)
-  if (!progress) return;
+  if (!progress || !progress.cursor) return;
   defaultProgress.value = { chapterId: progress.chapterId, cursor: progress.cursor }
 }
 

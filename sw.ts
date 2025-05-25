@@ -113,7 +113,7 @@ const resourceNeedCache = (request: Request) => {
   if (url.hostname === 'localhost') return false;
   const isApi = url.host === 'proxy.qwertyyb.cn'
   if (isApi) return false;
-  const isRemote = url.searchParams.get('remote') === 'true' || url.searchParams.has('_t')
+  const isRemote = url.searchParams.get('remote') === '1' || url.searchParams.has('_t')
   if (isRemote) return false;
   return true;
 }

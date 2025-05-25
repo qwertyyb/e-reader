@@ -37,9 +37,6 @@ app.directive('loading', ElLoadingDirective)
 
 app.mount('#app')
 
-const defaultPath = location.hash.replace('#', '') || '/'
-router.push(defaultPath)
-
 if (import.meta.env.PROD) {
   register()
 } else {

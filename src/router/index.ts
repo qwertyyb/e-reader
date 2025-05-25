@@ -1,6 +1,6 @@
 import { createMemoryHistory, createRouter, type RouteLocation, type RouterHistory } from 'vue-router'
 import TabView from '@/views/TabView.vue'
-import BookListView from '@/views/BookListView.vue'
+import ShelfView from '@/views/ShelfView.vue'
 import ReadView from '@/views/ReadView.vue'
 import ImportView from '@/views/ImportView.vue'
 import AIChatView from '@/views/AIChatView.vue'
@@ -19,6 +19,13 @@ const createAppHistory = (options: {
   ignoreLocations: RegExp[]
 }): RouterHistory => {
   const mh = createMemoryHistory(options.base)
+
+  const defaultPath = location.hash.replace('#', '') || '/'
+  if (defaultPath !== '/') {
+    // 如果当前路径不在主页，则先把主页 push 进历史中，确保后退可以后退到主页
+    mh.push('/')
+  }
+  mh.push(defaultPath)
 
   const replaceHash = (location: string) => {
     const [prefix] = window.location.href.split('#')
@@ -79,22 +86,13 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      redirect: '/tab/local',
-    },
-    {
-      path: '/tab',
-      name: 'tab',
+      redirect: '/shelf',
       component: TabView,
       children: [
         {
-          path: 'local',
-          name: 'local',
-          component: BookListView
-        },
-        {
-          path: 'remote',
-          name: 'remote',
-          component: BookListView
+          path: 'shelf',
+          name: 'shelf',
+          component: ShelfView
         }
       ]
     },

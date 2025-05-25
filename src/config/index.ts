@@ -28,6 +28,11 @@ export const defaultPreferences: {
   darkMode: 'system' | 'light' | 'dark';
   shelfServerUrl: string;
   opdsServerUrl?: string;
-} = { screenKeepAlive: 'reading', darkMode: 'system', shelfServerUrl: './books/index.js' }
+} = {
+  screenKeepAlive: 'reading',
+  darkMode: 'system',
+  shelfServerUrl: './books/index.js',
+  opdsServerUrl: './opds/root.xml'
+}
 
 export const preferencesStorageKey = 'preferences'

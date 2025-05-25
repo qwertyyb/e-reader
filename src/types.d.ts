@@ -124,12 +124,6 @@ interface ISettings {
   }
 }
 
-interface Window {
-  remoteBooks: IRemoteBook[]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Hammer: any
-}
-
 interface DocumentEventMap {
   'app:checkupdates': CustomEvent<{ slient: boolean }>
 }

@@ -12,7 +12,7 @@
 import CDialog from "@/components/common/CDialog.vue";
 import MarkdownViewer from "@/components/MarkdownViewer.vue";
 import { bridge } from "@/register-sw";
-import { showToast } from "@/utils";
+import { disableCache, showToast } from "@/utils";
 import { onBeforeUnmount, ref } from "vue";
 import { updateInterval } from '@/constant';
 import { version } from '@/version';
@@ -25,7 +25,7 @@ const newVersionInfo = ref({
 
 const checkUpdates = async ({ slient = false } = {}) => {
   if (!slient) showToast('正在检查更新')
-  const r = await fetch(`https://qwertyyb.github.io/e-reader/releases.json?remote=true&_t=${Date.now()}`)
+  const r = await fetch(disableCache(`https://qwertyyb.github.io/e-reader/releases.json?_t=${Date.now()}`))
   if (!r.ok) {
     if (!slient) showToast('当前已是最新版本')
     return;
