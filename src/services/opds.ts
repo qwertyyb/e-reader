@@ -15,6 +15,7 @@ interface ILink {
   href: string;
   rel: string;
   type: string;
+  title?: string;
 }
 
 interface IAuthor {
@@ -62,13 +63,19 @@ export const LinkRel = {
   Subsection: 'subsection',
   Thumbnail: 'http://opds-spec.org/image/thumbnail',
   Image: 'http://opds-spec.org/image',
-  Shelf: 'http://opds-spec.org/shelf',
   Facet: 'http://opds-spec.org/facet',
   Acquisition: 'http://opds-spec.org/acquisition',
   AcquisitionOpenAccess: 'http://opds-spec.org/acquisition/open-access',
   AcquisitionBorrow: 'http://opds-spec.org/acquisition/borrow',
   AcquisitionBuy: 'http://opds-spec.org/acquisition/buy',
-  AcquisitionSample: 'http://opds-spec.org/acquisition/sample'
+  AcquisitionSample: 'http://opds-spec.org/acquisition/sample',
+
+  Recommended: 'http://opds-spec.org/recommended',
+  Featured: 'http://opds-spec.org/featured',
+  Popular: 'http://opds-spec.org/sort/popular',
+  Shelf: 'http://opds-spec.org/shelf',
+  Subscriptions: 'http://opds-spec.org/subscriptions',
+  New: 'http://opds-spec.org/sort/new',
 }
 
 const resolveLinkHref = (href: string, baseUrl: string) => {
@@ -78,7 +85,7 @@ const resolveLinkHref = (href: string, baseUrl: string) => {
 
 const getUrl = (links: ILink[], key: keyof ILink, valueOrValues: string | string[]) => {
   const values = Array.isArray(valueOrValues) ? valueOrValues : [valueOrValues]
-  const link = links.find(item => values.includes(item[key]))
+  const link = links.find(item => values.includes(item[key] ?? ''))
   return link?.href
 }
 

@@ -11,37 +11,57 @@
         >close</span>
         <span class="search-btn" @click="search()">搜索</span>
       </div>
-      <ul class="entry-list"
-        v-if="[FeedType.Navigation].includes(cur.type)"
-      >
-        <li class="entry-item"
-          v-for="entry in cur.feed.entry"
-          :key="entry.id"
-          @click="onEntryTap(entry)"
-          :title="entry.title"
-        >
-          {{ entry.title }}
-        </li>
-      </ul>
-      <ul class="content-list" v-else-if="[FeedType.Acquisition].includes(cur.type)">
-        <li class="content-item"
-          v-for="(entry, index) in cur.feed.entry"
-          :key="entry.id"
-          @click="entryIndex = index; entryVisible=true"
-          :title="entry.title"
-        >
-          <img :src="getEntryImage(entry)" alt="" class="content-thumbnail">
-          <div class="content-right">
-            <h3 class="content-title">{{ entry.title }}</h3>
-            <p class="content-desc content-authors">{{ (entry as IContentEntry).author?.map(item => item.name).join('、') }}</p>
-            <p class="content-desc content-udpated-at">更新时间: {{ formatDate(entry.updated) }}</p>
-            <p class="content-desc content-download-state" v-if="downloadState[entry.id]">
-              <span class="material-symbols-outlined download-icon">check_circle</span>
-              <span class="download-label">已下载</span>
-            </p>
-          </div>
-        </li>
-      </ul>
+      <section class="feed-section" v-if="featureList.length">
+        <h3 class="section-title">导航</h3>
+        <ul class="feature-list">
+          <li class="feature-item"
+            v-for="feature in featureList"
+            :key="feature.href"
+            @click="$router.push({ name: 'opds', query: { url: feature.href } })"
+          >
+            <span class="material-symbols-outlined icon">{{ feature.icon }}</span>
+            <span>{{ feature.title }}</span>
+          </li>
+        </ul>
+      </section>
+
+      <section class="feed-section" v-if="[FeedType.Navigation].includes(cur.type)">
+        <h3 class="section-title">分类</h3>
+        <ul class="entry-list">
+          <li class="entry-item"
+            v-for="entry in cur.feed.entry"
+            :key="entry.id"
+            @click="onEntryTap(entry)"
+            :title="entry.title"
+          >
+            {{ entry.title }}
+          </li>
+        </ul>
+      </section>
+
+
+      <section class="feed-section" v-else-if="[FeedType.Acquisition].includes(cur.type)">
+        <h3 class="section-title">内容</h3>
+        <ul class="content-list">
+          <li class="content-item"
+            v-for="(entry, index) in cur.feed.entry"
+            :key="entry.id"
+            @click="entryIndex = index; entryVisible=true"
+            :title="entry.title"
+          >
+            <img :src="getEntryImage(entry)" alt="" class="content-thumbnail">
+            <div class="content-right">
+              <h3 class="content-title">{{ entry.title }}</h3>
+              <p class="content-desc content-authors">{{ (entry as IContentEntry).author?.map(item => item.name).join('、') }}</p>
+              <p class="content-desc content-udpated-at">更新时间: {{ formatDate(entry.updated) }}</p>
+              <p class="content-desc content-download-state" v-if="downloadState[entry.id]">
+                <span class="material-symbols-outlined download-icon">check_circle</span>
+                <span class="download-label">已下载</span>
+              </p>
+            </div>
+          </li>
+        </ul>
+      </section>
     </div>
     <o-p-d-s-entry-dialog :entry="entry"
       :visible="entryVisible"
@@ -56,7 +76,7 @@
 import NavigationBar from '../components/NavigationBar.vue';
 import SlideBack from '@/components/SlideBack.vue';
 import OPDSEntryDialog from '@/components/OPDSEntryDialog.vue';
-import { FeedType, fetchFeed, getSearchUrl, getUrlByRel, getUrlByType, LinkRel, getEntryImage, formatDate, type IContentEntry, type IEntry, type IFeed } from '@/services/opds';
+import { FeedType, fetchFeed, getSearchUrl, getUrlByRel, getUrlByType, LinkRel, getEntryImage, formatDate, type IContentEntry, type IEntry, type IFeed, getLinksByRel } from '@/services/opds';
 import { preferences } from '@/stores/preferences';
 import { showToast } from '@/utils';
 import { computed, nextTick, onActivated, ref } from 'vue';
@@ -66,7 +86,32 @@ import { booksStore } from '@/services/storage';
 const route = useRoute()
 const router = useRouter()
 
+const featureTypes = [
+  LinkRel.Shelf,
+  LinkRel.Featured,
+  LinkRel.Recommended,
+  LinkRel.Featured,
+  LinkRel.New,
+  LinkRel.Popular
+]
+const icons = {
+  [LinkRel.Shelf]: 'newsstand',
+  [LinkRel.Featured]: 'modeling',
+  [LinkRel.Recommended]: 'star',
+  [LinkRel.New]: 'notifications_unread',
+  [LinkRel.Popular]: 'star'
+}
 const cur = ref<{ feed: IFeed, url: string, type: string }>()
+const featureList = computed(() => {
+  const links = getLinksByRel(cur.value?.feed.link || [], featureTypes)
+  return links.map(link => {
+    return {
+      ...link,
+      icon: icons[link.rel],
+    }
+  })
+})
+
 const entryIndex = ref(-1)
 const entry = computed(() => (cur.value?.feed.entry[entryIndex.value] || null) as IContentEntry | null)
 const entryVisible = ref(false)
@@ -167,23 +212,35 @@ const search = async () => {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    gap: 16px;
     width: 100vw;
     flex-shrink: 0;
     overflow: auto;
+    padding: 16px;
+    & > * {
+      width: 100%;
+    }
   }
 }
-.entry-list {
+.feed-section {
+  .section-title {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+}
+.entry-list, .feature-list {
   display: flex;
   flex-wrap: wrap;
   list-style: none;
   gap: 12px;
-  padding: 16px;
   width: 100%;
 }
-.entry-item {
+.entry-item, .feature-item {
   background-color: var(--card-bg-color);
   border-radius: 6px;
   padding: 8px 16px;
+}
+.entry-item {
   max-width: calc(50% - 6px);
   min-width: calc(50% - 6px);
   display: -webkit-box;
@@ -192,9 +249,21 @@ const search = async () => {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.feature-item {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  color: var(--theme-color);
+  span {
+    color: inherit;
+  }
+  .icon {
+    font-size: 20px;
+    margin-right: 6px;
+  }
+}
 .content-list {
   list-style: none;
-  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -259,7 +328,7 @@ const search = async () => {
   border-radius: 9999px;
   padding: 4px 8px;
   height: 30px;
-  margin: 16px auto 0 auto;
+  margin: 0 auto;
   width: calc(100% - 32px);
 }
 .search-icon {

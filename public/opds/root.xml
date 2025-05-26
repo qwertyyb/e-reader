@@ -11,6 +11,7 @@
   </author>
   <link rel="self" href="./root.xml" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
   <link rel="start" href="./root.xml" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
+  <link rel="http://opds-spec.org/shelf" title="我的书架" href="./catalog.xml" type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
   
   <entry>
     <title>所有图书</title>
