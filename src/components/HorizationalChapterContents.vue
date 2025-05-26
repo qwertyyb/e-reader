@@ -254,6 +254,9 @@ defineExpose({
   overflow-x: hidden;
   position: relative;
   touch-action: none;
+  * {
+    color: var(--read-text-color);
+  }
 }
 .horizontal-chapter-contents :deep(.chapter-contents-wrapper) {
   .placeholder {

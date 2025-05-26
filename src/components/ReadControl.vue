@@ -133,6 +133,24 @@
       </div>
     </transition>
 
+    <transition name="slide-up" :css="!disableAnim">
+      <div class="control-panel color-scheme-panel" data-target-control="colorScheme" v-if="visiblePanel === 'colorScheme'">
+        <ul class="color-scheme-list">
+          <li class="color-scheme-item"
+            v-for="(item, key) in readColorScheme"
+            :key="key"
+            :class="{selected: settings.colorScheme?.backgroundColor === item.backgroundColor && settings.colorScheme?.textColor === item.textColor }"
+            @click="settings.colorScheme = { ...item }"
+            :style="{ backgroundColor: item.backgroundColor }"
+          ></li>
+          <li class="color-scheme-item"
+            :class="{selected: !settings.colorScheme }"
+            @click="settings.colorScheme = undefined"
+          >系统</li>
+        </ul>
+      </div>
+    </transition>
+
     <div class="control-list">
       <div class="control-item" data-control="chapterList"
         @click="toggleControl('chapterList')">
@@ -163,7 +181,7 @@
       </div>
       <div class="control-item"
         data-control="darkMode"
-        @click="toggleControl('darkMode')">
+        @click="toggleControl('colorScheme')">
         <span class="material-symbols-outlined">{{ controlState.darkMode ? 'light_mode' : 'dark_mode' }}</span>
         <div class="control-label"></div>
       </div>
@@ -176,7 +194,7 @@ import { AutoPlay, ReadSpeak } from '@/actions';
 import { computed, inject, onBeforeUnmount, type Ref, ref } from 'vue';
 import CProgress from '@/components/common/CProgress.vue';
 import CSelect from '@/components/common/CSelect.vue';
-import { fontFamilyList, turnPageType } from '@/config';
+import { fontFamilyList, turnPageType, readColorScheme } from '@/config';
 import { settings } from '@/stores/settings';
 import type { GetNextElement } from '@/actions/read-speak';
 import { darkMode } from '@/stores/preferences';
@@ -272,7 +290,7 @@ const toggleReadSpeak = () => {
 
 const toggleControl = async (control: string) => {
   // action: darkMode | autoPlay | chapterList | font | progress
-  if (['autoPlay', 'progress', 'font'].includes(control)) {
+  if (['autoPlay', 'progress', 'font', 'colorScheme'].includes(control)) {
     if (visiblePanel.value === control) {
       visiblePanel.value = null
     } else {
@@ -340,10 +358,6 @@ defineExpose({
   padding: 16px;
   border-top: 1px solid var(--border-color);
   box-sizing: content-box;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: calc(var(--control-height) + var(--saib));
 }
 .control-panel + .control-list {
   border-top: none;
@@ -426,6 +440,28 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: space-around;
+}
+
+.color-scheme-panel {
+  .color-scheme-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 60px);
+    justify-content: center;
+    gap: 12px;
+    list-style: none;
+  }
+  .color-scheme-item {
+    width: 60px;
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    &.selected {
+      border-color: var(--theme-color);
+      filter: drop-shadow(0px 0px 4px var(--theme-color));
+    }
+  }
 }
 
 .read-info {

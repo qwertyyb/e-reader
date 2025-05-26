@@ -24,7 +24,7 @@
   --selected-bg-color: none;
   --selected-text-color: var(--theme-color);
   --read-bg-image: url("./text-bg.png?url");
-  --read-bg-color: none;
+  --read-bg-color: #FAF4E3;
   --reading-text-color: var(--theme-color);
   --reading-bg-color: none;
   --primary-btn-color: var(--theme-color);

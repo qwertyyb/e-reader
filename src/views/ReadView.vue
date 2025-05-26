@@ -23,36 +23,42 @@
         ></chapter-list-vue>
       </template>
       <template v-slot="{ settings }" v-if="chapterList.length && defaultProgress">
-          <horizational-chapter-contents
-            v-if="settings.turnPageType === 'horizontal-scroll'"
-            :data-font="settings.fontFamily"
-            :style="{
-              fontSize: settings.fontSize + 'px',
-              fontWeight: settings.fontWeight,
-              lineHeight: settings.lineHeight
-            }"
-            :chapter-list="chapterList"
-            :default-chapter-id="defaultProgress.chapterId"
-            :default-cursor="defaultProgress.cursor"
-            :load-chapter="loadChapter"
-            @progress="updateProgress"
-            ref="chapter-contents"
-          ></horizational-chapter-contents>
-          <chapter-contents
-            v-else
-            :data-font="settings.fontFamily"
-            :style="{
-              fontSize: settings.fontSize + 'px',
-              fontWeight: settings.fontWeight,
-              lineHeight: settings.lineHeight
-            }"
-            :chapter-list="chapterList"
-            :default-chapter-id="defaultProgress.chapterId"
-            :default-cursor="defaultProgress.cursor"
-            :load-chapter="loadChapter"
-            @progress="updateProgress"
-            ref="chapter-contents"
-          ></chapter-contents>
+        <horizational-chapter-contents
+          v-if="settings.turnPageType === 'horizontal-scroll'"
+          :data-font="settings.fontFamily"
+          :style="{
+            fontSize: settings.fontSize + 'px',
+            fontWeight: settings.fontWeight,
+            lineHeight: settings.lineHeight,
+            '--read-text-color': settings.colorScheme?.textColor,
+            '--read-bg-color': settings.colorScheme?.backgroundColor,
+            '--read-bg-image': settings.colorScheme ? 'none' : undefined
+          }"
+          :chapter-list="chapterList"
+          :default-chapter-id="defaultProgress.chapterId"
+          :default-cursor="defaultProgress.cursor"
+          :load-chapter="loadChapter"
+          @progress="updateProgress"
+          ref="chapter-contents"
+        ></horizational-chapter-contents>
+        <chapter-contents
+          v-else
+          :data-font="settings.fontFamily"
+          :style="{
+            fontSize: settings.fontSize + 'px',
+            fontWeight: settings.fontWeight,
+            lineHeight: settings.lineHeight,
+            '--read-text-color': settings.colorScheme?.textColor,
+            '--read-bg-color': settings.colorScheme?.backgroundColor,
+            '--read-bg-image': settings.colorScheme ? 'none' : undefined
+          }"
+          :chapter-list="chapterList"
+          :default-chapter-id="defaultProgress.chapterId"
+          :default-cursor="defaultProgress.cursor"
+          :load-chapter="loadChapter"
+          @progress="updateProgress"
+          ref="chapter-contents"
+        ></chapter-contents>
       </template>
     </control-wrapper>
     <book-toc-settings-dialog :visible="dialog==='tocSettings'" @close="dialog=null" :book-id="id"></book-toc-settings-dialog>

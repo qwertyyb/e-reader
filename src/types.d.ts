@@ -107,6 +107,8 @@ interface IMarkEntity {
 
 type TurnPageType = 'horizontal-scroll' | 'vertical-scroll'
 
+interface IColorScheme { textColor: string, backgroundColor: string }
+
 interface ISettings {
   fontFamily: string
   fontSize: number
@@ -116,6 +118,7 @@ interface ISettings {
   readSpeakRate: number
   // 翻页方式
   turnPageType?: TurnPageType
+  colorScheme?: { backgroundColor: string, textColor: string }
 
   openai?: {
     baseURL: string,

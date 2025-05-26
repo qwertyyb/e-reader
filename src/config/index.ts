@@ -36,3 +36,22 @@ export const defaultPreferences: {
 }
 
 export const preferencesStorageKey = 'preferences'
+
+export const readColorScheme: Record<string, IColorScheme> = {
+  // 基础模式
+  default: { textColor: '#333333', backgroundColor: '#FAF4E3' }, // 经典暖黄
+
+  // 护眼模式
+  green: { textColor: '#2D4D32', backgroundColor: '#D8E8D8' }, // 柔和绿
+
+  // 专业模式
+  professional: { textColor: '#3D3D3D', backgroundColor: '#FFFFFF' }, // 纯白专业
+
+  // 特色模式
+  ocean: { textColor: '#003366', backgroundColor: '#E6F7FF' }, // 海洋蓝
+  lavender: { textColor: '#4B4B4B', backgroundColor: '#F0E6FF' }, // 薰衣草紫
+
+  // 深色扩展
+  amoled: { textColor: '#A0A0A0', backgroundColor: '#000000' }, // 纯黑AMOLED
+  night: { textColor: '#E6E6E6', backgroundColor: '#191928' }, // 深蓝夜读
+}

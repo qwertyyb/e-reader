@@ -274,16 +274,11 @@ defineExpose({
   font-size: inherit;
   user-select: text;
   -webkit-user-select: text;
+  * {
+    color: var(--read-text-color);
+  }
 }
 .chapter-contents :deep(.chapter-contents-wrapper) {
-  &.column {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    column-gap: 0;
-    column-width: calc(100vw - 40px);
-    overflow: hidden;
-    height: calc(100% - 40px);
-  }
   .placeholder {
     width: 100%;
     z-index: 4;
