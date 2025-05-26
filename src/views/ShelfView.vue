@@ -40,6 +40,7 @@
     </teleport>
     <ul class="book-list">
       <li class="book-item-wrapper"
+        v-loading="loading"
         v-for="book in visibleList"
         :key="book.id"
         :class="{selected: selectedIds.has(book.id)}"
@@ -82,6 +83,7 @@ const route = useRoute()
 const category = ref(['all', 'imported', 'downloaded'].includes(route.query.category as string) ? route.query.category as string : 'all')
 
 const bookList = ref<IBookItem[]>([])
+const loading = ref(false)
 
 const selecting = ref(false)
 const selectedIds = ref(new Set<string | number>())
@@ -235,7 +237,8 @@ const onLongtap = (book: IBookItem) => {
   selecting.value = true
 }
 
-refresh()
+loading.value = true
+refresh().then(() => { loading.value = false })
 
 watch(() => route.name, () => {
   category.value = 'all'
