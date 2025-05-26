@@ -39,7 +39,7 @@ const checkUpdates = async ({ slient = false } = {}) => {
     return;
   }
   const curVersionIndex = releases.findIndex(item => item.version === version)
-  const versions = curVersionIndex >= 0 ? releases.slice(0, curVersionIndex + 1) : releases.slice()
+  const versions = curVersionIndex >= 0 ? releases.slice(0, curVersionIndex) : releases.slice()
   const changelog = versions.map(item => `## v${item.version}\n${item.changelog.trim() || '暂无更新内容'}`).join('\n')
   newVersionInfo.value = {
     version: latest.version,
