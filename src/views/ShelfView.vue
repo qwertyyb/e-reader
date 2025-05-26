@@ -127,10 +127,8 @@ const visibleList = computed(() => {
 const fetchRemoteBookList = async (): Promise<IRemoteBook[]> => {
   const server = preferences.value.shelfServerUrl
   if (!server) return []
-  const url = server.startsWith('https://') ? server : new URL(server, location.href).href;
-  const u = new URL(url)
-  u.searchParams.set('_t', Date.now().toString())
-  const mod = await import(/* @vite-ignore */disableCache(u.href));
+  // 是否要缓存就交由配置决定，如果配置的 url 中有remote=1参数，就走缓存，否则不走缓存
+  const mod = await import(/* @vite-ignore */new URL(server, location.href).href);
   return mod.books
 }
 
