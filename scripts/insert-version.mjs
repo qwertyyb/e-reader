@@ -20,7 +20,8 @@ const insertVersion = async (version = 'v0.1.0', changelog = '##feature \n - 添
     changelog,
     pubDate: new Date().toISOString()
   })
-  const json = JSON.stringify({ releases })
+  // 保存最近 30 个版本的变化就已经足够了，无须更多了
+  const json = JSON.stringify({ releases: releases.slice(0, 30) })
   writeFileSync(updateFilePath, json)
 }
 
