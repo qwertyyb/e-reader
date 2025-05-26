@@ -132,6 +132,7 @@
         </div>
       </div>
     </transition>
+
     <div class="control-list">
       <div class="control-item" data-control="chapterList"
         @click="toggleControl('chapterList')">
@@ -339,6 +340,10 @@ defineExpose({
   padding: 16px;
   border-top: 1px solid var(--border-color);
   box-sizing: content-box;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--control-height) + var(--saib));
 }
 .control-panel + .control-list {
   border-top: none;
