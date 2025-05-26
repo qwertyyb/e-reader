@@ -70,6 +70,8 @@ export class DarkMode extends EventTarget {
       this.#match.addEventListener('change', this.#callback)
       if (this.#match.matches) {
         this.enter()
+      } else {
+        this.exit()
       }
     } else {
       this.#match.removeEventListener('change', this.#callback)
