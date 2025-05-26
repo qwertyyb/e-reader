@@ -328,6 +328,12 @@ defineExpose({
   left: 0;
   right: 0;
   z-index: 6;
+  // 当组件正在动画进入或动画退出时，把面板的定位设置为 static 占据高度来避免动画的高度不正确的问题
+  &.slide-up-enter-active, &.slide-up-leave-active {
+    .control-panel{
+      position: static;
+    }
+  }
 }
 .control-list {
   display: flex;
@@ -358,6 +364,11 @@ defineExpose({
   padding: 16px;
   border-top: 1px solid var(--border-color);
   box-sizing: content-box;
+  // 需要把面板的位置设置为 absolute, 否则在两个面板切换时，前一个面板的位置会被后一个面板的位置顶起来的问题
+  // position: absolute;
+  // left: 0;
+  // right: 0;
+  // bottom: calc(var(--control-height) + var(--saib));
 }
 .control-panel + .control-list {
   border-top: none;
