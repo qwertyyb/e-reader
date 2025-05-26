@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { debounce, showToast } from '@/utils';
+import { debounce, showToast, throttle } from '@/utils';
 import { renderChapter } from '@/utils/chapter';
 import { disableAnim, getSafeAreaTop } from '@/utils/env';
 import { nextTick, useTemplateRef } from 'vue';
@@ -135,10 +135,12 @@ const scrollToCursor = async (cursor: number) => {
   console.log('scrollToCursor')
 }
 
-const updateProgress = () => {
+const updateProgress = (options: { loadContents: boolean}) => {
   const progress = getCurrentProgress()
   if (!progress) return;
-  loadContentsWithSignal(progress.chapter.id)
+  if (options.loadContents) {
+    loadContentsWithSignal(progress.chapter.id)
+  }
 
   emits('progress', progress)
 }
@@ -185,7 +187,16 @@ const getCurrentProgress = () => {
 
 // 经测试，发现 safari 在正在滚动时，无法接受滚动位置的突变，即修改 scrollTop 时，会出现非预期行为
 // 所以此处需要等待滚动结束后再更新内容区域，具体实现为防抖(safari 目前暂不支持 scrollend 事件)
-const scrollHandler = debounce(() => { if (!touching) { updateProgress() } }, 500)
+const updateContents = debounce(() => { if (!touching) { updateProgress({ loadContents: true }) } }, 500)
+
+// 更新进度需要节流，不能防抖，否则在自动播放时，不会更新进度
+const emitProgress = throttle(() => updateProgress({ loadContents: false }), 1000)
+
+
+const scrollHandler = () => {
+  emitProgress()
+  updateContents()
+}
 
 const init = async () => {
   await loadContentsWithSignal(props.defaultChapterId)

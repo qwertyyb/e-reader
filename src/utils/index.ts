@@ -44,6 +44,50 @@ export const debounce = <F extends (...args: unknown[]) => unknown>(fn: F, durat
   }
 }
 
+type ThrottledFunction<T extends (...args: unknown[]) => unknown> = {
+  (this: ThisParameterType<T>, ...args: Parameters<T>): void;
+  cancel: () => void;
+};
+
+export function throttle<T extends (...args: unknown[]) => unknown>(
+  func: T,
+  delay: number
+): ThrottledFunction<T> {
+  let lastExec = 0;
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+  const throttled = function (this: ThisParameterType<T>, ...args: Parameters<T>) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const context = this;
+    const now = Date.now();
+    const remaining = delay - (now - lastExec);
+
+    if (remaining <= 0) {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      func.apply(context, args);
+      lastExec = now;
+    } else if (!timeoutId) {
+      timeoutId = setTimeout(() => {
+        func.apply(context, args);
+        lastExec = Date.now();
+        timeoutId = null;
+      }, remaining);
+    }
+  } as ThrottledFunction<T>;
+
+  throttled.cancel = () => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+  };
+
+  return throttled;
+}
+
 export const dirPath = (filePath: string) => {
   const arr = filePath.split('/')
   arr.pop()
