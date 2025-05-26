@@ -68,7 +68,7 @@
 import { computed, ref, watch } from 'vue';
 
 import BookItem from '@/components/BookItem.vue';
-import { disableCache, showToast } from '@/utils';
+import { showToast } from '@/utils';
 import { localBookService } from '@/services/LocalBookService';
 import router from '@/router';
 import { booksStore, readingStateStore } from '@/services/storage';
