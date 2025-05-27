@@ -1,3 +1,4 @@
+import 'core-js/actual/promise/with-resolvers';
 import { register, unregister } from './register-sw'
 import { initDisableAnim, initEruda, initMoreContrast } from '@/utils/env'
 import './assets/main.css'
