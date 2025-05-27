@@ -4,7 +4,7 @@ import { parseTxtFile } from "./txt-file"
 import { parseMobiFile } from "./mobi"
 import { defaultTocRegList } from "@/config"
 
-export const parseFile = async (file: File) => {
+export const parseFile = async (file: File, options?: { tocRegList: RegExp[] }) => {
   if (file.name.endsWith('.epub')) {
     const result = await parseEpubFile(file)
     return {
@@ -16,7 +16,7 @@ export const parseFile = async (file: File) => {
     }
   }
   if (file.name.endsWith('.txt')) {
-    const result = await parseTxtFile(file, { tocRegList: defaultTocRegList })
+    const result = await parseTxtFile(file, { tocRegList: options?.tocRegList || defaultTocRegList })
     return {
       cover: await blobToBase64(result.cover),
       title: result.title,

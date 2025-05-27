@@ -43,7 +43,7 @@
         v-loading="loading"
         v-for="book in visibleList"
         :key="book.id"
-        :class="{selected: selectedIds.has(book.id)}"
+        :class="{selected: book.localBookId && selectedIds.has(book.localBookId)}"
         v-longtap="() => onLongtap(book)"
       >
         <book-item
@@ -53,7 +53,7 @@
           class="pointer"
         ></book-item>
         <div class="select-wrapper" @click="toggleSelect(book)" v-if="selecting">
-          <span class="material-symbols-outlined checkbox-icon" v-if="selectedIds.has(book.id)">check_circle</span>
+          <span class="material-symbols-outlined checkbox-icon" v-if="book.localBookId && selectedIds.has(book.localBookId)">check_circle</span>
           <span class="material-symbols-outlined checkbox-icon" v-else>radio_button_unchecked</span>
         </div>
       </li>
@@ -65,10 +65,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref, toRaw, watch } from 'vue';
 
 import BookItem from '@/components/BookItem.vue';
-import { showToast } from '@/utils';
+import { disableCache, filterEmpty, showToast } from '@/utils';
 import { localBookService } from '@/services/LocalBookService';
 import router from '@/router';
 import { booksStore, readingStateStore } from '@/services/storage';
@@ -91,10 +91,11 @@ const selectedIds = ref(new Set<string | number>())
 const downloadState = ref<Record<string, number>>({})
 
 const toggleSelect = (book: IBookItem) => {
-  if (selectedIds.value.has(book.localBookId!)) {
-    selectedIds.value.delete(book.localBookId!)
+  if (!book.localBookId) return;
+  if (selectedIds.value.has(book.localBookId)) {
+    selectedIds.value.delete(book.localBookId)
   } else {
-    selectedIds.value.add(book.localBookId!)
+    selectedIds.value.add(book.localBookId)
   }
 }
 
@@ -109,34 +110,57 @@ const deleteSelected = async () => {
 }
 
 const visibleList = computed(() => {
-  const list = bookList.value.map(item => {
+  let list = bookList.value.map(item => {
     return {
       ...item,
       reading: !!item.localBookId && String(item.trace) === String(animData.value.trace)
     }
   })
   if (category.value === 'imported') {
-    return list.filter(item => !item.onlineBookId)
+    list = list.filter(item => !item.onlineBookId)
+  } else if (category.value === 'downloaded') {
+    list.filter(item => item.onlineBookId && item.localBookId)
   }
-  if (category.value === 'downloaded') {
-    return list.filter(item => item.onlineBookId && item.localBookId)
+  // 如果正在选择，则只显示已下载或导入的书籍
+  if (selecting.value) {
+    list = list.filter(item => item.localBookId)
   }
+
   return list
 })
 
-const fetchRemoteBookList = async (): Promise<IRemoteBook[]> => {
+const fetchRemoteBookList = async (options?: { cacheFirst: boolean }): Promise<{ list: IRemoteBook[], fromCache: boolean }> => {
   const server = preferences.value.shelfServerUrl
-  if (!server) return []
-  // 是否要缓存就交由配置决定，如果配置的 url 中有remote=1参数，就走缓存，否则不走缓存
-  const mod = await import(/* @vite-ignore */new URL(server, location.href).href);
-  return mod.books
+  if (!server) return { fromCache: false, list: [] }
+  const url = disableCache(server)
+  const cache = await caches.open('e-book')
+  let r: Response
+  let fromCache = false
+  if (options?.cacheFirst) {
+    const cached = await cache.match(url)
+    r = cached ? cached : await fetch(url, { cache: 'no-store' })
+    fromCache = !!cached
+  } else {
+    r = await fetch(url, { cache: 'no-store' })
+  }
+  cache.put(r.url, r.clone())
+  const json = await r.json()
+  const list = (json.shelf || []).map((item: Omit<IRemoteBook, 'tocRegList'> & { tocRegList?: string[] }) => {
+    return {
+      ...item,
+      cover: new URL(item.cover, new URL(server, location.href)).href,
+      downloadUrl: new URL(item.downloadUrl, new URL(server, location.href)).href,
+      ...(item.tocRegList ? { tocRegList: item.tocRegList.map((reg) => new RegExp(reg)) } : {})
+    }
+  })
+  return { fromCache, list, }
 }
 
-const refresh = async () => {
+const refresh = async (options?: { cacheFirst: boolean }) => {
 
-  const [localBooks, remoteBooks, reading] = await Promise.all([
+  const [localBooks, { list: remoteBooks, fromCache }, reading] = await Promise.all([
     localBookService.getBookList(),
-    fetchRemoteBookList(),
+    fetchRemoteBookList(options),
     readingStateStore.getList().then((list) => {
       return list.reduce((acc, item) => {
         acc[item.bookId] = item
@@ -176,6 +200,8 @@ const refresh = async () => {
 
   bookList.value = books
     .sort((prev, next) => Number(next.downloaded) - Number(prev.downloaded) || next.lastReadTime! - prev.lastReadTime!)
+
+  return { fromCache }
 }
 
 const downloadItem = async (item: IBookItem) => {
@@ -183,7 +209,14 @@ const downloadItem = async (item: IBookItem) => {
     throw new Error('没有下载地址')
   }
   item.downloading = true
-  download(item.downloadUrl, { ...item }, (progress) => {
+  console.log(item, toRaw(item), {
+    id: item.onlineBookId, cover: item.cover, title: item.title, downloadUrl: item.downloadUrl,
+    tocRegList: toRaw(item.tocRegList)
+  })
+  download(item.downloadUrl, filterEmpty({
+    id: item.onlineBookId, cover: item.cover, title: item.title, downloadUrl: item.downloadUrl,
+    tocRegList: toRaw(item.tocRegList)
+  }), (progress) => {
     downloadState.value[item.id] = progress
   }).then(() => {
     showToast('下载完成')
@@ -230,13 +263,20 @@ const importLocalBook = async () => {
 }
 
 const onLongtap = (book: IBookItem) => {
+  if (!book.localBookId) return;
   selectedIds.value.clear()
-  selectedIds.value.add(book.id)
+  selectedIds.value.add(book.localBookId)
   selecting.value = true
 }
 
 loading.value = true
-refresh().then(() => { loading.value = false })
+// 先从缓存中取，再刷网络
+refresh({ cacheFirst: true }).then(({ fromCache }) => {
+  loading.value = false
+  if (fromCache) {
+    refresh({ cacheFirst: false })
+  }
+})
 
 watch(() => route.name, () => {
   category.value = 'all'

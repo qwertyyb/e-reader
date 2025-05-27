@@ -130,6 +130,18 @@ export const disableCache = (url: string) => {
   return u.href
 }
 
+export const filterEmpty = (obj: Record<string, unknown | undefined | null>) => {
+  return Object.entries(obj).reduce<typeof obj>((acc, [key, val]) => {
+    if (val !== null && typeof val !== 'undefined') {
+      return {
+        ...acc,
+        [key]: val
+      }
+    }
+    return acc
+  }, {})
+}
+
 export const showPicker = (() => {
   const pickerOptions = ref<{
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -25,6 +25,7 @@ interface IBookItem extends IBook {
   localBookId?: string,
   lastReadTime?: number,
   downloadUrl?: string,
+  tocRegList?: RegExp[],
   downloadProgress?: {
     total: number,
     downloaded: number,

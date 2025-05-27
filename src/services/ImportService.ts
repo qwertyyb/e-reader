@@ -1,6 +1,7 @@
 import { disableCache } from "@/utils"
 import { parseFile } from "./parser"
 import { booksStore, chapterListStore, contentStore, readingStateStore } from "./storage"
+import { defaultTocRegList } from "@/config"
 
 const parseFileName = (url: string) => {
   const { pathname } = new URL(url)
@@ -17,7 +18,7 @@ export const importFile = async (
   onUpdate?: (progress: number) => void
 ) => {
   onUpdate?.(0)
-  const result = await parseFile(file)
+  const result = await parseFile(file, { tocRegList: meta?.tocRegList || defaultTocRegList })
   onUpdate?.(25)
   const { content, maxCursor, chapterList } = result
   const title = meta?.title || result.title
