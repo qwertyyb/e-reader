@@ -31,7 +31,7 @@ export const defaultPreferences: {
 } = {
   screenKeepAlive: 'reading',
   darkMode: 'system',
-  shelfServerUrl: './books/index.js',
+  shelfServerUrl: './books/index.json',
   opdsServerUrl: './opds/root.xml'
 }
 

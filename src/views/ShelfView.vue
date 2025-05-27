@@ -77,6 +77,7 @@ import { setAnimData, animData } from '@/stores/bookAnim';
 import { longtap as vLongtap } from '@/directives/click';
 import { preferences } from '@/stores/preferences';
 import { download, importFile } from '@/services/ImportService';
+import Logger from 'js-logger';
 
 const route = useRoute()
 
@@ -89,6 +90,8 @@ const selecting = ref(false)
 const selectedIds = ref(new Set<string | number>())
 
 const downloadState = ref<Record<string, number>>({})
+
+const logger = Logger.get('ShelfView')
 
 const toggleSelect = (book: IBookItem) => {
   if (!book.localBookId) return;
@@ -133,18 +136,33 @@ const fetchRemoteBookList = async (options?: { cacheFirst: boolean }): Promise<{
   const server = preferences.value.shelfServerUrl
   if (!server) return { fromCache: false, list: [] }
   const url = disableCache(server)
-  const cache = await caches.open('e-book')
+  const cache: Cache | null = await window.caches?.open('e-book').catch(err => {
+    logger.error('open cache error', err)
+    return null
+  })
   let r: Response
   let fromCache = false
-  if (options?.cacheFirst) {
-    const cached = await cache.match(url)
+  if (cache && options?.cacheFirst) {
+    const cached = await cache.match(url).catch(err => {
+      logger.error('match cache error', err)
+      return null
+    })
     r = cached ? cached : await fetch(url, { cache: 'no-store' })
     fromCache = !!cached
   } else {
-    r = await fetch(url, { cache: 'no-store' })
+    r = await fetch(url, { cache: 'no-store' }).then(resp => {
+      if (resp.ok) { return resp }
+      showToast('获取书架失败: ' + r.status)
+      throw new Error('获取书架失败: ' + r.status)
+    })
   }
-  cache.put(r.url, r.clone())
-  const json = await r.json()
+  if (r.ok) {
+    cache?.put(r.url, r.clone())
+  }
+  const json = await r.json().catch(err => {
+    showToast('解析书架失败' + err.message)
+    throw new Error('解析书架失败' + err.message)
+  })
   const list = (json.shelf || []).map((item: Omit<IRemoteBook, 'tocRegList'> & { tocRegList?: string[] }) => {
     return {
       ...item,
@@ -160,7 +178,10 @@ const refresh = async (options?: { cacheFirst: boolean }) => {
 
   const [localBooks, { list: remoteBooks, fromCache }, reading] = await Promise.all([
     localBookService.getBookList(),
-    fetchRemoteBookList(options),
+    fetchRemoteBookList(options).catch(err => {
+      logger.error('fetch remote book list error', err)
+      return { fromCache: false, list: [] }
+    }),
     readingStateStore.getList().then((list) => {
       return list.reduce((acc, item) => {
         acc[item.bookId] = item
