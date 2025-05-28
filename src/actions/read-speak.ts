@@ -37,7 +37,8 @@ export class ReadSpeak extends EventTarget {
     utter.rate = this.#rate
     let nextTriggered = false
     utter.addEventListener('boundary', event => {
-      if (event.charIndex > event.utterance.text.length - 10 && !nextTriggered) {
+      const left = event.charLength || event.utterance.text.length - event.charIndex
+      if (left <= 10 && !nextTriggered) {
         nextTriggered = true
         this.#readyNext(el)
       }
