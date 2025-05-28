@@ -24,10 +24,10 @@
         </div>
         <input type="text" class="setting-input" v-model.trim="tocSettings[index]">
       </li>
-      <li class="setting-item btns-item">
-        <button class="preview-toc-btn btn" @click="$emit('confirm', tocSettings)">确认</button>
-      </li>
     </ul>
+    <div class="setting-item btns-item">
+      <button class="preview-toc-btn btn" @click="$emit('confirm', tocSettings)">确认</button>
+    </div>
   </div>
 </template>
 
@@ -36,7 +36,7 @@ import { defaultTocRegList } from '@/config';
 
 
 defineEmits<{ confirm: [string[]] }>()
-const tocSettings = defineModel<string[]>('model-value', {
+const tocSettings = defineModel<string[]>({
   default: () => defaultTocRegList.map(reg => reg.source)
 })
 
@@ -49,25 +49,41 @@ const upTocItem = (index: number) => {
 const downTocItem = (index: number) => {
   const cur = tocSettings.value[index]
   const next = tocSettings.value[index + 1]
-  tocSettings.value[index] = next
-  tocSettings.value[index + 1] = cur
+  let newToc = tocSettings.value.with(index, next)
+  newToc = newToc.with(index + 1, cur)
+  tocSettings.value = newToc
 }
 const deleteTocItem = (index: number) => {
-  tocSettings.value.splice(index, 1)
+  tocSettings.value = tocSettings.value.filter((_, i) => i !== index)
 }
 
 const insertBefore = (index: number) => {
-  tocSettings.value.splice(index, 0, '')
+  tocSettings.value = [
+    ...tocSettings.value.slice(0, index),
+    '',
+    ...tocSettings.value.slice(index)
+  ]
 }
 const insertAfter = (index: number) => {
-  tocSettings.value.splice(index + 1, 0, '')
+  tocSettings.value = [
+    ...tocSettings.value.slice(0, index + 1),
+    '',
+    ...tocSettings.value.slice(index + 1)
+  ]
 }
 
 </script>
 
 <style lang="scss" scoped>
+.book-toc-settings {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-bg-color);
+}
 .toc-settings {
   list-style: none;
+  flex: 1;
 }
 .setting-item + .setting-item {
   margin-top: 24px;
@@ -98,6 +114,7 @@ const insertAfter = (index: number) => {
 .setting-item-label {
   font-size: 16px;
   opacity: 0.6;
+  margin-right: 12px;
 }
 .settings-section-title {
   font-size: 14px;
@@ -105,7 +122,6 @@ const insertAfter = (index: number) => {
   margin: 0 0 8px 12px;
 }
 .settings-content {
-  background-color: var(--card-bg-color);
   border-radius: 4px;
   padding: 16px;
 }
@@ -122,8 +138,9 @@ const insertAfter = (index: number) => {
 .btns-item {
   display: flex;
   justify-content: center;
-  &:deep(.btn) {
-    font-size: 16px;
+  margin: 12px 0;
+  .btn {
+    padding: 4px 18px;
   }
 }
 </style>

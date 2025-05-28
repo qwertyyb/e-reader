@@ -1,6 +1,9 @@
 <template>
-  <c-dialog title="目录设置" :visible="visible" @close="$emit('close')">
-    <book-toc-settings @confirm="previewToc"></book-toc-settings>
+  <c-dialog title="目录设置" :visible="visible"
+    @close="$emit('close')"
+    height="60vh"
+  >
+    <book-toc-settings @confirm="previewToc" v-model="tocSettings"></book-toc-settings>
     <c-dialog
       height="90vh"
       title="预览目录"
@@ -23,9 +26,9 @@
 import CDialog from '@/components/common/CDialog.vue';
 import BookTocSettings from '@/components/BookTocSettings.vue';
 import ChapterList from '@/components/ChapterList.vue';
-import { ref, toRaw } from 'vue';
+import { ref, toRaw, watch } from 'vue';
 import { showToast } from '@/utils';
-import { chapterListStore, contentStore } from '@/services/storage';
+import { booksStore, chapterListStore, contentStore } from '@/services/storage';
 import { parseChapterList } from '@/services/parser/txt-file';
 
 const props = defineProps<{ visible: boolean, bookId: number | string }>()
@@ -33,6 +36,7 @@ defineEmits<{ close: [] }>()
 
 const chapterDialogVisible = ref(false)
 const chapterList = ref<IChapter[]>([])
+const tocSettings = ref<string[]>([])
 
 const getToc = async (tocSettings: string[]) => {
   const regList: RegExp[] = []
@@ -60,8 +64,18 @@ const previewToc = async (tocSettings: string[]) => {
 
 const saveToc = async () => {
   await chapterListStore.update(Number(props.bookId), { chapterList: toRaw(chapterList.value) })
+  const info = await booksStore.get(Number(props.bookId))
+  await booksStore.update(Number(props.bookId), { ...info, tocRegList: tocSettings.value.map(i => new RegExp(i)) })
   location.reload()
 }
+
+watch(() => props.visible, async (val) => {
+  if (val) {
+    const info = await booksStore.get(Number(props.bookId))
+    tocSettings.value = (info?.tocRegList || []).map(i => i.source)
+    tocSettings.value = tocSettings.value.length ? tocSettings.value : ['^第\\d+章\\s+.*$']
+  }
+})
 
 </script>
 

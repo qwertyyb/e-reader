@@ -10,13 +10,20 @@ export const parseChapterList = (
   const toc: { id: string, title: string, cursorStart: number, cursorEnd?: number, level: number }[] = []
   const parents: Record<number, string> = {}
   const lines = content.split('\n')
-  const startIsChapter = regList[0].test(lines[0].trim()) || lines[0].trim() === '章前内容'
-  // 如果起始不是章节，插入一个章前内容
-  if (!startIsChapter) {
-    lines.unshift('章前内容')
+  if (lines[0].trim() === '前言') {
     toc.push({
       id: '0',
-      title: '章前内容',
+      title: '前言',
+      cursorStart: 0,
+      cursorEnd: undefined,
+      level: 1
+    })
+  } else if (!regList[0].test(lines[0].trim())) {
+    // 如果起始不是章节，插入一个前言
+    lines.unshift('前言')
+    toc.push({
+      id: '0',
+      title: '前言',
       cursorStart: 0,
       cursorEnd: undefined,
       level: 1
@@ -50,6 +57,7 @@ export const parseChapterList = (
   toc.slice(1).forEach(item => {
     item.level = item.level - minLevel + 1
   })
+  console.log(lines)
   return { chapterList: toc, content: lines.join('\n') }
 }
 
