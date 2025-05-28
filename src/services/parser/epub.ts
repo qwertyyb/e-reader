@@ -85,6 +85,13 @@ const getCover = async (rootDoc: Document, entries: Entry[], rootDir: string) =>
   return cover
 }
 
+const prependTitle = (title: string, content: string | null) => {
+  if (!content?.trim()) return title
+  const text = content.trim()
+  if (text.startsWith(title)) return text
+  return [title, text].join('\n')
+}
+
 const parseContent = async (
   chapter: IChapter & { src: string },
   next: (IChapter & { src: string }) | null,
@@ -101,7 +108,7 @@ const parseContent = async (
   if (startIndex === endIndex) {
     // 两个章节同属一个 doc
     const nextHash = next!.src.split('#')[1]
-    return toText(doc, hash, nextHash)
+    return prependTitle(chapter.title, toText(doc, hash, nextHash))
   }
 
   let text = toText(doc, hash)
@@ -121,7 +128,7 @@ const parseContent = async (
     text += (toText(nextDoc, null, nextHash) ?? '')
   }
 
-  return text
+  return prependTitle(chapter.title, text)
 }
 
 const parseNavPoint = async (navPoint: Element, level: number, options: { rootDir: string, entries: Entry[] }): Promise<(IChapter & { src: string })[]> => {
