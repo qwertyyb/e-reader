@@ -57,7 +57,6 @@ export const parseChapterList = (
   toc.slice(1).forEach(item => {
     item.level = item.level - minLevel + 1
   })
-  console.log(lines)
   return { chapterList: toc, content: lines.join('\n') }
 }
 
