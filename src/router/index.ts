@@ -8,6 +8,7 @@ import PreferencesView from '@/views/PreferencesView.vue'
 import { ref, type Ref } from 'vue'
 import AboutView from '@/views/AboutView.vue'
 import DebugView from '@/views/DebugView.vue'
+import AdvancedPrfsView from '@/views/AdvancedPrfsView.vue'
 
 export const transitionName = ref('')
 
@@ -129,17 +130,28 @@ const router = createRouter({
     {
       path: '/preferences',
       name: 'preferences',
-      component: PreferencesView
+      redirect: '/preferences/general',
+      children: [
+        {
+          path: 'general',
+          component: PreferencesView
+        },
+        {
+          path: 'debug',
+          name: 'debug',
+          component: DebugView
+        },
+        {
+          path: 'advanced',
+          name: 'advancedPrfs',
+          component: AdvancedPrfsView
+        },
+      ]
     },
     {
       path: '/about',
       name: 'about',
       component: AboutView
-    },
-    {
-      path: '/debug',
-      name: 'debug',
-      component: DebugView
     },
     {
       path: '/opds',

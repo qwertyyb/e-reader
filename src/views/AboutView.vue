@@ -2,7 +2,7 @@
   <slide-back class="about-view">
     <navigation-bar title="关于" no-menu></navigation-bar>
     <img class="logo" src="/icons/icon256.png" />
-    <h3 class="name">E Reader</h3>
+    <h3 class="name" @click="toDebugView">E Reader</h3>
     <p class="version" v-if="version">v{{ version }}({{ buildVersion }})</p>
     <button class="check-update-btn btn primary-btn" @click="checkUpdates">检查版本更新</button>
   </slide-back>
@@ -13,10 +13,36 @@ import SlideBack from '@/components/SlideBack.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import { version, buildVersion } from '@/version';
 import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const checkUpdates = async () => {
   document.dispatchEvent(new CustomEvent('app:checkupdates', { detail: { slient: false } }))
 }
+
+const toDebugView = (() => {
+  let clickCount = 0;
+  let lastClickTime = 0;
+  return () => {
+    const currentTime = Date.now();
+    console.log(currentTime - lastClickTime, clickCount)
+    if (currentTime - lastClickTime < 400) {
+      clickCount++;
+      if (clickCount >= 5) {
+        clickCount = 0;
+        router.push({ name: 'debug' });
+      } else {
+        clickCount += 1;
+      }
+    } else {
+      clickCount = 1;
+    }
+    lastClickTime = currentTime;
+  };
+})()
+
+
 
 onMounted(checkUpdates)
 </script>

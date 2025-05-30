@@ -41,6 +41,10 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  overscroll-behavior: none;
+}
+
 body {
   min-height: var(--page-height);
   color: var(--color-text);
