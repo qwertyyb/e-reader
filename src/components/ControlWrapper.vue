@@ -43,6 +43,7 @@
       :visible="dialog==='ai'"
       class="ai-chat-dialog"
       @close="dialog=null"
+      body-style="padding: 0"
     >
       <a-i-chat-view no-header></a-i-chat-view>
     </c-dialog>

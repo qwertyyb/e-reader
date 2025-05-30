@@ -20,7 +20,7 @@
     <main class="message-list-container" v-else>
       <ul class="message-list">
         <li class="message-item"
-          v-for="(msg, idx) in messages"
+          v-for="(msg, idx) in messages.filter(item => item.from !== 'system')"
           :key="idx"
           :class="[`role-${msg.from}`, msg.loading ? 'loading' : ''].filter(Boolean).join(' ')"
         >
@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue';
+import { computed, inject, nextTick, onMounted, ref, type ComputedRef, type Ref } from 'vue';
 import OpenAI from 'openai';
 import CTextarea from '@/components/common/CTextarea.vue';
 import AIPrfsDialog from '@/components/AIPrfsDialog.vue';
@@ -72,6 +72,9 @@ defineProps<{
 const aisettingsVisible = ref(!preferences.value.ai);
 
 let client: OpenAI | null = null;
+
+const book = inject<Ref<IBook>>('book')
+const chapter = inject<ComputedRef<IChapter>>('chapter')
 
 const createClient = () => {
   client = preferences.value.ai ? new OpenAI({
@@ -120,13 +123,31 @@ const onSubmit = (query: string) => {
   }
   inputValue.value = '';
   startPage.value = false;
+  if (messages.value.length === 0) {
+    messages.value.push({
+      from: 'system',
+      content: `#角色
+假如你是一位专业的 AI 阅读助手，围绕固定的 [书名] 及 [章节名]，为用户提供精准、实用的阅读辅助，按以下规则执行任务。
+# 任务描述与要求
+书籍介绍：首次交流时，介绍 [书名] 类别、主题、亮点。如类别是小说、传记等；主题即核心思想；亮点如独特叙事、深刻人物塑造等，并举例说明。
+章节概括：用户询问时，概括 [章节名] 内容。小说讲清情节发展、人物变化；非小说提炼关键信息，如历史事件、科普知识点、哲学论点等。
+解答疑问：回答用户关于 [书名] 或 [章节名] 的问题，结合内容从多方面分析，给出依据和推理。
+阅读建议：依 [书名] 和 [章节名] 特点，提供阅读节奏、关注重点及拓展阅读建议，助力理解。
+关联推荐：基于风格主题，推荐相似书籍等作品，说明与 [书名][章节名] 的相似处。
+语言表达：交流用清晰、通俗、有条理语言，增强亲和力与互动性。
+
+[书名] = ${book?.value.title}
+[章节名] = ${chapter?.value.title}
+`,
+    });
+  }
   // 用户发送消息
   messages.value.push({
     from: 'user',
     content: query,
   });
 
-  fetchData(query);
+  fetchData();
 };
 
 const stopLoading = () => {
@@ -137,7 +158,7 @@ const stopLoading = () => {
   }
 }
 
-const fetchData = async (query: string) => {
+const fetchData = async () => {
   messages.value.push({
     from: 'assistant',
     content: '',
@@ -154,7 +175,7 @@ const fetchData = async (query: string) => {
   }
   completion = await client.chat.completions.create({
     model: preferences.value.ai.model, // 替换为自己的model名称
-    messages: [{ role: 'user', content: query }],
+    messages: messages.value.slice(0, -1).map(item => ({ role: item.from, content: item.content })),
     stream: true, // 为 true 则开启接口的流式返回
   });
   const startTime = Date.now()
@@ -240,16 +261,19 @@ const fetchData = async (query: string) => {
   padding: 0 16px;
 }
 .message-item {
-  padding: 6px 12px;
+  padding: 6px 0;
   border-radius: 12px;
   font-weight: 400;
   &.role-user {
     background-color: #c4e0fd;
     align-self: flex-end;
+    padding: 6px 12px;
   }
   &.role-assistant {
     align-self: flex-start;
     background-color: #fff;
+    margin-right: auto;
+    width: calc(100% - 54px);
   }
   .loading-icon {
     display: none;
