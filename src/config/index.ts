@@ -28,6 +28,11 @@ export const defaultPreferences: {
   darkMode: 'system' | 'light' | 'dark';
   shelfServerUrl: string;
   opdsServerUrl?: string;
+  ai?: {
+    baseURL: string,
+    model: string,
+    apiKey: string
+  }
 } = {
   screenKeepAlive: 'reading',
   darkMode: 'system',

@@ -21,7 +21,8 @@ export const preferences = ref<{
   screenKeepAlive: 'always' | 'reading' | 'never';
   darkMode: 'system' | 'light' | 'dark';
   shelfServerUrl: string;
-  opdsServerUrl: string
+  opdsServerUrl: string;
+  ai?: { baseURL: string, apiKey: string, model: string }
 }>(getPreferences());
 
 export const darkMode = new DarkMode({

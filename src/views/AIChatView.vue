@@ -4,7 +4,7 @@
       <span class="material-symbols-outlined settings-icon" @click="aisettingsVisible=true">settings</span>
     </header>
     <main class="message-list-container start-page" v-if="startPage">
-      <div class="start-page-logo-container" @click="aisettingsVisible=true">
+      <div class="start-page-logo-container">
         <img :src="'./icons/icon64.png'" alt="" class="start-page-logo">
         <h3 class="start-page-title">AI问书</h3>
       </div>
@@ -51,65 +51,37 @@
         @click="onSubmit(inputValue)"
       ><span class="material-symbols-outlined">arrow_upward</span></button>
     </footer>
-    <c-dialog title="AI配置" :visible="aisettingsVisible" @close="aisettingsVisible = false">
-      <div class="form-item">
-        <div class="form-item-label">baseURL</div>
-        <input type="text" name="baseURL" v-model.trim="aisettings.baseURL" class="form-item-input">
-      </div>
-      <div class="form-item">
-        <div class="form-item-label">apiKey</div>
-        <input type="text" name="apiKey" v-model.trim="aisettings.apiKey" class="form-item-input">
-      </div>
-      <div class="form-item">
-        <div class="form-item-label">模型(Model)</div>
-        <input type="text" name="model" v-model.trim="aisettings.model" class="form-item-input">
-      </div>
-      <div class="form-item">
-        <button class="btn primary-btn" @click="saveAISettings">保存</button>
-      </div>
-    </c-dialog>
+    <a-i-prfs-dialog :visible="aisettingsVisible" @close="aisettingsVisible = false" />
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, toRaw } from 'vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 import OpenAI from 'openai';
 import CTextarea from '@/components/common/CTextarea.vue';
+import AIPrfsDialog from '@/components/AIPrfsDialog.vue';
 import type { Stream } from 'openai/streaming.mjs';
 import { showToast } from '@/utils';
-import { settings } from '@/stores/settings';
-import CDialog from '@/components/common/CDialog.vue';
 import MarkdownViewer from '@/components/MarkdownViewer.vue';
-import { saveSettings } from '@/utils/settings';
+import { preferences } from '@/stores/preferences';
 
 defineProps<{
   noHeader?: boolean
 }>()
 
-let client: OpenAI | null = settings.value.openai?.baseURL && settings.value.openai.apiKey ? new OpenAI({
-  apiKey: settings.value.openai?.apiKey, // 模型APIKey
-  baseURL: settings.value.openai?.baseURL, // 模型API地址
-  dangerouslyAllowBrowser: true,
-}) : null;
+const aisettingsVisible = ref(!preferences.value.ai);
 
-const aisettingsVisible = ref(false)
-const aisettings = ref(settings.value.openai ? JSON.parse(JSON.stringify(settings.value.openai)) : {
-  baseURL: '',
-  apiKey: '',
-  model: ''
-})
+let client: OpenAI | null = null;
 
-const saveAISettings = () => {
-  const { baseURL, apiKey, model } = aisettings.value
-  if (!baseURL || !apiKey || !model) {
-    const msg = '请完整填写'
-    showToast(msg)
-    throw new Error(msg)
-  }
-  saveSettings('openai', { ...toRaw(aisettings.value) })
-  client = new OpenAI({ baseURL, apiKey, dangerouslyAllowBrowser: true })
-  aisettingsVisible.value = false
+const createClient = () => {
+  client = preferences.value.ai ? new OpenAI({
+    apiKey: preferences.value.ai?.apiKey, // 模型APIKey
+    baseURL: preferences.value.ai?.baseURL, // 模型API地址
+    dangerouslyAllowBrowser: true,
+  }) : null;
 }
+
+onMounted(createClient)
 
 const startPage = ref(true);
 const suggestions = [
@@ -172,15 +144,16 @@ const fetchData = async (query: string) => {
     loading: true,
     timeCost: 0,
   });
-  if (!client || !settings.value.openai?.model) {
+  if (!client || !preferences.value.ai?.model) {
     const msg = '需要先配置AI参数才能使用AI问书功能'
+    aisettingsVisible.value = true
     showToast(msg)
     messages.value[messages.value.length - 1].loading = false
     messages.value[messages.value.length - 1].content = msg
     throw new Error(msg)
   }
   completion = await client.chat.completions.create({
-    model: settings.value.openai!.model, // 替换为自己的model名称
+    model: preferences.value.ai.model, // 替换为自己的model名称
     messages: [{ role: 'user', content: query }],
     stream: true, // 为 true 则开启接口的流式返回
   });
@@ -377,26 +350,6 @@ const fetchData = async (query: string) => {
         font-size: 16px;
       }
     }
-  }
-}
-
-.form-item {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 12px;
-  .form-item-label {
-    font-size: 14px;
-    font-weight: 500;
-    opacity: 0.6;
-    margin-left: 6px;
-  }
-  .form-item-input {
-    font-size: 14px;
-    padding: 6px;
-    outline: none;
-    border: none;
-    border-bottom: 1px solid var(--border-color);
-    background: none;
   }
 }
 </style>
