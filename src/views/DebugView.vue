@@ -23,6 +23,13 @@
       </div>
     </div>
 
+    <div class="debug-item" @click="$router.push({ name: 'import' })">
+      <div class="debug-label">导入测试</div>
+      <div class="debug-control">
+        <span class="material-symbols-outlined arrow-icon">chevron_right</span>
+      </div>
+    </div>
+
     <div class="debug-item" @click="resetToDefault">
       <div class="debug-label">恢复默认</div>
     </div>
@@ -161,15 +168,17 @@ const resetToDefault = () => {
   width: auto;
   margin-left: auto;
   font-size: 18px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  .arrow-icon {
+    font-size: 24px;
+  }
 }
 
 .debug-label {
   flex: 0 0 120px;
   font-size: 17px;
   font-weight: 500;
-}
-
-.debug-item:active {
-  background-color: rgba(0, 0, 0, 0.05);
 }
 </style>

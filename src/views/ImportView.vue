@@ -1,6 +1,6 @@
 <template>
   <slide-back class="import-view">
-    <navigation-bar title="本地导入"></navigation-bar>
+    <navigation-bar title="本地导入" no-menu></navigation-bar>
     <div class="upload-book-section">
       <button class="btn primary-btn file-selector-btn" @click="selectFile">选择文件</button>
       <p class="select-tips">支持 txt 和 epub 文件</p>
@@ -14,8 +14,8 @@
         <h2 class="book-title">{{ bookInfo.title }}</h2>
         <p class="word-count">{{ wordCount }}字</p>
         <ul class="chapter-info">
-          <li class="chapter-info-item">{{ chapterInfo.levelsCount }}个目录层级</li>
-          <li class="chapter-info-item" v-for="(count, key) in chapterInfo.levelCount" :key="key">{{count}} 个{{key}}级目录</li>
+          <li class="chapter-info-item">{{ chapterInfo.levelsCount }} 个目录层级</li>
+          <li class="chapter-info-item" v-for="item in chapterInfo.levelCount" :key="item.level">{{item.count}} 个 {{item.level}} 级目录</li>
         </ul>
         <div class="btns">
           <button class="btn" @click="previewToc">预览目录</button>
@@ -102,7 +102,7 @@ const chapterInfo = computed(() => {
   })
   return {
     levelsCount: levels.size,
-    levelCount: levelCount.keys().toArray().sort((prev, next) => prev - next).map(level => levelCount.get(level))
+    levelCount: levelCount.keys().toArray().sort((prev, next) => prev - next).map(level => ({ level, count: levelCount.get(level) }))
   }
 })
 const wordCount = computed(() => {
@@ -214,9 +214,14 @@ const saveBook = async (refreshInfo: boolean) => {
 
 <style lang="scss" scoped>
 .import-view {
-  min-height: var(--page-height);
+  height: var(--page-height);
+  display: flex;
+  flex-direction: column;
 }
 .import-main {
+  height: 0;
+  flex: 1;
+  overflow: auto;
   padding: 16px 16px max(var(--saib), 10em) 16px;
 }
 .upload-book-section {
