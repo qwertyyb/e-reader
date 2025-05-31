@@ -365,10 +365,10 @@ defineExpose({
   border-top: 1px solid var(--border-color);
   box-sizing: content-box;
   // 需要把面板的位置设置为 absolute, 否则在两个面板切换时，前一个面板的位置会被后一个面板的位置顶起来的问题
-  // position: absolute;
-  // left: 0;
-  // right: 0;
-  // bottom: calc(var(--control-height) + var(--saib));
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--control-height) + var(--saib));
 }
 .control-panel + .control-list {
   border-top: none;
