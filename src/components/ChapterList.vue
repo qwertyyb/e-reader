@@ -17,7 +17,7 @@
         <span class="material-symbols-outlined settings-icon action-icon"
           v-if="enableSettings"
           @click="$emit('settings')"
-        >settings</span>
+        >tune</span>
         <span class="material-symbols-outlined collapse-icon action-icon"
           @click="toggleFoldAll"
           :title="isAllFold ? '展开所有' : '折叠所有'"
@@ -203,7 +203,10 @@ const scrollHandler = (event: Event, range: { start: number, end: number }) => {
   justify-content: center;
   opacity: 0.7;
   & + .action-icon {
-    margin-left: 8px;
+    margin-left: 12px;
+  }
+  &.search-icon {
+    font-size: 28px;
   }
 }
 .chapter-virtual-list {

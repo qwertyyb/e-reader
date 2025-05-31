@@ -1,6 +1,7 @@
 <template>
   <c-dialog :visible="visible"
     class="book-menu-dialog"
+    body-style="padding: 0"
     @close="$emit('close')">
 
     <ul class="book-menu">
@@ -20,9 +21,17 @@
         <span class="material-symbols-outlined menu-item-icon">info</span>
         <div class="menu-item-label">书籍信息</div>
       </li>
-      <li class="menu-item" @click="() => $emit('action', 'ai')">
+      <li class="menu-item" @click="() => $emit('action', 'tocSettings')">
+        <span class="material-symbols-outlined menu-item-icon">tune</span>
+        <div class="menu-item-label">目录设置</div>
+      </li>
+      <li class="menu-item" v-if="preferences.ai?.baseURL" @click="() => $emit('action', 'ai')">
         <span class="material-symbols-outlined menu-item-icon">mindfulness</span>
         <div class="menu-item-label">AI问书</div>
+      </li>
+      <li class="menu-item" @click="() => $emit('action', 'share')">
+        <span class="material-symbols-outlined menu-item-icon">share</span>
+        <div class="menu-item-label">分享</div>
       </li>
     </ul>
   </c-dialog>
@@ -32,11 +41,12 @@
 import CDialog from '@/components/common/CDialog.vue';
 import { showToast } from '@/utils';
 import { exportBookMarkListByBookId } from '@/utils/mark';
+import { preferences } from '@/stores/preferences';
 
 const props = defineProps<{ visible: boolean, bookId: number }>()
 
 const emits = defineEmits<{
-  action: ['marksViewer' | 'exportMarks' | 'search' | 'info' | 'ai'],
+  action: ['marksViewer' | 'exportMarks' | 'search' | 'info' | 'ai' | 'tocSettings' | 'share'],
   close: []
 }>()
 
@@ -61,16 +71,26 @@ const search = () => {
 <style lang="scss" scoped>
 .book-menu-dialog .book-menu {
   padding: 30px 0;
-  width: calc(100vw - 80px);
   list-style: none;
   display: flex;
-  flex-wrap: wrap;
-  font-size: 12px;
+  overflow: auto;
+  font-size: 14px;
   text-align: center;
-  gap: 13px;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 .book-menu-dialog .menu-item {
   cursor: pointer;
+  width: 60px;
+  flex-shrink: 0;
+  margin-left: 12px;
+  &:first-child {
+    margin-left: 16px;
+  }
+  &:last-child {
+    margin-right: 16px;
+  }
 }
 .book-menu-dialog .menu-item-icon {
   font-size: 28px;

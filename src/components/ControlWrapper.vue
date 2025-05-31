@@ -38,6 +38,12 @@
       @close="dialog=null"
     ></book-info-dialog>
 
+    <book-toc-settings-dialog
+      :visible="dialog==='tocSettings'"
+      @close="dialog=null"
+      :book-id="bookId"
+    ></book-toc-settings-dialog>
+
     <c-dialog
       title="AI问书"
       :visible="dialog==='ai'"
@@ -87,6 +93,7 @@ import BookMenuDialog from '@/components/BookMenuDialog.vue';
 import MarksDialog from '@/components/MarksDialog.vue';
 import SearchDialog from '@/components/SearchDialog.vue';
 import BookInfoDialog from '@/components/BookInfoDialog.vue';
+import BookTocSettingsDialog from '@/components/BookTocSettingsDialog.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import AIChatView from '@/views/AIChatView.vue';
 import router from '@/router';
@@ -221,7 +228,7 @@ defineExpose({
     dialog.value = null
     panelVisible.value = false
   },
-  openDialog(name: 'search') {
+  openDialog(name: 'search' | 'tocSettings') {
     panelVisible.value = false
     dialog.value = name
   }

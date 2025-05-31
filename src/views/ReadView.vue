@@ -61,7 +61,6 @@
         ></chapter-contents>
       </template>
     </control-wrapper>
-    <book-toc-settings-dialog :visible="dialog==='tocSettings'" @close="dialog=null" :book-id="id"></book-toc-settings-dialog>
   </book-animation>
 </template>
 
@@ -76,7 +75,6 @@ import { onBeforeRouteLeave } from 'vue-router';
 import ChapterContents from '@/components/ChapterContents.vue';
 import HorizationalChapterContents from '@/components/HorizationalChapterContents.vue';
 import ChapterListVue from '@/components/ChapterList.vue';
-import BookTocSettingsDialog from '@/components/BookTocSettingsDialog.vue';
 
 const props = defineProps<{
   id: string
@@ -88,7 +86,6 @@ const animRef = useTemplateRef('anim')
 const controlWrapperRef = useTemplateRef('control-wrapper')
 const chapterContentsRef = useTemplateRef<InstanceType<typeof ChapterContents> | InstanceType<typeof HorizationalChapterContents>>('chapter-contents')
 const defaultProgress = ref<{ chapterId: string, cursor: number } | null>(null)
-const dialog = ref<string | null>(null)
 
 const chapter = computed(() => chapterList.value[curChapterIndex.value])
 const progress = ref<{ chapter: IChapter, chapterIndex: number, cursor: number } | null>(null)
@@ -170,8 +167,7 @@ const getNextReadElement = (current?: HTMLElement) => {
 }
 
 const openTocSettings = () => {
-  controlWrapperRef.value?.closeDialog()
-  dialog.value = 'tocSettings'
+  controlWrapperRef.value?.openDialog('tocSettings')
 }
 
 const openSearchDialog = () => {
