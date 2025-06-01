@@ -8,6 +8,7 @@ interface IBook {
   id: string
   title: string
   cover: string
+  author?: string
 }
 
 interface ILocalBook extends IBook {
@@ -85,6 +86,7 @@ interface IRemoteBook {
   id: string
   title: string
   cover: string
+  author?: string
   downloadUrl: string
   tocRegList?: RegExp[]
 }

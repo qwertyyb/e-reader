@@ -9,6 +9,7 @@
         <div class="share-container reading" v-if="book && !text" ref="share-container">
           <img :src="book?.cover" alt="" class="book-cover">
           <div class="book-title">{{ ellipsisText(book?.title || '', 20) }}</div>
+          <div class="book-author" v-if="book?.author">{{ ellipsisText(book?.author || '', 20) }} 著</div>
           <div class="share-footer">
             <div class="share-text">我正在读【{{ ellipsisText(chapter?.title || '', 48) }}】</div>
             <div class="qrcode-wrapper">
@@ -27,6 +28,7 @@
             <div class="share-footer">
               <div class="footer-left">
                 <div class="text-time">摘录于 {{ textTime }}</div>
+                <div class="book-author" v-if="book?.author">{{ ellipsisText(book.author || '', 26) }} 著</div>
                 <div class="app-name">E Reader</div>
               </div>
               <img :src="qrcode" alt="" class="share-qrcode">
@@ -166,7 +168,6 @@ const download = async () => {
   height: fit-content;
   background: #fff;
   position: relative;
-  z-index: -1;
   &.reading {
     width: 300px;
     // height: 500px;
@@ -182,11 +183,17 @@ const download = async () => {
       -webkit-touch-callout: default;
       border-bottom: 1px solid #eee;
     }
+    .book-author {
+      text-align: center;
+      font-size: 14px;
+      opacity: 0.6;
+      padding: 0 16px;
+    }
     .book-title {
       font-weight: bold;
       text-align: center;
       font-size: 16px;
-      margin: 4px 16px;
+      margin: 4px 16px 0 16px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -206,10 +213,10 @@ const download = async () => {
       margin-left: auto;
     }
     .app-name {
-      font-size: 9px;
+      font-size: 11px;
       text-align: center;
       font-weight: bold;
-      margin-top: -8px;
+      margin-top: -6px;
     }
     .share-text {
       margin-left: 12px;
@@ -250,12 +257,14 @@ const download = async () => {
       margin-top: 12px;
       text-align: right;
       color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
       .text-prefix {
         width: 2em;
         height: 1px;
         background: #333;
         display: inline-block;
-        margin-bottom: 4px;
         margin-right: 4px;
       }
     }
@@ -267,10 +276,14 @@ const download = async () => {
       padding: 16px;
       background: #f1eeee;
       font-size: 13px;
+      .book-author {
+        opacity: 0.7;
+        font-size: 12px;
+      }
       .app-name {
-        font-size: 13px;
-        opacity: 0.8;
-        font-weight: normal;
+        font-size: 12px;
+        opacity: 0.7;
+        font-weight: 300;
       }
       .share-qrcode {
         width: 60px;
