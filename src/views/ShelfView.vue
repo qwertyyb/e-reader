@@ -230,12 +230,9 @@ const downloadItem = async (item: IBookItem) => {
     throw new Error('没有下载地址')
   }
   item.downloading = true
-  console.log(item, toRaw(item), {
-    id: item.onlineBookId, cover: item.cover, title: item.title, downloadUrl: item.downloadUrl,
-    tocRegList: toRaw(item.tocRegList)
-  })
   download(item.downloadUrl, filterEmpty({
     id: item.onlineBookId, cover: item.cover, title: item.title, downloadUrl: item.downloadUrl,
+    author: item.author,
     tocRegList: toRaw(item.tocRegList)
   }), (progress) => {
     downloadState.value[item.id] = progress

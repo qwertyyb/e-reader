@@ -1,4 +1,4 @@
-import { disableCache } from "@/utils"
+import { disableCache, filterEmpty } from "@/utils"
 import { parseFile } from "./parser"
 import { booksStore, chapterListStore, contentStore, readingStateStore } from "./storage"
 import { defaultTocRegList } from "@/config"
@@ -24,8 +24,8 @@ export const importFile = async (
   const title = meta?.title || result.title
   const cover = meta?.cover || result.cover
   const onlineBookId = meta?.id
-  const info = { title, cover, onlineBookId, maxCursor, tocRegList: meta?.tocRegList }
-  const bookId = await booksStore.add(info)
+  const info = { title, cover, onlineBookId, maxCursor, tocRegList: meta?.tocRegList, author: meta?.author }
+  const bookId = await booksStore.add(filterEmpty(info))
   onUpdate?.(50)
   await Promise.all([
     contentStore.add({ bookId: bookId, content }),
