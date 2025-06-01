@@ -21,6 +21,7 @@
     "fflate": "^0.8.2",
     "foliate-js": "github:johnfactotum/foliate-js",
     "hammerjs": "^2.0.8",
+    "html2canvas": "^1.4.1",
     "js-logger": "^1.6.1",
     "jschardet": "^3.1.4",
     "mark.js": "^8.11.1",

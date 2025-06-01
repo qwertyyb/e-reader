@@ -33,7 +33,7 @@ async function onLeave(el: Element, done: () => void) {
 </script>
 
 <template>
-  <div class="root-app">
+  <div class="root-app" data-html2canvas-ignore>
     <router-view v-slot="{ Component }">
       <transition
         :name="transitionName"

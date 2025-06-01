@@ -44,6 +44,11 @@
       :book-id="bookId"
     ></book-toc-settings-dialog>
 
+    <book-share-dialog
+      :visible="dialog==='share'"
+      @close="dialog=null"
+    ></book-share-dialog>
+
     <c-dialog
       title="AI问书"
       :visible="dialog==='ai'"
@@ -94,6 +99,7 @@ import MarksDialog from '@/components/MarksDialog.vue';
 import SearchDialog from '@/components/SearchDialog.vue';
 import BookInfoDialog from '@/components/BookInfoDialog.vue';
 import BookTocSettingsDialog from '@/components/BookTocSettingsDialog.vue';
+import BookShareDialog from '@/components/BookShareDialog.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import AIChatView from '@/views/AIChatView.vue';
 import router from '@/router';
