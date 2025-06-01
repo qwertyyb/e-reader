@@ -255,6 +255,7 @@ const scrollHandler = (event: Event, range: { start: number, end: number }) => {
 }
 .expand-icon {
   transform: rotate(90deg);
+  font-size: 24px;
   &.fold {
     transform: rotate(0);
   }

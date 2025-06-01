@@ -4,12 +4,12 @@
 
     <div class="prfs-item" @click="prompt('shelfServerUrl')">
       <div class="prfs-label">书架服务URL</div>
-      <div class="prfs-control"><p>{{ preferences.shelfServerUrl }}</p></div>
+      <div class="prfs-control">{{ preferences.shelfServerUrl }}</div>
     </div>
 
     <div class="prfs-item" @click="prompt('opdsServerUrl')">
       <div class="prfs-label">OPDS URL</div>
-      <div class="prfs-control"><p>{{ preferences.opdsServerUrl }}</p></div>
+      <div class="prfs-control">{{ preferences.opdsServerUrl }}</div>
     </div>
 
     <div class="prfs-item" @click="aiVisible = true">
@@ -56,12 +56,17 @@ const prompt = (name: 'shelfServerUrl' | 'opdsServerUrl') => {
   padding-bottom: 16px;
   border-bottom: 1px solid #e5e5ea;
 }
+.prfs-label {
+  margin-right: auto;
+  white-space: nowrap;
+}
 
 .prfs-control {
-  width: auto;
   margin-left: auto;
   font-size: 18px;
   display: flex;
+  align-items: center;
+  text-align: right;
   .arrow-icon {
     font-size: 24px;
   }
