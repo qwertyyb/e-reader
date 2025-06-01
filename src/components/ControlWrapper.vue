@@ -22,7 +22,7 @@
       :visible="dialog==='bookMenu'"
       :book-id="bookId"
       @close="dialog=null"
-      @action="dialog=$event"
+      @action="dialog=$event;dialogProps=null"
     >
     </book-menu-dialog>
 
