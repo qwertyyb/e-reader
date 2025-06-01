@@ -207,4 +207,17 @@
     <link rel="http://opds-spec.org/acquisition/open-access" href="../books/吞噬星空.txt" type="text/plain" title="在线阅读"/>
     <content type="text">吞噬星空</content></entry>
   
+  <!-- 龙族(1-3部) -->
+  <entry>
+    <title>龙族(1-3部)</title>
+    <id>urn:uuid:book-17</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <author>
+      <name>江南</name>
+    </author>
+    <link rel="http://opds-spec.org/image" href="../books/covers/lz.jpeg" type="image/jpeg"/>
+    <link rel="http://opds-spec.org/acquisition" href="../books/./龙族1-3部实体版.txt" type="text/plain" title="下载"/>
+    <link rel="http://opds-spec.org/acquisition/open-access" href="../books/./龙族1-3部实体版.txt" type="text/plain" title="在线阅读"/>
+    <content type="text">龙族(1-3部)</content></entry>
+  
 </feed>

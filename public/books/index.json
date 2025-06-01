@@ -40,7 +40,11 @@
       "cover": "./covers/gmzz.jpeg",
       "title": "诡秘之主",
       "author": "爱潜水的乌贼",
-      "downloadUrl": "./诡秘之主.txt"
+      "downloadUrl": "./诡秘之主.txt",
+      "tocRegList": [
+        "^第[一二三四五六七八九十]部\\s",
+        "^第[一二三四五六七八九十零百千万亿\\d]+[章]\\s*[：:·\\-—]?\\s*(.+)$"
+      ]
     },
     {
       "id": "7",
