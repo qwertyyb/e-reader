@@ -24,6 +24,13 @@
               <div class="share-text">{{ text }}</div>
               <div class="share-text-suffix"><span class="text-prefix"></span>{{ ellipsisText(textChapter?.title || '', 48) }}</div>
             </div>
+            <div class="share-footer">
+              <div class="footer-left">
+                <div class="text-time">摘录于 {{ textTime }}</div>
+                <div class="app-name">E Reader</div>
+              </div>
+              <img :src="qrcode" alt="" class="share-qrcode">
+            </div>
           </div>
         </div>
         <img class="book-share-image" v-if="img" :src="img" />
@@ -64,6 +71,7 @@ const textChapter = computed(() => {
 })
 
 const qrcode = ref('')
+const textTime = ref('')
 
 let file: File | null = null
 
@@ -77,6 +85,8 @@ onMounted(async () => {
 
 watch(() => props.visible, async (visible) => {
   if (!visible) return;
+  img.value = ''
+  textTime.value = new Date().toLocaleDateString()
   await new Promise(resolve => setTimeout(resolve, 500))
   if (!shareRef.value) return;
   const { default: html2canvas } = await import('html2canvas')
@@ -157,7 +167,10 @@ const download = async () => {
   background: #fff;
   &.reading {
     width: 300px;
-    height: 500px;
+    // height: 500px;
+    * {
+      color: #111;
+    }
     .book-cover {
       width: 300px;
       height: 400px;
@@ -180,6 +193,7 @@ const download = async () => {
       display: flex;
       align-items: center;
       font-size: 14px;
+      padding-bottom: 12px;
     }
     .qrcode-wrapper {
       display: flex;
@@ -206,6 +220,9 @@ const download = async () => {
   &.content {
     width: 330px;
     min-height: 440px;
+    * {
+      color: #000;
+    }
     .book-cover {
       width: 100%;
       height: auto;
@@ -213,7 +230,6 @@ const download = async () => {
     .share-text-container {
       width: 100%;
       background: #fff;
-      padding-bottom: 24px;
     }
     .share-text-wrapper {
       background: rgba(255, 255, 255, 1);
@@ -226,9 +242,6 @@ const download = async () => {
       margin-left: auto;
       margin-right: auto;
       border: 1px solid #eee;
-      * {
-        color: #000;
-      }
     }
     .share-text-suffix {
       font-size: 12px;
@@ -244,6 +257,25 @@ const download = async () => {
         margin-right: 4px;
       }
     }
+    .share-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 8px;
+      padding: 16px;
+      background: #f1eeee;
+      font-size: 13px;
+      .app-name {
+        font-size: 13px;
+        opacity: 0.8;
+        font-weight: normal;
+      }
+      .share-qrcode {
+        width: 60px;
+        height: 60px;
+        border: 1px solid #bbb;
+      }
+    }
   }
 }
 .book-share-image {
@@ -254,6 +286,7 @@ const download = async () => {
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 2;
 }
 .actions {
   margin-top: 24px;

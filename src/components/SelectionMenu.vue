@@ -103,7 +103,7 @@ const marksRange = ref<{ start: number, length: number } | null>(null)
 const mark = ref<Omit<IMarkEntity, 'id'> & { id?: number } | null>(null)
 const reference = ref<{ getBoundingClientRect: () => DOMRect }>()
 const floating = ref(null);
-const { floatingStyles, update: updateMenuRect } = useFloating(reference, floating, { placement: 'bottom', middleware: [offset(10), shift({ padding: 12 })] });
+const { floatingStyles, update: updateMenuRect } = useFloating(reference, floating, { placement: 'bottom', middleware: [offset(12), shift({ padding: 12 })] });
 
 const contentWrapperRef = useTemplateRef('contentWrapper')
 const inputRef = useTemplateRef('input')
@@ -361,12 +361,12 @@ const actionHandler = async (event: Event, action: string) => {
   position: relative;
   z-index: 2;
   background: light-dark(#fff, #000);
-  border-radius: 4px;
+  border-radius: 12px;
   list-style: none;
   display: flex;
   box-shadow: 0 3px 7px light-dark(#ddd, #2a2a2a);
   justify-content: space-around;
-  padding: 0 6px;
+  padding: 0 8px;
   animation: slide-down-scale .2s ease;
   pointer-events: none;
 }
@@ -380,12 +380,11 @@ const actionHandler = async (event: Event, action: string) => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 10px;
-  padding: 4px 10px;
-  height: 50px;
+  font-size: 12px;
+  padding: 6px 10px;
 }
 .selection-menu .selection-menu-list .selection-menu-item .menu-item-wrapper > .menu-icon {
-  font-size: 18px;
+  font-size: 20px;
 }
 .selection-menu .selection-menu-list .menu-item-label {
   margin-top: 3px;
