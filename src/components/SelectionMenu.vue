@@ -40,6 +40,13 @@
             <span class="menu-item-label">查看</span>
           </div>
         </li>
+        <li class="selection-menu-item"
+          @click="actionHandler($event, 'share')">
+          <div class="menu-item-wrapper">
+            <span class="material-symbols-outlined menu-icon">open_in_new</span>
+            <span class="menu-item-label">分享</span>
+          </div>
+        </li>
       </ul>
     </div>
     <c-dialog
@@ -87,7 +94,8 @@ const props = defineProps<{ bookId: number, chapterId: string }>()
 
 const emits = defineEmits<{
   show: [],
-  hide: []
+  hide: [],
+  share: [{ text: string, chapterId: string, chapterIndex: number }]
 }>()
 
 const dialog = ref<string | null>(null)
@@ -310,6 +318,10 @@ const actionHandler = async (event: Event, action: string) => {
     const markValue = await marks.get(mark.value.id)
     mark.value = markValue
     marksRange.value = markValue.range
+  } else if (action === 'share' && mark.value?.text) {
+    emits('share', mark.value)
+    mark.value = null
+    window.getSelection()?.empty()
   }
 }
 </script>
@@ -339,6 +351,10 @@ const actionHandler = async (event: Event, action: string) => {
 .selection-menu-list-wrapper {
   position: relative;
   z-index: 2;
+  user-select: none;
+  * {
+    user-select: none;
+  }
 }
 
 .selection-menu .selection-menu-list {

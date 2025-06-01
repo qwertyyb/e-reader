@@ -72,8 +72,11 @@ const search = () => {
 .book-menu-dialog .book-menu {
   padding: 30px 0;
   list-style: none;
-  display: flex;
-  overflow: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 60px);
+  justify-content: center;
+  column-gap: 12px;
+  row-gap: 24px;
   font-size: 14px;
   text-align: center;
   &::-webkit-scrollbar {
@@ -84,13 +87,6 @@ const search = () => {
   cursor: pointer;
   width: 60px;
   flex-shrink: 0;
-  margin-left: 12px;
-  &:first-child {
-    margin-left: 16px;
-  }
-  &:last-child {
-    margin-right: 16px;
-  }
 }
 .book-menu-dialog .menu-item-icon {
   font-size: 28px;

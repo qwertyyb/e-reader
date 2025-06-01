@@ -5,15 +5,24 @@
       @click.self="$emit('close')"
       class="book-share-dialog"
     >
-      <div class="share-wrapper">
-        <div class="book-share" v-if="book" ref="share-container">
-          <img :src="book.cover" alt="" class="book-cover">
-          <div class="book-title">{{ ellipsisText(book.title, 20) }}</div>
+      <div class="share-preview">
+        <div class="share-container reading" v-if="book && !text" ref="share-container">
+          <img :src="book?.cover" alt="" class="book-cover">
+          <div class="book-title">{{ ellipsisText(book?.title || '', 20) }}</div>
           <div class="share-footer">
             <div class="share-text">我正在读【{{ ellipsisText(chapter?.title || '', 48) }}】</div>
             <div class="qrcode-wrapper">
               <img :src="qrcode" alt="" class="share-qrcode">
               <div class="app-name">E Reader</div>
+            </div>
+          </div>
+        </div>
+        <div class="share-container content" v-if="book && text" ref="share-container">
+          <img :src="book?.cover" alt="" class="book-cover">
+          <div class="share-text-container">
+            <div class="share-text-wrapper">
+              <div class="share-text">{{ text }}</div>
+              <div class="share-text-suffix"><span class="text-prefix"></span>{{ ellipsisText(textChapter?.title || '', 48) }}</div>
             </div>
           </div>
         </div>
@@ -34,17 +43,26 @@
 </template>
 <script setup lang="ts">
 import { ellipsisText, showToast } from '@/utils';
-import { inject, onMounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
+import { computed, inject, onMounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
 import QRCode from 'qrcode'
 
 const props = defineProps<{
-  visible: boolean
+  visible: boolean,
+  text?: string,
+  chapterIndex?: number
 }>()
 
 const book = inject<Ref<IBook>>('book')
 const chapter = inject<ComputedRef<IChapter>>('chapter')
+const chapterList = inject<Ref<IChapter[]>>('chapterList')
 
 const shareRef = useTemplateRef('share-container')
+
+const textChapter = computed(() => {
+  if (!props.text || typeof props.chapterIndex === 'undefined') return;
+  return chapterList?.value[props.chapterIndex]
+})
+
 const qrcode = ref('')
 
 let file: File | null = null
@@ -124,70 +142,118 @@ const download = async () => {
   align-items: center;
   background: rgba(0, 0, 0, 0.65);
 }
-.share-wrapper {
+.share-preview {
   position: relative;
-  width: 300px;
-  height: 520px;
-  overflow: hidden;
   margin: 0 auto;
+  max-height: 600px;
+  overflow: auto;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
-.book-share {
+.share-container {
   width: 100%;
   height: 100%;
   background: #fff;
+  &.reading {
+    width: 300px;
+    height: 500px;
+    .book-cover {
+      width: 300px;
+      height: 400px;
+      display: block;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: default;
+      border-bottom: 1px solid #eee;
+    }
+    .book-title {
+      font-weight: bold;
+      text-align: center;
+      font-size: 16px;
+      margin: 4px 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .share-footer {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+    }
+    .qrcode-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-right: 8px;
+      margin-left: auto;
+    }
+    .app-name {
+      font-size: 9px;
+      text-align: center;
+      font-weight: bold;
+      margin-top: -8px;
+    }
+    .share-text {
+      margin-left: 12px;
+    }
+    .share-qrcode {
+      width: 60px;
+      height: 60px;
+    }
+  }
+  &.content {
+    width: 330px;
+    min-height: 440px;
+    .book-cover {
+      width: 100%;
+      height: auto;
+    }
+    .share-text-container {
+      width: 100%;
+      background: #fff;
+      padding-bottom: 24px;
+    }
+    .share-text-wrapper {
+      background: rgba(255, 255, 255, 1);
+      padding: 8px 12px;
+      border-radius: 2px;
+      margin-top: -48px;
+      position: relative;
+      z-index: 1;
+      width: 300px;
+      margin-left: auto;
+      margin-right: auto;
+      border: 1px solid #eee;
+      * {
+        color: #000;
+      }
+    }
+    .share-text-suffix {
+      font-size: 12px;
+      margin-top: 12px;
+      text-align: right;
+      color: #333;
+      .text-prefix {
+        width: 2em;
+        height: 1px;
+        background: #333;
+        display: inline-block;
+        margin-bottom: 4px;
+        margin-right: 4px;
+      }
+    }
+  }
 }
 .book-share-image {
-  width: 300px;
+  width: 100%;
   height: auto;
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-}
-.book-cover {
-  width: 300px;
-  height: 400px;
-  display: block;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: default;
-  border-bottom: 1px solid #eee;
-}
-.book-title {
-  font-weight: bold;
-  text-align: center;
-  font-size: 16px;
-  margin: 4px 16px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.share-footer {
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-}
-.qrcode-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-right: 8px;
-  margin-left: auto;
-}
-.app-name {
-  font-size: 9px;
-  text-align: center;
-  font-weight: bold;
-  margin-top: -8px;
-}
-.share-text {
-  margin-left: 12px;
-}
-.share-qrcode {
-  width: 60px;
-  height: 60px;
 }
 .actions {
   margin-top: 24px;

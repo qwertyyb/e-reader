@@ -47,6 +47,7 @@
     <book-share-dialog
       :visible="dialog==='share'"
       @close="dialog=null"
+      v-bind="dialogProps"
     ></book-share-dialog>
 
     <c-dialog
@@ -71,6 +72,7 @@
       :chapterId="chapterId"
       @show="selectMenuShowed = true"
       @hide="selectMenuShowed = false"
+      @share="shareTextHandler"
     >
       <div class="content-container" ref="content" @touchstart="touchstartHandler">
           <slot :settings="settings"></slot>
@@ -126,6 +128,7 @@ const emits = defineEmits<{
 const panelVisible = ref(false)
 const readControlRef = useTemplateRef('read-control')
 const dialog = ref<string | null>()
+const dialogProps = ref<{ text: string, chapterId: string, chapterIndex: number } | null>(null)
 const selectMenuShowed = ref(false)
 
 const contentRef = useTemplateRef('content')
@@ -136,6 +139,11 @@ const refreshMarks = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (el as any).chapterMark?.refresh()
   })
+}
+
+const shareTextHandler = (mark: { text: string, chapterId: string, chapterIndex: number }) => {
+  dialogProps.value = { text: mark.text, chapterId: mark.chapterId, chapterIndex: mark.chapterIndex }
+  dialog.value = 'share'
 }
 
 const touchstartHandler = (e: TouchEvent) => {
