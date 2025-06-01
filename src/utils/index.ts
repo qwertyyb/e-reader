@@ -190,3 +190,24 @@ export const showPicker = (() => {
     })
   }
 })()
+
+// 计算字符串显示长度（中文算2个字符，英文算1个字符）
+export const getDisplayLength = (str: string): number => {
+  return str.split('').reduce((length, char) => {
+    // 判断是否为中文字符（Unicode范围：\u4e00-\u9fa5）
+    return length + (/[\u4e00-\u9fa5]/.test(char) ? 2 : 1)
+  }, 0)
+}
+
+export const ellipsisText = (text: string, maxLength = 12) => {
+  let result = ''
+  let currentLength = 0
+  for (const char of text) {
+    const charLength = /[\u4e00-\u9fa5]/.test(char) ? 2 : 1
+    if (currentLength + charLength > maxLength) return `${result}...`
+    result += char
+    currentLength += charLength
+  }
+
+  return result
+}
