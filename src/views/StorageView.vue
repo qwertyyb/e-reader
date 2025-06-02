@@ -78,6 +78,9 @@ const clearCache = async () => {
 </script>
 
 <style lang="scss" scoped>
+.storage-view {
+  height: var(--page-height);
+}
 .storage-main {
   padding: 16px;
 }
