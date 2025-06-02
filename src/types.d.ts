@@ -62,6 +62,7 @@ interface IReadingState {
   chapterId: string
   cursor: number
   lastReadTime: number
+  duration?: number // 阅读时长，单位: 秒
 }
 
 

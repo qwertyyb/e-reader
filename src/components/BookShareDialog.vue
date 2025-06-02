@@ -61,6 +61,8 @@ const props = defineProps<{
   chapterIndex?: number
 }>()
 
+defineEmits<{ close: [] }>()
+
 const book = inject<Ref<IBook>>('book')
 const chapter = inject<ComputedRef<IChapter>>('chapter')
 const chapterList = inject<Ref<IChapter[]>>('chapterList')

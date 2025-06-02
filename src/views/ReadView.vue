@@ -22,7 +22,7 @@
           @tap="jumpToChapter"
         ></chapter-list-vue>
       </template>
-      <template v-slot="{ settings }" v-if="chapterList.length && defaultProgress">
+      <template v-slot="{ settings }" v-if="chapterList.length && progress">
         <horizational-chapter-contents
           v-if="settings.turnPageType === 'horizontal-scroll'"
           :data-font="settings.fontFamily"
@@ -35,8 +35,8 @@
             '--read-bg-image': settings.colorScheme ? 'none' : undefined
           }"
           :chapter-list="chapterList"
-          :default-chapter-id="defaultProgress.chapterId"
-          :default-cursor="defaultProgress.cursor"
+          :default-chapter-id="progress.chapter.id"
+          :default-cursor="progress.cursor"
           :load-chapter="loadChapter"
           @progress="updateProgress"
           ref="chapter-contents"
@@ -53,8 +53,8 @@
             '--read-bg-image': settings.colorScheme ? 'none' : undefined
           }"
           :chapter-list="chapterList"
-          :default-chapter-id="defaultProgress.chapterId"
-          :default-cursor="defaultProgress.cursor"
+          :default-chapter-id="progress.chapter.id"
+          :default-cursor="progress.cursor"
           :load-chapter="loadChapter"
           @progress="updateProgress"
           ref="chapter-contents"
@@ -66,7 +66,7 @@
 
 <script setup lang="ts">
 import ControlWrapper from '@/components/ControlWrapper.vue';
-import { computed, provide, ref, useTemplateRef } from 'vue';
+import { computed, onBeforeUnmount, provide, ref, useTemplateRef } from 'vue';
 import { localBookService as dataService } from '@/services/LocalBookService';
 import { showToast } from '@/utils';
 import { readingStateStore } from '@/services/storage';
@@ -75,6 +75,7 @@ import { onBeforeRouteLeave } from 'vue-router';
 import ChapterContents from '@/components/ChapterContents.vue';
 import HorizationalChapterContents from '@/components/HorizationalChapterContents.vue';
 import ChapterListVue from '@/components/ChapterList.vue';
+import { ReadingTime } from '@/actions/reading-time';
 
 const props = defineProps<{
   id: string
@@ -85,11 +86,12 @@ const curChapterIndex = ref(0)
 const animRef = useTemplateRef('anim')
 const controlWrapperRef = useTemplateRef('control-wrapper')
 const chapterContentsRef = useTemplateRef<InstanceType<typeof ChapterContents> | InstanceType<typeof HorizationalChapterContents>>('chapter-contents')
-const defaultProgress = ref<{ chapterId: string, cursor: number } | null>(null)
 
 const chapter = computed(() => chapterList.value[curChapterIndex.value])
-const progress = ref<{ chapter: IChapter, chapterIndex: number, cursor: number } | null>(null)
+const progress = ref<{ chapter: IChapter, chapterIndex: number, cursor: number, duration: number } | null>(null)
 const book = ref<ILocalBook>()
+
+let readingTime: ReadingTime | null = null
 
 provide('chapter', chapter)
 provide('progress', progress)
@@ -127,17 +129,21 @@ const loadChapter = async (chapter: IChapter) => {
   }
   return chapterLoadState.get(chapter)!
 }
-const updateProgress = (info: { chapter: IChapter, cursor: number, chapterIndex: number }) => {
-  curChapterIndex.value = info.chapterIndex
-  progress.value = { ...info }
-  // 默认状态也更新一下，这样在切换横竖滚动的时候，进度才不会丢失
-  defaultProgress.value = { chapterId: info.chapter.id, cursor: info.cursor }
 
-  readingStateStore.update(props.id, {
-    chapterId: info.chapter.id,
-    cursor: info.cursor,
+const updateReadingState = () => {
+  if (!progress.value) return
+  return readingStateStore.update(props.id, {
+    chapterId: progress.value.chapter.id,
+    cursor: progress.value.cursor,
+    duration: progress.value.duration,
     lastReadTime: Date.now(),
   })
+}
+const updateProgress = (info: { chapter: IChapter, cursor: number, chapterIndex: number }) => {
+  curChapterIndex.value = info.chapterIndex
+  progress.value = { ...progress.value!, ...info }
+
+  updateReadingState()
 }
 
 const fetchChapterList = async () => {
@@ -146,15 +152,12 @@ const fetchChapterList = async () => {
     dataService.getChapterList(props.id)
   ])
   if (!toc) {
-    return showToast(`获取目录失败: ${props.id}`)
+    showToast(`获取目录失败: ${props.id}`)
+    return []
   }
   book.value = bookInfo
   chapterList.value = toc
-}
-const fetchReadProgress = async () => {
-  const progress = await readingStateStore.get(props.id)
-  if (!progress || !progress.cursor) return;
-  defaultProgress.value = { chapterId: progress.chapterId, cursor: progress.cursor }
+  return toc
 }
 
 const jump = async (options: { chapterId: string, cursor: number }) => {
@@ -175,18 +178,33 @@ const openSearchDialog = () => {
 }
 
 const init = async () => {
-  await Promise.all([
+  const [chapterList, readingState] = await Promise.all([
     fetchChapterList(),
-    fetchReadProgress()
+    readingStateStore.get(props.id)
   ])
-  if (!defaultProgress.value) {
-    const chapter = chapterList.value[0]
-    defaultProgress.value = { chapterId: chapter.id, cursor: chapter.cursorStart }
+  const chapterIndex = readingState?.chapterId
+    ? chapterList.findIndex(chapter => chapter.id === readingState.chapterId) || 0
+    : 0
+
+  progress.value = {
+    chapter: chapterList[chapterIndex],
+    chapterIndex,
+    cursor: readingState?.cursor || 0,
+    duration: readingState?.duration || 0
   }
+
   readingStateStore.update(props.id, { lastReadTime: Date.now() })
+  readingTime = new ReadingTime(readingState?.duration || 0, time => {
+    progress.value = { ...progress.value!, duration: time }
+    updateReadingState()
+  })
 }
 
 init()
+
+onBeforeUnmount(() => {
+  readingTime?.destroy()
+})
 
 onBeforeRouteLeave((to, from, next) => {
   controlWrapperRef.value?.closeDialog()

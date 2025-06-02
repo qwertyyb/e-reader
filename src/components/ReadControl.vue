@@ -32,6 +32,12 @@
             </h4>
             <p class="read-info-subtitle">全书进度</p>
           </li>
+          <li class="read-info-item" v-if="bookPercent">
+            <h4>
+              {{ readingDuration }}
+            </h4>
+            <p class="read-info-subtitle">阅读时间</p>
+          </li>
         </ul>
         <div class="line-item" v-if="progress && book && ('maxCursor' in book)">
           <c-progress
@@ -217,7 +223,7 @@ const controlState = ref({
   autoPlay: false
 })
 
-const progress = inject<Ref<{ chapter: IChapter, chapterIndex: number, cursor: number } | null>>('progress')
+const progress = inject<Ref<{ chapter: IChapter, chapterIndex: number, cursor: number, duration: number } | null>>('progress')
 const book = inject<Ref<IBook | ILocalBook>>('book')
 
 const chapterPercent = computed(() => {
@@ -233,6 +239,20 @@ const bookPercent = computed(() => {
     return Math.round(progress.value.cursor / book.value.maxCursor * 100) + '%'
   }
   return null
+})
+
+const readingDuration = computed(() => {
+  if (!progress?.value) return null
+  const duration = progress?.value?.duration || 0
+  if (duration < 60) {
+    return `${duration}秒`
+  }
+  const minutes = Math.floor(duration / 60)
+  if (minutes < 60) {
+    return `${minutes}分钟${duration % 60 ? `${duration % 60}秒` : ''}`
+  }
+  const hours = minutes / 60
+  return `${hours}小时${minutes % 60 ? `${minutes % 60}分钟` : ''}`
 })
 
 const createActions = () => {
