@@ -219,5 +219,19 @@
     <link rel="http://opds-spec.org/acquisition" href="../books/./龙族1-3部实体版.txt" type="text/plain" title="下载"/>
     <link rel="http://opds-spec.org/acquisition/open-access" href="../books/./龙族1-3部实体版.txt" type="text/plain" title="在线阅读"/>
     <content type="text">龙族(1-3部)</content></entry>
+
+  
+  <!-- 轮回乐园 -->
+  <entry>
+    <title>轮回乐园</title>
+    <id>urn:uuid:book-18</id>
+    <updated>2023-11-01T00:00:00Z</updated>
+    <author>
+      <name>那一只蚊子</name>
+    </author>
+    <link rel="http://opds-spec.org/image" href="../books/covers/lhly.jpeg" type="image/jpeg"/>
+    <link rel="http://opds-spec.org/acquisition" href="../books/./轮回乐园.txt" type="text/plain" title="下载"/>
+    <link rel="http://opds-spec.org/acquisition/open-access" href="../books/./轮回乐园.txt" type="text/plain" title="在线阅读"/>
+    <content type="text">轮回乐园</content></entry>
   
 </feed>
