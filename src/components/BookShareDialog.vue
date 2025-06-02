@@ -98,7 +98,7 @@ watch(() => props.visible, async (visible) => {
     showToast('无法生成图片')
     throw new Error('无法生成图片')
   }
-  file = new File([blob], 'share.jpg', {
+  file = new File([blob], `${book?.value.title || '分享'}.jpg`, {
     type: blob.type
   })
   if (img.value) {
