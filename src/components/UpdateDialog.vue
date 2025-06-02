@@ -10,12 +10,14 @@
 
 <script setup lang="ts">
 import CDialog from "@/components/common/CDialog.vue";
-import MarkdownViewer from "@/components/MarkdownViewer.vue";
-import { bridge } from "@/register-sw";
+// import MarkdownViewer from "@/components/MarkdownViewer.vue";
 import { disableCache, showToast } from "@/utils";
-import { onBeforeUnmount, ref } from "vue";
+import { defineAsyncComponent, onBeforeUnmount, ref } from "vue";
 import { updateInterval } from '@/constant';
 import { version } from '@/version';
+import { bridge } from "@/register-sw";
+
+const MarkdownViewer = defineAsyncComponent(() => import('@/components/MarkdownViewer.vue'))
 
 const visible = ref(false)
 const newVersionInfo = ref({
@@ -49,7 +51,12 @@ const checkUpdates = async ({ slient = false } = {}) => {
 }
 
 const update = async () => {
-  await bridge.invoke('deleteAllCache')
+  showToast('开始更新...')
+  await bridge.invoke('update').catch(err => {
+    showToast('更新失败')
+    throw err
+  })
+  showToast('更新成功，页面自动刷新中...')
   location.reload()
 }
 

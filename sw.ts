@@ -16,21 +16,27 @@ const logger = {
 }
 
 const clearCache = async () => {
-  const cacheNames = await caches.keys()
-  await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
+  return caches.delete(CACHE_NAME)
 }
 
 const fetchResources = async () => {
   const resources: string[] = [
-    '',
-    'index.html',
-    'index.html?source=pwa',
-    'favicon.ico',
-    'manifest.json',
+    './',
+    './index.html',
+    './index.html?source=pwa',
+    './favicon.ico',
+    './manifest.json',
+    './sw.js',
+    './icons/icon48.png',
+    './icons/icon64.png',
+    './icons/icon96.png',
+    './icons/icon128.png',
+    './icons/icon256.png',
+    'https://unpkg.com/pwacompat',
     'https://cdn.jsdelivr.net/npm/eruda'
   ]
   const url = new URL('.vite/manifest.json?t=' + Date.now(), location.origin + location.pathname)
-  const response = await fetch(url)
+  const response = await fetch(url, { cache: 'no-store' })
   const json = await response.json()
   return [
     ...resources,
@@ -55,9 +61,12 @@ const functions = {
   },
   async update() {
     await clearCache()
+    bridge.invoke('toast', '当前版本已清理')
     const assets = await fetchResources()
     const cache = await caches.open(CACHE_NAME)
+    bridge.invoke('toast', '开始下载新版本')
     await cache.addAll(assets)
+    bridge.invoke('toast', '已完成版本更新')
     return assets
   }
 }
@@ -110,7 +119,7 @@ self.addEventListener('activate', event => {
 
 const resourceNeedCache = (request: Request) => {
   const url = new URL(request.url);
-  if (url.hostname === 'localhost') return false;
+  if (!['http:', 'https:'].includes(url.protocol)) return false;
   const isApi = url.host === 'proxy.qwertyyb.cn'
   if (isApi) return false;
   const isRemote = url.searchParams.get('remote') === '1' || url.searchParams.has('_t')
@@ -122,9 +131,9 @@ const resourceNeedCache = (request: Request) => {
 self.addEventListener('fetch', function(event) {
   if (!resourceNeedCache(event.request)) return;
   event.respondWith(
-    caches.match(event.request, { cacheName: CACHE_NAME }).then(function(cachedResp) {
+    caches.match(event.request, { cacheName: CACHE_NAME, ignoreVary: true }).then(function(cachedResp) {
       if (cachedResp) {
-        logger.info('cache hit', event.request.url)
+        logger.info('cache hit', event.request.url, cachedResp.clone())
         return cachedResp
       }
       return fetch(event.request).then(function(response) {

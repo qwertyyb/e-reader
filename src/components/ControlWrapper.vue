@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { defineAsyncComponent, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import CDialog from '@/components/common/CDialog.vue';
 import SelectionMenu from '@/components/SelectionMenu.vue';
 import BookMenuDialog from '@/components/BookMenuDialog.vue';
@@ -103,7 +103,6 @@ import BookInfoDialog from '@/components/BookInfoDialog.vue';
 import BookTocSettingsDialog from '@/components/BookTocSettingsDialog.vue';
 import BookShareDialog from '@/components/BookShareDialog.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
-import AIChatView from '@/views/AIChatView.vue';
 import router from '@/router';
 import ReadControl from '@/components/ReadControl.vue';
 import Hammer from 'hammerjs';
@@ -124,6 +123,8 @@ const emits = defineEmits<{
   'scroll-vertical': [number],
   'jump': [{ cursor: number, chapterId: string }],
 }>()
+
+const AIChatView = defineAsyncComponent(() => import('@/views/AIChatView.vue'))
 
 const panelVisible = ref(false)
 const readControlRef = useTemplateRef('read-control')

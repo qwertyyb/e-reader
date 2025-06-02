@@ -21,7 +21,8 @@ export const createBridge = <F extends (...args: any[]) => any>(
   on: (callback: Callback) => void,
   functions: Record<string, F>
 ) => {
-  const callbacks = new Map<string, (result: unknown) => void>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const callbacks = new Map<string, { resolve: (result: any) => void, reject: (err: Error) => void }>();
 
   on(async (data: TPayload) => {
     if (data.type === 'invoke') {
@@ -40,27 +41,35 @@ export const createBridge = <F extends (...args: any[]) => any>(
         error: new Error(`method ${method} is not exits`)
       })
     } else if (data.type === 'callback') {
-      const { callback, returnValue } = data
+      const { callback, returnValue, error } = data
       const cb = callbacks.get(callback);
-      if (cb) {
-        cb(returnValue);
-        callbacks.delete(callback);
+      if (error) {
+        cb?.reject(error)
+      } else {
+        cb?.resolve(returnValue);
       }
+      callbacks.delete(callback);
     }
   })
 
   return {
     invoke <R>(method: string, ...args: unknown[]) {
-      return new Promise<R>(resolve => {
+      return new Promise<R>((resolve, reject) => {
         const callback = `callback_${Math.random()}`;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        callbacks.set(callback, resolve as any);
-        send({
-          type: 'invoke',
-          callback,
-          method,
-          args
-        })
+        callbacks.set(callback, { resolve, reject });
+        try {
+          send({
+            type: 'invoke',
+            callback,
+            method,
+            args
+          })
+        } catch (err) {
+          reject(err)
+          callbacks.delete(callback)
+          throw err
+        }
       })
     }
   }

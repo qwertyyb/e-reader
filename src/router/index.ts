@@ -2,12 +2,9 @@ import { createMemoryHistory, createRouter, type RouteLocation, type RouterHisto
 import TabView from '@/views/TabView.vue'
 import ShelfView from '@/views/ShelfView.vue'
 import ReadView from '@/views/ReadView.vue'
-import ImportView from '@/views/ImportView.vue'
-import AIChatView from '@/views/AIChatView.vue'
 import PreferencesView from '@/views/PreferencesView.vue'
 import { ref, type Ref } from 'vue'
 import AboutView from '@/views/AboutView.vue'
-import DebugView from '@/views/DebugView.vue'
 import AdvancedPrfsView from '@/views/AdvancedPrfsView.vue'
 
 export const transitionName = ref('')
@@ -113,7 +110,7 @@ const router = createRouter({
       path: '/import',
       name: 'import',
       props: true,
-      component: ImportView
+      component: () => import('@/views/ImportView.vue')
     },
     {
       path: '/ai',
@@ -123,7 +120,7 @@ const router = createRouter({
           path: 'chat',
           name: 'ai-chat',
           props: true,
-          component: AIChatView
+          component: () => import('@/views/AIChatView.vue')
         }
       ]
     },
@@ -139,13 +136,18 @@ const router = createRouter({
         {
           path: 'debug',
           name: 'debug',
-          component: DebugView
+          component: () => import('@/views/DebugView.vue')
         },
         {
           path: 'advanced',
           name: 'advancedPrfs',
           component: AdvancedPrfsView
         },
+        {
+          path: 'storage',
+          name: 'storage',
+          component: () => import('@/views/StorageView.vue')
+        }
       ]
     },
     {

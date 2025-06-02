@@ -1,16 +1,5 @@
 import CPicker from '@/components/common/CPicker.vue'
-import jschardet from 'jschardet'
 import { createApp, h, ref } from 'vue'
-
-export const formatSize = (size: number) => {
-  const kB = size / 1024
-  const mB = kB / 1024
-
-  if (kB < 512) {
-    return kB.toFixed(2) + 'KB'
-  }
-  return mB.toFixed(2) + 'MB'
-}
 
 export const showToast = (msg: string, duration = 1500) => {
   const div = document.createElement('div')
@@ -109,13 +98,14 @@ export const blobToBase64 = async (blob: Blob): Promise<string> => {
   });
 }
 
-export const decodeText = (arrayBuffer: ArrayBuffer) => {
+export const decodeText = async (arrayBuffer: ArrayBuffer) => {
   const bytes = new Uint8Array(arrayBuffer.slice(0, 10000));
   let binary = ''
   bytes.forEach(item => {
     binary += String.fromCharCode(item)
   })
-  const { encoding } = jschardet.detect(binary)
+  const { detect } = await import('jschardet')
+  const { encoding } = detect(binary)
   const decoder = new TextDecoder(encoding, { fatal: true })
   try {
     return decoder.decode(arrayBuffer).replace(/\r\n/g, '\n')
@@ -211,3 +201,16 @@ export const ellipsisText = (text: string, maxLength = 12) => {
 
   return result
 }
+
+export const formatSize = (size: number) => {
+  if (size < 1024) {
+    return `${size} B`;
+  }
+  if (size < 1024 * 1024) {
+    return `${(size / 1024).toFixed(1)} KB`;
+  }
+  if (size < 1024 * 1024 * 1024) {
+    return `${(size / 1024 / 1024).toFixed(1)} MB`;
+  }
+  return `${(size / 1024 / 1024 / 1024).toFixed(1)} GB`;
+};

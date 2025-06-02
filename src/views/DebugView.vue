@@ -30,6 +30,13 @@
       </div>
     </div>
 
+    <div class="debug-item" @click="$router.push({ name: 'storage' })">
+      <div class="debug-label">储存空间</div>
+      <div class="debug-control">
+        <span class="material-symbols-outlined arrow-icon">chevron_right</span>
+      </div>
+    </div>
+
     <div class="debug-item" @click="resetToDefault">
       <div class="debug-label">恢复默认</div>
     </div>

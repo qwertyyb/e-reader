@@ -2,7 +2,7 @@ import Logger from "js-logger"
 
 const logger = Logger.get('cache')
 
-const cachePromise = window.caches?.open('e-book')
+let cachePromise = window.caches?.open('e-reader')
 
 export const getCache = <T>(key: string): Promise<T | null | undefined> => {
   return cachePromise.then(cache => cache.match(key))
@@ -19,4 +19,11 @@ export const setCache = <T>(key: string, data: T): Promise<void | false> => {
       logger.error(`cache.set ${key} error`, data, err)
       return false
     })
+}
+
+export const clearAllCache = async () => {
+  if (!window.caches) return;
+  const keys = await window.caches.keys()
+  await Promise.all(keys.map(key => window.caches.delete(key)))
+  cachePromise = window.caches?.open('e-reader')
 }

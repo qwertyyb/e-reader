@@ -4,7 +4,7 @@ import { createBridge } from "./utils/bridge"
 
 export const register = () => {
   if (!('serviceWorker' in navigator)) { return }
-  navigator.serviceWorker.register(sw, { type: 'module' })
+  navigator.serviceWorker.register(sw, { scope: '/e-reader/' })
     .then(reg => {
       console.log('service worker register successfully: ', reg)
     })
@@ -36,6 +36,9 @@ export const unregister = () => {
 
 export const bridge = createBridge(
   (payload) => {
+    if (!navigator.serviceWorker.controller) {
+      throw new Error('service worker is not running')
+    }
     navigator.serviceWorker?.ready.then(reg => reg.active?.postMessage(payload))
   },
   (callback) => {

@@ -56,12 +56,12 @@ import SlideBack from '@/components/SlideBack.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import CSelect from '@/components/common/CSelect.vue';
 import { preferences } from '@/stores/preferences';
-import { bridge } from '@/register-sw';
 import { showToast } from '@/utils';
 import { version } from '@/version';
+import { clearAllCache } from '@/utils/cache';
 
 const clearCache = async () => {
-  await bridge.invoke('deleteAllCache')
+  await clearAllCache();
   showToast('缓存已清除')
 }
 </script>
@@ -86,6 +86,7 @@ const clearCache = async () => {
   margin-left: auto;
   font-size: 18px;
   display: flex;
+  align-items: center;
   p {
     word-break: break-all;
     display: -webkit-box;
