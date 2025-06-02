@@ -131,9 +131,10 @@ const resourceNeedCache = (request: Request) => {
 self.addEventListener('fetch', function(event) {
   if (!resourceNeedCache(event.request)) return;
   event.respondWith(
-    caches.match(event.request, { cacheName: CACHE_NAME, ignoreVary: true }).then(function(cachedResp) {
+    // 可以简单用 url 字符串做缓存
+    caches.match(event.request.url, { cacheName: CACHE_NAME, ignoreVary: true }).then(function(cachedResp) {
       if (cachedResp) {
-        logger.info('cache hit', event.request.url, cachedResp.clone())
+        logger.info('cache hit', event.request.url)
         return cachedResp
       }
       return fetch(event.request).then(function(response) {
