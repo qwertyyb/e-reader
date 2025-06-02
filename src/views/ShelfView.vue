@@ -38,9 +38,8 @@
         </li>
       </ul>
     </teleport>
-    <ul class="book-list">
+    <ul class="book-list" v-loading="loading">
       <li class="book-item-wrapper"
-        v-loading="loading"
         v-for="book in visibleList"
         :key="book.id"
         :class="{selected: book.localBookId && selectedIds.has(book.localBookId)}"
@@ -78,6 +77,7 @@ import { longtap as vLongtap } from '@/directives/click';
 import { preferences } from '@/stores/preferences';
 import { download, importFile } from '@/services/ImportService';
 import Logger from 'js-logger';
+import { getCache, setCache } from '@/utils/cache';
 
 const route = useRoute()
 
@@ -132,56 +132,51 @@ const visibleList = computed(() => {
   return list
 })
 
-const fetchRemoteBookList = async (options?: { cacheFirst: boolean }): Promise<{ list: IRemoteBook[], fromCache: boolean }> => {
+const fetchRemoteBookList = async (options?: { cacheFirst: boolean }): Promise<IRemoteBook[]> => {
   const server = preferences.value.shelfServerUrl
-  if (!server) return { fromCache: false, list: [] }
+  if (!server) return []
   const url = disableCache(server)
-  const cache: Cache | null = await window.caches?.open('e-book').catch(err => {
-    logger.error('open cache error', err)
-    return null
-  })
-  let r: Response
-  let fromCache = false
-  if (cache && options?.cacheFirst) {
-    const cached = await cache.match(url).catch(err => {
-      logger.error('match cache error', err)
-      return null
-    })
-    r = cached ? cached : await fetch(url, { cache: 'no-store' })
-    fromCache = !!cached
-  } else {
-    r = await fetch(url, { cache: 'no-store' }).then(resp => {
+
+  if (options?.cacheFirst) {
+    const cached = await getCache<IRemoteBook[]>(url)
+    return cached || []
+  }
+
+  try {
+    const r = await fetch(url, { cache: 'no-store' }).then(resp => {
       if (resp.ok) { return resp }
       showToast('获取书架失败: ' + r.status)
       throw new Error('获取书架失败: ' + r.status)
     })
-  }
-  if (r.ok) {
-    cache?.put(r.url, r.clone())
-  }
-  const json = await r.json().catch(err => {
-    showToast('解析书架失败' + err.message)
-    throw new Error('解析书架失败' + err.message)
-  })
-  const list = (json.shelf || []).map((item: Omit<IRemoteBook, 'tocRegList'> & { tocRegList?: string[] }) => {
-    return {
-      ...item,
-      cover: new URL(item.cover, new URL(server, location.href)).href,
-      downloadUrl: new URL(item.downloadUrl, new URL(server, location.href)).href,
-      ...(item.tocRegList ? { tocRegList: item.tocRegList.map((reg) => new RegExp(reg)) } : {})
+    const json = await r.json().catch(err => {
+      showToast('解析书架失败' + err.message)
+      throw new Error('解析书架失败' + err.message)
+    })
+    const list = (json.shelf || []).map((item: Omit<IRemoteBook, 'tocRegList'> & { tocRegList?: string[] }) => {
+      return {
+        ...item,
+        cover: new URL(item.cover, new URL(server, location.href)).href,
+        downloadUrl: new URL(item.downloadUrl, new URL(server, location.href)).href,
+        ...(item.tocRegList ? { tocRegList: item.tocRegList.map((reg) => new RegExp(reg)) } : {})
+      }
+    })
+    setCache(url, [...list])
+    return list
+  } catch(err) {
+    logger.error('fetch remote book list error', err)
+    const cached = await getCache<IRemoteBook[]>(url)
+    if (cached) {
+      return cached
     }
-  })
-  return { fromCache, list, }
+    throw err
+  }
 }
 
 const refresh = async (options?: { cacheFirst: boolean }) => {
 
-  const [localBooks, { list: remoteBooks, fromCache }, reading] = await Promise.all([
+  const [localBooks, remoteBooks, reading] = await Promise.all([
     localBookService.getBookList(),
-    fetchRemoteBookList(options).catch(err => {
-      logger.error('fetch remote book list error', err)
-      return { fromCache: false, list: [] }
-    }),
+    fetchRemoteBookList(options),
     readingStateStore.getList().then((list) => {
       return list.reduce((acc, item) => {
         acc[item.bookId] = item
@@ -222,7 +217,7 @@ const refresh = async (options?: { cacheFirst: boolean }) => {
   bookList.value = books
     .sort((prev, next) => Number(next.downloaded) - Number(prev.downloaded) || next.lastReadTime! - prev.lastReadTime!)
 
-  return { fromCache }
+  return
 }
 
 const downloadItem = async (item: IBookItem) => {
@@ -289,11 +284,9 @@ const onLongtap = (book: IBookItem) => {
 
 loading.value = true
 // 先从缓存中取，再刷网络
-refresh({ cacheFirst: true }).then(({ fromCache }) => {
+refresh({ cacheFirst: true }).then(() => {
   loading.value = false
-  if (fromCache) {
-    refresh({ cacheFirst: false })
-  }
+  refresh({ cacheFirst: false })
 })
 
 watch(() => route.name, () => {
