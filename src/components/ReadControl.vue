@@ -251,7 +251,7 @@ const readingDuration = computed(() => {
   if (minutes < 60) {
     return `${minutes}分钟${duration % 60 ? `${duration % 60}秒` : ''}`
   }
-  const hours = minutes / 60
+  const hours = Math.floor(minutes / 60)
   return `${hours}小时${minutes % 60 ? `${minutes % 60}分钟` : ''}`
 })
 
