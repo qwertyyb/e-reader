@@ -91,6 +91,25 @@ html:not(.disable-anim) {
   .slide-left-leave {
     animation: slide-left .2s reverse forwards ease-out;
   }
+
+  .tab-slide-next-leave-active,
+  .tab-slide-next-enter-active,
+  .tab-slide-prev-leave-active,
+  .tab-slide-prev-enter-active {
+    transition: transform .4s;
+  }
+  .tab-slide-prev-leave-to {
+    transform: translateX(100%);
+  }
+  .tab-slide-prev-enter-active {
+    transform: translateX(-200%);
+  }
+  .tab-slide-prev-enter-to,
+  .tab-slide-next-enter-to,
+  .tab-slide-next-leave-to {
+    transform: translateX(-100%);
+  }
+
   .fade-in {
     animation: fade-in .2s forwards ease-out;
   }

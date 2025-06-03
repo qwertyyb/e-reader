@@ -1,7 +1,13 @@
 <template>
   <div class="tab-view book-shelf">
     <div class="tab-panel-container">
-      <router-view></router-view>
+      <router-view v-slot="{ Component, route }">
+        <transition
+          :name="route.name === 'my' ? 'tab-slide-next' : 'tab-slide-prev'"
+        >
+          <component :is="Component" />
+        </transition>
+      </router-view>
     </div>
     <ul class="tab-nav-list" v-if="preferences.opdsServerUrl">
       <li class="tab-nav-item pointer"
@@ -42,7 +48,12 @@ import { preferences } from '@/stores/preferences';
 .tab-panel-container {
   position: relative;
   flex: 1;
-  overflow: auto;
+  overflow-x: hidden;
+  display: flex;
+  & > * {
+    width: 100%;
+    flex-shrink: 0;
+  }
 }
 .tab-nav-list {
   display: flex;

@@ -58,7 +58,7 @@ refresh()
     height: 64px;
     border-radius: 999px;
     background: var(--card-bg-color);
-    box-shadow: 0 7px 14px #ddd;
+    box-shadow: 0 7px 14px var(--shadow-color);
   }
   .my-nick {
     margin-top: 12px;
