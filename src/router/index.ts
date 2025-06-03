@@ -6,6 +6,7 @@ import PreferencesView from '@/views/PreferencesView.vue'
 import { ref, type Ref } from 'vue'
 import AboutView from '@/views/AboutView.vue'
 import AdvancedPrfsView from '@/views/AdvancedPrfsView.vue'
+import MyView from '@/views/MyView.vue'
 
 export const transitionName = ref('')
 
@@ -91,6 +92,11 @@ const router = createRouter({
           path: 'shelf',
           name: 'shelf',
           component: ShelfView
+        },
+        {
+          path: 'my',
+          name: 'my',
+          component: MyView
         }
       ]
     },
@@ -105,6 +111,12 @@ const router = createRouter({
       name: 'notes',
       props: true,
       component: () => import('@/views/NotesView.vue')
+    },
+    {
+      path: '/state',
+      name: 'state',
+      props: true,
+      component: () => import('@/views/StateView.vue')
     },
     {
       path: '/import',

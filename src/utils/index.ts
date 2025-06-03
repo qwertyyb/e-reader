@@ -214,3 +214,20 @@ export const formatSize = (size: number) => {
   }
   return `${(size / 1024 / 1024 / 1024).toFixed(1)} GB`;
 };
+
+export const formatDuration = (duration: number) => {
+  if (duration < 60) {
+    return `${duration}秒`
+  }
+  const minutes = Math.floor(duration / 60)
+  if (minutes < 60) {
+    return `${minutes}分钟${duration % 60 ? `${duration % 60}秒` : ''}`
+  }
+  const hours = Math.floor(minutes / 60)
+  return `${hours}小时${minutes % 60 ? `${minutes % 60}分钟` : ''}`
+}
+
+export const formatProgress = (cursor: number, maxCursor: number) => {
+  if (!maxCursor) return ''
+  return Math.round(cursor / maxCursor * 100) + '%'
+}

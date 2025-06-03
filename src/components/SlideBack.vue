@@ -1,13 +1,15 @@
 <template>
-  <div class="slide-back" ref="el">
+  <component class="slide-back" ref="el" :is="tag || 'div'">
     <slot></slot>
-  </div>
+  </component>
 </template>
 
 <script setup lang="ts">
 import Hammer from 'hammerjs'
 import { onBeforeUnmount, onMounted, useTemplateRef } from 'vue';
 import { useRouter } from 'vue-router';
+
+defineProps<{ tag?: string }>()
 
 let hammer: HammerManager | null = null
 

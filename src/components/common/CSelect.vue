@@ -2,9 +2,12 @@
   <div class="c-select">
     <div class="c-select-label" @click="optionsVisible=true">
       <div class="c-select-label-value">
-        <slot name="label" :value="modelValue">{{ currentLabel }}</slot>
+        <slot :value="modelValue">
+          {{ currentLabel }}
+          <span class="material-symbols-outlined arrow-icon">chevron_right</span>
+        </slot>
       </div>
-      <span class="material-symbols-outlined arrow-icon">chevron_right</span>
+
     </div>
     <c-picker
       :options="options"

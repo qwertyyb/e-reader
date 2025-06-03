@@ -115,7 +115,7 @@
             class="font-family-select"
             :options="fontFamilyList"
           >
-            <template v-slot:label="{ value }">
+            <template v-slot="{ value }">
               <div class="font-family-label"
                 :data-font="settings.fontFamily">
                 {{ fontFamilyList.find(item => item.value === value)?.label || fontFamilyList[0]?.label }}
@@ -131,7 +131,7 @@
               { label: '左右滑动', value: 'horizontal-scroll' }
             ]"
           >
-            <template v-slot:label="{ value }">
+            <template v-slot="{ value }">
               {{ turnPageType.find(item => item.value === value)?.label || turnPageType[0]?.label }}
             </template>
           </c-select>
@@ -205,6 +205,7 @@ import { settings } from '@/stores/settings';
 import type { GetNextElement } from '@/actions/read-speak';
 import { darkMode } from '@/stores/preferences';
 import { disableAnim } from '@/utils/env';
+import { formatDuration } from '@/utils';
 
 const props = defineProps<{
   getNextReadElement: GetNextElement
@@ -244,15 +245,7 @@ const bookPercent = computed(() => {
 const readingDuration = computed(() => {
   if (!progress?.value) return null
   const duration = progress?.value?.duration || 0
-  if (duration < 60) {
-    return `${duration}秒`
-  }
-  const minutes = Math.floor(duration / 60)
-  if (minutes < 60) {
-    return `${minutes}分钟${duration % 60 ? `${duration % 60}秒` : ''}`
-  }
-  const hours = Math.floor(minutes / 60)
-  return `${hours}小时${minutes % 60 ? `${minutes % 60}分钟` : ''}`
+  return formatDuration(duration)
 })
 
 const createActions = () => {

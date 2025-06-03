@@ -5,8 +5,8 @@
     </div>
     <ul class="tab-nav-list" v-if="preferences.opdsServerUrl">
       <li class="tab-nav-item pointer"
-        @click="$router.replace({ name: 'local' })"
-        :class="{selected: $route.name === 'local'}">
+        @click="$router.replace({ name: 'shelf' })"
+        :class="{selected: $route.name === 'shelf'}">
         <span class="material-symbols-outlined tab-icon">newsstand</span>
         书架
       </li>
@@ -16,6 +16,12 @@
         :class="{selected: $route.name === 'remote'}">
         <span class="material-symbols-outlined tab-icon">public</span>
         图书馆
+      </li>
+      <li class="tab-nav-item pointer"
+        @click="$router.push({ name: 'my' })"
+        :class="{selected: $route.name === 'my'}">
+        <span class="material-symbols-outlined tab-icon">person</span>
+        我的
       </li>
     </ul>
   </div>
