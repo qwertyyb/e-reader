@@ -51,7 +51,9 @@ const createAppHistory = (options: {
     },
     replace(to, data) {
       options.transitionName.value = ''
-      return mh.replace(to, data)
+      const result = mh.replace(to, data)
+      replaceHash(mh.location)
+      return result
     },
     go(delta, triggerListeners) {
       if (options.ignoreLocations.some(reg => reg.test(mh.location))) {

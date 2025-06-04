@@ -24,7 +24,7 @@
         图书馆
       </li>
       <li class="tab-nav-item pointer"
-        @click="$router.push({ name: 'my' })"
+        @click="$router.replace({ name: 'my' })"
         :class="{selected: $route.name === 'my'}">
         <span class="material-symbols-outlined tab-icon">person</span>
         我的
