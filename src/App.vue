@@ -12,10 +12,6 @@ watch(() => route.name, (newVal, oldVal) => {
   oldRouteName = oldVal
 })
 
-function toMs(s: string): number {
-  return Number(s.slice(0, -1).replace(',', '.')) * 1000
-}
-
 // 在离开过渡开始时调用
 // 用这个来开始离开动画
 async function onLeave(el: Element, done: () => void) {
@@ -32,17 +28,21 @@ async function onLeave(el: Element, done: () => void) {
     clearAnimData()
     return
   }
-  const style = window.getComputedStyle(el)
-  console.log('duration', style.transitionDuration)
+  done()
+}
 
-  if (toMs(style.transitionDuration) !== 0) {
-    el.addEventListener('transitionend', () => {
-      done()
-    })
+// 在 leave 中调用 done 操作会闪，此处的回调动态赋值
+let leaveCb: typeof onLeave | undefined = onLeave
+
+const beforeLeave = () => {
+  const needLeaveHook = animData.value.trace && router.currentRoute.value.name === 'read' || oldRouteName === 'read' && animData.value.trace
+  if (needLeaveHook) {
+    leaveCb = onLeave
   } else {
-    done()
+    leaveCb = undefined
   }
 }
+
 </script>
 
 <template>
@@ -50,7 +50,8 @@ async function onLeave(el: Element, done: () => void) {
     <router-view v-slot="{ Component }">
       <transition
         :name="transitionName"
-        @leave="onLeave"
+        @beforeLeave="beforeLeave"
+        @leave="leaveCb"
         :css="!disableAnim"
       >
         <keep-alive exclude="TabView,ReadView">
