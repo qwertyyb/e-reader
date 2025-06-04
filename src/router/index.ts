@@ -77,8 +77,8 @@ const router = createRouter({
   history: createAppHistory({
     base: import.meta.env.BASE_URL,
     transitionName: transitionName,
-    defaultPushTransitionName: 'slide-left',
-    defaultPopTransitionName: 'slide-right',
+    defaultPushTransitionName: 'tab-slide-next',
+    defaultPopTransitionName: 'tab-slide-prev',
     ignoreLocations: [/^\/read\/\d+/]
   }),
   routes: [

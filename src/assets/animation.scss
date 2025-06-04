@@ -3,6 +3,7 @@ html.disable-anim * {
   // transition-duration: 1ms !important;
 }
 html:not(.disable-anim) {
+  --transition-duration: 0.2s;
   .slide-down-enter-from,
   .slide-down-leave-to {
     transform: translateY(-100%);
@@ -16,7 +17,7 @@ html:not(.disable-anim) {
   .slide-left-enter-active,
   .slide-left-leave-active {
     will-change: transform;
-    transition: transform .2s ease-out;
+    transition: transform var(--transition-duration) ease-out;
   }
   .slide-down-enter-to,
   .slide-down-leave-from,
@@ -52,7 +53,7 @@ html:not(.disable-anim) {
   .fade-in-enter-active,
   .fade-in-leave-active {
     will-change: opacity;
-    transition: opacity .2s ease-out;
+    transition: opacity var(--transition-duration) ease-out;
   }
   .fade-in-enter-to,
   .fade-in-leave-from {
@@ -80,23 +81,23 @@ html:not(.disable-anim) {
     }
   }
   .slide-right {
-    animation: slide-right .2s forwards ease-out;
+    animation: slide-right var(--transition-duration) forwards ease-out;
   }
   .slide-right-leave {
-    animation: slide-right .2s reverse forwards ease-out;
+    animation: slide-right var(--transition-duration) reverse forwards ease-out;
   }
   .slide-left {
-    animation: slide-left .2s forwards ease-out;
+    animation: slide-left var(--transition-duration) forwards ease-out;
   }
   .slide-left-leave {
-    animation: slide-left .2s reverse forwards ease-out;
+    animation: slide-left var(--transition-duration) reverse forwards ease-out;
   }
 
   .tab-slide-next-leave-active,
   .tab-slide-next-enter-active,
   .tab-slide-prev-leave-active,
   .tab-slide-prev-enter-active {
-    transition: transform .4s;
+    transition: transform var(--transition-duration);
   }
   .tab-slide-prev-leave-to {
     transform: translateX(100%);
@@ -111,19 +112,19 @@ html:not(.disable-anim) {
   }
 
   .fade-in {
-    animation: fade-in .2s forwards ease-out;
+    animation: fade-in var(--transition-duration) forwards ease-out;
   }
   .fade-out {
-    animation: fade-in .2s reverse forwards ease-out;
+    animation: fade-in var(--transition-duration) reverse forwards ease-out;
   }
 
   .transform-transition {
-    transition: transform .2s ease-out;
+    transition: transform var(--transition-duration) ease-out;
   }
   .opacity-transition {
     transition: opacity .3s ease-out;
   }
   .all-transition {
-    transition: all .2s ease-out;
+    transition: all var(--transition-duration) ease-out;
   }
 }

@@ -12,6 +12,10 @@ watch(() => route.name, (newVal, oldVal) => {
   oldRouteName = oldVal
 })
 
+function toMs(s: string): number {
+  return Number(s.slice(0, -1).replace(',', '.')) * 1000
+}
+
 // 在离开过渡开始时调用
 // 用这个来开始离开动画
 async function onLeave(el: Element, done: () => void) {
@@ -28,7 +32,16 @@ async function onLeave(el: Element, done: () => void) {
     clearAnimData()
     return
   }
-  done()
+  const style = window.getComputedStyle(el)
+  console.log('duration', style.transitionDuration)
+
+  if (toMs(style.transitionDuration) !== 0) {
+    el.addEventListener('transitionend', () => {
+      done()
+    })
+  } else {
+    done()
+  }
 }
 </script>
 
@@ -55,6 +68,11 @@ async function onLeave(el: Element, done: () => void) {
   min-height: var(--page-height);
   background-color: var(--bg-color);
   touch-action: none;
+  display: flex;
+  & > * {
+    width: 100%;
+    flex-shrink: 0;
+  }
 }
 .btn {
   padding: 8px 16px;

@@ -40,7 +40,6 @@ import { preferences } from '@/stores/preferences';
 
 <style lang="scss" scoped>
 .tab-view {
-  flex: 1;
   display: flex;
   flex-direction: column;
   height: var(--page-height);
