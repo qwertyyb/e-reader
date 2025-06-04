@@ -1,3 +1,5 @@
+import { filterEmpty } from "@/utils"
+
 type TMigration = (options: { database: IDBDatabase, transaction: IDBTransaction | null }) => void
 
 const databaseName = 'books'
@@ -31,6 +33,10 @@ const migrations: TMigration[] = [
   ({ database }) => {
     const readingStateStore = database.createObjectStore('readingState', { keyPath: 'bookId' })
     readingStateStore.createIndex('bookId', 'bookId')
+  },
+  ({ database }) => {
+    const readTimeStore = database.createObjectStore('readTime', { keyPath: 'id', autoIncrement: true })
+    readTimeStore.createIndex('book', ['bookId', 'date'], { unique: true })
   }
 ]
 const version = migrations.length
@@ -199,3 +205,19 @@ export const keywordsStore = (() => {
 })()
 
 export const readingStateStore = createStore<IReadingState, string>('readingState', { keyPath: 'bookId' })
+
+export const readTimeStore = {
+  getListByBookId(bookId: string) {
+    return wrap<IReadTime[]>(db => db.transaction('readTime', 'readonly').objectStore('readTime').index('book').getAll(IDBKeyRange.bound([bookId, ''], [bookId, '\uffff'])))
+  },
+  updateDuration(value: { id?: number, bookId: string, duration: number, date: string }) {
+    return wrap(db => db.transaction('readTime', 'readwrite').objectStore('readTime').put(filterEmpty({ duration: value.duration, bookId: value.bookId, date: value.date, id: value.id }), value.id))
+  },
+  async addDuration(value: { bookId: string, duration: number, date: string }) {
+    const row = await wrap<IReadTime & { id: number } | undefined>(db => db.transaction('readTime', 'readonly').objectStore('readTime').index('book').get([value.bookId, value.date]))
+    if (row) {
+      return wrap(db => db.transaction('readTime', 'readwrite').objectStore('readTime').put({ ...row, ...value, duration: row.duration + value.duration, id: row.id }))
+    }
+    return wrap(db => db.transaction('readTime', 'readwrite').objectStore('readTime').add({ ...value, duration: value.duration }))
+  }
+}

@@ -71,7 +71,7 @@ import ControlWrapper from '@/components/ControlWrapper.vue';
 import { computed, onBeforeUnmount, provide, ref, useTemplateRef } from 'vue';
 import { localBookService as dataService } from '@/services/LocalBookService';
 import { showToast } from '@/utils';
-import { readingStateStore } from '@/services/storage';
+import { readingStateStore, readTimeStore } from '@/services/storage';
 import BookAnimation from '@/components/BookAnimation.vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import ChapterContents from '@/components/ChapterContents.vue';
@@ -132,14 +132,21 @@ const loadChapter = async (chapter: IChapter) => {
   return chapterLoadState.get(chapter)!
 }
 
-const updateReadingState = () => {
+const updateReadingState = (durationDelta?: number) => {
   if (!progress.value) return
-  return readingStateStore.update(props.id, {
+  readingStateStore.update(props.id, {
     chapterId: progress.value.chapter.id,
     cursor: progress.value.cursor,
     duration: progress.value.duration,
     lastReadTime: Date.now(),
   })
+  if (durationDelta) {
+    readTimeStore.addDuration({
+      bookId: props.id,
+      date: new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }),
+      duration: durationDelta
+    })
+  }
 }
 const updateProgress = (info: { chapter: IChapter, cursor: number, chapterIndex: number }) => {
   curChapterIndex.value = info.chapterIndex
@@ -196,9 +203,9 @@ const init = async () => {
   }
 
   readingStateStore.update(props.id, { lastReadTime: Date.now() })
-  readingTime = new ReadingTime(readingState?.duration || 0, time => {
-    progress.value = { ...progress.value!, duration: time }
-    updateReadingState()
+  readingTime = new ReadingTime((time, delta) => {
+    progress.value = { ...progress.value!, duration: (readingState?.duration || 0) + time }
+    updateReadingState(delta)
   })
 }
 

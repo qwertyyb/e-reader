@@ -65,6 +65,12 @@ interface IReadingState {
   duration?: number // 阅读时长，单位: 秒
 }
 
+interface IReadTime {
+  bookId: string
+  date: string // eg. 2025/06/04
+  duration: number // 单位为秒，当天阅读时长
+}
+
 
 interface IBookEntity {
   id: string

@@ -109,10 +109,22 @@ const router = createRouter({
       component: ReadView
     },
     {
-      path: '/book/:id/notes',
-      name: 'notes',
-      props: true,
-      component: () => import('@/views/NotesView.vue')
+      path: '/book',
+      name: 'book',
+      children: [
+        {
+          path: 'time/:id',
+          name: 'readTime',
+          props: true,
+          component: () => import('@/views/ReadTimeView.vue')
+        },
+        {
+          path: 'notes/:id',
+          name: 'notes',
+          props: true,
+          component: () => import('@/views/NotesView.vue')
+        },
+      ]
     },
     {
       path: '/state',

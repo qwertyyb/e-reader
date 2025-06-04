@@ -1,12 +1,12 @@
 export class ReadingTime extends EventTarget {
 
-  #changeHandler?: (time: number) => void
+  #changeHandler?: (time: number, delta: number) => void
   #time = 0 // 秒
   #checkReadingTimeout: ReturnType<typeof setTimeout> | null = null
+  #checkInterval = 1000
 
-  constructor(initialTime: number, changeHandler: (time: number) => void) {
+  constructor(changeHandler: (time: number, delta: number) => void) {
     super()
-    this.#time = initialTime
     this.#changeHandler = changeHandler
     this.addEventListener('change', this.onChange)
     this.start()
@@ -14,7 +14,7 @@ export class ReadingTime extends EventTarget {
 
   private onChange = (event: Event) => {
     const customEvent = event as CustomEvent<{ time: number }>
-    this.#changeHandler?.(customEvent.detail.time)
+    this.#changeHandler?.(customEvent.detail.time, Math.round(this.#checkInterval / 1000))
   }
 
   checkIsReading = () => {
@@ -22,7 +22,7 @@ export class ReadingTime extends EventTarget {
       this.#time += 1
       this.dispatchEvent(new CustomEvent('change', { detail: { time: this.#time } }))
     }
-    this.#checkReadingTimeout = setTimeout(this.checkIsReading, 1000)
+    this.#checkReadingTimeout = setTimeout(this.checkIsReading, this.#checkInterval)
   }
 
   start = () => {

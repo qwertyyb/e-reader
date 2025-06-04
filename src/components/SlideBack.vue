@@ -1,5 +1,5 @@
 <template>
-  <component class="slide-back" ref="el" :is="tag || 'div'">
+  <component class="slide-back" ref="el" :is="tag || 'section'">
     <slot></slot>
   </component>
 </template>
