@@ -120,6 +120,7 @@
                 :data-font="settings.fontFamily">
                 {{ fontFamilyList.find(item => item.value === value)?.label || fontFamilyList[0]?.label }}
               </div>
+              <span class="material-symbols-outlined arrow-icon" style="margin-left: auto">chevron_right</span>
             </template>
           </c-select>
           <c-select
@@ -131,9 +132,6 @@
               { label: '左右滑动', value: 'horizontal-scroll' }
             ]"
           >
-            <template v-slot="{ value }">
-              {{ turnPageType.find(item => item.value === value)?.label || turnPageType[0]?.label }}
-            </template>
           </c-select>
         </div>
       </div>
@@ -200,7 +198,7 @@ import { AutoPlay, ReadSpeak } from '@/actions';
 import { computed, inject, onBeforeUnmount, type Ref, ref } from 'vue';
 import CProgress from '@/components/common/CProgress.vue';
 import CSelect from '@/components/common/CSelect.vue';
-import { fontFamilyList, turnPageType, readColorScheme } from '@/config';
+import { fontFamilyList, readColorScheme } from '@/config';
 import { settings } from '@/stores/settings';
 import type { GetNextElement } from '@/actions/read-speak';
 import { darkMode } from '@/stores/preferences';

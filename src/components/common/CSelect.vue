@@ -1,13 +1,10 @@
 <template>
   <div class="c-select">
     <div class="c-select-label" @click="optionsVisible=true">
-      <div class="c-select-label-value">
-        <slot :value="modelValue">
-          {{ currentLabel }}
-          <span class="material-symbols-outlined arrow-icon">chevron_right</span>
-        </slot>
-      </div>
-
+      <slot :value="modelValue">
+        <span class="c-select-label-value">{{ currentLabel }}</span>
+        <span class="material-symbols-outlined arrow-icon">chevron_right</span>
+      </slot>
     </div>
     <c-picker
       :options="options"
@@ -58,6 +55,7 @@ const selectOption = (option: { value: T, label: string }) => {
 .c-select-label {
   display: flex;
   align-items: center;
+  height: 100%;
   font-size: 18px;
   .arrow-icon {
     margin-left: auto;

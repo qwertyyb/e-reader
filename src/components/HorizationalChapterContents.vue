@@ -285,7 +285,7 @@ defineExpose({
     text-align: center;
     padding-top: 40vh;
     // 如果章节有非空内容，则把标题居左并移除上边距
-    &:has(+ p:not(:empty)) {
+    &:has(~ p:not(:empty)) {
       text-align: left;
       padding-top: 0;
     }
