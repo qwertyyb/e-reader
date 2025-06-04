@@ -27,6 +27,7 @@ export const env = {
   isBooxLeaf: () => navigator.userAgent.includes('Leaf'),
   isHorizontal: () => navigator.userAgent.includes('Leaf') || location.href.includes('ink=1'),
   isInk: () => navigator.userAgent.includes('Leaf') || location.href.includes('ink=1'),
+  isIOS: () => /iPad|iPhone|iPod/.test(navigator.userAgent),
 }
 
 export const getSafeAreaTop = () => window.parseInt(getComputedStyle(document.documentElement).getPropertyValue("--sait"), 10)

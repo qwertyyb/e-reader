@@ -1,46 +1,47 @@
 <template>
-  <slide-back class="debug-view">
+  <slide-back class="debug-view" tag="section">
     <NavigationBar title="调试选项" :no-menu="true"/>
 
-    <div class="debug-item">
-      <div class="debug-label">显示控制台</div>
-      <div class="debug-control">
-        <c-switch v-model="debugOptions.showConsole"></c-switch>
+    <main class="debug-main">
+      <div class="debug-item">
+        <div class="debug-label">显示控制台</div>
+        <div class="debug-control">
+          <c-switch v-model="debugOptions.showConsole"></c-switch>
+        </div>
       </div>
-    </div>
 
-    <div class="debug-item">
-      <div class="debug-label">无动画模式</div>
-      <div class="debug-control">
-        <c-select v-model="debugOptions.noAnimation" :options="modeOptions"></c-select>
+      <div class="debug-item">
+        <div class="debug-label">无动画模式</div>
+        <div class="debug-control">
+          <c-select v-model="debugOptions.noAnimation" :options="modeOptions"></c-select>
+        </div>
       </div>
-    </div>
 
-    <div class="debug-item">
-      <div class="debug-label">高对比模式</div>
-      <div class="debug-control">
-        <c-select v-model="debugOptions.highContrast" :options="modeOptions"></c-select>
+      <div class="debug-item">
+        <div class="debug-label">高对比模式</div>
+        <div class="debug-control">
+          <c-select v-model="debugOptions.highContrast" :options="modeOptions"></c-select>
+        </div>
       </div>
-    </div>
 
-    <div class="debug-item" @click="$router.push({ name: 'import' })">
-      <div class="debug-label">导入测试</div>
-      <div class="debug-control">
-        <span class="material-symbols-outlined arrow-icon">chevron_right</span>
+      <div class="debug-item" @click="$router.push({ name: 'import' })">
+        <div class="debug-label">导入测试</div>
+        <div class="debug-control">
+          <span class="material-symbols-outlined arrow-icon">chevron_right</span>
+        </div>
       </div>
-    </div>
 
-    <div class="debug-item" @click="$router.push({ name: 'storage' })">
-      <div class="debug-label">储存空间</div>
-      <div class="debug-control">
-        <span class="material-symbols-outlined arrow-icon">chevron_right</span>
+      <div class="debug-item" @click="$router.push({ name: 'storage' })">
+        <div class="debug-label">储存空间</div>
+        <div class="debug-control">
+          <span class="material-symbols-outlined arrow-icon">chevron_right</span>
+        </div>
       </div>
-    </div>
 
-    <div class="debug-item" @click="resetToDefault">
-      <div class="debug-label">恢复默认</div>
-    </div>
-
+      <div class="debug-item" @click="resetToDefault">
+        <div class="debug-label">恢复默认</div>
+      </div>
+    </main>
   </slide-back>
 </template>
 
@@ -161,14 +162,21 @@ const resetToDefault = () => {
   max-width: 600px;
   height: var(--page-height);
 }
+.debug-main {
+  background: var(--card-bg-color);
+  border-radius: 6px;
+  margin: 16px;
+}
 
 .debug-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 16px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #e5e5ea;
+  margin: 0 16px;
+  padding: 16px 0;
+  & + .prfs-item {
+    border-top: 1px solid var(--card-border-color);
+  }
 }
 
 .debug-control {

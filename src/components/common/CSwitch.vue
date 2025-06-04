@@ -51,12 +51,12 @@ const handleChange = () => {
   width: 56px; /* Increased from 48px */
   height: 32px; /* Increased from 24px */
   border-radius: 16px; /* Increased from 12px */
-  background-color: #dcdfe6;
+  background-color: var(--bg-color);
   cursor: pointer;
 }
 
 .c-switch.is-checked {
-  background-color: #409eff;
+  background-color: var(--theme-color);
 }
 
 .c-switch__inner {
@@ -64,7 +64,7 @@ const handleChange = () => {
   width: 32px; /* Increased from 24px */
   height: 32px; /* Increased from 24px */
   border-radius: 50%;
-  background-color: white;
+  background-color: var(--border-color);
 }
 
 .c-switch.is-checked .c-switch__inner {

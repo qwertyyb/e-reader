@@ -2,6 +2,7 @@
 html.more-contrast {
   --card-bg-color: #eee;
   --border-color: #000;
+  --card-border-color: #000;
   --bg-color: #fff;
   --text-color: #000;
   --shadow-color: none;
@@ -21,6 +22,7 @@ html.more-contrast.dark-mode {
 
   --card-bg-color: #333;
   --border-color: #fff;
+  --card-border-color: #000;
   --bg-color: #000;
   --text-color: #fff;
   --shadow-color: none;

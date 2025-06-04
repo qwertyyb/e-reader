@@ -31,10 +31,10 @@ defineEmits<{ menu: [] }>()
 .navigation-bar {
   width: 100%;
   background: var(--bg-color);
-  border-bottom: 1px solid var(--border-color);
   z-index: 10;
   padding-top: var(--sait);
   position: relative;
+  border-bottom: 1px solid var(--border-color);
 }
 .navigation-bar-wrapper {
   display: flex;

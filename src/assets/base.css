@@ -17,10 +17,11 @@
   --theme-color: #3563A9;
 
   --bg-color: #f0f0f0;
-  --border-color: #ccc;
+  --border-color: #dfdfdf;
   --text-color: #333;
   --shadow-color: rgba(0, 0, 0, 0.2);
   --card-bg-color: #fff;
+  --card-border-color: #f4f4f4;
   --selected-bg-color: none;
   --selected-text-color: var(--theme-color);
   --read-bg-image: url("./text-bg.png?url");
