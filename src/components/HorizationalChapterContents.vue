@@ -168,6 +168,7 @@ const pointerUpHandler = (event: PointerEvent) => {
 }
 
 const pointerCancelHandler = () => {
+  touching = false
   scrollToPage(cur => cur)
 }
 
