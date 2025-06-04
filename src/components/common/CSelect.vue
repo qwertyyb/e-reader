@@ -1,7 +1,7 @@
 <template>
   <div class="c-select">
     <div class="c-select-label" @click="optionsVisible=true">
-      <slot :value="modelValue">
+      <slot :value="modelValue" :label="currentLabel">
         <span class="c-select-label-value">{{ currentLabel }}</span>
         <span class="material-symbols-outlined arrow-icon">chevron_right</span>
       </slot>

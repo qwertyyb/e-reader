@@ -7,10 +7,12 @@
         class="sort-select"
         @change="refresh"
       >
-        <div class="action-btn pointer">
-          <span class="material-symbols-outlined sort-icon">sort</span>
-          <span>排序</span>
-        </div>
+        <template v-slot="{ value, label }">
+          <div class="action-btn pointer" :class="{'not-default': value && value !== 'default'}">
+            <span class="material-symbols-outlined sort-icon">sort</span>
+            <span style="color:inherit">{{ label || '默认' }}</span>
+          </div>
+        </template>
       </c-select>
     </header>
 
@@ -105,6 +107,7 @@ refresh()
 }
 .state-header {
   display: flex;
+  padding: 4px 0;
   .action-btn {
     margin-left: auto;
     display: flex;
@@ -113,6 +116,9 @@ refresh()
     opacity: 0.7;
     font-size: 13px;
     padding: 8px;
+    &.not-default {
+      color: var(--theme-color);
+    }
   }
   .sort-icon {
     margin-right: 4px;

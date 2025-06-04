@@ -115,10 +115,10 @@
             class="font-family-select"
             :options="fontFamilyList"
           >
-            <template v-slot="{ value }">
+            <template v-slot="{ label }">
               <div class="font-family-label"
                 :data-font="settings.fontFamily">
-                {{ fontFamilyList.find(item => item.value === value)?.label || fontFamilyList[0]?.label }}
+                {{ label || '默认' }}
               </div>
               <span class="material-symbols-outlined arrow-icon" style="margin-left: auto">chevron_right</span>
             </template>
