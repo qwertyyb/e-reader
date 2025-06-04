@@ -5,6 +5,7 @@
       @pointerdown="pointerDownHandler"
       @pointermove="pointerMoveHandler"
       @pointerup="pointerUpHandler"
+      @pointercancel="pointerCancelHandler"
     >
     </div>
   </div>
@@ -166,6 +167,10 @@ const pointerUpHandler = (event: PointerEvent) => {
   touching = false
 }
 
+const pointerCancelHandler = () => {
+  scrollToPage(cur => cur)
+}
+
 const scrollHandler = debounce(() => {
   if (touching) return;
   const progress = getCurrentProgress()
@@ -176,12 +181,12 @@ const scrollHandler = debounce(() => {
   emits('progress', progress)
 }, 100)
 
-const scrollToPage = (getNextPage: (page: number) => number) => {
+const scrollToPage = (getNextPage?: (page: number) => number) => {
   const wrapper = el.value?.querySelector<HTMLElement>('.chapter-contents-wrapper')
   if (!wrapper) return;
   const pageWidth = getPageWidth()
   const curPage = Math.round(wrapper.scrollLeft / pageWidth)
-  const scrollLeft = getNextPage(curPage) * pageWidth
+  const scrollLeft = (getNextPage?.(curPage) ?? curPage) * pageWidth
   wrapper.scrollTo({ left: scrollLeft, behavior:  disableAnim.value ? 'instant' : 'smooth' })
 }
 
