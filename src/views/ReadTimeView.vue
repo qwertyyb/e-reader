@@ -44,6 +44,8 @@ interface ITimeItem {
   list: { title: string, value: string, duration: number, width: string }[]
 }
 
+const minPercent = 30
+
 const summaryList = shallowRef<{ title: string, text: string, desc: string }[]>([
   { title: '累计时长', text: '<span class="big-text">53</span>小时<span class="big-text">18</span>分钟', desc: '2020年5月18日开始阅读'},
   { title: '阅读天数', text: '<span class="big-text">6</span>天', desc: '上次阅读'},
@@ -51,34 +53,24 @@ const summaryList = shallowRef<{ title: string, text: string, desc: string }[]>(
   { title: '单日阅读最久', text: '<span class="big-text">6</span>分钟', desc: '2020年5月18日'}
 ])
 
-const timeList = shallowRef<ITimeItem[]>([
-  {
-    title: '6月 九分钟',
-    list: [
-      { title: '14日', value: '9分钟', duration: 540, width: '75%' },
-      { title: '12日', value: '12分钟', duration: 720, width: '100%' },
-      { title: '6日', value: '3分钟', duration: 180, width: '25%' },
-      { title: '4日', value: '8分钟', duration: 480, width: '66.7%' },
-      { title: '3日', value: '10分钟', duration: 600, width: '83.3%' }
-    ]
-  },
-  {
-    title: '6月 九分钟',
-    list: [
-      { title: '14日', value: '9分钟', duration: 540, width: '75%' },
-      { title: '12日', value: '12分钟', duration: 720, width: '100%' },
-      { title: '6日', value: '3分钟', duration: 180, width: '25%' },
-      { title: '4日', value: '8分钟', duration: 480, width: '66.7%' },
-      { title: '3日', value: '10分钟', duration: 600, width: '83.3%' }
-    ]
-  }
-])
+const timeList = shallowRef<ITimeItem[]>([])
 
-const refresh = async () => {
+const refreshTimeList = async () => {
   const list = await readTimeStore.getListByBookId(props.id)
+  if (!list.length) return;
+  list.sort((prev, next) => next.date.localeCompare(prev.date))
   const max = Math.max(...list.map(i => i.duration))
+  const firstDay = list[list.length - 1]
+  const lastDay = list[0]
+  let maxDay: IReadTime
+  let durationTotal = 0
   const results: Record<string, IReadTime[] | undefined> = {}
   list.forEach(item => {
+    if (!maxDay || (maxDay && item.duration > maxDay.duration)) {
+      maxDay = item
+    }
+    durationTotal += item.duration
+
     const month = item.date.match(/^(\d+\/\d+)/)![1]
     if (results[month]) {
       results[month] = [...results[month], item]
@@ -92,14 +84,23 @@ const refresh = async () => {
       list: list!.map(item => {
         return {
           title: parseInt(item.date.match(/^\d+\/\d+\/(\d+)/)![1], 10) + '日',
-          value: formatDuration(item.duration) + '分钟',
+          value: formatDuration(item.duration),
           duration: item.duration,
-          width: (item.duration / max * 100) + '%'
+          width: (minPercent + (item.duration / max * 70)) + '%'
         }
       })
     }
   })
-  console.log(results)
+  summaryList.value = [
+    { title: '累计时长', text: '<span class="big-text">' + formatDuration(durationTotal) + '</span>', desc: `${firstDay.date}开始阅读` },
+    { title: '阅读天数', text: '<span class="big-text">' + list.length + '</span>天', desc: `上次阅读${lastDay.date}` },
+    { title: '单日阅读最久', text: '<span class="big-text">' + formatDuration(maxDay!.duration) + '</span>', desc: maxDay!.date },
+ 
+  ]
+}
+
+const refresh = async () => {
+  refreshTimeList()
 }
 
 refresh()
@@ -125,6 +126,7 @@ refresh()
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
+  row-gap: 28px;
   justify-content: space-between;
 }
 .summary-item {
@@ -140,7 +142,7 @@ refresh()
   .summary-text {
     font-size: 14px;
     font-weight: bold;
-    margin: 4px 0;
+    margin: 2px 0 4px 0;
   }
   .summary-detail {
     font-size: 12px;
@@ -191,5 +193,9 @@ refresh()
       font-weight: 500;
     }
   }
+}
+.read-time-footer {
+  display: flex;
+  justify-content: center;
 }
 </style>

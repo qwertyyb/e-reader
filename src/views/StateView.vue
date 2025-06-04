@@ -18,7 +18,7 @@
 
     <main class="state-main">
       <ul class="book-list">
-        <li class="book-item" v-for="item in list" :key="item.id">
+        <li class="book-item" v-for="item in list" :key="item.id" @click="$router.push({ name: 'readTime', params: { id: item.id } })">
           <img :src="item.cover" alt="" class="book-cover">
           <div class="book-info">
             <h3 class="book-title">{{ item.title }}</h3>
