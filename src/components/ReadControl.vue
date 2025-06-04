@@ -109,6 +109,14 @@
             <template v-slot:suffix>松</template>
           </c-progress>
         </div>
+        <div class="line-item">
+          <c-select
+            v-model="settings.textIndent"
+            class="text-indent-select"
+            :options="textIndentList"
+          >
+          </c-select>
+        </div>
         <div class="font-family-and-turn-page line-item">
           <c-select
             v-model="settings.fontFamily"
@@ -147,10 +155,10 @@
             @click="settings.colorScheme = { ...item }"
             :style="{ backgroundColor: item.backgroundColor }"
           ></li>
-          <li class="color-scheme-item"
+          <li class="color-scheme-item material-symbols-outlined system-item"
             :class="{selected: !settings.colorScheme }"
-            @click="settings.colorScheme = undefined"
-          >系统</li>
+            @click="settings.colorScheme = undefined;darkMode.toggle()"
+          >{{ controlState.darkMode ? 'light_mode' : 'dark_mode' }}</li>
         </ul>
       </div>
     </transition>
@@ -186,7 +194,7 @@
       <div class="control-item"
         data-control="darkMode"
         @click="toggleControl('colorScheme')">
-        <span class="material-symbols-outlined">{{ controlState.darkMode ? 'light_mode' : 'dark_mode' }}</span>
+        <span class="material-symbols-outlined">light_mode</span>
         <div class="control-label"></div>
       </div>
     </div>
@@ -198,7 +206,7 @@ import { AutoPlay, ReadSpeak } from '@/actions';
 import { computed, inject, onBeforeUnmount, type Ref, ref } from 'vue';
 import CProgress from '@/components/common/CProgress.vue';
 import CSelect from '@/components/common/CSelect.vue';
-import { fontFamilyList, readColorScheme } from '@/config';
+import { fontFamilyList, readColorScheme, textIndentList } from '@/config';
 import { settings } from '@/stores/settings';
 import type { GetNextElement } from '@/actions/read-speak';
 import { darkMode } from '@/stores/preferences';
@@ -394,7 +402,7 @@ defineExpose({
 .line-item {
   display: flex;
   gap: 20px;
-  .font-family-select, .turn-page-type-select {
+  .font-family-select, .turn-page-type-select, .text-indent-select {
     background: var(--card-bg-color);
     padding: 6px 12px;
     border-radius: 9999px;
@@ -468,7 +476,7 @@ defineExpose({
   .color-scheme-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, 60px);
-    justify-content: center;
+    justify-content: space-between;
     gap: 12px;
     list-style: none;
   }
@@ -479,6 +487,10 @@ defineExpose({
     text-align: center;
     border-radius: 6px;
     border: 1px solid var(--border-color);
+    font-size: 24px;
+    &.system-item {
+      background: var(--card-bg-color);
+    }
     &.selected {
       border-color: var(--theme-color);
       filter: drop-shadow(0px 0px 4px var(--theme-color));

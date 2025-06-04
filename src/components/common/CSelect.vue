@@ -56,7 +56,7 @@ const selectOption = (option: { value: T, label: string }) => {
   display: flex;
   align-items: center;
   height: 100%;
-  font-size: 18px;
+  font-size: 16px;
   .arrow-icon {
     margin-left: auto;
     font-size: 24px;

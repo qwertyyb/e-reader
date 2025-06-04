@@ -14,6 +14,11 @@ export const turnPageType = [
   { value: 'horizontal-scroll', label: '左右滑动' }
 ]
 
+export const textIndentList = [
+  { value: '0', label: '首行顶格' },
+  { value: '2em', label: '首行缩进' }
+]
+
 export const backgroundList = [
   { label: '仿纸', value: {} },
 ]

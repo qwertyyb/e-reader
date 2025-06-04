@@ -120,6 +120,7 @@ interface ISettings {
   lineHeight: number
   speed: number
   readSpeakRate: number
+  textIndent: string
   // 翻页方式
   turnPageType?: TurnPageType
   colorScheme?: { backgroundColor: string, textColor: string }

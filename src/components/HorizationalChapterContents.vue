@@ -277,7 +277,7 @@ defineExpose({
     break-after: column;
   }
   p {
-    text-indent: 2em;
+    text-indent: var(--text-indent);
     word-break: break-all;
     /* content-visibility: auto; */
   }

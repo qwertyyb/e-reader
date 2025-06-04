@@ -290,7 +290,7 @@ defineExpose({
     padding-bottom: max(var(--saib), 16em);
   }
   p {
-    text-indent: 2em;
+    text-indent: var(--text-indent);
     word-break: break-all;
     /* content-visibility: auto; */
   }

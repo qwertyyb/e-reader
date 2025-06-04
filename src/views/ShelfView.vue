@@ -12,8 +12,7 @@
         </div>
       </template>
       <template v-else>
-        <img class="logo" @click="$router.push({ name: 'preferences' })" src="/icons/icon96.png" />
-        <div class="action-btn pointer" @click="selecting = true">
+        <div class="action-btn pointer select-btn" @click="selecting = true">
           <span class="material-symbols-outlined icon">check_circle</span>
           选择
         </div>
@@ -317,10 +316,6 @@ watch(() => route.name, () => {
   left: 0;
   z-index: 1;
   background-color: var(--bg-color);
-  .logo {
-    width: 24px;
-    height: 24px;
-  }
   .navigation-title {
     text-align: center;
     h3 {
@@ -341,6 +336,9 @@ watch(() => route.name, () => {
   display: flex;
   align-items: center;
   font-weight: 500;
+  &.select-btn {
+    margin-left: auto;
+  }
   .icon {
     font-size: 18px;
     font-weight: 400;

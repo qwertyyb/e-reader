@@ -8,7 +8,8 @@ export const getSettings = (): ISettings => {
     speed: 30, // 每秒滚动的像素
     lineHeight: 1.6,
     readSpeakRate: 1,
-    turnPageType: env.isInk() ? 'horizontal-scroll' : 'vertical-scroll'
+    turnPageType: env.isInk() ? 'horizontal-scroll' : 'vertical-scroll',
+    textIndent: '2em'
   }
   const settings = JSON.parse(localStorage.getItem('settings') || '{}')
 

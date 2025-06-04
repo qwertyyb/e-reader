@@ -32,6 +32,7 @@
             lineHeight: settings.lineHeight,
             '--read-text-color': settings.colorScheme?.textColor,
             '--read-bg-color': settings.colorScheme?.backgroundColor,
+            '--text-indent': settings.textIndent,
             '--read-bg-image': settings.colorScheme ? 'none' : undefined
           }"
           :chapter-list="chapterList"
@@ -50,6 +51,7 @@
             lineHeight: settings.lineHeight,
             '--read-text-color': settings.colorScheme?.textColor,
             '--read-bg-color': settings.colorScheme?.backgroundColor,
+            '--text-indent': settings.textIndent,
             '--read-bg-image': settings.colorScheme ? 'none' : undefined
           }"
           :chapter-list="chapterList"
