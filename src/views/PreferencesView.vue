@@ -32,7 +32,7 @@
           </c-select>
         </li>
 
-        <li class="prfs-item" @click="$router.push({ name: 'advancedPrfs' })">
+        <li class="prfs-item" @click="appRouter.push({ name: 'advancedPrfs' })">
           <div class="prfs-label">高级</div>
           <div class="prfs-control">
             <span class="material-symbols-outlined arrow-icon">chevron_right</span>
@@ -71,6 +71,7 @@ import { showToast } from '@/utils';
 import { version } from '@/version';
 import { clearAllCache } from '@/utils/cache';
 import { env } from '@/utils/env';
+import { appRouter } from '@/router';
 
 const clearCache = async () => {
   await clearAllCache();

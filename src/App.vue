@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { RouterView, useRoute } from 'vue-router'
 import UpdateDialog from '@/components/UpdateDialog.vue'
+import CRouterView from '@/components/common/CRouterView.vue'
 import { watch } from 'vue'
 import router, { transitionName } from '@/router'
 import { clearAnimData, waits, animData } from '@/stores/bookAnim'
@@ -47,7 +48,8 @@ const beforeLeave = () => {
 
 <template>
   <div class="root-app" data-html2canvas-ignore>
-    <router-view v-slot="{ Component }">
+    <c-router-view></c-router-view>
+    <!-- <router-view v-slot="{ Component }">
       <transition
         :name="transitionName"
         @beforeLeave="beforeLeave"
@@ -59,7 +61,8 @@ const beforeLeave = () => {
             :key="typeof $route.meta.getKey === 'function' ? $route.meta.getKey($route) : undefined" />
         </keep-alive>
       </transition>
-    </router-view>
+    </router-view> -->
+
     <update-dialog></update-dialog>
   </div>
 </template>

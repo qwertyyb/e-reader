@@ -1,13 +1,7 @@
 <template>
   <div class="tab-view book-shelf">
     <div class="tab-panel-container">
-      <router-view v-slot="{ Component, route }">
-        <transition
-          :name="route.name === 'my' ? 'tab-slide-next' : 'tab-slide-prev'"
-        >
-          <component :is="Component" />
-        </transition>
-      </router-view>
+      <c-router-view></c-router-view>
     </div>
     <ul class="tab-nav-list" v-if="preferences.opdsServerUrl">
       <li class="tab-nav-item pointer"
@@ -34,6 +28,7 @@
 </template>
 
 <script setup lang="ts">
+import CRouterView from '@/components/common/CRouterView.vue';
 import { preferences } from '@/stores/preferences';
 
 </script>

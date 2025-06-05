@@ -1,4 +1,4 @@
-import { createMemoryHistory, createRouter, type RouteLocation, type RouterHistory } from 'vue-router'
+import { createMemoryHistory, createRouter, type RouteLocation, type Router, type RouterHistory } from 'vue-router'
 import TabView from '@/views/TabView.vue'
 import ShelfView from '@/views/ShelfView.vue'
 import ReadView from '@/views/ReadView.vue'
@@ -200,3 +200,81 @@ window.addEventListener('hashchange', event => {
 })
 
 export default router
+
+type IRouterHandler = (to: RouteLocation, from: RouteLocation) => void
+type IRouterPopHandler = (delta: number, to: RouteLocation, from: RouteLocation) => void
+
+const createAppRouter = (router: Router): Router & {
+    onPop: (callback: IRouterPopHandler) => void,
+    onPush: (callback: IRouterHandler) => void,
+    onReplace: (callback: IRouterHandler) => void,
+    offPop: (callback: IRouterPopHandler) => void,
+    offPush: (callback: IRouterHandler) => void,
+    offReplace: (callback: IRouterHandler) => void,
+} => {
+  const popCallbacks: IRouterPopHandler[] = []
+  const pushCallbacks: IRouterHandler[] = []
+  const replaceCallbacks: IRouterHandler[] = []
+  return {
+    ...router,
+    async push (...args: Parameters<typeof router.push>) {
+      const current = router.currentRoute.value
+      const result = await router.push(...args)
+      pushCallbacks.forEach(callback => callback(router.currentRoute.value, current))
+      return result
+    },
+    back() {
+      const current = router.currentRoute.value
+      const result = router.back()
+      popCallbacks.forEach(callback => callback(-1, router.currentRoute.value, current))
+      return result
+    },
+    forward() {
+      const current = router.currentRoute.value
+      const result = router.forward()
+      pushCallbacks.forEach(callback => callback(router.currentRoute.value, current))
+      return result
+    },
+    go (delta: number) {
+      if (delta > 1) {
+        throw new Error('暂不支持前进多个路由')
+      }
+      const current = router.currentRoute.value
+      const result = router.go(delta)
+      if (delta < 0) {
+        popCallbacks.forEach(callback => callback(delta, router.currentRoute.value, current))
+      } else {
+        pushCallbacks.forEach(callback => callback(router.currentRoute.value, current))
+      }
+      return result
+    },
+    async replace(...args: Parameters<typeof router.replace>) {
+      const current = router.currentRoute.value
+      const result = await router.replace(...args)
+      replaceCallbacks.forEach(callback => callback(router.currentRoute.value, current))
+      return result
+    },
+    onPop(callback: IRouterPopHandler) {
+      popCallbacks.push(callback)
+    },
+    onPush(callback: IRouterHandler) {
+      pushCallbacks.push(callback)
+    },
+    onReplace(callback: IRouterHandler) {
+      replaceCallbacks.push(callback)
+    },
+    offPop(callback) {
+      popCallbacks.splice(popCallbacks.indexOf(callback), 1)
+    },
+    offPush(callback) {
+      pushCallbacks.splice(pushCallbacks.indexOf(callback), 1)
+    },
+    offReplace(callback) {
+      replaceCallbacks.splice(replaceCallbacks.indexOf(callback), 1)
+    },
+  }
+}
+
+export const appRouter = createAppRouter(router)
+
+export const routerViewSymbol = Symbol('c-router-view')

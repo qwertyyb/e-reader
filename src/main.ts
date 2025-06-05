@@ -13,7 +13,7 @@ import 'element-plus/theme-chalk/base.css'
 import 'element-plus/theme-chalk/el-loading.css'
 
 import App from './App.vue'
-import router from './router'
+import { appRouter } from './router'
 
 Logger.useDefaults({
   formatter: function (messages, context) {
@@ -32,7 +32,7 @@ initMoreContrast()
 const app = createApp(App)
 
 app.use(createPinia())
-app.use(router)
+app.use(appRouter)
 app.use(VirtualList)
 app.directive('loading', ElLoadingDirective)
 

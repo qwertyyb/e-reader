@@ -68,7 +68,7 @@ import { computed, ref, toRaw, watch } from 'vue';
 import BookItem from '@/components/BookItem.vue';
 import { disableCache, filterEmpty, showToast } from '@/utils';
 import { localBookService } from '@/services/LocalBookService';
-import router from '@/router';
+import { appRouter as router }  from '@/router';
 import { booksStore, readingStateStore } from '@/services/storage';
 import { useRoute } from 'vue-router';
 import { setAnimData, animData } from '@/stores/bookAnim';

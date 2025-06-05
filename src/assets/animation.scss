@@ -3,7 +3,7 @@ html.disable-anim * {
   // transition-duration: 1ms !important;
 }
 html:not(.disable-anim) {
-  --transition-duration: 0.2s;
+  --transition-duration: 0.3s;
   .slide-down-enter-from,
   .slide-down-leave-to {
     transform: translateY(-100%);
