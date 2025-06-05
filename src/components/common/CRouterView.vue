@@ -39,10 +39,8 @@ const lastRouteMatchedIndex = computed(() => {
 
 provide(routerViewSymbol, lastRouteMatchedIndex)
 
-const popHandler = (delta: number, to: RouteLocation, from: RouteLocation) => {
-  if (from.fullPath === history.value[history.value.length - 1].fullPath) {
-    history.value = [...history.value.slice(0, history.value.length + delta)]
-  }
+const popHandler = (delta: number) => {
+  history.value = [...history.value.slice(0, history.value.length + delta)]
 }
 const getCommonMatched = (prev: RouteLocation, next: RouteLocation) => {
   for(let i = 0; i < prev.matched.length; i += 1) {
@@ -67,15 +65,12 @@ const needAppendHistory = (to: RouteLocation) => {
 
 const pushHandler = (to: RouteLocation) => {
   console.log('need', needAppendHistory(to))
-  if (needAppendHistory(to)) {
-    history.value = [...history.value, to]
-  }
+  // 暂时先不考虑多层级的嵌套路由
+  history.value = [...history.value, to]
 }
 
 const replaceHandler = (to: RouteLocation) => {
-  if (needAppendHistory(to)) {
-    history.value = [...history.value.slice(0, history.value.length - 1), to]
-  }
+  history.value = [...history.value.slice(0, history.value.length - 1), to]
 }
 
 appRouter.onPush(pushHandler)
@@ -109,8 +104,16 @@ onBeforeUnmount(() => {
     overflow: auto;
     background: var(--bg-color);
     transition: transform 0.3s;
+    visibility: hidden;
+    &.previous, &.current {
+      visibility: visible;
+    }
     &.previous {
       transform: translateX(-30%);
+      z-index: 1;
+    }
+    &.current {
+      z-index: 2;
     }
   }
 }

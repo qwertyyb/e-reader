@@ -1,12 +1,10 @@
 import { createMemoryHistory, createRouter, type RouteLocation, type Router, type RouterHistory } from 'vue-router'
-import TabView from '@/views/TabView.vue'
-import ShelfView from '@/views/ShelfView.vue'
 import ReadView from '@/views/ReadView.vue'
 import PreferencesView from '@/views/PreferencesView.vue'
 import { ref, type Ref } from 'vue'
 import AboutView from '@/views/AboutView.vue'
 import AdvancedPrfsView from '@/views/AdvancedPrfsView.vue'
-import MyView from '@/views/MyView.vue'
+import HomeView from '@/views/HomeView.vue'
 
 export const transitionName = ref('')
 
@@ -87,20 +85,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      redirect: '/shelf',
-      component: TabView,
-      children: [
-        {
-          path: 'shelf',
-          name: 'shelf',
-          component: ShelfView
-        },
-        {
-          path: 'my',
-          name: 'my',
-          component: MyView
-        }
-      ]
+      component: HomeView
     },
     {
       path: '/read/:id',
