@@ -1,13 +1,15 @@
 <template>
   <div class="tab-view book-shelf">
     <div class="tab-panel-container">
-      <shelf-view v-if="$route.query.tab === 'shelf' || !['my', 'shelf'].includes($route.query.tab as string)"></shelf-view>
-      <my-view v-else></my-view>
+      <transition :name="curTab === 'my' ? 'tab-slide-next' : 'tab-slide-prev'">
+        <shelf-view v-if="curTab === 'shelf'"></shelf-view>
+        <my-view v-else></my-view>
+      </transition>
     </div>
     <ul class="tab-nav-list" v-if="preferences.opdsServerUrl">
       <li class="tab-nav-item pointer"
-        @click="$router.replace({ path: $route.path, query: { tab: 'shelf' } })"
-        :class="{selected: $route.query.tab === 'shelf' || !['my', 'shelf'].includes($route.query.tab as string)}">
+        @click="curTab = 'shelf'"
+        :class="{selected: curTab === 'shelf' }">
         <span class="material-symbols-outlined tab-icon">newsstand</span>
         书架
       </li>
@@ -19,8 +21,8 @@
         图书馆
       </li>
       <li class="tab-nav-item pointer"
-        @click="$router.replace({ path: $route.path, query: { tab: 'my' } })"
-        :class="{selected: $route.query.tab === 'my'}">
+        @click="curTab = 'my'"
+        :class="{selected: curTab === 'my' }">
         <span class="material-symbols-outlined tab-icon">person</span>
         我的
       </li>
@@ -32,6 +34,17 @@
 import ShelfView from '@/views/ShelfView.vue';
 import MyView from '@/views/MyView.vue';
 import { preferences } from '@/stores/preferences';
+import { ref } from 'vue';
+import router from '@/router';
+
+const getDefaultTab = () => {
+  const tab  = router.currentRoute.value.query.tab as string | undefined;
+  if (tab === 'my' || tab === 'shelf') {
+    return tab;
+  }
+  return 'shelf';
+}
+const curTab = ref(getDefaultTab())
 
 </script>
 
