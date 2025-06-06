@@ -225,9 +225,9 @@ defineExpose({
       cover?.style.removeProperty('opacity')
     }
   },
-  push: (to: RouteLocation, from: RouteLocation, toEl: HTMLElement, fromEl: HTMLElement) => {
+  push: (to: RouteLocation, from?: RouteLocation, toEl?: HTMLElement, fromEl?: HTMLElement) => {
     if (to.query.trace) {
-      const cover = fromEl.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(to.query.trace)}]`)
+      const cover = fromEl?.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(to.query.trace)}]`)
       cover?.classList.add('is-reading')
       cover?.style.setProperty('opacity', '0')
       animRef.value?.openBook(cover)

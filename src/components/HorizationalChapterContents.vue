@@ -138,12 +138,14 @@ const getCurrentProgress = () => {
 }
 
 const pointerDownHandler = (event: PointerEvent) => {
+  if (window.getSelection()?.toString()) return;
   startX = event.screenX
   startScrollLeft = (event.currentTarget as HTMLElement).scrollLeft
   startTime = Date.now()
   touching = true
 }
 const pointerMoveHandler = (event: PointerEvent) => {
+  if (window.getSelection()?.toString()) return;
   const scrollLeft = startScrollLeft + (startX - event.screenX)
   el.value?.querySelector<HTMLElement>('.chapter-contents-wrapper')?.scrollTo({ left: scrollLeft })
 }
@@ -246,7 +248,6 @@ defineExpose({
   display: flex;
   align-items: center;
   width: 100%;
-  user-select: none;
 }
 .chapter-contents-wrapper {
   column-width: 100vw;
@@ -259,7 +260,8 @@ defineExpose({
   background-color: var(--read-bg-color);
   overflow-x: hidden;
   position: relative;
-  touch-action: none;
+  user-select: text;
+  -webkit-user-select: text;
   * {
     color: var(--read-text-color);
   }

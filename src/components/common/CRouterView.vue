@@ -30,7 +30,7 @@ import type { RouteLocation } from 'vue-router';
 const el = useTemplateRef('el')
 const components = useTemplateRef<{
   pop?: (to: RouteLocation, from: RouteLocation, toEl?: HTMLElement | null, fromEl?: HTMLElement | null) => void | Promise<void>,
-  push?: (to: RouteLocation, from: RouteLocation, toEl?: HTMLElement | null, fromEl?: HTMLElement | null) => void | Promise<void>
+  push?: (to: RouteLocation, from?: RouteLocation, toEl?: HTMLElement | null, fromEl?: HTMLElement | null) => void | Promise<void>
 }[]>('components')
 
 const history = shallowRef<RouteLocation[]>([])
@@ -58,6 +58,7 @@ const needAppendHistory = (to: RouteLocation) => {
   // push history 有两种情况
   // 1. 当前路由是嵌套的路由，要跳转的路由是嵌套路由的子路由
   // 2. 当前路由不是嵌套路由，要跳转的路由与最后一个路由无法共用 parent，即不是嵌套路由
+  if (!history.value.length) return true
   if (parentRouteMatchedIndex.value >= 0) {
     return history.value[0].matched.slice(0, parentRouteMatchedIndex.value + 1).every((item, index) => item.path === to.matched[index].path)
   }
@@ -98,7 +99,7 @@ const popHandler = async (delta: number) => {
   }
 }
 
-const pushHandler = async (to: RouteLocation, from: RouteLocation) => {
+const pushHandler = async (to: RouteLocation, from?: RouteLocation) => {
   console.log('need', needAppendHistory(to))
   // 暂时先不考虑多层级的嵌套路由
   history.value = [...history.value, to]
@@ -123,7 +124,7 @@ appRouter.onPop(popHandler)
 appRouter.onReplace(replaceHandler)
 
 router.isReady().then(() => {
-  history.value = [router.currentRoute.value]
+  pushHandler(router.currentRoute.value)
 })
 
 onBeforeUnmount(() => {
