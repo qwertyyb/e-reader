@@ -162,6 +162,10 @@ const initHammer = () => {
   const contentTapHandler = (event: any) => {
     if (event.srcEvent.target.nodeName.toLowerCase() === 'mark') return
     if (settings.value.turnPageType === 'horizontal-scroll') {
+      if (panelVisible.value) {
+        panelVisible.value = false
+        return;
+      }
       /**
        * 把点击区域分为九个区域，如下
        * 1|2|3
@@ -205,29 +209,25 @@ const initHammer = () => {
       [Hammer.Swipe, { direction: Hammer.DIRECTION_ALL, threshold: 10 }]
     ]
   })
-  if (settings.value.turnPageType === 'horizontal-scroll') {
-    // hammer.on('swipeleft', () => emits('next-page'))
-    // hammer.on('swiperight', () => emits('prev-page'))
-  } else {
-    hammer.on('swiperight', (() => {
-      let backed = false
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (e: any) => {
-        if ((window.getSelection()?.toString().length ?? 0) > 0) {
-          return
-        }
-        const { center: { x }, deltaX } = e
-        const startX = x - deltaX
-        if (startX <= 80 && !backed) {
-          backed = true
-          router.back()
-        }
+  hammer.on('swiperight', (() => {
+    let backed = false
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (e: any) => {
+      if (settings.value.turnPageType === 'horizontal-scroll') return;
+      if ((window.getSelection()?.toString().length ?? 0) > 0) {
+        return
       }
-    })())
-    hammer.on('swipeleft', () => {
-      dialog.value = 'chapterList'
-    })
-  }
+      const { center: { x }, deltaX } = e
+      const startX = x - deltaX
+      if (startX <= 80 && !backed) {
+        backed = true
+        router.back()
+      }
+    }
+  })())
+  hammer.on('swipeleft', () => {
+    dialog.value = 'chapterList'
+  })
   hammer.on('tap', contentTapHandler)
   hammerInstance = hammer
 }
