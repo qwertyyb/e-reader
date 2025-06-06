@@ -4,7 +4,7 @@ import CRouterView from '@/components/common/CRouterView.vue'
 </script>
 
 <template>
-  <div class="root-app" data-html2canvas-ignore>
+  <div class="root-app">
     <c-router-view></c-router-view>
 
     <update-dialog></update-dialog>

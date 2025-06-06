@@ -52,7 +52,7 @@
 </template>
 <script setup lang="ts">
 import { ellipsisText, showToast } from '@/utils';
-import { computed, inject, onMounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
+import { computed, inject, nextTick, onMounted, ref, useTemplateRef, watch, type ComputedRef, type Ref } from 'vue';
 import QRCode from 'qrcode'
 
 const props = defineProps<{
@@ -91,11 +91,10 @@ watch(() => props.visible, async (visible) => {
   if (!visible) return;
   img.value = ''
   textTime.value = new Date().toLocaleDateString()
-  await new Promise(resolve => setTimeout(resolve, 500))
+  await nextTick()
   if (!shareRef.value) return;
-  const { default: html2canvas } = await import('html2canvas')
-  const canvas = await html2canvas(shareRef.value)
-  const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/jpeg'))
+  const { snapdom } = await import('@zumer/snapdom')
+  const blob = await snapdom.toBlob(shareRef.value)
   if (!blob) {
     showToast('无法生成图片')
     throw new Error('无法生成图片')
@@ -155,6 +154,7 @@ const download = async () => {
   justify-content: center;
   align-items: center;
   background: rgba(0, 0, 0, 0.65);
+  z-index: 10;
 }
 .share-preview {
   position: relative;
