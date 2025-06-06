@@ -1,5 +1,5 @@
 <template>
-  <slide-back class="prfs-view" tag="section">
+  <route-page class="prfs-view" tag="section">
     <NavigationBar title="设置" :no-menu="true"/>
 
     <main class="prfs-main">
@@ -59,11 +59,11 @@
         </li>
       </ul>
     </main>
-  </slide-back>
+  </route-page>
 </template>
 
 <script lang="ts" setup>
-import SlideBack from '@/components/SlideBack.vue';
+import RoutePage from '@/components/RoutePage.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import CSelect from '@/components/common/CSelect.vue';
 import { preferences } from '@/stores/preferences';

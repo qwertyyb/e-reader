@@ -1,5 +1,5 @@
 <template>
-  <slide-back class="opds-view">
+  <route-page class="opds-view">
     <NavigationBar :title="cur ? cur.feed.title : '加载中...'" noMenu></NavigationBar>
     <div class="opds-main" v-if="cur" @scroll="scrollHandler">
       <div class="search-input" v-if="searchDescUrl">
@@ -69,12 +69,12 @@
       @close="entryVisible=false"
       @downloaded="downloadSuccess"
     ></o-p-d-s-entry-dialog>
-  </slide-back>
+  </route-page>
 </template>
 
 <script setup lang="ts">
 import NavigationBar from '../components/NavigationBar.vue';
-import SlideBack from '@/components/SlideBack.vue';
+import RoutePage from '@/components/RoutePage.vue';
 import OPDSEntryDialog from '@/components/OPDSEntryDialog.vue';
 import { FeedType, fetchFeed, getSearchUrl, getUrlByRel, getUrlByType, LinkRel, getEntryImage, formatDate, type IContentEntry, type IEntry, type IFeed, getLinksByRel } from '@/services/opds';
 import { preferences } from '@/stores/preferences';

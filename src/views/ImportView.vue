@@ -1,5 +1,5 @@
 <template>
-  <slide-back class="import-view">
+  <route-page class="import-view">
     <navigation-bar title="本地导入" no-menu></navigation-bar>
     <div class="upload-book-section">
       <button class="btn primary-btn file-selector-btn" @click="selectFile">选择文件</button>
@@ -38,13 +38,13 @@
         <ChapterList :chapter-list="chapterList"></ChapterList>
       </c-dialog>
     </div>
-  </slide-back>
+  </route-page>
 </template>
 
 <script setup lang="ts">
 import CDialog from '@/components/common/CDialog.vue';
 import ChapterList from '@/components/ChapterList.vue'
-import SlideBack from '@/components/SlideBack.vue';
+import RoutePage from '@/components/RoutePage.vue';
 import BookTocSettings from '@/components/BookTocSettings.vue';
 import { parseTxtFile } from '@/services/parser/txt-file';
 import { blobToBase64, showToast } from '@/utils';

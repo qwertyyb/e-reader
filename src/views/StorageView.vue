@@ -1,5 +1,5 @@
 <template>
-  <slide-back class="storage-view">
+  <route-page class="storage-view">
     <navigation-bar no-menu title="存储空间"></navigation-bar>
     <div class="storage-main">
       <header class="usage-total">
@@ -21,11 +21,11 @@
         </li>
       </ul>
     </div>
-  </slide-back>
+  </route-page>
 </template>
 
 <script setup lang="ts">
-import SlideBack from '@/components/SlideBack.vue';
+import RoutePage from '@/components/RoutePage.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import { onMounted, ref } from 'vue';
 import { formatSize, showToast } from '@/utils';

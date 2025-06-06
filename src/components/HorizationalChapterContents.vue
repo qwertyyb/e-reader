@@ -145,7 +145,7 @@ const pointerDownHandler = (event: PointerEvent) => {
   touching = true
 }
 const pointerMoveHandler = (event: PointerEvent) => {
-  if (window.getSelection()?.toString()) return;
+  if (window.getSelection()?.toString() || !touching) return;
   const scrollLeft = startScrollLeft + (startX - event.screenX)
   el.value?.querySelector<HTMLElement>('.chapter-contents-wrapper')?.scrollTo({ left: scrollLeft })
 }

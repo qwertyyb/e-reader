@@ -1,5 +1,5 @@
 <template>
-  <slide-back class="debug-view" tag="section">
+  <route-page class="debug-view" tag="section">
     <NavigationBar title="调试选项" :no-menu="true"/>
 
     <main class="debug-main">
@@ -42,11 +42,11 @@
         <div class="debug-label">恢复默认</div>
       </div>
     </main>
-  </slide-back>
+  </route-page>
 </template>
 
 <script lang="ts" setup>
-import SlideBack from '@/components/SlideBack.vue';
+import RoutePage from '@/components/RoutePage.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import CSwitch from '@/components/common/CSwitch.vue';
 import CSelect from '@/components/common/CSelect.vue';

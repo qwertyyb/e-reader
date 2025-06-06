@@ -1,5 +1,5 @@
 <template>
-  <slide-back class="state-view" tag="section">
+  <route-page class="state-view" tag="section">
     <navigation-bar title="在读"></navigation-bar>
     <header class="state-header">
       <c-select v-model="query.sort"
@@ -29,11 +29,11 @@
         </li>
       </ul>
     </main>
-  </slide-back>
+  </route-page>
 </template>
 
 <script setup lang="ts">
-import SlideBack from '@/components/SlideBack.vue'
+import RoutePage from '@/components/RoutePage.vue'
 import NavigationBar from '@/components/NavigationBar.vue';
 import CSelect from '@/components/common/CSelect.vue';
 import { booksStore, readingStateStore } from '@/services/storage';

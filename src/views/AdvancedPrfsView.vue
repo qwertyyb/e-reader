@@ -1,5 +1,5 @@
 <template>
-  <slide-back class="advanced-prfs-view">
+  <route-page class="advanced-prfs-view">
     <NavigationBar title="高级设置" :no-menu="true"/>
 
     <div class="prfs-main">
@@ -22,11 +22,11 @@
     </div>
 
     <a-i-prfs-dialog :visible="aiVisible" @close="aiVisible = false" />
-  </slide-back>
+  </route-page>
 </template>
 
 <script setup lang="ts">
-import SlideBack from '@/components/SlideBack.vue';
+import RoutePage from '@/components/RoutePage.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import AIPrfsDialog from '@/components/AIPrfsDialog.vue';
 import { preferences } from '@/stores/preferences'

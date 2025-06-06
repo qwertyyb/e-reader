@@ -1,15 +1,15 @@
 <template>
-  <slide-back class="about-view">
+  <route-page class="about-view">
     <navigation-bar title="关于" no-menu></navigation-bar>
     <img class="logo" src="/icons/icon256.png" />
     <h3 class="name" @click="toDebugView">E Reader</h3>
     <p class="version" v-if="version">v{{ version }}({{ buildVersion }})</p>
     <button class="check-update-btn btn primary-btn" @click="checkUpdates">检查版本更新</button>
-  </slide-back>
+  </route-page>
 </template>
 
 <script setup lang="ts">
-import SlideBack from '@/components/SlideBack.vue';
+import RoutePage from '@/components/RoutePage.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import { version, buildVersion } from '@/version';
 import { onMounted } from 'vue';

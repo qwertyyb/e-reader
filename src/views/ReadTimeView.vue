@@ -1,5 +1,5 @@
 <template>
-  <slide-back class="read-time-view">
+  <route-page class="read-time-view">
     <navigation-bar no-menu title="阅读明细"></navigation-bar>
     <header class="read-time-header" v-if="book">
       <img :src="book.cover" alt="" class="book-cover-img" :data-book-cover-trace="book.id">
@@ -35,11 +35,11 @@
       <button class="btn text-btn">点评此书</button>
       <button class="btn primary-btn">分享阅读成就</button>
     </footer>
-  </slide-back>
+  </route-page>
 </template>
 
 <script setup lang="ts">
-import SlideBack from '@/components/SlideBack.vue';
+import RoutePage from '@/components/RoutePage.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import { shallowRef } from 'vue';
 import { booksStore, readTimeStore } from '@/services/storage';
