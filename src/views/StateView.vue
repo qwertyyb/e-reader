@@ -141,9 +141,9 @@ refresh()
     margin-top: 8px;
   }
   :deep(.big-text) {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: bold;
-    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif
+    margin: 0 3px;
   }
   .book-cover {
     width: 60px;
@@ -177,7 +177,6 @@ refresh()
     max-width: calc(100% - 54px);
   }
   .book-time {
-    letter-spacing: 3px;
     line-height: 1.2;
   }
   .book-progress {

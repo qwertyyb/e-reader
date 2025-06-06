@@ -69,6 +69,7 @@ refresh()
 :deep(.big-text) {
   font-weight: bold;
   font-size: 28px;
+  margin: 0 3px;
 }
 .my-list {
   list-style: none;
@@ -81,7 +82,6 @@ refresh()
   &.duration-item {
     .item-desc {
       margin-top: 8px;
-      letter-spacing: 3px;
     }
     .item-more {
       transform: translateY(-50%);
