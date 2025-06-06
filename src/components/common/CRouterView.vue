@@ -1,31 +1,37 @@
 <template>
-  <div class="c-router-view">
+  <div class="c-router-view" ref="el">
     <ul class="route-history-list" v-if="history.length">
-      <transition-group name="slide-to-next">
-        <li class="route-history-item"
-          v-for="(route, index) in history"
-          :key="index"
-          :class="{
-            'current': index === history.length - 1,
-            'previous': index === history.length - 2,
-          }"
-        >
-          <component
-            v-for="matched in route.matched.slice(parentRouteMatchedIndex + 1).filter(i => i.components?.default).slice(0, 1)"
-            :key="matched.path"
-            :is="matched.components?.default"
-            v-bind="route.params"
-          ></component>
-        </li>
-      </transition-group>
+      <li class="route-history-item"
+        v-for="(route, index) in history"
+        :key="index"
+        :class="{
+          'current': index === history.length - 1,
+          'previous': index === history.length - 2,
+        }"
+      >
+        <component
+          ref="components"
+          v-for="matched in route.matched.slice(parentRouteMatchedIndex + 1).filter(i => i.components?.default).slice(0, 1)"
+          :key="matched.path"
+          :is="matched.components?.default"
+          v-bind="route.params"
+        ></component>
+      </li>
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
 import router, { appRouter, routerViewSymbol } from '@/router';
-import { computed, type ComputedRef, inject, onBeforeUnmount, provide, shallowRef } from 'vue';
+import { disableAnim } from '@/utils/env';
+import { computed, type ComputedRef, inject, nextTick, onBeforeUnmount, provide, shallowRef, useTemplateRef } from 'vue';
 import type { RouteLocation } from 'vue-router';
+
+const el = useTemplateRef('el')
+const components = useTemplateRef<{
+  pop?: (to: RouteLocation, from: RouteLocation, toEl?: HTMLElement | null, fromEl?: HTMLElement | null) => void | Promise<void>,
+  push?: (to: RouteLocation, from: RouteLocation, toEl?: HTMLElement | null, fromEl?: HTMLElement | null) => void | Promise<void>
+}[]>('components')
 
 const history = shallowRef<RouteLocation[]>([])
 
@@ -39,9 +45,6 @@ const lastRouteMatchedIndex = computed(() => {
 
 provide(routerViewSymbol, lastRouteMatchedIndex)
 
-const popHandler = (delta: number) => {
-  history.value = [...history.value.slice(0, history.value.length + delta)]
-}
 const getCommonMatched = (prev: RouteLocation, next: RouteLocation) => {
   for(let i = 0; i < prev.matched.length; i += 1) {
     if (prev.matched[i].path !== next.matched[i]?.path) {
@@ -63,10 +66,48 @@ const needAppendHistory = (to: RouteLocation) => {
   return !commonMatched.some(item => item.components?.default)
 }
 
-const pushHandler = (to: RouteLocation) => {
+const runPushAnimation = async (cur?: Element | null, prev?: Element | null) => {
+  const prevAnim = prev?.animate([{ transform: `translateX(0)` }, { transform: `translateX(-30%)` }], { duration: 300, easing: 'ease' })
+  const curAnim = cur?.animate([{ transform: `translateX(100%)` }, { transform: `translateX(0)` }], { duration: 300, easing: 'ease' })
+  await Promise.all([prevAnim?.finished, curAnim?.finished])
+}
+
+const runPopAnimation = async (cur?: Element | null, prev?: Element | null) => {
+  const prevAnim = prev?.animate([{ transform: `translateX(0)` }, { transform: `translateX(-30%)` }], { duration: 300, easing: 'ease', direction: 'reverse' })
+  const curAnim = cur?.animate([{ transform: `translateX(100%)` }, { transform: `translateX(0)` }], { duration: 300, easing: 'ease', direction: 'reverse' })
+  await Promise.all([prevAnim?.finished, curAnim?.finished])
+}
+
+const popHandler = async (delta: number) => {
+  if (!disableAnim.value) {
+    const toEl = el.value?.querySelector<HTMLElement>('.route-history-item.previous')
+    const fromEl = el.value?.querySelector<HTMLElement>('.route-history-item.current')
+    const to = history.value[history.value.length + delta - 1]
+    const from = history.value[history.value.length + delta]
+    const cur = components.value?.[history.value.length + delta]
+    if (typeof cur?.pop === 'function') {
+      await cur.pop(to, from, toEl, fromEl)
+    } else {
+      await runPopAnimation(fromEl, toEl);
+    }
+  }
+  history.value = [...history.value.slice(0, history.value.length + delta)]
+}
+
+const pushHandler = async (to: RouteLocation, from: RouteLocation) => {
   console.log('need', needAppendHistory(to))
   // 暂时先不考虑多层级的嵌套路由
   history.value = [...history.value, to]
+  if (disableAnim.value) return;
+  await nextTick()
+  const fromEl = el.value?.querySelector<HTMLElement>('.route-history-item.previous')
+  const toEl = el.value?.querySelector<HTMLElement>('.route-history-item.current')
+  const curRouteComp = components.value?.[history.value.length - 1]
+  if (typeof curRouteComp?.push === 'function') {
+    curRouteComp.push(to, from, toEl, fromEl)
+    return;
+  }
+  runPushAnimation(toEl, fromEl);
 }
 
 const replaceHandler = (to: RouteLocation) => {
@@ -102,31 +143,16 @@ onBeforeUnmount(() => {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background: var(--bg-color);
-    transition: transform 0.3s;
     visibility: hidden;
     &.previous, &.current {
       visibility: visible;
     }
     &.previous {
-      transform: translateX(-30%);
       z-index: 1;
     }
     &.current {
       z-index: 2;
     }
   }
-}
-.slide-to-next-enter-from,
-.slide-to-next-enter-to {
-  transform: translateX(100%);
-}
-.slide-to-next-enter-active,
-.slide-to-next-leave-active {
-  transition: transform 0.3s;
-}
-.slide-to-next-enter-to,
-.slide-to-next-leave-from {
-  transform: translateX(0);
 }
 </style>

@@ -71,7 +71,6 @@ import { localBookService } from '@/services/LocalBookService';
 import { appRouter as router }  from '@/router';
 import { booksStore, readingStateStore } from '@/services/storage';
 import { useRoute } from 'vue-router';
-import { setAnimData, animData } from '@/stores/bookAnim';
 import { longtap as vLongtap } from '@/directives/click';
 import { preferences } from '@/stores/preferences';
 import { download, importFile } from '@/services/ImportService';
@@ -112,12 +111,7 @@ const deleteSelected = async () => {
 }
 
 const visibleList = computed(() => {
-  let list = bookList.value.map(item => {
-    return {
-      ...item,
-      reading: !!item.localBookId && String(item.trace) === String(animData.value.trace)
-    }
-  })
+  let list = bookList.value
   if (category.value === 'imported') {
     list = list.filter(item => !item.onlineBookId)
   } else if (category.value === 'downloaded') {
@@ -189,7 +183,7 @@ const refresh = async (options?: { cacheFirst: boolean }) => {
     const localBook = localBooks.find((book) => String(book.onlineBookId) === String(item.id))
     return {
       ...item,
-      trace: `${route.path}_${item.id}`,
+      trace: `home_${item.id}`,
       reading: false,
       downloaded: !!localBook,
       localBookId: localBook?.id,
@@ -204,7 +198,7 @@ const refresh = async (options?: { cacheFirst: boolean }) => {
   }).map((item) => {
     return {
       ...item,
-      trace: `${route.path}_${item.id}`,
+      trace: `home_${item.id}`,
       reading: false,
       downloaded: true,
       localBookId: item.id,
@@ -243,10 +237,10 @@ const downloadItem = async (item: IBookItem) => {
 
 const onTap = async (book: IBookItem) => {
   if (book.downloaded) {
-    setAnimData({ cover: book.cover, title: book.title, trace: book.trace! })
     router.push({
       name: 'read',
-      params: { id: book.localBookId }
+      params: { id: book.localBookId },
+      query: { trace: book.trace }
     })
     return;
   }

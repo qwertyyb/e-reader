@@ -73,7 +73,7 @@ import { localBookService as dataService } from '@/services/LocalBookService';
 import { showToast } from '@/utils';
 import { readingStateStore, readTimeStore } from '@/services/storage';
 import BookAnimation from '@/components/BookAnimation.vue';
-import { onBeforeRouteLeave } from 'vue-router';
+import { type RouteLocation } from 'vue-router';
 import ChapterContents from '@/components/ChapterContents.vue';
 import HorizationalChapterContents from '@/components/HorizationalChapterContents.vue';
 import ChapterListVue from '@/components/ChapterList.vue';
@@ -215,10 +215,22 @@ onBeforeUnmount(() => {
   readingTime?.destroy()
 })
 
-onBeforeRouteLeave((to, from, next) => {
-  controlWrapperRef.value?.closeDialog()
-  animRef.value?.closeBook()
-  next()
+defineExpose({
+  pop: async (to: RouteLocation, from?: RouteLocation, toEl?: HTMLElement | null) => {
+    if (to.name === 'home' && from?.query.trace) {
+      const target = toEl?.querySelector(`[data-book-trace=${JSON.stringify(from.query.trace)}]`)
+      controlWrapperRef.value?.closeDialog()
+      await animRef.value?.closeBook(target?.querySelector('img.book-cover-img'))
+      target?.classList.remove('is-reading')
+    }
+  },
+  push: (to: RouteLocation, from: RouteLocation, toEl: HTMLElement, fromEl: HTMLElement) => {
+    if (to.query.trace) {
+      const book = fromEl.querySelector(`[data-book-trace=${JSON.stringify(to.query.trace)}]`)
+      book?.classList.add('is-reading')
+      animRef.value?.openBook(book?.querySelector('img.book-cover-img'))
+    }
+  }
 })
 </script>
 

@@ -33,3 +33,9 @@ onBeforeUnmount(() => {
   hammer = null
 })
 </script>
+
+<style lang="scss" scoped>
+.slide-back {
+  background: var(--bg-color);
+}
+</style>

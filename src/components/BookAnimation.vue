@@ -13,12 +13,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { animData, setWait } from '@/stores/bookAnim';
+import { computed, ref, shallowRef } from 'vue';
 import { disableAnim } from '@/utils/env';
 import { useRoute } from 'vue-router';
 
 const route = useRoute()
+
+const animData = shallowRef({ cover: '', title: '' })
 
 const noAnim = computed(() => {
   return disableAnim.value || route.query.noAnim
@@ -32,8 +33,8 @@ const centerSize = Math.min(COVER_SIZE * 2, Math.min(window.innerWidth, window.i
 const centerScale = Math.min(2, centerSize / window.innerWidth)
 const offsetY = window.innerHeight / 2 - window.innerWidth / 3 * 4 / 2
 
-const getOriginalRect = () => {
-  return document.querySelector(`[data-book-trace=${JSON.stringify(animData.value.trace)}] .book-cover img`)?.getBoundingClientRect() || {
+const getOriginalRect = (origin?: HTMLElement | null) => {
+  return origin?.getBoundingClientRect() || {
     top: (window.innerHeight - COVER_SIZE / 3 * 4) / 2,
     left: (window.innerWidth - COVER_SIZE) / 2,
     width: COVER_SIZE,
@@ -41,8 +42,8 @@ const getOriginalRect = () => {
   }
 }
 
-const calcToRectTransform = () => {
-  const { top, left, width, height } = getOriginalRect()
+const calcToRectTransform = (origin?: HTMLElement | null) => {
+  const { top, left, width, height } = getOriginalRect(origin)
   const offsetX = left + width / 2 - window.innerWidth / 2
   const offsetY = top + height / 2 - window.innerWidth / 3 * 4 / 2
   const scale = width / window.innerWidth;
@@ -51,6 +52,7 @@ const calcToRectTransform = () => {
 
 const runBookAnimation = async (options: {
   direction: 'normal' | 'reverse',
+  origin?: HTMLElement | null
 }) => {
   const mask = document.querySelector('.book-animation')
   const bookEl = document.querySelector('.book-animation > .book-anim')
@@ -60,7 +62,7 @@ const runBookAnimation = async (options: {
   const anim1 = async () => {
     await Promise.all([
       bookEl.animate([
-        { transform: calcToRectTransform() },
+        { transform: calcToRectTransform(options.origin) },
         { transform: `scale(${centerScale}) translate(0, ${offsetY / centerScale}px)` }
       ], { easing: 'ease-in', duration: 600, fill: 'both', direction: options.direction }).finished,
       // 背景渐入
@@ -104,36 +106,28 @@ const runBookAnimation = async (options: {
   }
 }
 
-const { promise: waitOpen, resolve: openDone } = Promise.withResolvers<void>()
-const { promise: waitClose, resolve: closeDone } = Promise.withResolvers<void>()
 
-const openBook = async () => {
+const openBook = async (from?: HTMLImageElement | null) => {
+  animData.value = {
+    cover: from?.src || '',
+    title: from?.title || from?.alt || ''
+  }
   if (noAnim.value) {
-    openDone()
     return
   }
   direction.value = 'normal'
-  await runBookAnimation({ direction: 'normal' })
+  await runBookAnimation({ direction: 'normal', origin: from })
   direction.value = 'none'
-  openDone()
 }
 
-const closeBook = async () => {
+const closeBook = async (to?: HTMLElement | null) => {
   if (noAnim.value) {
-    closeDone()
     return
   }
   direction.value = 'reverse'
-  await runBookAnimation({ direction: 'reverse' })
+  await runBookAnimation({ direction: 'reverse', origin: to })
   direction.value = 'none'
-  closeDone()
 }
-
-setWait({ waitOpen, waitClose })
-
-onMounted(() => {
-  openBook()
-})
 
 defineExpose({
   openBook,

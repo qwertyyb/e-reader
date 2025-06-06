@@ -1,9 +1,6 @@
 <template>
   <div class="book-item"
-    :class="{
-      'is-reading': book.reading,
-      'downloaded': book.downloaded,
-    }"
+    :class="{ 'downloaded': book.downloaded }"
     :data-book-id="book.id"
     :data-book-trace="book.trace">
     <div class="book-cover" @click="onTap">
