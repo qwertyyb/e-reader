@@ -1,7 +1,6 @@
 <template>
   <div class="c-router-view" ref="el">
     <ul class="route-history-list"
-      v-if="history.length"
       @pointerdown="pointerDownHandler"
       @pointermove="pointerMoveHandler"
       @pointerup="pointerUpHandler"
@@ -17,7 +16,7 @@
       >
         <component
           ref="components"
-          v-for="matched in route.matched.slice(parentRouteMatchedIndex + 1).filter(i => i.components?.default).slice(0, 1)"
+          v-for="matched in route.matched.filter(i => i.components?.default).slice(0, 1)"
           :key="matched.path"
           :is="matched.components?.default"
           v-bind="route.params"
@@ -28,9 +27,9 @@
 </template>
 
 <script setup lang="ts">
-import router, { appRouter, routerViewSymbol } from '@/router';
+import router, { appRouter } from '@/router';
 import { disableAnim } from '@/utils/env';
-import { computed, type ComputedRef, inject, nextTick, onBeforeUnmount, provide, shallowRef, useTemplateRef } from 'vue';
+import { nextTick, onBeforeUnmount, shallowRef, useTemplateRef } from 'vue';
 import type { RouteLocation } from 'vue-router';
 
 const el = useTemplateRef('el')
@@ -40,38 +39,6 @@ const components = useTemplateRef<{
 }[]>('components')
 
 const history = shallowRef<RouteLocation[]>([])
-
-const parentRouteMatchedIndex = inject<ComputedRef<number>>(routerViewSymbol, computed(() => -1))
-
-const lastRouteMatchedIndex = computed(() => {
-  const route = history.value[history.value.length - 1]
-  if (!route) return -1;
-  return route.matched.findIndex(i => !!i.components?.default)
-})
-
-provide(routerViewSymbol, lastRouteMatchedIndex)
-
-const getCommonMatched = (prev: RouteLocation, next: RouteLocation) => {
-  for(let i = 0; i < prev.matched.length; i += 1) {
-    if (prev.matched[i].path !== next.matched[i]?.path) {
-      return prev.matched.slice(0, i)
-    }
-  }
-  return prev.matched.slice(0)
-}
-
-const needAppendHistory = (to: RouteLocation) => {
-  // push history 有两种情况
-  // 1. 当前路由是嵌套的路由，要跳转的路由是嵌套路由的子路由
-  // 2. 当前路由不是嵌套路由，要跳转的路由与最后一个路由无法共用 parent，即不是嵌套路由
-  if (!history.value.length) return true
-  if (parentRouteMatchedIndex.value >= 0) {
-    return history.value[0].matched.slice(0, parentRouteMatchedIndex.value + 1).every((item, index) => item.path === to.matched[index].path)
-  }
-  const last = history.value[history.value.length - 1]
-  const commonMatched = getCommonMatched(last, to)
-  return !commonMatched.some(item => item.components?.default)
-}
 
 const runDefaultPushAnimation = async (cur?: HTMLElement | null, prev?: HTMLElement | null) => {
   const prevAnim = prev?.animate([{ transform: `translateX(0)` }, { transform: `translateX(-30%)` }], { duration: 200, easing: 'ease-out' })
@@ -124,7 +91,6 @@ const popHandler = async (delta: number) => {
 }
 
 const pushHandler = async (to: RouteLocation, from?: RouteLocation) => {
-  console.log('need', needAppendHistory(to))
   // 暂时先不考虑多层级的嵌套路由
   history.value = [...history.value, to]
   if (disableAnim.value) return;

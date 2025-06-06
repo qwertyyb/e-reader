@@ -1,21 +1,12 @@
 import { createMemoryHistory, createRouter, type RouteLocation, type Router, type RouterHistory } from 'vue-router'
 import ReadView from '@/views/ReadView.vue'
 import PreferencesView from '@/views/PreferencesView.vue'
-import { ref, type Ref } from 'vue'
 import AboutView from '@/views/AboutView.vue'
 import AdvancedPrfsView from '@/views/AdvancedPrfsView.vue'
 import HomeView from '@/views/HomeView.vue'
 
-export const transitionName = ref('')
-
-const createAppHistory = (options: {
-  base?: string,
-  transitionName: Ref<string>
-  defaultPushTransitionName: string
-  defaultPopTransitionName: string
-  ignoreLocations: RegExp[]
-}): RouterHistory => {
-  const mh = createMemoryHistory(options.base)
+const createAppHistory = (base?: string): RouterHistory => {
+  const mh = createMemoryHistory(base)
 
   const defaultPath = location.hash.replace('#', '') || '/'
   if (defaultPath !== '/') {
@@ -30,57 +21,27 @@ const createAppHistory = (options: {
   }
 
   return {
-    base: mh.base,
-    location: mh.location,
-    state: mh.state,
-    destroy() {
-      mh.destroy()
-    },
+    ...mh,
     push(to, data) {
-      if (options.ignoreLocations.some(reg => reg.test(to))) {
-        // 跳转去阅读界面的动画是自定义的，所以无须使用这里的过渡
-        options.transitionName.value = ''
-      } else {
-        options.transitionName.value = options.defaultPushTransitionName
-      }
       const result = mh.push(to, data)
       replaceHash(mh.location)
       return result
     },
     replace(to, data) {
-      options.transitionName.value = ''
       const result = mh.replace(to, data)
       replaceHash(mh.location)
       return result
     },
     go(delta, triggerListeners) {
-      if (options.ignoreLocations.some(reg => reg.test(mh.location))) {
-        // 从阅读界面退出的动画是自定义的，无须使用这里的过渡
-        options.transitionName.value = ''
-      } else {
-        options.transitionName.value = delta > 0 ? options.defaultPushTransitionName : options.defaultPopTransitionName
-      }
       const result = mh.go(delta, triggerListeners)
       replaceHash(mh.location)
       return result
-    },
-    createHref(location) {
-      return mh.createHref(location)
-    },
-    listen(cb) {
-      return mh.listen(cb)
     },
   }
 }
 
 const router = createRouter({
-  history: createAppHistory({
-    base: import.meta.env.BASE_URL,
-    transitionName: transitionName,
-    defaultPushTransitionName: 'tab-slide-next',
-    defaultPopTransitionName: 'tab-slide-prev',
-    ignoreLocations: [/^\/read\/\d+/]
-  }),
+  history: createAppHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
@@ -261,5 +222,3 @@ const createAppRouter = (router: Router): Router & {
 }
 
 export const appRouter = createAppRouter(router)
-
-export const routerViewSymbol = Symbol('c-router-view')

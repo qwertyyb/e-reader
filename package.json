@@ -16,7 +16,6 @@
     "@types/markdown-it": "^14.1.2",
     "@zip.js/zip.js": "^2.7.60",
     "@zumer/snapdom": "^1.2.2",
-    "core-js": "^3.42.0",
     "element-plus": "^2.9.8",
     "fast-xml-parser": "^5.2.3",
     "fflate": "^0.8.2",
