@@ -125,6 +125,8 @@ export const initMoreContrast = createFeatureInitializer({
 
 export const initEruda = () => {
   if (getDebugOption('showConsole') && !window.erudaInited) {
+    // 把之前记录的位置清掉，防止挪到了无法移动的位置
+    localStorage.removeItem('eruda-entry-button')
     window.eruda.init()
     window.erudaInited = true
   }
