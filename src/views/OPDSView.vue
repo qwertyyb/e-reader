@@ -79,7 +79,7 @@ import OPDSEntryDialog from '@/components/OPDSEntryDialog.vue';
 import { FeedType, fetchFeed, getSearchUrl, getUrlByRel, getUrlByType, LinkRel, getEntryImage, formatDate, type IContentEntry, type IEntry, type IFeed, getLinksByRel } from '@/services/opds';
 import { preferences } from '@/stores/preferences';
 import { showToast } from '@/utils';
-import { computed, nextTick, onActivated, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { booksStore } from '@/services/storage';
 
@@ -146,7 +146,7 @@ const init = async () => {
   fetchFeedWithError(route.query.url as string | undefined ? route.query.url as string : preferences.value.opdsServerUrl)
 }
 
-onActivated(init)
+init()
 
 const loading = ref(false)
 let completed = false

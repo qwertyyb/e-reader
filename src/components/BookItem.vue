@@ -1,10 +1,9 @@
 <template>
   <div class="book-item"
     :class="{ 'downloaded': book.downloaded }"
-    :data-book-id="book.id"
-    :data-book-trace="book.trace">
+    :data-book-id="book.id">
     <div class="book-cover" @click="onTap">
-      <img class="book-cover-img" :src="book.cover" :alt="book.title" />
+      <img class="book-cover-img" :src="book.cover" :alt="book.title" :data-book-cover-trace="book.trace" />
       <div class="download-progress-percent" v-if="typeof progress !== 'undefined'">
         <div class="download-label">下载中</div>
         <div class="download-progress">{{ progress }}%</div>

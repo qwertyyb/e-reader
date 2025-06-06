@@ -67,14 +67,14 @@ const needAppendHistory = (to: RouteLocation) => {
 }
 
 const runPushAnimation = async (cur?: Element | null, prev?: Element | null) => {
-  const prevAnim = prev?.animate([{ transform: `translateX(0)` }, { transform: `translateX(-30%)` }], { duration: 300, easing: 'ease' })
-  const curAnim = cur?.animate([{ transform: `translateX(100%)` }, { transform: `translateX(0)` }], { duration: 300, easing: 'ease' })
+  const prevAnim = prev?.animate([{ transform: `translateX(0)` }, { transform: `translateX(-30%)` }], { duration: 200, easing: 'ease-out' })
+  const curAnim = cur?.animate([{ transform: `translateX(100%)` }, { transform: `translateX(0)` }], { duration: 200, easing: 'ease-out' })
   await Promise.all([prevAnim?.finished, curAnim?.finished])
 }
 
 const runPopAnimation = async (cur?: Element | null, prev?: Element | null) => {
-  const prevAnim = prev?.animate([{ transform: `translateX(0)` }, { transform: `translateX(-30%)` }], { duration: 300, easing: 'ease', direction: 'reverse' })
-  const curAnim = cur?.animate([{ transform: `translateX(100%)` }, { transform: `translateX(0)` }], { duration: 300, easing: 'ease', direction: 'reverse' })
+  const prevAnim = prev?.animate([{ transform: `translateX(0)` }, { transform: `translateX(-30%)` }], { duration: 200, easing: 'ease-in', direction: 'reverse' })
+  const curAnim = cur?.animate([{ transform: `translateX(100%)` }, { transform: `translateX(0)` }], { duration: 200, easing: 'ease-in', direction: 'reverse' })
   await Promise.all([prevAnim?.finished, curAnim?.finished])
 }
 
@@ -92,6 +92,10 @@ const popHandler = async (delta: number) => {
     }
   }
   history.value = [...history.value.slice(0, history.value.length + delta)]
+  if (!history.value.length) {
+    // 无法后退时，回到主页
+    history.value = [appRouter.resolve({ path: '/' })]
+  }
 }
 
 const pushHandler = async (to: RouteLocation, from: RouteLocation) => {

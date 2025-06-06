@@ -1,6 +1,14 @@
 <template>
   <slide-back class="read-time-view">
     <navigation-bar no-menu title="阅读明细"></navigation-bar>
+    <header class="read-time-header" v-if="book">
+      <img :src="book.cover" alt="" class="book-cover-img" :data-book-cover-trace="book.id">
+      <div class="book-info">
+        <h2 class="book-title">{{ book.title }}</h2>
+        <p class="book-author">{{ book.author }}</p>
+        <button class="btn primary-btn read-btn" @click="$router.push({ name: 'read', params: { id: book.id }, query: { trace: book.id } })">现在阅读</button>
+      </div>
+    </header>
     <main class="read-time-main">
       <ul class="summary-list">
         <li class="summary-item" v-for="summary in summaryList" :key="summary.title">
@@ -34,7 +42,7 @@
 import SlideBack from '@/components/SlideBack.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import { shallowRef } from 'vue';
-import { readTimeStore } from '@/services/storage';
+import { booksStore, readTimeStore } from '@/services/storage';
 import { formatDuration } from '@/utils';
 
 const props = defineProps<{ id: string }>()
@@ -46,14 +54,12 @@ interface ITimeItem {
 
 const minPercent = 30
 
-const summaryList = shallowRef<{ title: string, text: string, desc: string }[]>([
-  { title: '累计时长', text: '<span class="big-text">53</span>小时<span class="big-text">18</span>分钟', desc: '2020年5月18日开始阅读'},
-  { title: '阅读天数', text: '<span class="big-text">6</span>天', desc: '上次阅读'},
-  { title: '想法笔记', text: '<span class="big-text">6</span>条', desc: '2020年5月18日开始阅读'},
-  { title: '单日阅读最久', text: '<span class="big-text">6</span>分钟', desc: '2020年5月18日'}
-])
+const summaryList = shallowRef<{ title: string, text: string, desc: string }[]>([])
 
 const timeList = shallowRef<ITimeItem[]>([])
+const book = shallowRef<IBook>()
+
+booksStore.get(Number(props.id)).then(result => book.value = result)
 
 const refreshTimeList = async () => {
   const list = await readTimeStore.getListByBookId(props.id)
@@ -95,7 +101,6 @@ const refreshTimeList = async () => {
     { title: '累计时长', text: '<span class="big-text">' + formatDuration(durationTotal) + '</span>', desc: `${firstDay.date}开始阅读` },
     { title: '阅读天数', text: '<span class="big-text">' + list.length + '</span>天', desc: `上次阅读${lastDay.date}` },
     { title: '单日阅读最久', text: '<span class="big-text">' + formatDuration(maxDay!.duration) + '</span>', desc: maxDay!.date },
- 
   ]
 }
 
@@ -112,6 +117,36 @@ refresh()
   height: var(--page-height);
   display: flex;
   flex-direction: column;
+}
+.read-time-header {
+  display: flex;
+  margin: 16px 16px 0 16px;
+  padding: 16px;
+  background: var(--card-bg-color);
+  border-radius: 6px;
+  .book-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .book-title {
+    font-size: 20px;
+  }
+  .book-author {
+    font-size: 14px;
+    opacity: 0.7;
+    margin-top: 12px;
+  }
+  .read-btn {
+    margin-left: auto;
+    margin-top: 12px;
+  }
+  .book-cover-img {
+    width: 90px;
+    height: 120px;
+    margin-right: 16px;
+    vertical-align: top;
+  }
 }
 .read-time-main {
   margin: 16px;

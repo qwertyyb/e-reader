@@ -217,18 +217,20 @@ onBeforeUnmount(() => {
 
 defineExpose({
   pop: async (to: RouteLocation, from?: RouteLocation, toEl?: HTMLElement | null) => {
-    if (to.name === 'home' && from?.query.trace) {
-      const target = toEl?.querySelector(`[data-book-trace=${JSON.stringify(from.query.trace)}]`)
+    if (from?.query.trace) {
+      const cover = toEl?.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(from.query.trace)}]`)
       controlWrapperRef.value?.closeDialog()
-      await animRef.value?.closeBook(target?.querySelector('img.book-cover-img'))
-      target?.classList.remove('is-reading')
+      await animRef.value?.closeBook(cover)
+      cover?.classList.remove('is-reading')
+      cover?.style.removeProperty('opacity')
     }
   },
   push: (to: RouteLocation, from: RouteLocation, toEl: HTMLElement, fromEl: HTMLElement) => {
     if (to.query.trace) {
-      const book = fromEl.querySelector(`[data-book-trace=${JSON.stringify(to.query.trace)}]`)
-      book?.classList.add('is-reading')
-      animRef.value?.openBook(book?.querySelector('img.book-cover-img'))
+      const cover = fromEl.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(to.query.trace)}]`)
+      cover?.classList.add('is-reading')
+      cover?.style.setProperty('opacity', '0')
+      animRef.value?.openBook(cover)
     }
   }
 })
