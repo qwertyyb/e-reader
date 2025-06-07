@@ -300,16 +300,6 @@ const download = async () => {
     }
   }
 }
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(60%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 .book-share-image {
   width: 100%;
   height: auto;
