@@ -1,55 +1,59 @@
 <template>
   <route-page class="read-time-view">
     <navigation-bar no-menu title="阅读明细"></navigation-bar>
-    <header class="read-time-header" v-if="book">
-      <img :src="book.cover" alt=""
-        class="book-cover-img"
-        :data-book-cover-trace="book.id"
-        @click="$router.push({ name: 'read', params: { id: book.id }, query: { trace: book.id } })"
-      >
-      <div class="book-info">
-        <h2 class="book-title">{{ book.title }}</h2>
-        <p class="book-author">{{ book.author }}</p>
-        <button class="btn primary-btn read-btn"
-          @click="$router.push({ name: 'read', params: { id: book.id }, query: { trace: book.id } })"
-        >现在阅读</button>
-      </div>
-    </header>
-    <main class="read-time-main">
-      <ul class="summary-list">
-        <li class="summary-item" v-for="summary in summaryList" :key="summary.title">
-          <h3 class="summary-title">{{ summary.title }}</h3>
-          <div class="summary-text" v-html="summary.text"></div>
-          <div class="summary-detail">{{ summary.desc }}</div>
-        </li>
-      </ul>
-      <ul class="group-list">
-        <li class="group-item" v-for="(item, index) in timeList" :key="index">
-          <h4 class="group-title" v-if="timeList.length > 1">{{ item.title }}</h4>
-          <ul class="group-time-list">
-            <li class="group-time-item" v-for="time in item.list" :key="time.title">
-              <div class="group-time-value-progress" :style="{width: time.width}">
-                <span class="group-time-title">{{ time.title }}</span>
-                <span class="group-time-value">{{ time.value }}</span>
-              </div>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </main>
-    <footer class="read-time-footer">
-      <button class="btn text-btn">点评此书</button>
-      <button class="btn primary-btn">分享阅读成就</button>
-    </footer>
+    <div class="read-time-content">
+      <header class="read-time-header" v-if="book">
+        <img :src="book.cover" alt=""
+          class="book-cover-img"
+          :data-book-cover-trace="book.id"
+          @click="toRead"
+        >
+        <div class="book-info">
+          <h2 class="book-title">{{ book.title }}</h2>
+          <p class="book-author">{{ book.author }}</p>
+          <button class="btn primary-btn read-btn"
+            @click="toRead"
+          >现在阅读</button>
+        </div>
+      </header>
+      <main class="read-time-main">
+        <ul class="summary-list">
+          <li class="summary-item" v-for="summary in summaryList" :key="summary.title">
+            <h3 class="summary-title">{{ summary.title }}</h3>
+            <div class="summary-text" v-html="summary.text"></div>
+            <div class="summary-detail">{{ summary.desc }}</div>
+          </li>
+        </ul>
+        <ul class="group-list">
+          <li class="group-item" v-for="(item, index) in timeList" :key="index">
+            <h4 class="group-title" v-if="timeList.length > 1">{{ item.title }}</h4>
+            <ul class="group-time-list">
+              <li class="group-time-item" v-for="time in item.list" :key="time.title">
+                <div class="group-time-value-progress" :style="{width: time.width}">
+                  <span class="group-time-title">{{ time.title }}</span>
+                  <span class="group-time-value">{{ time.value }}</span>
+                </div>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </main>
+      <footer class="read-time-footer">
+        <button class="btn primary-btn" @click="dialog='share'">分享阅读成就</button>
+      </footer>
+    </div>
+    <book-share-dialog mode="book" :book-id="id" :visible="dialog === 'share'" @close="dialog = ''"></book-share-dialog>
   </route-page>
 </template>
 
 <script setup lang="ts">
 import RoutePage from '@/components/RoutePage.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
+import BookShareDialog from '@/components/BookShareDialog.vue';
 import { shallowRef } from 'vue';
 import { booksStore, readTimeStore } from '@/services/storage';
 import { formatDuration } from '@/utils';
+import { useRoute, useRouter } from 'vue-router';
 
 const props = defineProps<{ id: string }>()
 
@@ -64,6 +68,7 @@ const summaryList = shallowRef<{ title: string, text: string, desc: string }[]>(
 
 const timeList = shallowRef<ITimeItem[]>([])
 const book = shallowRef<IBook>()
+const dialog = shallowRef('')
 
 booksStore.get(Number(props.id)).then(result => book.value = result)
 
@@ -116,6 +121,17 @@ const refresh = async () => {
 
 refresh()
 
+const route = useRoute()
+const router = useRouter()
+const toRead = () => {
+  // 如果是从阅读界面跳过来的，则返回上一页
+  if (route.query.fromRead === '1') {
+    router.back()
+  } else {
+    router.push({ name: 'read', params: { id: book.value!.id }, query: { trace: book.value!.id } })
+  }
+}
+
 </script>
 
 <style lang="scss" scoped>
@@ -123,6 +139,12 @@ refresh()
   height: var(--page-height);
   display: flex;
   flex-direction: column;
+}
+.read-time-content {
+  flex: 1;
+  height: 0;
+  overflow: auto;
+  padding-bottom: max(var(--saib), 24px);
 }
 .read-time-header {
   display: flex;

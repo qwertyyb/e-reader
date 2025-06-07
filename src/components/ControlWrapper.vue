@@ -22,7 +22,7 @@
       :visible="dialog==='bookMenu'"
       :book-id="bookId"
       @close="dialog=null"
-      @action="dialog=$event;dialogProps=null"
+      @action="openShareDialog"
     >
     </book-menu-dialog>
 
@@ -110,7 +110,7 @@ import { settings } from '@/stores/settings';
 import type { GetNextElement } from '@/actions/read-speak';
 import { disableAnim } from '@/utils/env';
 
-defineProps<{
+const props = defineProps<{
   bookId: number
   chapterId: string,
   title?: string,
@@ -129,7 +129,8 @@ const AIChatView = defineAsyncComponent(() => import('@/views/AIChatView.vue'))
 const panelVisible = ref(false)
 const readControlRef = useTemplateRef('read-control')
 const dialog = ref<string | null>()
-const dialogProps = ref<{ text: string, chapterId: string, chapterIndex: number } | null>(null)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const dialogProps = ref<any>(null)
 const selectMenuShowed = ref(false)
 
 const contentRef = useTemplateRef('content')
@@ -143,7 +144,15 @@ const refreshMarks = () => {
 }
 
 const shareTextHandler = (mark: { text: string, chapterId: string, chapterIndex: number }) => {
-  dialogProps.value = { text: mark.text, chapterId: mark.chapterId, chapterIndex: mark.chapterIndex }
+  dialogProps.value = {
+    mode: 'text', bookId: props.bookId,
+    text: mark.text, chapterId: mark.chapterId, chapterIndex: mark.chapterIndex
+  }
+  dialog.value = 'share'
+}
+
+const openShareDialog = () => {
+  dialogProps.value = { mode: 'book', bookId: props.bookId }
   dialog.value = 'share'
 }
 
