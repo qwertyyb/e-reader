@@ -35,8 +35,10 @@ import type { RouteLocation } from 'vue-router';
 
 const el = useTemplateRef('el')
 const components = useTemplateRef<{
-  pop?: (to: RouteLocation, from: RouteLocation, toEl?: HTMLElement | null, fromEl?: HTMLElement | null) => void | Promise<void>,
-  push?: (to: RouteLocation, from?: RouteLocation, toEl?: HTMLElement | null, fromEl?: HTMLElement | null) => void | Promise<void>
+  onBackFrom?: (to: RouteLocation, from: RouteLocation, toEl?: HTMLElement | null, fromEl?: HTMLElement | null) => void | Promise<void>,
+  onForwardTo?: (to: RouteLocation, from?: RouteLocation, toEl?: HTMLElement | null, fromEl?: HTMLElement | null) => void | Promise<void>,
+  onBackTo?: (to: RouteLocation, from: RouteLocation, toEl?: HTMLElement | null, fromEl?: HTMLElement | null) => void | Promise<void>,
+  onForwardFrom?: (to: RouteLocation, from: RouteLocation, toEl?: HTMLElement | null, fromEl?: HTMLElement | null) => void | Promise<void>,
 }[]>('components')
 
 const history = shallowRef<RouteLocation[]>([])
@@ -72,19 +74,22 @@ const runDefaultPopAnimation = async (cur?: HTMLElement | null, prev?: HTMLEleme
 }
 
 const popHandler = async (delta: number) => {
-  if (!disableAnim.value) {
-    const toEl = el.value?.querySelector<HTMLElement>('.route-history-item.previous')
-    const fromEl = el.value?.querySelector<HTMLElement>('.route-history-item.current')
-    const to = history.value[history.value.length + delta - 1]
-    const from = history.value[history.value.length + delta]
-    const cur = components.value?.[history.value.length + delta]
-    if (typeof cur?.pop === 'function') {
-      await cur.pop(to, from, toEl, fromEl)
-    } else {
-      await runDefaultPopAnimation(fromEl, toEl);
-    }
+  const toEl = el.value?.querySelector<HTMLElement>('.route-history-item.previous')
+  const fromEl = el.value?.querySelector<HTMLElement>('.route-history-item.current')
+  const to = history.value[history.value.length + delta - 1]
+  const from = history.value[history.value.length + delta]
+  const prev = components.value?.[history.value.length + delta - 1]
+  const cur = components.value?.[history.value.length + delta]
+  if (typeof cur?.onBackFrom === 'function') {
+    await cur.onBackFrom(to, from, toEl, fromEl)
+  } else if (!disableAnim.value) {
+    console.log('back', disableAnim.value)
+    await runDefaultPopAnimation(fromEl, toEl);
   }
   history.value = [...history.value.slice(0, history.value.length + delta)]
+  if (typeof prev?.onBackTo === 'function') {
+    prev.onBackTo(to, from, toEl, fromEl)
+  }
   if (!history.value.length) {
     // 无法后退时，回到主页
     history.value = [appRouter.resolve({ path: '/' })]
@@ -94,15 +99,20 @@ const popHandler = async (delta: number) => {
 const pushHandler = async (to: RouteLocation, from?: RouteLocation) => {
   // 暂时先不考虑多层级的嵌套路由
   history.value = [...history.value, to]
-  if (disableAnim.value) return;
   await nextTick()
   const fromEl = el.value?.querySelector<HTMLElement>('.route-history-item.previous')
   const toEl = el.value?.querySelector<HTMLElement>('.route-history-item.current')
+  const prevRouteComp = components.value?.[history.value.length - 2]
   const curRouteComp = components.value?.[history.value.length - 1]
-  if (typeof curRouteComp?.push === 'function') {
-    curRouteComp.push(to, from, toEl, fromEl)
+  if (typeof prevRouteComp?.onForwardFrom === 'function') {
+    prevRouteComp.onForwardFrom(to, from!, toEl, fromEl)
+  }
+
+  if (typeof curRouteComp?.onForwardTo === 'function') {
+    curRouteComp.onForwardTo(to, from, toEl, fromEl)
     return;
   }
+  if (disableAnim.value) return;
   runDefaultPushAnimation(toEl, fromEl);
 }
 
@@ -131,7 +141,7 @@ let startTime = 0
 let needPreventTouchMove: boolean | null = null
 const pointerDownHandler = (e: PointerEvent) => {
   // 如果当前页面已经是最后一个路由，或者当前页面的有自定义的 pop 方法，则不执行默认的回退手势
-  if ((components.value?.length ?? 0) < 2 || typeof components.value?.[components.value.length - 1]?.pop === 'function') return;
+  if ((components.value?.length ?? 0) < 2 || typeof components.value?.[components.value.length - 1]?.onBackFrom === 'function') return;
   // 记录手势的初始位置，有两个作用，1. 用以判断是否是纵向滑动，2. 计算横向滑动的距离
   startX = e.screenX
   startY = e.screenY
@@ -186,6 +196,7 @@ const pointerMoveHandler = (e: PointerEvent) => {
 
 // 手势结束时，如果无须 pop 当前路由，则需要调用此方法，恢复手势过程中写入的样式
 const resetViewStyle = async () => {
+  console.log('rrrr')
   const current = el.value?.querySelector<HTMLElement>('.route-history-item.current')
   const previous = el.value?.querySelector<HTMLElement>('.route-history-item.previous')
   await Promise.all([
@@ -198,7 +209,7 @@ const resetViewStyle = async () => {
 }
 
 const pointerUpHandler = async (e: PointerEvent) => {
-  if (!touching || needPreventTouchMove === false) return;
+  if (!touching || needPreventTouchMove !== true) return;
   touching = false
   needPreventTouchMove = null
   const deltaX = e.screenX - startX
@@ -213,7 +224,7 @@ const pointerUpHandler = async (e: PointerEvent) => {
 }
 
 const pointerCancelHandler = async () => {
-  if (!touching || needPreventTouchMove === false) return;
+  if (!touching || needPreventTouchMove !== true) return;
   touching = false
   needPreventTouchMove = null
   resetViewStyle();

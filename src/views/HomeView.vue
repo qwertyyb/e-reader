@@ -1,8 +1,9 @@
 <template>
   <div class="tab-view book-shelf">
     <div class="tab-panel-container">
-      <transition :name="curTab === 'my' ? 'tab-slide-next' : 'tab-slide-prev'">
+      <transition :name="transitionName">
         <shelf-view v-if="curTab === 'shelf'"></shelf-view>
+        <o-p-d-s-view v-else-if="curTab === 'opds'" no-back></o-p-d-s-view>
         <my-view v-else></my-view>
       </transition>
     </div>
@@ -15,8 +16,8 @@
       </li>
       <li class="tab-nav-item pointer"
         v-if="preferences.opdsServerUrl"
-        @click="$router.push({ name: 'opds' })"
-        :class="{selected: $route.name === 'remote'}">
+        @click="curTab = 'opds'"
+        :class="{selected: curTab === 'opds'}">
         <span class="material-symbols-outlined tab-icon">public</span>
         图书馆
       </li>
@@ -33,8 +34,9 @@
 <script setup lang="ts">
 import ShelfView from '@/views/ShelfView.vue';
 import MyView from '@/views/MyView.vue';
+import OPDSView from '@/views/OPDSView.vue';
 import { preferences } from '@/stores/preferences';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import router from '@/router';
 
 const getDefaultTab = () => {
@@ -45,6 +47,15 @@ const getDefaultTab = () => {
   return 'shelf';
 }
 const curTab = ref(getDefaultTab())
+
+const tabNames = ['shelf', 'opds', 'my']
+const transitionName = ref('tab-slide-next')
+
+watch(curTab, (tab, prevTab) => {
+  // 要切换的tab 位于当前 tab 之前，则使用 tab-slide-prev
+  // 否则使用 tab-slide-next
+  transitionName.value = tabNames.indexOf(tab) < tabNames.indexOf(prevTab) ? 'tab-slide-prev' : 'tab-slide-next';
+})
 
 </script>
 

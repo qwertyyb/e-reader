@@ -216,7 +216,7 @@ onBeforeUnmount(() => {
 })
 
 defineExpose({
-  pop: async (to: RouteLocation, from?: RouteLocation, toEl?: HTMLElement | null) => {
+  onBackFrom: async (to: RouteLocation, from?: RouteLocation, toEl?: HTMLElement | null) => {
     if (from?.query.trace) {
       const cover = toEl?.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(from.query.trace)}]`)
       controlWrapperRef.value?.closeDialog()
@@ -225,13 +225,21 @@ defineExpose({
       cover?.style.removeProperty('opacity')
     }
   },
-  push: (to: RouteLocation, from?: RouteLocation, toEl?: HTMLElement, fromEl?: HTMLElement) => {
+  onForwardTo: (to: RouteLocation, from?: RouteLocation, toEl?: HTMLElement, fromEl?: HTMLElement) => {
     if (to.query.trace) {
       const cover = fromEl?.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(to.query.trace)}]`)
       cover?.classList.add('is-reading')
       cover?.style.setProperty('opacity', '0')
       animRef.value?.openBook(cover)
     }
+  },
+  onBackTo() {
+    // 从其它页面 pop 回当前页面时，执行此回调
+    readingTime?.start()
+  },
+  onForwardFrom() {
+    // 从当前页面 push 跳到新的页面时，执行此回调
+    readingTime?.pause()
   }
 })
 </script>

@@ -19,7 +19,7 @@
 
     <transition name="slide-up" :css="!disableAnim">
       <div class="control-panel progress-panel" v-if="visiblePanel === 'progress'">
-        <ul class="read-info">
+        <ul class="read-info" @click="$router.push({ name: 'readTime', params: { id: book!.id } })">
           <li class="read-info-item" v-if="chapterPercent">
             <h4>
               {{ chapterPercent }}

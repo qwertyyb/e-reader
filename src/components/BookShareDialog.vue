@@ -6,15 +6,17 @@
       class="book-share-dialog"
     >
       <div class="share-preview">
-        <div class="share-container reading" v-if="book && !text" ref="share-container">
-          <img :src="book?.cover" alt="" class="book-cover">
-          <div class="book-title">{{ ellipsisText(book?.title || '', 20) }}</div>
-          <div class="book-author" v-if="book?.author">{{ ellipsisText(book?.author || '', 20) }} 著</div>
-          <div class="share-footer">
-            <div class="share-text">我正在读【{{ ellipsisText(chapter?.title || '', 48) }}】</div>
-            <div class="qrcode-wrapper">
-              <img :src="qrcode" alt="" class="share-qrcode">
-              <div class="app-name">E Reader</div>
+        <div class="share-preview-wrapper">
+          <div class="share-container reading" v-if="book && !text" ref="share-container">
+            <img :src="book?.cover" alt="" class="book-cover">
+            <div class="book-title">{{ ellipsisText(book?.title || '', 20) }}</div>
+            <div class="book-author" v-if="book?.author">{{ ellipsisText(book?.author || '', 20) }} 著</div>
+            <div class="share-footer">
+              <div class="share-text">我正在读【{{ ellipsisText(chapter?.title || '', 48) }}】</div>
+              <div class="qrcode-wrapper">
+                <img :src="qrcode" alt="" class="share-qrcode">
+                <div class="app-name">E Reader</div>
+              </div>
             </div>
           </div>
         </div>
@@ -165,6 +167,9 @@ const download = async () => {
     display: none;
   }
 }
+.share-preview-wrapper {
+  opacity: 0;
+}
 .share-container {
   width: 100%;
   height: fit-content;
@@ -295,6 +300,16 @@ const download = async () => {
     }
   }
 }
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(60%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .book-share-image {
   width: 100%;
   height: auto;
@@ -304,6 +319,7 @@ const download = async () => {
   right: 0;
   bottom: 0;
   z-index: 2;
+  animation: fade-in-up 0.6s ease forwards;
 }
 .actions {
   margin-top: 24px;

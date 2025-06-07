@@ -29,6 +29,12 @@ export class ReadingTime extends EventTarget {
     this.checkIsReading()
   }
 
+  pause = () => {
+    if (this.#checkReadingTimeout) {
+      clearTimeout(this.#checkReadingTimeout)
+    }
+  }
+
   destroy = () => {
     if (this.#checkReadingTimeout) {
       clearTimeout(this.#checkReadingTimeout)
