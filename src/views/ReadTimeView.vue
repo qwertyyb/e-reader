@@ -2,11 +2,17 @@
   <route-page class="read-time-view">
     <navigation-bar no-menu title="阅读明细"></navigation-bar>
     <header class="read-time-header" v-if="book">
-      <img :src="book.cover" alt="" class="book-cover-img" :data-book-cover-trace="book.id">
+      <img :src="book.cover" alt=""
+        class="book-cover-img"
+        :data-book-cover-trace="book.id"
+        @click="$router.push({ name: 'read', params: { id: book.id }, query: { trace: book.id } })"
+      >
       <div class="book-info">
         <h2 class="book-title">{{ book.title }}</h2>
         <p class="book-author">{{ book.author }}</p>
-        <button class="btn primary-btn read-btn" @click="$router.push({ name: 'read', params: { id: book.id }, query: { trace: book.id } })">现在阅读</button>
+        <button class="btn primary-btn read-btn"
+          @click="$router.push({ name: 'read', params: { id: book.id }, query: { trace: book.id } })"
+        >现在阅读</button>
       </div>
     </header>
     <main class="read-time-main">

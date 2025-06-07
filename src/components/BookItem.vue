@@ -40,9 +40,6 @@ const onTap = () => {
   opacity: 0.4;
   -webkit-touch-callout: none;
   user-select: none;
-  &.is-reading .book-cover {
-    opacity: 0;
-  }
 }
 .book-item.downloaded {
   filter: none;
@@ -94,7 +91,6 @@ const onTap = () => {
   width: 100%;
   box-sizing: border-box;
   text-align: center;
-  background: #fff;
   position: relative;
 }
 .book-cover img.book-cover-img {

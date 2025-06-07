@@ -235,8 +235,8 @@ const download = async () => {
       color: #000;
     }
     .book-cover {
-      width: 100%;
-      height: auto;
+      width: 330px;
+      height: 440px;
     }
     .share-text-container {
       width: 100%;
