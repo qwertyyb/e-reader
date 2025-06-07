@@ -5,6 +5,7 @@
       @pointermove="pointerMoveHandler"
       @pointerup="pointerUpHandler"
       @pointercancel="pointerCancelHandler"
+      @touchmove="touchMoveHandler"
     >
       <li class="route-history-item"
         v-for="(route, index) in history"
@@ -124,34 +125,67 @@ onBeforeUnmount(() => {
 })
 
 let startX = -1
+let startY = -1
 let touching = false
 let startTime = 0
+let needPreventTouchMove: boolean | null = null
 const pointerDownHandler = (e: PointerEvent) => {
+  // 如果当前页面已经是最后一个路由，或者当前页面的有自定义的 pop 方法，则不执行默认的回退手势
   if ((components.value?.length ?? 0) < 2 || typeof components.value?.[components.value.length - 1]?.pop === 'function') return;
+  // 记录手势的初始位置，有两个作用，1. 用以判断是否是纵向滑动，2. 计算横向滑动的距离
   startX = e.screenX
+  startY = e.screenY
+
+  // 标记手势已开始
   touching = true
+
+  // 记录手势开始时间，在手势结束时用以计算滑动的速度
   startTime = performance.now()
+
+  // 初始化 needPreventTouchMove 的值，在 pointermove 事件中根据初次滑动的方向来决定是否阻止 touchmove 事件
+  needPreventTouchMove = null
 }
 
 const setViewStyle = (options: { offset: number }) => {
+  // 根据当前滑动的距离，设置当前页面的和前一个页面的样式
   const current = el.value?.querySelector<HTMLElement>('.route-history-item.current')
   const prev = el.value?.querySelector<HTMLElement>('.route-history-item.previous')
-  if (!current || !prev) return;
   const progress = options.offset / el.value!.getBoundingClientRect().width
   const prevOffset = 30 * progress - 30
-  current.style.setProperty('transform', `translateX(${options.offset}px)`)
-  prev.style.setProperty('transform', `translateX(${prevOffset}%)`)
-  prev.style.setProperty('--mask-opacity', `${0.1 - progress * 0.1}`)
+  current?.style.setProperty('transform', `translateX(${options.offset}px)`)
+  prev?.style.setProperty('transform', `translateX(${prevOffset}%)`)
+  prev?.style.setProperty('--mask-opacity', `${0.1 - progress * 0.1}`)
 }
 
+// pointermove 事件的 preventDefault 无法阻止页面内的滚动事件，因此需要通过 touchmove 事件来阻止
+// 但是是否阻止 touchmove 事件，取决于在 pointermove 事件回调的判断，即 needPreventTouchMove 的值
+const touchMoveHandler = (e: TouchEvent) => {
+  if (needPreventTouchMove === true) {
+    e.preventDefault()
+  }
+}
+
+
 const pointerMoveHandler = (e: PointerEvent) => {
+  // 如果手势未开始，则无须执行回调
   if (!touching) return;
   const deltaX = e.screenX - startX
+
+  // 如果滑动距离小于 0，即向左滑动，则无须执行回调
   if (deltaX < 0) return
+
+  // 如果尚未决定滑动的方向，则需要判断
+  if (needPreventTouchMove === null) {
+    const deltaY = e.screenY - startY
+    needPreventTouchMove = Math.abs(deltaX) > Math.abs(deltaY)
+  }
+  // 如果滑动的方向不是横向，即 needPreventTouchMove 为 false, 则无须执行回调
+  if (!needPreventTouchMove) return;
   setViewStyle({ offset: deltaX })
 }
 
-const resetView = async () => {
+// 手势结束时，如果无须 pop 当前路由，则需要调用此方法，恢复手势过程中写入的样式
+const resetViewStyle = async () => {
   const current = el.value?.querySelector<HTMLElement>('.route-history-item.current')
   const previous = el.value?.querySelector<HTMLElement>('.route-history-item.previous')
   await Promise.all([
@@ -164,22 +198,25 @@ const resetView = async () => {
 }
 
 const pointerUpHandler = async (e: PointerEvent) => {
-  if (!touching) return;
+  if (!touching || needPreventTouchMove === false) return;
   touching = false
+  needPreventTouchMove = null
   const deltaX = e.screenX - startX
   const width = el.value!.getBoundingClientRect().width
   const speed = deltaX / (performance.now() - startTime)
+  // 如果滑动距离大于屏幕宽度的一半，或者滑动速度大于 0.5，则 pop 当前路由
   if (deltaX > width / 2 || speed > 0.5) {
     popHandler(-1)
   } else {
-    resetView();
+    resetViewStyle();
   }
 }
 
 const pointerCancelHandler = async () => {
-  if (!touching) return;
+  if (!touching || needPreventTouchMove === false) return;
   touching = false
-  resetView();
+  needPreventTouchMove = null
+  resetViewStyle();
 }
 
 </script>
