@@ -1,11 +1,11 @@
 {
-  "short_name": "易读",
+  "short_name": "E-Reader",
   "name": "易读 E-Reader",
   "start_url": "./index.html?scene=default",
   "background_color": "#ffffff",
   "display": "standalone",
   "id": "/e-reader/",
-  "description": "读你想读，自由自在",
+  "description": "易读 E-Reader: 读你想读，自由自在",
   "theme_color": "#3563A9",
   "dir": "ltr",
   "lang": "zh",
