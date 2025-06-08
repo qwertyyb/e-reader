@@ -13,6 +13,8 @@ export default defineConfig({
     vue(),
     vueJsx(),
     vueDevTools(),
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     visualizer(),
   ],
   define: {
