@@ -127,8 +127,43 @@ const resourceNeedCache = (request: Request) => {
   return true;
 }
 
+function randomString(length = 10): string {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+}
+
+const saveShareFile = async (request: Request) => {
+  const formData = await request.formData()
+  const file = formData.get('file')
+  if (file instanceof File) {
+    const cache = await caches.open(CACHE_NAME)
+    const fileId = `${randomString()}_${file.name}`
+    const url = `./sharedData/${fileId}`
+    await cache.put(url, new Response(file, { headers: { 'content-type': file.type, 'content-length': String(file.size) } }))
+    return Response.redirect(`./index.html?scene=share&fileUrl=${encodeURIComponent(url)}`, 303)
+  }
+  throw new Error('Not Found File in Share FormData')
+}
+
+const handleShare = (event: FetchEvent) => {
+  if (
+    event.request.method === 'POST'
+    && new URL(event.request.url).searchParams.get('scene') === 'share'
+  ) {
+    event.respondWith(saveShareFile(event.request))
+    return true
+  }
+  return false
+}
+
 
 self.addEventListener('fetch', function(event) {
+  const handled = handleShare(event)
+  if (handled) return;
   if (!resourceNeedCache(event.request)) return;
   event.respondWith(
     // 可以简单用 url 字符串做缓存

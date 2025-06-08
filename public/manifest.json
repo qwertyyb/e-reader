@@ -1,10 +1,37 @@
 {
-  "short_name": "E Reader",
-  "name": "E Reader: Read Freely",
-  "start_url": "./index.html?source=pwa",
+  "short_name": "易读",
+  "name": "易读 E-Reader",
+  "start_url": "./index.html?scene=default",
   "background_color": "#ffffff",
   "display": "standalone",
+  "id": "/e-reader/",
+  "description": "读你想读，自由自在",
+  "theme_color": "#3563A9",
+  "dir": "ltr",
+  "lang": "zh",
+  "categories": ["utilities", "books",  "personalization", "productivity"],
+  "share_target": {
+    "action": "./index.html?scene=share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "file",
+          "accept": [
+            "text/plain", "application/epub+zip", "application/x-mobipocket-ebook",
+            ".txt", ".epub", ".mobi"
+          ]
+        }
+      ]
+    }
+  },
   "icons": [
+    {
+      "src": "./icons/icon512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
     {
       "src": "./icons/icon256.png",
       "type": "image/png",
@@ -29,6 +56,50 @@
       "src": "./icons/icon48.png",
       "type": "image/png",
       "sizes": "48x48"
+    }
+  ],
+  "launch_handler": {
+    "client_mode": "navigate-new"
+  },
+  "orientation": "any",
+  "screenshots": [
+    {
+      "src": "./snapshots/书架.PNG",
+      "type": "image/png",
+      "sizes": "1170x2532",
+      "label": "书架界面",
+      "form_factor": "wide"
+    },
+    {
+      "src": "./snapshots/书架.PNG",
+      "type": "image/png",
+      "sizes": "1170x2532",
+      "label": "书架界面",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "./snapshots/阅读界面.PNG",
+      "type": "image/png",
+      "sizes": "1170x2532",
+      "label": "阅读界面"
+    },
+    {
+      "src": "./snapshots/阅读明细.PNG",
+      "type": "image/png",
+      "sizes": "1170x2532",
+      "label": "阅读明细统计"
+    },
+    {
+      "src": "./snapshots/分享书籍.PNG",
+      "type": "image/png",
+      "sizes": "1170x2532",
+      "label": "分享书籍功能"
+    },
+    {
+      "src": "./snapshots/OPDS 首页.PNG",
+      "type": "image/png",
+      "sizes": "1170x2532",
+      "label": "OPDS 首页"
     }
   ]
 }

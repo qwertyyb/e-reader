@@ -1,4 +1,4 @@
-# 易读 e-reader
+# 易读 E-reader
 
 无须下载、无后台依赖、离线优先的电子书阅读器
 
@@ -6,20 +6,18 @@
 
 ## 截图
 
-<img src="./snapshots/书架.PNG" alt="书架" width="180" />
-<img src="./snapshots/阅读界面.PNG" alt="阅读界面" width="180" />
-<img src="./snapshots/OPDS%20内容.PNG" alt="OPDS 内容" width="180" />
-<img src="./snapshots/OPDS%20首页.PNG" alt="OPDS 首页" width="180" />
-<img src="./snapshots/关于.PNG" alt="关于" width="180" />
-<img src="./snapshots/分享书籍.PNG" alt="分享书籍" width="180" />
-<img src="./snapshots/分享段落.PNG" alt="分享段落" width="180" />
-<img src="./snapshots/设置.PNG" alt="设置" width="180" />
-<img src="./snapshots/调试选项.PNG" alt="调试选项" width="180" />
-<img src="./snapshots/阅读时间.PNG" alt="阅读时间" width="180" />
-<img src="./snapshots/阅读明细.PNG" alt="阅读明细" width="180" />
-<img src="./snapshots/高级设置.PNG" alt="高级设置" width="180" />
-
-
+<img src="./public/snapshots/书架.PNG" alt="书架" width="240" />
+<img src="./public/snapshots/阅读界面.PNG" alt="阅读界面" width="240" />
+<img src="./public/snapshots/OPDS%20内容.PNG" alt="OPDS 内容" width="240" />
+<img src="./public/snapshots/OPDS%20首页.PNG" alt="OPDS 首页" width="240" />
+<img src="./public/snapshots/关于.PNG" alt="关于" width="240" />
+<img src="./public/snapshots/分享书籍.PNG" alt="分享书籍" width="240" />
+<img src="./public/snapshots/分享段落.PNG" alt="分享段落" width="240" />
+<img src="./public/snapshots/设置.PNG" alt="设置" width="240" />
+<img src="./public/snapshots/调试选项.PNG" alt="调试选项" width="240" />
+<img src="./public/snapshots/阅读时间.PNG" alt="阅读时间" width="240" />
+<img src="./public/snapshots/阅读明细.PNG" alt="阅读明细" width="240" />
+<img src="./public/snapshots/高级设置.PNG" alt="高级设置" width="240" />
 
 ## 特点
 
