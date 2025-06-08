@@ -6,18 +6,18 @@
 
 ## 截图
 
-![书架](./snapshots/书架.PNG)
-![阅读界面](./snapshots/阅读界面.PNG)
-![OPDS 内容](./snapshots/OPDS%20内容.PNG)
-![OPDS 首页](./snapshots/OPDS%20首页.PNG)
-![关于](./snapshots/关于.PNG)
-![分享书籍](./snapshots/分享书籍.PNG)
-![分享段落](./snapshots/分享段落.PNG)
-![设置](./snapshots/设置.PNG)
-![调试选项](./snapshots/调试选项.PNG)
-![阅读时间](./snapshots/阅读时间.PNG)
-![阅读明细](./snapshots/阅读明细.PNG)
-![高级设置](./snapshots/高级设置.PNG)
+<img src="./snapshots/书架.PNG" alt="书架" width="180" />
+<img src="./snapshots/阅读界面.PNG" alt="阅读界面" width="180" />
+<img src="./snapshots/OPDS%20内容.PNG" alt="OPDS 内容" width="180" />
+<img src="./snapshots/OPDS%20首页.PNG" alt="OPDS 首页" width="180" />
+<img src="./snapshots/关于.PNG" alt="关于" width="180" />
+<img src="./snapshots/分享书籍.PNG" alt="分享书籍" width="180" />
+<img src="./snapshots/分享段落.PNG" alt="分享段落" width="180" />
+<img src="./snapshots/设置.PNG" alt="设置" width="180" />
+<img src="./snapshots/调试选项.PNG" alt="调试选项" width="180" />
+<img src="./snapshots/阅读时间.PNG" alt="阅读时间" width="180" />
+<img src="./snapshots/阅读明细.PNG" alt="阅读明细" width="180" />
+<img src="./snapshots/高级设置.PNG" alt="高级设置" width="180" />
 
 
 

@@ -205,7 +205,7 @@ const search = async () => {
 
 <style lang="scss" scoped>
 .opds-view {
-  height: var(--page-height);
+  height: 100%;
   display: flex;
   flex-direction: column;
   .opds-main {
