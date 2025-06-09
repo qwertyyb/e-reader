@@ -73,10 +73,16 @@ const router = createRouter({
       ]
     },
     {
-      path: '/state',
-      name: 'state',
+      path: '/state/read-time',
+      name: 'readTimeState',
       props: true,
       component: () => import('@/views/StateView.vue')
+    },
+    {
+      path: '/state/notes',
+      name: 'notesState',
+      props: true,
+      component: () => import('@/views/NotesStateView.vue')
     },
     {
       path: '/import',

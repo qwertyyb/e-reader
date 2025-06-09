@@ -153,18 +153,14 @@ export const marks = (() => {
   const baseMarks = createStore<IMarkEntity>('marks')
   return {
     ...baseMarks,
+    count(bookId?: number) {
+      return wrap(db => db.transaction('marks', 'readonly').objectStore('marks').index('bookId').count(bookId))
+    },
     async getListByChapterAndBook(bookId: number, chapterId: string) {
-      const list = await baseMarks.getList()
-      return list.filter(item => {
-        return item.bookId === bookId && item.chapterId === chapterId
-      })
+      return wrap<IMarkEntity[]>(db => db.transaction('marks', 'readonly').objectStore('marks').index('chapter').getAll([bookId, chapterId]))
     },
     async getListByBook(bookId: number) {
-      const list = await baseMarks.getList()
-      return list.filter(item => item.bookId === bookId)
-        .sort((a, b) => {
-          return a.chapterIndex - b.chapterIndex || a.range.start - b.range.start
-        })
+      return wrap<IMarkEntity[]>(db => db.transaction('marks', 'readonly').objectStore('marks').index('bookId').getAll(bookId))
     }
   }
 })()

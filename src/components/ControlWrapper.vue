@@ -235,6 +235,8 @@ const initHammer = () => {
     }
   })())
   hammer.on('swipeleft', () => {
+    // 如果是横向滑动翻页，这个手势会和下一页手势冲突，所以这里需要屏蔽
+    if (settings.value.turnPageType === 'horizontal-scroll') return;
     dialog.value = 'chapterList'
   })
   hammer.on('tap', contentTapHandler)

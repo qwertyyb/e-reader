@@ -9,9 +9,14 @@
     </header>
     <main class="my-main">
       <ul class="my-list">
-        <li class="my-item duration-item pointer" @click="$router.push({ name: 'state' })">
+        <li class="my-item duration-item pointer" @click="$router.push({ name: 'readTimeState' })">
           <h3 class="item-title">阅读时长</h3>
           <div class="item-desc" v-html="durationTotal"></div>
+          <p class="item-more"><span class="material-symbols-outlined">arrow_forward_ios</span></p>
+        </li>
+        <li class="my-item notes-item pointer" @click="$router.push({ name: 'notesState' })">
+          <h3 class="item-title">笔记</h3>
+          <div class="item-desc" v-html="marksTotal"></div>
           <p class="item-more"><span class="material-symbols-outlined">arrow_forward_ios</span></p>
         </li>
       </ul>
@@ -20,16 +25,26 @@
 </template>
 
 <script setup lang="ts">
-import { readingStateStore } from '@/services/storage';
+import { marks, readingStateStore } from '@/services/storage';
 import { formatDuration } from '@/utils';
 import { ref } from 'vue';
 
 const durationTotal = ref('')
+const marksTotal = ref('')
 
-const refresh = async () => {
+const refreshDuration = async () => {
   const list = await readingStateStore.getList()
   const duration = list.reduce((acc, item) => acc + (item.duration ?? 0), 0)
   durationTotal.value = formatDuration(duration).replace(/(\d+)/g, `<span class="big-text">$1</span>`)
+}
+
+const refreshMarks = async () => {
+  marksTotal.value = `<span class="big-text">${await marks.count()}</span>条笔记`
+}
+
+const refresh = () => {
+  refreshDuration()
+  refreshMarks()
 }
 
 refresh()
@@ -79,17 +94,18 @@ refresh()
   border-radius: 4px;
   padding: 16px;
   position: relative;
-  &.duration-item {
-    .item-desc {
-      margin-top: 8px;
-    }
-    .item-more {
-      transform: translateY(-50%);
-      position: absolute;
-      top: 50%;
-      right: 16px;
-      opacity: 0.7;
-    }
+  & + .my-item {
+    margin-top: 12px;
+  }
+  .item-desc {
+    margin-top: 8px;
+  }
+  .item-more {
+    transform: translateY(-50%);
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    opacity: 0.7;
   }
   .item-title {
     font-size: 13px;

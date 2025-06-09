@@ -1,11 +1,15 @@
 <template>
-  <div class="notes-view">
-    <h2 class="book-title">{{ book?.title }}</h2>
-    <Book-mark-list :book-id="+id"></Book-mark-list>
-  </div>
+  <route-page class="notes-view">
+    <navigation-bar no-menu :title="book?.title"></navigation-bar>
+    <main class="notes-main">
+      <Book-mark-list :book-id="+id"></Book-mark-list>
+    </main>
+  </route-page>
 </template>
 
 <script setup lang="ts">
+import RoutePage from '@/components/RoutePage.vue';
+import NavigationBar from '@/components/NavigationBar.vue';
 import BookMarkList from '@/components/BookMarkList.vue';
 import { localBookService } from '@/services/LocalBookService';
 import { ref } from 'vue';
@@ -27,10 +31,15 @@ refresh()
 
 <style lang="scss" scoped>
 .notes-view {
-  padding: var(--sait) 12px var(--saib) 12px;
-  background: rgb(238, 238, 238);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
-.book-title {
-  margin-bottom: 12px;
+.notes-main {
+  height: 0;
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+  border-radius: 6px;
 }
 </style>
