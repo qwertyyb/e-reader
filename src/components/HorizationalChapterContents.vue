@@ -1,17 +1,11 @@
 <template>
   <div class="horizontal-chapter-contents" ref="el">
-    <div class="chapter-contents-wrapper"
-      @scroll="scrollHandler"
-      @pointerdown="pointerDownHandler"
-      @pointermove="pointerMoveHandler"
-      @pointerup="pointerUpHandler"
-      @pointercancel="pointerCancelHandler"
-    >
-    </div>
+    <div class="chapter-contents-wrapper" @scroll="scrollHandler"></div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useGesture } from '@/hooks/gesture';
 import { debounce, showToast } from '@/utils';
 import { renderChapter } from '@/utils/chapter';
 import { disableAnim } from '@/utils/env';
@@ -33,10 +27,8 @@ const keeps = 3
 const columnGap = 12
 const getPageWidth = () => (document.querySelector<HTMLElement>('.chapter-contents-wrapper')?.clientWidth ?? window.innerWidth) - columnGap
 
-let startX = -1
 let startScrollLeft = 0
 let touching = false
-let startTime = 0
 
 const renderContents = (contents: HTMLElement[]) => {
   // vue 的渲染不太可控，自行渲染
@@ -137,42 +129,32 @@ const getCurrentProgress = () => {
   }
 }
 
-const pointerDownHandler = (event: PointerEvent) => {
-  if (window.getSelection()?.toString()) return;
-  startX = event.screenX
-  startScrollLeft = (event.currentTarget as HTMLElement).scrollLeft
-  startTime = Date.now()
-  touching = true
-}
-const pointerMoveHandler = (event: PointerEvent) => {
-  if (window.getSelection()?.toString() || !touching) return;
-  const scrollLeft = startScrollLeft + (startX - event.screenX)
-  el.value?.querySelector<HTMLElement>('.chapter-contents-wrapper')?.scrollTo({ left: scrollLeft })
-}
-const pointerUpHandler = (event: PointerEvent) => {
-  const wrapper = el.value!.querySelector<HTMLElement>('.chapter-contents-wrapper')!
-  const distance = event.screenX - startX
-  const pw = getPageWidth()
-  const v = distance / (Date.now() - startTime)
-  const minV = 0.1
-  let scrollLeft = 0
-  if (v > 0.5) {
-    scrollLeft = Math.max(0, Math.round(startScrollLeft / pw) - 1) * pw
-  } else if (v < -minV) {
-    scrollLeft = (Math.round(startScrollLeft / pw) + 1) * pw
-  } else {
-    // 如果滚动的距离超过了一半，则以当前落点计算应该滚动的位置
-    scrollLeft = Math.round(wrapper.scrollLeft / pw) * pw
-  }
-  wrapper.scrollTo({ left: scrollLeft, behavior:  disableAnim.value ? 'instant' : 'smooth' })
-  startX = -1
-  touching = false
-}
-
-const pointerCancelHandler = () => {
-  touching = false
-  scrollToPage(cur => cur)
-}
+useGesture(el, {
+  onStart() {
+    touching = true
+    if (window.getSelection()?.toString()) return false;
+    startScrollLeft = el.value?.querySelector<HTMLElement>('.chapter-contents-wrapper')?.scrollLeft || 0
+  },
+  onMove(detail) {
+    if (window.getSelection()?.toString()) return;
+    el.value?.querySelector<HTMLElement>('.chapter-contents-wrapper')?.scrollTo({ left: startScrollLeft - detail.deltaX })
+  },
+  onEnd(detail) {
+    const wrapper = el.value!.querySelector<HTMLElement>('.chapter-contents-wrapper')!
+    const pw = getPageWidth()
+    let scrollLeft = 0
+    if (detail.velocityX > 0.3) {
+      scrollLeft = Math.max(0, Math.round(startScrollLeft / pw) - 1) * pw
+    } else if (detail.velocityX < -0.3) {
+      scrollLeft = (Math.round(startScrollLeft / pw) + 1) * pw
+    } else {
+      // 以当前落点计算应该滚动的位置
+      scrollLeft = Math.round(wrapper.scrollLeft / pw) * pw
+    }
+    wrapper.scrollTo({ left: scrollLeft, behavior: disableAnim.value ? 'instant' : 'smooth' })
+    touching = false
+  },
+})
 
 const scrollHandler = debounce(() => {
   if (touching) return;

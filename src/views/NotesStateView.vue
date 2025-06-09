@@ -49,7 +49,7 @@ const refresh = async () => {
       duration: formatDuration(rs?.duration || 0)
     }
   })))
-  // .filter(i => i.markCount)
+  .filter(i => i.markCount)
 }
 
 refresh()
