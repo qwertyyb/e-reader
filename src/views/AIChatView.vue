@@ -30,8 +30,7 @@
               <span>已深度思考(用时{{msg.timeCost}}秒)</span>
               <span class="material-symbols-outlined toggle-icon transform-transition">keyboard_arrow_down</span>
             </div>
-            <markdown-viewer :markdown="msg.content"></markdown-viewer>
-            <span class="material-symbols-outlined loading-icon">progress_activity</span>
+            <markdown-viewer :markdown="msg.content" :loading="msg.loading"></markdown-viewer>
           </div>
         </li>
       </ul>
@@ -261,41 +260,24 @@ const fetchData = async () => {
   padding: 0 16px;
 }
 .message-item {
-  padding: 6px 0;
-  border-radius: 12px;
+  border-radius: 6px;
   font-weight: 400;
+  overflow: hidden;
   &.role-user {
-    background-color: #c4e0fd;
+    background-color: var(--theme-color);
     align-self: flex-end;
     padding: 6px 12px;
+    font-weight: 500;
+    * {
+      color: #fff;
+    }
   }
   &.role-assistant {
     align-self: flex-start;
-    background-color: #fff;
+    background-color: var(--card-bg-color);
     margin-right: auto;
-    width: calc(100% - 54px);
-  }
-  .loading-icon {
-    display: none;
-  }
-  @keyframes rotate {
-    0% {
-      transform: rotate(0)
-    }
-    100% {
-      transform: rotate(360deg)
-    }
-  }
-  &.loading .loading-icon {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    animation: rotate 1.6s ease infinite;
   }
   .markdown-content {
-    padding: 6px 0;
     &.think-closed {
       .toggle-think-btn {
         .toggle-icon {

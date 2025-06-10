@@ -35,6 +35,7 @@ import 'markdown-it-code-block/styles/base-token.css';
 
 const props = defineProps<{
   markdown: string
+  loading?: boolean
 }>();
 
 const md = new MarkdownIt({
@@ -51,13 +52,29 @@ md.use(mdSub);
 md.use(mdSup);
 
 const html = computed(() => {
-  return md.render(props.markdown);
+  return md.render(props.markdown + (props.loading ? '<span class="material-symbols-outlined loading-icon">progress_activity</span>' : ''));
 })
 </script>
 
 <style lang="scss">
 .markdown-viewer {
   padding: 12px;
+  @keyframes rotate {
+    0% {
+      transform: rotate(0)
+    }
+    100% {
+      transform: rotate(360deg)
+    }
+  }
+  .loading-icon {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    animation: rotate 1.6s ease infinite;
+  }
 }
 
 .markdown-body {
