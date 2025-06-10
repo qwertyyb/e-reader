@@ -22,7 +22,7 @@
       :visible="dialog==='bookMenu'"
       :book-id="bookId"
       @close="dialog=null"
-      @action="openShareDialog"
+      @action="openDialog"
     >
     </book-menu-dialog>
 
@@ -151,9 +151,13 @@ const shareTextHandler = (mark: { text: string, chapterId: string, chapterIndex:
   dialog.value = 'share'
 }
 
-const openShareDialog = () => {
-  dialogProps.value = { mode: 'book', bookId: props.bookId }
-  dialog.value = 'share'
+const openDialog = (name: string) => {
+  if (name === 'share') {
+    dialogProps.value = { mode: 'book', bookId: props.bookId }
+    dialog.value = 'share'
+  } else {
+    dialog.value = name
+  }
 }
 
 const touchstartHandler = (e: TouchEvent) => {
@@ -279,7 +283,7 @@ defineExpose({
   left: 0;
   right: 0;
 }
-:global(.ai-chat-dialog .ai-chat-view) {
+:global(.ai-chat-dialog .ai-chat-view.container) {
   height: 70vh;
   padding: 0;
 }

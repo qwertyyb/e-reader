@@ -61,6 +61,8 @@ const props = defineProps<{
   chapterIndex?: number,
 }>()
 
+const emits = defineEmits<{ success: [] }>()
+
 interface IShareBookData {
   qrcode: string
   cover: string
@@ -143,6 +145,7 @@ const generate = async () => {
   result.value = { file, previewUrl: URL.createObjectURL(file) }
 
   generating.value = true
+  emits('success')
 }
 
 generate()
