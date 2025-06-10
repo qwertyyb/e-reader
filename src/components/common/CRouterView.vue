@@ -22,7 +22,6 @@
 </template>
 
 <script setup lang="ts">
-import { useGesture } from '@/hooks/gesture';
 import router, { appRouter } from '@/router';
 import { disableAnim } from '@/utils/env';
 import { nextTick, onBeforeUnmount, shallowRef, useTemplateRef } from 'vue';
@@ -68,7 +67,7 @@ const runDefaultPopAnimation = async (cur?: HTMLElement | null, prev?: HTMLEleme
   prev?.style.removeProperty('--mask-opacity')
 }
 
-const popHandler = async (delta: number) => {
+const popHandler = async (delta: number, options: { hasUAVisualTransition: boolean }) => {
   const toEl = el.value?.querySelector<HTMLElement>('.route-history-item.previous')
   const fromEl = el.value?.querySelector<HTMLElement>('.route-history-item.current')
   const to = history.value[history.value.length + delta - 1]
@@ -77,7 +76,7 @@ const popHandler = async (delta: number) => {
   const cur = components.value?.[history.value.length + delta]
   if (typeof cur?.onBackFrom === 'function') {
     await cur.onBackFrom(to, from, toEl, fromEl)
-  } else if (!disableAnim.value) {
+  } else if (!disableAnim.value && !options.hasUAVisualTransition) {
     console.log('back', disableAnim.value)
     await runDefaultPopAnimation(fromEl, toEl);
   }
@@ -127,49 +126,6 @@ onBeforeUnmount(() => {
   appRouter.offPop(popHandler)
   appRouter.offPush(pushHandler)
   appRouter.offReplace(replaceHandler)
-})
-
-const setViewStyle = (options: { offset: number }) => {
-  // 根据当前滑动的距离，设置当前页面的和前一个页面的样式
-  const current = el.value?.querySelector<HTMLElement>('.route-history-item.current')
-  const prev = el.value?.querySelector<HTMLElement>('.route-history-item.previous')
-  const progress = options.offset / el.value!.getBoundingClientRect().width
-  const prevOffset = 30 * progress - 30
-  current?.style.setProperty('transform', `translateX(${options.offset}px)`)
-  prev?.style.setProperty('transform', `translateX(${prevOffset}%)`)
-  prev?.style.setProperty('--mask-opacity', `${0.1 - progress * 0.1}`)
-}
-
-// 手势结束时，如果无须 pop 当前路由，则需要调用此方法，恢复手势过程中写入的样式
-const resetViewStyle = async () => {
-  console.log('rrrr')
-  const current = el.value?.querySelector<HTMLElement>('.route-history-item.current')
-  const previous = el.value?.querySelector<HTMLElement>('.route-history-item.previous')
-  await Promise.all([
-    current?.animate([{ transform: 'translateX(0)' }], { duration: 200 }).finished,
-    previous?.animate([{ transform: 'translateX(-30%)' }], { duration: 200 }).finished
-  ])
-  current?.style.removeProperty('transform')
-  previous?.style.removeProperty('transform')
-  previous?.style.removeProperty('--mask-opacity')
-}
-
-useGesture(el, {
-  onStart() {
-    if ((components.value?.length ?? 0) < 2 || typeof components.value?.[components.value.length - 1]?.onBackFrom === 'function') return false;
-  },
-  onMove(detail) {
-    if (detail.deltaX < 0) return;
-    setViewStyle({ offset: detail.deltaX  })
-  },
-  onEnd(detail) {
-    const width = el.value!.getBoundingClientRect().width
-    if (detail.deltaX > width / 2 || detail.velocityX > 0.5) {
-      popHandler(-1)
-    } else {
-      resetViewStyle();
-    }
-  },
 })
 
 </script>

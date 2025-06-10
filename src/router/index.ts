@@ -1,47 +1,12 @@
-import { createMemoryHistory, createRouter, type RouteLocation, type Router, type RouterHistory } from 'vue-router'
+import { createRouter, createWebHashHistory, type RouteLocation, type Router } from 'vue-router'
 import ReadView from '@/views/ReadView.vue'
 import PreferencesView from '@/views/PreferencesView.vue'
 import AboutView from '@/views/AboutView.vue'
 import AdvancedPrfsView from '@/views/AdvancedPrfsView.vue'
 import HomeView from '@/views/HomeView.vue'
 
-const createAppHistory = (base?: string): RouterHistory => {
-  const mh = createMemoryHistory(base)
-
-  const defaultPath = location.hash.replace('#', '') || '/'
-  if (defaultPath !== '/') {
-    // 如果当前路径不在主页，则先把主页 push 进历史中，确保后退可以后退到主页
-    mh.push('/')
-  }
-  mh.push(defaultPath)
-
-  const replaceHash = (location: string) => {
-    const [prefix] = window.location.href.split('#')
-    return window.history.replaceState(null, '', [prefix, location || '/'].join('#'))
-  }
-
-  return {
-    ...mh,
-    push(to, data) {
-      const result = mh.push(to, data)
-      replaceHash(mh.location)
-      return result
-    },
-    replace(to, data) {
-      const result = mh.replace(to, data)
-      replaceHash(mh.location)
-      return result
-    },
-    go(delta, triggerListeners) {
-      const result = mh.go(delta, triggerListeners)
-      replaceHash(mh.location)
-      return result
-    },
-  }
-}
-
 const router = createRouter({
-  history: createAppHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
@@ -154,7 +119,7 @@ window.addEventListener('hashchange', event => {
 export default router
 
 type IRouterHandler = (to: RouteLocation, from: RouteLocation) => void
-type IRouterPopHandler = (delta: number, to: RouteLocation, from: RouteLocation) => void
+type IRouterPopHandler = (delta: number, options: { hasUAVisualTransition: boolean }) => void
 
 const createAppRouter = (router: Router): Router & {
     onPop: (callback: IRouterPopHandler) => void,
@@ -167,6 +132,12 @@ const createAppRouter = (router: Router): Router & {
   const popCallbacks: IRouterPopHandler[] = []
   const pushCallbacks: IRouterHandler[] = []
   const replaceCallbacks: IRouterHandler[] = []
+
+  router.isReady().then(() => {
+    window.addEventListener('popstate', (event) => {
+      popCallbacks.forEach(callback => callback(-1, { hasUAVisualTransition: event.hasUAVisualTransition }))
+    })
+  });
   return {
     ...router,
     async push (...args: Parameters<typeof router.push>) {
@@ -176,9 +147,7 @@ const createAppRouter = (router: Router): Router & {
       return result
     },
     back() {
-      const current = router.currentRoute.value
       const result = router.back()
-      popCallbacks.forEach(callback => callback(-1, router.currentRoute.value, current))
       return result
     },
     forward() {
@@ -194,7 +163,7 @@ const createAppRouter = (router: Router): Router & {
       const current = router.currentRoute.value
       const result = router.go(delta)
       if (delta < 0) {
-        popCallbacks.forEach(callback => callback(delta, router.currentRoute.value, current))
+        popCallbacks.forEach(callback => callback(delta, { hasUAVisualTransition: false }))
       } else {
         pushCallbacks.forEach(callback => callback(router.currentRoute.value, current))
       }
@@ -228,3 +197,4 @@ const createAppRouter = (router: Router): Router & {
 }
 
 export const appRouter = createAppRouter(router)
+

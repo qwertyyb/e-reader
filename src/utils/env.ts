@@ -3,7 +3,7 @@ import { ref, watch, type Ref } from "vue"
 // 声明 window.eruda 类型
 declare global {
   interface Window {
-    eruda: {
+    eruda?: {
       init: () => void;
       destroy: () => void;
     };
@@ -124,7 +124,7 @@ export const initMoreContrast = createFeatureInitializer({
 });
 
 export const initEruda = () => {
-  if (getDebugOption('showConsole') && !window.erudaInited) {
+  if (getDebugOption('showConsole') && !window.erudaInited && window.eruda) {
     // 把之前记录的位置清掉，防止挪到了无法移动的位置
     localStorage.removeItem('eruda-entry-button')
     window.eruda.init()
@@ -134,7 +134,7 @@ export const initEruda = () => {
 
 export const destroyEruda = () => {
   if (window.erudaInited) {
-    window.eruda.destroy()
+    window.eruda?.destroy()
     window.erudaInited = false
   }
 }
