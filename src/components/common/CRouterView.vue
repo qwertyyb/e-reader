@@ -159,6 +159,7 @@ useGesture(el, {
     if ((components.value?.length ?? 0) < 2 || typeof components.value?.[components.value.length - 1]?.onBackFrom === 'function') return false;
   },
   onMove(detail) {
+    if (detail.deltaX < 0) return;
     setViewStyle({ offset: detail.deltaX  })
   },
   onEnd(detail) {
