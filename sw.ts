@@ -173,6 +173,9 @@ self.addEventListener('fetch', function(event) {
         return cachedResp
       }
       return fetch(event.request).then(function(response) {
+        if (!response.ok) {
+          return response
+        }
         return caches.open(CACHE_NAME).then(function(cache) {
           cache.put(event.request, response.clone());
           return response;
