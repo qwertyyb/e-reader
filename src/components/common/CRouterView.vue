@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import router, { appRouter } from '@/router';
+import { appRouter } from '@/router';
 import { disableAnim } from '@/utils/env';
 import { nextTick, onBeforeUnmount, shallowRef, useTemplateRef } from 'vue';
 import type { RouteLocation } from 'vue-router';
@@ -118,8 +118,8 @@ appRouter.onPush(pushHandler)
 appRouter.onPop(popHandler)
 appRouter.onReplace(replaceHandler)
 
-router.isReady().then(() => {
-  pushHandler(router.currentRoute.value)
+appRouter.isReady().then(() => {
+  pushHandler(appRouter.currentRoute.value)
 })
 
 onBeforeUnmount(() => {

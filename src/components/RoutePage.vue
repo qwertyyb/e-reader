@@ -11,5 +11,7 @@ defineProps<{ tag?: string }>()
 <style lang="scss" scoped>
 .route-page {
   background: var(--bg-color);
+  height: var(--page-height);
+  padding-bottom: var(--saib);
 }
 </style>

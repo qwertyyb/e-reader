@@ -1,6 +1,6 @@
 <template>
   <c-dialog :visible="visible" @close="$emit('close')" height="90vh">
-    <template v-slot:header>
+    <template v-slot:title>
       <h3 class="marks-dialog-title">
         笔记
         <span class="material-symbols-outlined more-icon">arrow_forward_ios</span>

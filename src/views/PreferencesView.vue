@@ -7,6 +7,7 @@
         <li class="prfs-item">
           <div class="prfs-label">保持屏幕激活</div>
           <c-select
+            title="保持屏幕激活"
             v-model="preferences.screenKeepAlive"
             class="prfs-control"
             :options="[
@@ -21,6 +22,7 @@
         <li class="prfs-item">
           <div class="prfs-label">深色模式</div>
           <c-select
+            title="深色模式"
             v-model="preferences.darkMode"
             class="prfs-control"
             :options="[

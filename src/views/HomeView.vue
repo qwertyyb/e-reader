@@ -37,7 +37,9 @@ import MyView from '@/views/MyView.vue';
 import OPDSView from '@/views/OPDSView.vue';
 import { preferences } from '@/stores/preferences';
 import { ref, watch } from 'vue';
-import router from '@/router';
+import { useRouter } from 'vue-router';
+
+const router = useRouter()
 
 const getDefaultTab = () => {
   const tab  = router.currentRoute.value.query.tab as string | undefined;

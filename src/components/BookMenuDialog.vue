@@ -2,7 +2,9 @@
   <c-dialog :visible="visible"
     class="book-menu-dialog"
     body-style="padding: 0"
-    @close="$emit('close')">
+    @close="$emit('close')"
+    title="更多"
+  >
 
     <ul class="book-menu">
       <li class="menu-item" @click="viewMarks">
@@ -70,7 +72,7 @@ const search = () => {
 
 <style lang="scss" scoped>
 .book-menu-dialog .book-menu {
-  padding: 30px 0;
+  padding: 12px 0 30px 0;
   list-style: none;
   display: grid;
   grid-template-columns: repeat(auto-fill, 60px);

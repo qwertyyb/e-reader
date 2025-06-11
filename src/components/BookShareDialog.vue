@@ -1,15 +1,17 @@
 <template>
   <Teleport to="#app">
-    <div
-      v-if="visible"
-      @click.self="$emit('close')"
-      class="book-share-dialog"
-    >
-      <div class="share-dialog-content" :style="{ transform: `scale(${scale})` }">
-        <span class="material-symbols-outlined close-icon pointer" @click="$emit('close')">close</span>
-        <book-share v-bind="($attrs as any)" @success="calcScale"></book-share>
+    <transition name="fade-in">
+      <div
+        v-if="visible"
+        @click.self="$emit('close')"
+        class="book-share-dialog"
+      >
+        <div class="share-dialog-content" :style="{ transform: `scale(${scale})` }">
+          <span class="material-symbols-outlined close-icon pointer" @click="$emit('close')">close</span>
+          <book-share v-bind="($attrs as any)" @success="calcScale"></book-share>
+        </div>
       </div>
-    </div>
+    </transition>
   </Teleport>
 </template>
 <script setup lang="ts">

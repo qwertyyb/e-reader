@@ -113,6 +113,7 @@
         </div>
         <div class="line-item">
           <c-select
+            title="首行缩进"
             v-model="settings.textIndent"
             class="text-indent-select"
             :options="textIndentList"
@@ -121,6 +122,7 @@
         </div>
         <div class="font-family-and-turn-page line-item">
           <c-select
+            title="字体"
             v-model="settings.fontFamily"
             class="font-family-select"
             :options="fontFamilyList"
@@ -134,6 +136,7 @@
             </template>
           </c-select>
           <c-select
+            title="翻页方式"
             v-model="settings.turnPageType"
             @change="updateTurnPage"
             class="turn-page-type-select"

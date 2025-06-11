@@ -6,9 +6,12 @@
         ref="dialog"
         :style="{ height: props.height || 'auto', width: props.width }"
       >
-        <header class="c-dialog-header" v-if="$slots.header || title">
+        <header class="c-dialog-header" v-if="$slots.header || title || $slots.title">
           <slot name="header">
-            <h2 class="c-dialog-title" v-if="title">{{ title }}</h2>
+            <slot name="title">
+              <h2 class="c-dialog-title" v-if="title">{{ title }}</h2>
+            </slot>
+            <span class="material-symbols-outlined close-icon pointer" @click="$emit('close')">keyboard_arrow_down</span>
           </slot>
         </header>
         <main class="c-dialog-main" :style="bodyStyle">
@@ -127,9 +130,16 @@ const openDialog = async () => {
 .c-dialog-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 12px 16px 8px 16px;
+  position: relative;
   &:empty {
     display: none;
+  }
+  .close-icon {
+    font-size: 22px;
+    padding: 4px;
+    font-weight: 600;
   }
 }
 .c-dialog-title {

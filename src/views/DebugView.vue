@@ -13,14 +13,20 @@
       <div class="debug-item">
         <div class="debug-label">无动画模式</div>
         <div class="debug-control">
-          <c-select v-model="debugOptions.noAnimation" :options="modeOptions"></c-select>
+          <c-select v-model="debugOptions.noAnimation"
+            :options="modeOptions"
+            title="无动画模式"
+          ></c-select>
         </div>
       </div>
 
       <div class="debug-item">
         <div class="debug-label">高对比模式</div>
         <div class="debug-control">
-          <c-select v-model="debugOptions.highContrast" :options="modeOptions"></c-select>
+          <c-select v-model="debugOptions.highContrast"
+            :options="modeOptions"
+            title="高对比模式"
+          ></c-select>
         </div>
       </div>
 

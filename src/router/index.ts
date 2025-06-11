@@ -35,6 +35,12 @@ const router = createRouter({
           props: true,
           component: () => import('@/views/NotesView.vue')
         },
+        {
+          path: 'chat/:id?',
+          name: 'ai-chat',
+          props: true,
+          component: () => import('@/views/AIChatView.vue')
+        }
       ]
     },
     {
@@ -54,18 +60,6 @@ const router = createRouter({
       name: 'import',
       props: true,
       component: () => import('@/views/ImportView.vue')
-    },
-    {
-      path: '/ai',
-      name: 'ai',
-      children: [
-        {
-          path: 'chat',
-          name: 'ai-chat',
-          props: true,
-          component: () => import('@/views/AIChatView.vue')
-        }
-      ]
     },
     {
       path: '/preferences',
@@ -116,7 +110,7 @@ window.addEventListener('hashchange', event => {
   router.replace(hash || '/')
 })
 
-export default router
+// export default router
 
 type IRouterHandler = (to: RouteLocation, from: RouteLocation) => void
 type IRouterPopHandler = (delta: number, options: { hasUAVisualTransition: boolean }) => void

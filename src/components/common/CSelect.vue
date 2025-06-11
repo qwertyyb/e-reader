@@ -10,6 +10,7 @@
       :options="options"
       :visible="optionsVisible"
       :model-value="modelValue"
+      :title="title"
       @select="selectOption"
       @close="optionsVisible=false"
     ></c-picker>
@@ -27,6 +28,7 @@ const emit = defineEmits<{
 }>()
 
 const props = defineProps<{
+  title?: string
   options: {
     label: string
     value: T

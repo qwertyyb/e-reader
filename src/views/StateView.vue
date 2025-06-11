@@ -3,6 +3,7 @@
     <navigation-bar title="在读"></navigation-bar>
     <header class="state-header">
       <c-select v-model="query.sort"
+        title="排序"
         :options="sortOptions"
         class="sort-select"
         @change="refresh"

@@ -22,7 +22,7 @@
       :visible="dialog==='bookMenu'"
       :book-id="bookId"
       @close="dialog=null"
-      @action="openDialog"
+      @action="onAction"
     >
     </book-menu-dialog>
 
@@ -49,16 +49,6 @@
       @close="dialog=null"
       v-bind="dialogProps"
     ></book-share-dialog>
-
-    <c-dialog
-      title="AI问书"
-      :visible="dialog==='ai'"
-      class="ai-chat-dialog"
-      @close="dialog=null"
-      body-style="padding: 0"
-    >
-      <a-i-chat-view no-header></a-i-chat-view>
-    </c-dialog>
 
     <marks-dialog
       :book-id="bookId"
@@ -93,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { inject, onMounted, onUnmounted, ref, useTemplateRef, type ComputedRef, type Ref } from 'vue';
 import CDialog from '@/components/common/CDialog.vue';
 import SelectionMenu from '@/components/SelectionMenu.vue';
 import BookMenuDialog from '@/components/BookMenuDialog.vue';
@@ -103,12 +93,12 @@ import BookInfoDialog from '@/components/BookInfoDialog.vue';
 import BookTocSettingsDialog from '@/components/BookTocSettingsDialog.vue';
 import BookShareDialog from '@/components/BookShareDialog.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
-import router from '@/router';
 import ReadControl from '@/components/ReadControl.vue';
 import Hammer from 'hammerjs';
 import { settings } from '@/stores/settings';
 import type { GetNextElement } from '@/actions/read-speak';
 import { disableAnim } from '@/utils/env';
+import { useRouter } from 'vue-router';
 
 const props = defineProps<{
   bookId: number
@@ -124,16 +114,17 @@ const emits = defineEmits<{
   'jump': [{ cursor: number, chapterId: string }],
 }>()
 
-const AIChatView = defineAsyncComponent(() => import('@/views/AIChatView.vue'))
-
 const panelVisible = ref(false)
 const readControlRef = useTemplateRef('read-control')
 const dialog = ref<string | null>()
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const dialogProps = ref<any>(null)
 const selectMenuShowed = ref(false)
+const book = inject<Ref<IBook>>('book')
+const chapter = inject<ComputedRef<IChapter>>('chapter')
 
 const contentRef = useTemplateRef('content')
+const router = useRouter()
 
 const refreshMarks = () => {
   const chapterEls = contentRef.value!.querySelectorAll<HTMLElement>('.chapter')
@@ -151,13 +142,23 @@ const shareTextHandler = (mark: { text: string, chapterId: string, chapterIndex:
   dialog.value = 'share'
 }
 
-const openDialog = (name: string) => {
+const onAction = (name: string) => {
   if (name === 'share') {
     dialogProps.value = { mode: 'book', bookId: props.bookId }
     dialog.value = 'share'
-  } else {
-    dialog.value = name
+    return
   }
+  if (name === 'ai') {
+    dialog.value = null
+    router.push({
+      name: 'ai-chat',
+      params: { id: props.bookId },
+      query: { bookTitle: book?.value.title || '', chapterTitle: chapter?.value.title || '' }
+    })
+    return
+  }
+
+  dialog.value = name
 }
 
 const touchstartHandler = (e: TouchEvent) => {
