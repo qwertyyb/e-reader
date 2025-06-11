@@ -19,7 +19,7 @@ const clearCache = async () => {
   return caches.delete(CACHE_NAME)
 }
 
-const fetchResources = async () => {
+const fetchResourcesNeedCache = async () => {
   const resources: string[] = [
     './',
     './index.html',
@@ -47,8 +47,14 @@ const fetchResources = async () => {
   ]
 }
 
+const cacheResources = async () => {
+  const assets = await fetchResourcesNeedCache()
+  const cache = await caches.open(CACHE_NAME)
+  bridge.invoke('toast', '开始下载新版本')
+  await cache.addAll(assets)
+}
+
 const functions = {
-  deleteAllCache: clearCache,
   async checkCachedUrls(urls: string[]) {
     const results = await Promise.all(urls.map(async url => {
       const response = await caches.match(url)
@@ -61,13 +67,9 @@ const functions = {
   },
   async update() {
     await clearCache()
-    bridge.invoke('toast', '当前版本已清理')
-    const assets = await fetchResources()
-    const cache = await caches.open(CACHE_NAME)
     bridge.invoke('toast', '开始下载新版本')
-    await cache.addAll(assets)
+    await cacheResources()
     bridge.invoke('toast', '已完成版本更新')
-    return assets
   }
 }
 
@@ -78,38 +80,25 @@ const bridge = createBridge(
   },
   (callback) => {
     self.addEventListener('message', event => {
-      callback(event.data)
+      event.waitUntil(Promise.resolve(callback(event.data)))
     })
   },
   functions
 )
+
+
 self.addEventListener('install', function(event) {
   logger.info('service worker installing...')
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(async cache => {
-        await clearCache()
-        const resources = await fetchResources()
-        logger.info('cache resources', resources)
-        return cache.addAll(resources);
-      })
-      .then(() => {
-        logger.info('service worker installed')
-      })
-  )
-  self.skipWaiting();
+  if (self.registration.active) {
+    // 首次安装，缓存资源
+    event.waitUntil(Promise.all([cacheResources(), self.skipWaiting()]))
+  } else {
+    event.waitUntil(self.skipWaiting());
+  }
 });
 
 self.addEventListener('activate', event => {
   logger.info('active')
-  caches.keys().then(function(keyList) {
-    return Promise.all(keyList.map(function(key) {
-      if (key !== CACHE_NAME) {
-        logger.info('delete cache', key)
-        return caches.delete(key);
-      }
-    }));
-  })
   event.waitUntil(
     self.clients.claim().then(() => {
       bridge.invoke('toast', '已更新，刷新页面即可使用新版本')
