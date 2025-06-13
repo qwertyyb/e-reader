@@ -12,7 +12,8 @@
             class="prfs-control"
             :options="[
               { label: '始终', value: 'always' },
-              { label: '自动阅读时', value: 'reading' },
+              { label: '阅读时', value: 'reading' },
+              { label: '自动阅读时', value: 'autoPlay' },
               { label: '从不', value: 'never' }
             ]"
           >

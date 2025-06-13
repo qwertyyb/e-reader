@@ -130,12 +130,14 @@ interface ISettings {
   // 翻页方式
   turnPageType?: TurnPageType
   colorScheme?: { backgroundColor: string, textColor: string }
+}
 
-  openai?: {
-    baseURL: string,
-    model: string,
-    apiKey: string
-  }
+interface IPreferences {
+  screenKeepAlive: 'always' | 'reading' | 'autoPlay' | 'never';
+  darkMode: 'system' | 'light' | 'dark';
+  shelfServerUrl: string;
+  opdsServerUrl?: string;
+  ai?: { baseURL: string, apiKey: string, model: string }
 }
 
 interface DocumentEventMap {

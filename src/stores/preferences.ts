@@ -1,11 +1,12 @@
 import { DarkMode } from "@/actions";
 import { defaultPreferences, preferencesStorageKey } from "@/config";
+import * as wakeLock from "@/utils/wake-lock";
 import Logger from "js-logger";
 import { ref, watch } from "vue";
 
 const logger = Logger.get('preferences')
 
-const getPreferences = () => {
+const getPreferences = (): IPreferences => {
   try {
     return {
       ...defaultPreferences,
@@ -17,13 +18,7 @@ const getPreferences = () => {
   return { ...defaultPreferences }
 }
 
-export const preferences = ref<{
-  screenKeepAlive: 'always' | 'reading' | 'never';
-  darkMode: 'system' | 'light' | 'dark';
-  shelfServerUrl: string;
-  opdsServerUrl: string;
-  ai?: { baseURL: string, apiKey: string, model: string }
-}>(getPreferences());
+export const preferences = ref<IPreferences>(getPreferences());
 
 export const darkMode = new DarkMode({
   auto: preferences.value.darkMode === 'system',
@@ -34,12 +29,25 @@ if (preferences.value.darkMode === 'dark') {
   darkMode.enter()
 }
 
-watch(preferences, (newConfig) => {
-  if (newConfig.darkMode === 'dark' && !darkMode.isActivated()) {
+const darkModeHandler = (darkModeConfig: IPreferences["darkMode"]) => {
+  if (darkModeConfig === 'dark' && !darkMode.isActivated()) {
     darkMode.enter()
-  } else if (newConfig.darkMode === 'light' && darkMode.isActivated()) {
+  } else if (darkModeConfig === 'light' && darkMode.isActivated()) {
     darkMode.exit()
   }
-  darkMode.updateAuto(newConfig.darkMode === 'system')
+  darkMode.updateAuto(darkModeConfig === 'system')
+}
+
+const screenKeepAliveHandler = (setting: IPreferences['screenKeepAlive']) => {
+  if (setting === 'always') {
+    wakeLock.release()
+  } else {
+    wakeLock.release()
+  }
+}
+
+watch(preferences, (newConfig) => {
+  darkModeHandler(newConfig.darkMode)
+  screenKeepAliveHandler(newConfig.screenKeepAlive)
   localStorage.setItem(preferencesStorageKey, JSON.stringify(newConfig));
 }, { deep: true });

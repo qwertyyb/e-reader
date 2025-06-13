@@ -78,6 +78,8 @@ import ChapterContents from '@/components/ChapterContents.vue';
 import HorizationalChapterContents from '@/components/HorizationalChapterContents.vue';
 import ChapterListVue from '@/components/ChapterList.vue';
 import { ReadingTime } from '@/actions/reading-time';
+import { preferences } from '@/stores/preferences';
+import * as wakeLock from '@/utils/wake-lock'
 
 const props = defineProps<{
   id: string
@@ -209,9 +211,23 @@ const init = async () => {
   })
 }
 
+const requestWakeLock = () => {
+  if (preferences.value.screenKeepAlive === 'reading') {
+    wakeLock.request()
+  }
+}
+
+const releaseWakeLock = () => {
+  if (preferences.value.screenKeepAlive === 'reading') {
+    wakeLock.release()
+  }
+}
+
 init()
+requestWakeLock()
 
 onBeforeUnmount(() => {
+  releaseWakeLock()
   readingTime?.destroy()
 })
 
@@ -235,10 +251,12 @@ defineExpose({
   },
   onBackTo() {
     // 从其它页面 pop 回当前页面时，执行此回调
+    requestWakeLock()
     readingTime?.start()
   },
   onForwardFrom() {
     // 从当前页面 push 跳到新的页面时，执行此回调
+    releaseWakeLock()
     readingTime?.pause()
   }
 })

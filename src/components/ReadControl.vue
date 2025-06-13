@@ -214,7 +214,7 @@ import CSelect from '@/components/common/CSelect.vue';
 import { fontFamilyList, readColorScheme, textIndentList } from '@/config';
 import { settings } from '@/stores/settings';
 import type { GetNextElement } from '@/actions/read-speak';
-import { darkMode } from '@/stores/preferences';
+import { darkMode, preferences } from '@/stores/preferences';
 import { disableAnim } from '@/utils/env';
 import { formatDuration } from '@/utils';
 
@@ -279,6 +279,7 @@ const createActions = () => {
       scrollVertical: (distance) => emits('scroll-vertical', distance),
       speed: settings.value.speed,
       turnPageType: settings.value.turnPageType || 'vertical-scroll',
+      requestWakeLock: preferences.value.screenKeepAlive === 'autoPlay',
       changeHandler: (event) => {
         controlState.value.autoPlay = event.detail.playing
       }
