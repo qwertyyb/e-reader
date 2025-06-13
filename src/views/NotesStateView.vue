@@ -7,12 +7,12 @@
           v-for="item in books" :key="item.id"
           @click="$router.push({ name: 'notes', params: { id: item.id } })"
         >
-          <img :src="item.cover" alt="" class="book-cover">
           <div class="book-info">
             <p class="book-mark-count"><span class="big-text">{{ item.markCount }}</span>个笔记</p>
             <h3 class="book-title">{{ item.title }}</h3>
             <p class="book-item-footer">{{ item.progress }} | {{ item.duration }}</p>
           </div>
+          <img :src="item.cover" alt="" class="book-cover">
         </li>
       </ul>
     </main>
@@ -93,7 +93,7 @@ refresh()
     flex: 1;
     display: flex;
     flex-direction: column;
-    margin-left: 12px;
+    margin-right: auto;
   }
   .book-title, .book-item-footer {
     font-weight: normal;
