@@ -145,7 +145,7 @@ const init = async () => {
     showToast('请先设置OPDS服务器地址')
     return
   }
-  fetchFeedWithError(route.query.url as string | undefined ? route.query.url as string : preferences.value.opdsServerUrl)
+  fetchFeedWithError(route.query.url as string | undefined ? route.query.url as string : preferences.value.opdsServerUrl || '')
 }
 
 init()
