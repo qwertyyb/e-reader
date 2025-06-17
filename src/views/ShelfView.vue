@@ -56,7 +56,7 @@
         </div>
       </li>
     </ul>
-    <div class="empty-info" v-if="!visibleList.length">
+    <div class="empty-info" v-if="!loading && !visibleList.length">
       暂无书籍
     </div>
   </div>

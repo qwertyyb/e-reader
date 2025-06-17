@@ -126,6 +126,10 @@ const loadContentsWithSignal = (chapterId: string) => {
       lastLoadChapterId = chapterId
       return res
     })
+    .catch(err => {
+      lastLoadChapterId = null
+      throw err
+    })
 }
 
 const scrollToCursor = async (cursor: number) => {
