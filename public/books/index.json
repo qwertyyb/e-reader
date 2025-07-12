@@ -142,6 +142,17 @@
       "tocRegList": [
         "^第[一二三四五六七八九十零百千万亿]+[章]"
       ]
+    },
+    {
+      "id": "19",
+      "cover": "./covers/jsly.jpeg",
+      "title": "惊悚乐园",
+      "author": "三天两觉",
+      "downloadUrl": "./惊悚乐园.txt",
+      "tocRegList": [
+        "^【第.+卷",
+        "^第\\d+[章]"
+      ]
     }
   ]
 }
