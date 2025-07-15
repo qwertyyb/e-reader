@@ -1,7 +1,10 @@
 <template>
   <ul class="mark-list">
     <li class="mark-item"
-      v-for="mark in markListWithStyle" :key="mark.id">
+      v-for="mark in markListWithStyle"
+      :key="mark.id"
+      @click="$emit('tap', mark)"
+    >
       <span class="material-symbols-outlined mark-icon"
         v-if="!mark.thought"
         :style="mark.iconStyle">{{ MarkStyleIcons[mark.style] }}</span>
@@ -28,6 +31,11 @@ import { computed } from "vue";
 
 const props = defineProps<{
   markList: IMarkEntity[]
+}>()
+
+defineEmits<{
+  'remove': [IMarkEntity],
+  'tap': [IMarkEntity]
 }>()
 
 const markListWithStyle = computed(() => {

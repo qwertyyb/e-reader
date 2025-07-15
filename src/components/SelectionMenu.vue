@@ -177,11 +177,13 @@ const selectionChangeHandler = () => {
 
   const markRange = parseSelectionRange(range)
   if (!markRange) return
-  const { chapterId, chapterIndex, startOffset, length } = markRange
+  const { chapterId, chapterIndex, startOffset, length, start, end } = markRange
   mark.value = {
     bookId: props.bookId,
     chapterId,
     chapterIndex,
+    start,
+    end,
     range: {
       start: startOffset,
       length

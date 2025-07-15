@@ -54,6 +54,7 @@
       :book-id="bookId"
       :visible="dialog==='marksViewer'"
       @close="dialog=null;refreshMarks()"
+      @mark-tap="jumpToMark"
     >
     </marks-dialog>
 
@@ -132,6 +133,14 @@ const refreshMarks = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (el as any).chapterMark?.refresh()
   })
+}
+
+const jumpToMark = (mark: IMarkEntity) => {
+  if (mark.start) {
+    emits('jump', { chapterId: mark.chapterId, cursor: mark.start.cursor })
+    return
+  }
+  // 之前的旧数据，没有保存 cursor, 无法跳转过去
 }
 
 const shareTextHandler = (mark: { text: string, chapterId: string, chapterIndex: number }) => {

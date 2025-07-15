@@ -103,6 +103,14 @@ interface IMarkEntity {
   bookId: number
   chapterId: string
   chapterIndex: number
+  start?: {
+    cursor: number,
+    offset: number,
+  },
+  end?: {
+    cursor: number,
+    offset: number,
+  }
   range: {
     start: number,
     length: number,

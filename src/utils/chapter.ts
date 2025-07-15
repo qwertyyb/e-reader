@@ -1,4 +1,4 @@
-import { getChapterOffset, getClosest } from "./mark"
+import { getChapterOffset, getClosest, getCursorOffset } from "./mark"
 
 export const renderChapter = (chapter: IChapter, content: string, chapterIndex: number) => {
   const chapterEl = document.createElement('div')
@@ -38,6 +38,14 @@ export const parseSelectionRange = (range: Range): {
   startOffset: number,
   length: number,
   text: string,
+  start: {
+    cursor: number,
+    offset: number
+  },
+  end: {
+    cursor: number,
+    offset: number
+  }
 } | null => {
   // 先确认 range 是否跨了章节
   const startChapterEl = getClosest(range.startContainer, '.chapter') as HTMLElement
@@ -58,6 +66,8 @@ export const parseSelectionRange = (range: Range): {
     chapterIndex: Number(startChapterEl.dataset.chapterIndex),
     startOffset,
     length,
-    text: range.toString()
+    text: range.toString(),
+    start: getCursorOffset({ node: range.startContainer as HTMLElement, offset: range.startOffset }),
+    end: getCursorOffset({ node: range.endContainer as HTMLElement, offset: range.endOffset })
   }
 }

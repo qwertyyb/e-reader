@@ -40,6 +40,14 @@ export const getParagraphPoint = ({ node, offset }: { node: HTMLElement, offset:
   }
 }
 
+export const getCursorOffset = ({ node, offset }: { node: Node, offset: number }) => {
+  const p = getClosest(node, 'p[data-chapter-text-offset]') as HTMLElement
+  return {
+    cursor: parseInt(p.dataset.cursor || '0', 10),
+    offset: getPreviousOffset(node.parentNode, p) + offset
+  }
+}
+
 export const MarkStyles = {
   NONE: 0,
   SOLID: 1,

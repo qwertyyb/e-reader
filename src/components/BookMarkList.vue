@@ -2,7 +2,7 @@
   <ul class="book-mark-list"  v-loading="loading">
     <li class="chapter-mark-list" v-for="chapter in chapterMarkList" :key="chapter.chapterId">
       <h4 class="mark-chapter-title">{{ chapter.title }}</h4>
-      <mark-list :mark-list="chapter.markList" @remove="removeMark" class="mark-list"></mark-list>
+      <mark-list :mark-list="chapter.markList" @remove="removeMark" @tap="$emit('mark-tap', $event)" class="mark-list"></mark-list>
     </li>
     <li class="empty-tips" v-if="!loading && !chapterMarkList.length">暂无笔记，快标注你的第一条笔记吧</li>
   </ul>
@@ -21,7 +21,8 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  'mark-removed': [IMarkEntity]
+  'mark-removed': [IMarkEntity],
+  'mark-tap': [IMarkEntity]
 }>()
 
 const loading = ref(false)

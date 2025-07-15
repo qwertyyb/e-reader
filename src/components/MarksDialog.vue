@@ -7,7 +7,7 @@
       </h3>
     </template>
     <div class="marks-viewer">
-      <book-mark-list :book-id="bookId" @mark-removed="removeMark" style="flex:1"></book-mark-list>
+      <book-mark-list :book-id="bookId" @mark-removed="removeMark" @mark-tap="$emit('mark-tap', $event)" style="flex:1"></book-mark-list>
     </div>
   </c-dialog>
 </template>
@@ -25,6 +25,7 @@ defineProps<{
 
 const emits = defineEmits<{
   'mark-removed': [IMarkEntity],
+  'mark-tap': [IMarkEntity],
   close: []
 }>()
 
