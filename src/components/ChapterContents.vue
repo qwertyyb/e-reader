@@ -94,7 +94,7 @@ const loadContents = async (chapterId: string, options?: { signal: AbortSignal }
   const targetIndex = Math.max(0, props.chapterList.findIndex(chapter => chapter.id === chapterId))
   const startIndex = Math.max(0, targetIndex - Math.floor(keeps / 2))
   const contents: HTMLElement[] = []
-  for (let i = startIndex; i < startIndex + keeps; i += 1) {
+  for (let i = startIndex; i < Math.min(startIndex + keeps, props.chapterList.length); i += 1) {
     const chapterEl = el.value?.querySelector<HTMLDivElement>(`.chapter[data-chapter-index="${i}"]`)
     if (chapterEl) {
       contents.push(chapterEl)
