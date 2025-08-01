@@ -164,6 +164,16 @@
         "^第\\S+卷",
         "^第[一二三四五六七八九十零百千万亿]+[章]"
       ]
+    },
+    {
+      "id": "21",
+      "cover": "./covers/wyyzmxw.jpeg",
+      "title": "我有一座冒险屋",
+      "author": "我会修空调",
+      "downloadUrl": "./我有一座冒险屋.txt",
+      "tocRegList": [
+        "^第\\d+[章]"
+      ]
     }
   ]
 }
