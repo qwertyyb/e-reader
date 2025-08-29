@@ -371,7 +371,7 @@ watch(() => route.name, () => {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 1;
+  z-index: 2;
   background: var(--bg-color);
   .action-item {
     display: flex;
