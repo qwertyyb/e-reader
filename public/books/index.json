@@ -174,6 +174,16 @@
       "tocRegList": [
         "^第\\d+[章]"
       ]
+    },
+    {
+      "id": "22",
+      "title": "神秘复苏",
+      "cover": "./covers/smfs.jpeg",
+      "author": "佛前献花",
+      "downloadUrl": "./神秘复苏.txt",
+      "tocRegList": [
+        "^第\\d+章"
+      ]
     }
   ]
 }
