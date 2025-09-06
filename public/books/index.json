@@ -184,6 +184,16 @@
       "tocRegList": [
         "^第\\d+章"
       ]
+    },
+    {
+      "id": "23",
+      "title": "不科学御兽",
+      "cover": "./covers/bkxys.jpeg",
+      "author": "轻泉流响",
+      "downloadUrl": "./不科学御兽.txt",
+      "tocRegList": [
+        "^第\\d+章"
+      ]
     }
   ]
 }
