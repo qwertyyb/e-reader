@@ -296,6 +296,7 @@ defineExpose({
   p {
     text-indent: var(--text-indent);
     word-break: break-all;
+    line-break: anywhere;
     /* content-visibility: auto; */
   }
   p + p {
