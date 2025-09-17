@@ -194,6 +194,16 @@
       "tocRegList": [
         "^第\\d+章"
       ]
+    },
+    {
+      "id": "24",
+      "title": "我在精神病院学斩神",
+      "cover": "./covers/wzjsbyxzs.jpeg",
+      "author": "三九音域",
+      "downloadUrl": "./我在精神病院学斩神.txt",
+      "tocRegList": [
+        "^第\\d+章"
+      ]
     }
   ]
 }
