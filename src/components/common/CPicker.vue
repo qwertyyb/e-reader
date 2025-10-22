@@ -19,7 +19,8 @@
         @click="$emit('select', option)"
       >
         <slot name="option" :option="option" :index="index" :selected="modelValue === option.value">
-          {{ option.label }}
+          <div class="option-label">{{ option.label }}</div>
+          <div class="option-subtitle">{{ option.subtitle }}</div>
         </slot>
       </div>
     </div>
@@ -32,7 +33,7 @@ import CDialog from './CDialog.vue';
 const modelValue = defineModel<V>();
 
 defineProps<{
-  options: { value: V, label: string }[],
+  options: { value: V, label: string, subtitle?: string }[],
   title?: string
   visible: boolean
 }>()
@@ -62,5 +63,9 @@ defineEmits<{
   font-size: 16px;
   cursor: pointer;
   text-align: center;
+}
+.option-subtitle {
+  font-size: 12px;
+  opacity: 0.6;
 }
 </style>

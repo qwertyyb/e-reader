@@ -31,7 +31,8 @@ const props = defineProps<{
   title?: string
   options: {
     label: string
-    value: T
+    value: T,
+    subtitle?: string
   }[]
 }>()
 

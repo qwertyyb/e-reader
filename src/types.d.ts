@@ -145,7 +145,8 @@ interface IPreferences {
   darkMode: 'system' | 'light' | 'dark';
   shelfServerUrl: string;
   opdsServerUrl?: string;
-  ai?: { baseURL: string, apiKey: string, model: string }
+  ai?: { baseURL: string, apiKey: string, model: string };
+  tts?: 'local' | 'edge-tts'
 }
 
 interface DocumentEventMap {

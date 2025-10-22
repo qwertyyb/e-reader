@@ -56,7 +56,10 @@
         <div class="line-item">
           <p class="read-speak-toggle pointer" @click="toggleReadSpeak">
             朗读
-            <span class="control-icon material-symbols-outlined">{{ controlState.readSpeak ? 'pause_circle' : 'play_circle' }}</span>
+            <span class="control-icon material-symbols-outlined loading-rotate" v-if="controlState.readSpeak === 'loading'">hourglass_bottom</span>
+            <span class="control-icon material-symbols-outlined" v-else>
+              {{ controlState.readSpeak ? 'pause_circle' : 'play_circle' }}
+            </span>
           </p>
           <c-progress
             style="flex:1"
@@ -213,7 +216,7 @@ import CProgress from '@/components/common/CProgress.vue';
 import CSelect from '@/components/common/CSelect.vue';
 import { fontFamilyList, readColorScheme, textIndentList } from '@/config';
 import { settings } from '@/stores/settings';
-import type { GetNextElement } from '@/actions/read-speak';
+import { EdgeTTSReadSpeak, type GetNextElement } from '@/actions/read-speak';
 import { darkMode, preferences } from '@/stores/preferences';
 import { disableAnim } from '@/utils/env';
 import { formatDuration } from '@/utils';
@@ -231,7 +234,7 @@ const emits = defineEmits<{
 const visiblePanel = ref<string | null>()
 const controlState = ref({
   darkMode: darkMode.isActivated(),
-  readSpeak: false,
+  readSpeak: false as boolean | 'loading',
   autoPlay: false
 })
 
@@ -259,21 +262,26 @@ const readingDuration = computed(() => {
   return formatDuration(duration)
 })
 
+const createReadSpeakAction = () => {
+  const options = {
+    getNextElement: (current?: HTMLElement) => {
+      return props.getNextReadElement(current)
+    },
+    changeHandler: (event: CustomEvent<Partial<{speaking: boolean, rate: number}>>) => {
+      if ('speaking' in event.detail) {
+        controlState.value.readSpeak = event.detail.speaking!
+      }
+      if ('rate' in event.detail) {
+        settings.value.readSpeakRate = event.detail.rate!
+      }
+    }
+  }
+  return preferences.value.tts === 'local' ? new ReadSpeak(options) : new EdgeTTSReadSpeak(options)
+}
+
 const createActions = () => {
   return {
-    readSpeak: new ReadSpeak({
-      getNextElement: (current?: HTMLElement) => {
-        return props.getNextReadElement(current)
-      },
-      changeHandler: event => {
-        if ('speaking' in event.detail) {
-          controlState.value.readSpeak = event.detail.speaking!
-        }
-        if ('rate' in event.detail) {
-          settings.value.readSpeakRate = event.detail.rate!
-        }
-      }
-    }),
+    readSpeak: createReadSpeakAction(),
     autoPlay: new AutoPlay({
       nextPage: () => emits('next-page'),
       scrollVertical: (distance) => emits('scroll-vertical', distance),
@@ -310,6 +318,7 @@ const changeReadSpeakRate = (rate: number) => {
 }
 
 const toggleReadSpeak = () => {
+  controlState.value.readSpeak = 'loading'
   actions.readSpeak.toggle()
 }
 

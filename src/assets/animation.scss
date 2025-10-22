@@ -137,4 +137,19 @@ html:not(.disable-anim) {
   .all-transition {
     transition: all var(--transition-duration) ease-out;
   }
+
+  @keyframes rotation {
+    0% {
+      transform: rotate(0)
+    }
+    50% {
+      transform: rotate(180deg)
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  .loading-rotate {
+    animation: rotation 5s ease infinite;
+  }
 }
