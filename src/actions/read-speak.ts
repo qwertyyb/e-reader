@@ -1,5 +1,5 @@
 import { SegmentAudio, StreamAudioPlayer } from '@/lib/StreamAudioPlayer';
-import { EdgeTTS, Communicate } from 'edge-tts-universal/browser'
+import { Communicate } from 'edge-tts-universal/browser'
 
 export interface TTSAction {
   start(options?: { rate: number }): void | Promise<void | boolean>;
@@ -196,10 +196,10 @@ export class EdgeTTSReadSpeak extends EventTarget implements TTSAction {
       el.classList.add('reading')
       this.speakingEl = el
       scrollIntoView()
-    })
+    }, { once: true })
     seg.addEventListener('end', () => {
       el.classList.remove('reading')
-    })
+    }, { once: true })
 
     return seg;
   }
