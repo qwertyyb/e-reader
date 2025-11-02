@@ -1,4 +1,5 @@
-import { EdgeTTS } from 'edge-tts-universal/browser'
+import { SegmentAudio, StreamAudioPlayer } from '@/lib/StreamAudioPlayer';
+import { EdgeTTS, Communicate } from 'edge-tts-universal/browser'
 
 export interface TTSAction {
   start(options?: { rate: number }): void | Promise<void | boolean>;
@@ -129,9 +130,11 @@ export class ReadSpeak extends EventTarget implements TTSAction {
 export class EdgeTTSReadSpeak extends EventTarget implements TTSAction {
   static CHANGE_EVENT_NAME = 'change'
   #rate;
-  #audio = new Audio();
+  #audio: StreamAudioPlayer;
   #waitNext: Promise<{ el: HTMLElement, audioUrl: string, scrollIntoView: () => void } | null> | null = null
   speakingEl: HTMLElement | null = null
+  generatedEl: HTMLElement | null = null
+  
 
   getNextElement?: GetNextElement
   constructor({ getNextElement, changeHandler }: {
@@ -148,7 +151,9 @@ export class EdgeTTSReadSpeak extends EventTarget implements TTSAction {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       this.addEventListener(EdgeTTSReadSpeak.CHANGE_EVENT_NAME, changeHandler as any);
     }
-    this.#audio.addEventListener('ended', this.#playNext);
+    this.#audio = new StreamAudioPlayer({
+      request: this.requestSegment.bind(this)
+    })
     this.#audio.addEventListener('play', () => {
       this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: true } }))
     })
@@ -156,59 +161,54 @@ export class EdgeTTSReadSpeak extends EventTarget implements TTSAction {
       this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: false } }))
     })
   }
-  #playNext = async () => {
-    if (this.#audio.src) {
-      URL.revokeObjectURL(this.#audio.src)
-    }
-    this.speakingEl?.classList.remove('reading')
-    if (!this.#waitNext) {
-      this.stop();
-      return;
-    }
-    const nextInfo = await this.#waitNext;
-    if (!nextInfo) {
-      this.stop();
-      return;
-    }
-    const { audioUrl, scrollIntoView, el } = nextInfo
-    this.speakingEl = el;
-    el.classList.add('reading')
-    scrollIntoView();
-    this.#audio.src = audioUrl
-    this.#audio.play()
-    this.#waitNext = this.#readyNext(el)
-    return true;
-  }
   #readyNext(current?: HTMLElement) {
-    const nextEl = this.getNextElement?.(current);
-    if (!nextEl?.nextEl) {
-      return null
-    }
-    return this.#createNext(nextEl)
-  }
-  async #createNext(next?: ReturnType<GetNextElement>) {
+    const next = this.getNextElement?.(current);
     if (!next?.nextEl) {
-      this.stop();
-      return null;
+        return;
     }
     const { nextEl: el, scrollIntoView } = next;
     const text = el.innerText || ''
-    const tts = new EdgeTTS(text, 'zh-CN-XiaoxiaoNeural')
-    const result = await tts.synthesize();
-    const audioUrl = URL.createObjectURL(result.audio);
+
+    const communicate = new Communicate(text, { voice: 'zh-CN-XiaoxiaoNeural' })
     return {
       el,
       scrollIntoView,
-      audioUrl
+      communicate,
     }
+  }
+  requestSegment = () => {
+    const info = this.#readyNext(this.generatedEl || undefined)
+    if (!info) {
+      this.stop();
+      throw new Error('no next info')
+    }
+    const { el, scrollIntoView, communicate } = info;
+    this.generatedEl = el
+    const seg = new SegmentAudio(async function* (){
+      for await (const chunk of communicate.stream()) {
+        if (chunk.type === 'audio') {
+          yield chunk.data!.buffer
+        }
+      }
+    })
+
+    seg.addEventListener('start', () => {
+      el.classList.add('reading')
+      this.speakingEl = el
+      scrollIntoView()
+    })
+    seg.addEventListener('end', () => {
+      el.classList.remove('reading')
+    })
+
+    return seg;
   }
   async start(options?: { rate: number }) {
     if (options?.rate) {
       this.updateRate(options.rate || 1);
     }
-    this.#waitNext = this.#readyNext();
-    const result = await this.#playNext();
-    if (result && ("mediaSession" in navigator)) {
+    await this.#audio.play()
+    if (("mediaSession" in navigator)) {
       navigator.mediaSession.metadata = new MediaMetadata({
         title: "EdgeTTS",
         artist: "自动阅读中",
@@ -224,15 +224,13 @@ export class EdgeTTSReadSpeak extends EventTarget implements TTSAction {
         this.#audio.pause()
       });
     }
-    return result;
+    return;
   }
   stop() {
     this.speakingEl?.classList.remove('reading');
     this.speakingEl = null;
+    this.generatedEl = null;
     this.#audio.pause();
-    if (this.#audio.src) {
-      URL.revokeObjectURL(this.#audio.src)
-    }
     this.dispatchEvent(new CustomEvent(EdgeTTSReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: false } }));
     if ('mediaSession' in navigator) {
       navigator.mediaSession.metadata = null
