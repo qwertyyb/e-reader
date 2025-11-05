@@ -5,7 +5,7 @@
 
 import { TypedEventTarget } from "./TypedEventTarget"
 
-  
+
 //   // Check if the type of video format / codect is supported.
 //   if (!MediaSource.isTypeSupported(mediaType)) {
 //     return; // Not supported, do something else.
@@ -14,11 +14,11 @@ import { TypedEventTarget } from "./TypedEventTarget"
 //   // Set up video and its  source.
 //   const audio = document.createElement("audio");
 //   const source = new MediaSource();
-  
+
 //   audio.disableRemotePlayback = true;
 //   audio.controls = true;
 //   audio.loop = false;
-  
+
 //   await new Promise((resolve) => {
 //     audio.src = URL.createObjectURL(source);
 //     source.addEventListener("sourceopen", resolve, { once: true });
@@ -26,7 +26,7 @@ import { TypedEventTarget } from "./TypedEventTarget"
 //   });
 
 //   console.log(source.readyState)
-  
+
 //   const sourceBuffer = source.addSourceBuffer(mediaType);
 
 //   const maxBufferSize = 20
@@ -35,20 +35,20 @@ import { TypedEventTarget } from "./TypedEventTarget"
 //     if (!sourceBuffer.buffered.length || sourceBuffer.updating) {
 //       return;
 //     }
-    
+
 //     const currentTime = audio.currentTime;
 //     const buffered = sourceBuffer.buffered;
-    
+
 //     // 计算总缓冲时长
 //     let totalBufferDuration = 0;
 //     for (let i = 0; i < buffered.length; i++) {
 //       totalBufferDuration += buffered.end(i) - buffered.start(i);
 //     }
-    
+
 //     // 如果缓冲区过大，清理已播放的部分
 //     if (totalBufferDuration > maxBufferSize) {
 //       const removeEndTime = currentTime - cleanupThreshold;
-      
+
 //       if (removeEndTime > 0) {
 //         try {
 //           sourceBuffer.remove(0, removeEndTime);
@@ -60,7 +60,7 @@ import { TypedEventTarget } from "./TypedEventTarget"
 //     }
 //   }
 
-  
+
 //   audio.appendBuffer = async (arrayBuffer) => {
 //     sourceBuffer.appendBuffer(arrayBuffer)
 //     await new Promise(resolve => sourceBuffer.addEventListener('updateend', resolve, { once: true }))
@@ -124,6 +124,15 @@ export class SegmentAudio extends TypedEventTarget<{
   }
 }
 
+interface IOptions {
+  request: () => SegmentAudio | undefined | null,
+  bufferSize: number,
+}
+
+const defaultOptions: Omit<IOptions, 'request'> = {
+  bufferSize: 20, // 缓冲 20 秒
+}
+
 export class StreamAudioPlayer {
   #source: MediaSource = new (window.MediaSource || window.ManagedMediaSource)()
   #audio = new Audio()
@@ -135,9 +144,9 @@ export class StreamAudioPlayer {
     { segment: SegmentAudio, start: number, end?: number },
     { start: boolean, end: boolean }
   >()
-  options: { request: () => SegmentAudio }
+  options: IOptions
   constructor(options: { request: () => SegmentAudio }) {
-    this.options = options
+    this.options = { ...defaultOptions, ...options }
     this.#audio.disableRemotePlayback = true;
     this.#audio.controls = true;
     this.#audio.loop = false;
@@ -202,7 +211,7 @@ export class StreamAudioPlayer {
   pause() {
     this.#audio.pause();
   }
-  
+
   public get paused() : boolean {
     return this.#audio.paused
   }
@@ -217,12 +226,28 @@ export class StreamAudioPlayer {
   addEventListener = this.#audio.addEventListener.bind(this.#audio)
   removeEventListener = this.#audio.removeEventListener.bind(this.#audio)
 
-  #requestBuffer = async () => {
+  // 获取当前缓冲的能播放多久
+  #getLeftDuration = () => {
+    const len = this.#audio.buffered.length
+    if (len <= 0) return 0;
+    return this.#audio.buffered.end(len - 1) - this.#audio.currentTime
+  }
+
+  #isNeedRequestBuffer = () => {
+    return this.#getLeftDuration() < this.options.bufferSize
+  }
+
+  #requestBuffer = async (): Promise<void> => {
     if (this.#buffering) return;
     this.#buffering = true
     const len = this.#sourceBuffer?.buffered.length ?? 0
     const start = len <= 0 ? 0 : this.#sourceBuffer?.buffered.end(len - 1);
     const segment = this.options.request();
+    if (!segment) {
+      // 没有下个段落，已播完
+      this.#buffering = false;
+      return;
+    }
     this.#segments.push({ segment, start: start ?? 0 })
     for await (const data of segment.requestData()) {
       await this.#appendBuffer(data as ArrayBuffer)
@@ -231,6 +256,11 @@ export class StreamAudioPlayer {
     const end = afterLen <= 0 ? 0 : this.#sourceBuffer?.buffered.end(afterLen - 1);
     this.#segments[this.#segments.length - 1].end = end;
     this.#buffering = false
+
+    // 判断一下当前是否达到了缓冲目标？如果未达到，则继续加载
+    if (this.#isNeedRequestBuffer()) {
+      return this.#requestBuffer()
+    }
   }
 
   async #appendBuffer(arrayBuffer: ArrayBuffer) {
@@ -246,20 +276,20 @@ export class StreamAudioPlayer {
     }
     const maxBufferSize = 20
     const cleanupThreshold = 20
-    
+
     const currentTime = this.#audio.currentTime;
     const buffered = this.#sourceBuffer.buffered;
-    
+
     // 计算总缓冲时长
     let totalBufferDuration = 0;
     for (let i = 0; i < buffered.length; i++) {
       totalBufferDuration += buffered.end(i) - buffered.start(i);
     }
-    
+
     // 如果缓冲区过大，清理已播放的部分
     if (totalBufferDuration > maxBufferSize) {
       const removeEndTime = currentTime - cleanupThreshold;
-      
+
       if (removeEndTime > 0) {
         try {
           this.#sourceBuffer.remove(0, removeEndTime);
