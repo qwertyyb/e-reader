@@ -4,6 +4,8 @@
 @import './dark-mode.css';
 @import './fonts.css';
 
+@import './variables.scss';
+
 #app {
   min-height: var(--page-height);
   display: flex;
@@ -45,4 +47,10 @@ body .material-symbols-outlined {
 }
 .pointer {
   cursor: pointer;
+}
+
+@media (width <= $MAX_SMALL_WIDTH) {
+  html body .small-none {
+    display: none !important;
+  }
 }

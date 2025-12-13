@@ -106,7 +106,7 @@ const pushHandler = async (to: RouteLocation, from?: RouteLocation) => {
     curRouteComp.onForwardTo(to, from, toEl, fromEl)
     return;
   }
-  if (disableAnim.value) return;
+  if (disableAnim.value || history.value.length <= 1) return;
   runDefaultPushAnimation(toEl, fromEl);
 }
 

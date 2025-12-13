@@ -63,6 +63,8 @@ const selectOption = (option: { value: T, label: string }) => {
   .arrow-icon {
     margin-left: auto;
     font-size: 24px;
+    width: 24px;
+    height: 24px;
   }
 }
 </style>

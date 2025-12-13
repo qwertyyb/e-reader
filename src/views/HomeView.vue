@@ -7,7 +7,7 @@
         <my-view v-else></my-view>
       </transition>
     </div>
-    <ul class="tab-nav-list" v-if="preferences.opdsServerUrl">
+    <ul class="tab-nav-list">
       <li class="tab-nav-item pointer"
         @click="curTab = 'shelf'"
         :class="{selected: curTab === 'shelf' }">
@@ -27,6 +27,12 @@
         <span class="material-symbols-outlined tab-icon">person</span>
         我的
       </li>
+      <li class="tab-nav-item pointer small-none settings-item"
+        @click="$router.push({ name: 'preferences' })"
+        :class="{ selected: $route.matched.some(item => item.name === 'preferences') }">
+        <span class="material-symbols-outlined tab-icon">settings</span>
+        设置
+      </li>
     </ul>
   </div>
 </template>
@@ -38,6 +44,7 @@ import OPDSView from '@/views/OPDSView.vue';
 import { preferences } from '@/stores/preferences';
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { useWindowSize } from '@/hooks/windowSize';
 
 const router = useRouter()
 
@@ -49,11 +56,13 @@ const getDefaultTab = () => {
   return 'shelf';
 }
 const curTab = ref(getDefaultTab())
+const { isSmall } = useWindowSize();
 
 const tabNames = ['shelf', 'opds', 'my']
-const transitionName = ref('tab-slide-next')
+const transitionName = ref(isSmall.value ? 'tab-slide-next' : '')
 
 watch(curTab, (tab, prevTab) => {
+  if (!isSmall.value) return;
   // 要切换的tab 位于当前 tab 之前，则使用 tab-slide-prev
   // 否则使用 tab-slide-next
   transitionName.value = tabNames.indexOf(tab) < tabNames.indexOf(prevTab) ? 'tab-slide-prev' : 'tab-slide-next';
@@ -62,6 +71,8 @@ watch(curTab, (tab, prevTab) => {
 </script>
 
 <style lang="scss" scoped>
+@import "../assets/_variables.scss";
+
 .tab-view {
   display: flex;
   flex-direction: column;
@@ -100,6 +111,36 @@ watch(curTab, (tab, prevTab) => {
   .material-symbols-outlined {
     color: inherit;
     font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+@media (width > $MAX_SMALL_WIDTH) {
+  .tab-view {
+    flex-direction: row-reverse;
+  }
+  .tab-nav-list {
+    height: 100vh;
+    width: 200px;
+    flex-direction: column;
+    border-right: 1px solid var(--border-color);
+    border-top: none;
+  }
+  .tab-nav-item {
+    flex-direction: row;
+    align-items: flex-start;
+    flex: initial;
+    padding-bottom: 12px;
+    &.settings-item {
+      margin-top: auto;
+      border-top: 1px solid var(--border-color);
+    }
+  }
+}
+@media (hover: hover) {
+  .tab-nav-item:not(.selected):hover {
+    color: var(--theme-color-hover)
   }
 }
 </style>

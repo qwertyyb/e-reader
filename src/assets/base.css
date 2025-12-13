@@ -15,6 +15,7 @@
     sans-serif;
   
   --theme-color: #3563A9;
+  --theme-color-hover: #27497B;
 
   --bg-color: #f0f0f0;
   --border-color: #dfdfdf;
@@ -34,6 +35,15 @@
   --saib: env(safe-area-inset-bottom);
   --sail: env(safe-area-inset-left);
   --sair: env(safe-area-inset-right);
+
+  --max-small-width: 768px;
+}
+
+@media (width > 768px) {
+  :root {
+    --selected-bg-color: var(--theme-color);
+    --selected-text-color: #fff;
+  }
 }
 
 * {
@@ -75,8 +85,10 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 html.mock-safe-area {
-  --sait: 44px;
-  --saib: 34px;
+  /* --sait: 44px;
+  --saib: 34px; */
+  --sait: 0;
+  --saib: 0;
   --sail: 0;
   --sair: 0;
 }

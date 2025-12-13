@@ -291,6 +291,8 @@ watch(() => route.name, () => {
 </script>
 
 <style lang="scss" scoped>
+@import "../assets/_variables.scss";
+
 .book-list-view {
   display: flex;
   flex-direction: column;
@@ -319,6 +321,11 @@ watch(() => route.name, () => {
       font-size: 12px;
       font-weight: bold;
     }
+  }
+}
+@media (width > $MAX_SMALL_WIDTH) {
+  .navigation-bar {
+    position: static;
   }
 }
 .navigation-bar-space {

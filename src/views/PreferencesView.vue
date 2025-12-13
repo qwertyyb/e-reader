@@ -90,7 +90,7 @@ const feedback = () => {
 
 <style lang="scss" scoped>
 .prfs-view {
-  max-width: 600px;
+  // max-width: 600px;
   height: var(--page-height);
   display: flex;
   flex-direction: column;

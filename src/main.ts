@@ -1,6 +1,6 @@
 import { register, unregister } from './register-sw'
 import { initDisableAnim, initEruda, initMoreContrast } from '@/utils/env'
-import './assets/main.css'
+import './assets/main.scss'
 import 'material-symbols/outlined.css'
 
 import VirtualList from 'vue-virtual-list-v3'
