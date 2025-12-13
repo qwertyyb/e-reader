@@ -165,7 +165,6 @@ const resetToDefault = () => {
 
 <style lang="scss" scoped>
 .debug-view {
-  max-width: 600px;
   height: var(--page-height);
 }
 .debug-main {

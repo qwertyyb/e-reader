@@ -49,9 +49,20 @@ onMounted(checkUpdates)
 
 
 <style lang="scss" scoped>
+@import "../assets/variables.scss";
+
 .about-view {
   text-align: center;
   height: var(--page-height);
+  margin: auto;
+}
+@media (width > $MAX_SMALL_WIDTH) {
+  .about-view {
+    max-width: 400px;
+    height: auto;
+    border-radius: 6px;
+    overflow: hidden;
+  }
 }
 .about-view > * {
   margin-bottom: 16px;

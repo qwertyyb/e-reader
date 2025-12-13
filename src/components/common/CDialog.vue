@@ -28,7 +28,7 @@ import { nextTick, ref, useTemplateRef, watch, type StyleValue } from 'vue';
 
 const props = defineProps<{
   visible: boolean,
-  position?: 'left' | 'bottom',
+  position?: 'left' | 'bottom' | 'center',
   height?: string,
   title?: string,
   width?: string,
@@ -110,6 +110,13 @@ const openDialog = async () => {
     left: initial;
     .c-dialog-content {
       padding-top: max(16px, var(--sait));
+    }
+  }
+  &.dialog-position-center {
+    .c-dialog-content {
+      border-radius: 6px;
+      margin: auto;
+      max-width: 600px;
     }
   }
 }

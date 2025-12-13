@@ -22,6 +22,7 @@
 </template>
 
 <script setup lang="ts">
+import { useWindowSize } from '@/hooks/windowSize';
 import { appRouter } from '@/router';
 import { disableAnim } from '@/utils/env';
 import { nextTick, onBeforeUnmount, shallowRef, useTemplateRef } from 'vue';
@@ -36,6 +37,7 @@ const components = useTemplateRef<{
 }[]>('components')
 
 const history = shallowRef<RouteLocation[]>([])
+const { isSmall } = useWindowSize()
 
 const runDefaultPushAnimation = async (cur?: HTMLElement | null, prev?: HTMLElement | null) => {
   const prevAnim = prev?.animate([{ transform: `translateX(0)` }, { transform: `translateX(-30%)` }], { duration: 200, easing: 'ease-out' })
@@ -76,7 +78,7 @@ const popHandler = async (delta: number, options: { hasUAVisualTransition: boole
   const cur = components.value?.[history.value.length + delta]
   if (typeof cur?.onBackFrom === 'function') {
     await cur.onBackFrom(to, from, toEl, fromEl)
-  } else if (!disableAnim.value && !options.hasUAVisualTransition) {
+  } else if (!disableAnim.value && !options.hasUAVisualTransition && isSmall.value) {
     console.log('back', disableAnim.value)
     await runDefaultPopAnimation(fromEl, toEl);
   }
@@ -106,7 +108,7 @@ const pushHandler = async (to: RouteLocation, from?: RouteLocation) => {
     curRouteComp.onForwardTo(to, from, toEl, fromEl)
     return;
   }
-  if (disableAnim.value || history.value.length <= 1) return;
+  if (disableAnim.value || history.value.length <= 1 || !isSmall.value) return;
   runDefaultPushAnimation(toEl, fromEl);
 }
 
@@ -131,6 +133,8 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
+@import "../../assets/_variables.scss";
+
 .route-history-list {
   height: var(--page-height);
   overflow: hidden;
@@ -144,7 +148,14 @@ onBeforeUnmount(() => {
     height: 100%;
     overflow: auto;
     visibility: hidden;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
     --mask-opacity: 0.1;
+    &:deep(> *) {
+      width: 100%;
+    }
     &.previous, &.current {
       visibility: visible;
     }
@@ -166,6 +177,12 @@ onBeforeUnmount(() => {
     }
     &.current {
       z-index: 2;
+    }
+  }
+  @media (width > $MAX_SMALL_WIDTH) {
+    & > * {
+      visibility: visible;
+      background-color: rgba(0, 0, 0, 0.65);
     }
   }
 }

@@ -89,12 +89,26 @@ const feedback = () => {
 </script>
 
 <style lang="scss" scoped>
+@import "../assets/_variables.scss";
+
 .prfs-view {
-  // max-width: 600px;
   height: var(--page-height);
   display: flex;
   flex-direction: column;
+  max-width: 480px;
+  margin: 0 auto;
 }
+
+@media (width > $MAX_SMALL_WIDTH) {
+  .prfs-view {
+    height: auto;
+    margin: auto;
+    width: 480px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+}
+
 .prfs-main {
   width: calc(100% - 32px);
   margin: 16px;

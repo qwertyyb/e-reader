@@ -74,6 +74,7 @@ watch(curTab, (tab, prevTab) => {
 @import "../assets/_variables.scss";
 
 .tab-view {
+  flex: 1;
   display: flex;
   flex-direction: column;
   height: var(--page-height);
@@ -83,6 +84,7 @@ watch(curTab, (tab, prevTab) => {
   flex: 1;
   overflow-x: hidden;
   display: flex;
+  background-color: var(--bg-color);
   & > * {
     width: 100%;
     flex-shrink: 0;
