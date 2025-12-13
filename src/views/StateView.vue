@@ -94,6 +94,8 @@ refresh()
 </script>
 
 <style lang="scss" scoped>
+@import "../assets/variables.scss";
+
 .state-view {
   display: flex;
   flex-direction: column;
@@ -185,6 +187,21 @@ refresh()
     top: 16px;
     right: 16px;
     font-weight: bold;
+  }
+}
+
+
+@media (width > $MAX_SMALL_WIDTH) {
+  .book-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    .book-item {
+      width: 380px;
+      & + .book-item {
+        margin-top: 0;
+      }
+    }
   }
 }
 </style>

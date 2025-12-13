@@ -56,6 +56,8 @@ refresh()
 </script>
 
 <style lang="scss" scoped>
+@import "../assets/variables.scss";
+
 .notes-state-view {
   height: 100%;
   display: flex;
@@ -108,6 +110,20 @@ refresh()
   .book-item-footer {
     font-size: 12px;
     opacity: 0.7
+  }
+}
+
+@media (width > $MAX_SMALL_WIDTH) {
+  .book-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .book-item {
+    width: 380px;
+    & + .book-item {
+      margin-top: 0;
+    }
   }
 }
 </style>

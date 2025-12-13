@@ -51,6 +51,8 @@ refresh()
 </script>
 
 <style lang="scss" scoped>
+@import "../assets/variables.scss";
+
 .my-view {
   padding: var(--sait) 16px 0 16px;
 }
@@ -109,6 +111,26 @@ refresh()
   }
   .item-title {
     font-size: 13px;
+  }
+}
+
+@media (width > $MAX_SMALL_WIDTH) {
+  .my-main {
+    display: flex;
+  }
+  .my-list {
+    margin: auto;
+    display: flex;
+    gap: 12px;
+  }
+  .my-item {
+    height: 100px;
+    width: 220px;
+    display: flex;
+    flex-direction: column;
+    & + .my-item {
+      margin-top: 0;
+    }
   }
 }
 </style>

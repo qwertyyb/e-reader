@@ -16,14 +16,15 @@
           >现在阅读</button>
         </div>
       </header>
+      <ul class="summary-list">
+        <li class="summary-item" v-for="summary in summaryList" :key="summary.title">
+          <h3 class="summary-title">{{ summary.title }}</h3>
+          <div class="summary-text" v-html="summary.text"></div>
+          <div class="summary-detail">{{ summary.desc }}</div>
+        </li>
+      </ul>
       <main class="read-time-main">
-        <ul class="summary-list">
-          <li class="summary-item" v-for="summary in summaryList" :key="summary.title">
-            <h3 class="summary-title">{{ summary.title }}</h3>
-            <div class="summary-text" v-html="summary.text"></div>
-            <div class="summary-detail">{{ summary.desc }}</div>
-          </li>
-        </ul>
+        <h3 class="stats-title">时长明细</h3>
         <ul class="group-list">
           <li class="group-item" v-for="(item, index) in timeList" :key="index">
             <h4 class="group-title" v-if="timeList.length > 1">{{ item.title }}</h4>
@@ -135,6 +136,8 @@ const toRead = () => {
 </script>
 
 <style lang="scss" scoped>
+@import "../assets/variables.scss";
+
 .read-time-view {
   height: var(--page-height);
   display: flex;
@@ -144,7 +147,7 @@ const toRead = () => {
   flex: 1;
   height: 0;
   overflow: auto;
-  padding-bottom: max(var(--saib), 24px);
+  padding-bottom: 60px;
 }
 .read-time-header {
   display: flex;
@@ -186,6 +189,10 @@ const toRead = () => {
   }
 }
 .summary-list {
+  margin: 16px;
+  background: var(--card-bg-color);
+  padding: 16px;
+  border-radius: 6px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
@@ -212,8 +219,11 @@ const toRead = () => {
     opacity: 0.5;
   }
 }
+.stats-title {
+  font-size: 14px;
+}
 .group-list {
-  margin-top: 24px;
+  margin-top: 12px;
   .group-item + .group-item {
     margin-top: 16px;
   }
@@ -260,5 +270,37 @@ const toRead = () => {
 .read-time-footer {
   display: flex;
   justify-content: center;
+}
+
+@media (width > $MAX_SMALL_WIDTH) {
+  .read-time-content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    align-content: flex-start;
+  }
+  .read-time-header {
+    height: 160px;
+    margin-right: 0;
+  }
+  .book-info .read-btn {
+    margin-left: 0;
+    margin-right: auto;
+  }
+  .read-time-main {
+    width: 100%;
+    margin-top: 0;
+  }
+  .summary-list {
+    flex: 1;
+    height: 160px;
+    border-radius: 0;
+    margin-left: 0;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .read-time-footer {
+    width: 100%;
+    text-align: center;
+  }
 }
 </style>
