@@ -1,9 +1,11 @@
-import { createRouter, createWebHashHistory, type RouteLocation, type Router } from 'vue-router'
+import { createRouter, createWebHashHistory, type RouteLocation, type RouteLocationNormalizedLoadedGeneric, type Router } from 'vue-router'
 import ReadView from '@/views/ReadView.vue'
 import PreferencesView from '@/views/PreferencesView.vue'
 import AboutView from '@/views/AboutView.vue'
 import AdvancedPrfsView from '@/views/AdvancedPrfsView.vue'
 import HomeView from '@/views/HomeView.vue'
+import { ref, markRaw, type Ref } from 'vue'
+import { historyKey, type RouteHistory } from './const'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -105,10 +107,10 @@ const router = createRouter({
   ],
 })
 
-window.addEventListener('hashchange', event => {
-  const hash = event.newURL.split('#')[1] || '/'
-  router.replace(hash || '/')
-})
+// window.addEventListener('hashchange', event => {
+//   const hash = event.newURL.split('#')[1] || '/'
+//   router.replace(hash || '/')
+// })
 
 // export default router
 
@@ -122,26 +124,85 @@ const createAppRouter = (router: Router): Router & {
     offPop: (callback: IRouterPopHandler) => void,
     offPush: (callback: IRouterHandler) => void,
     offReplace: (callback: IRouterHandler) => void,
+    history: Ref<RouteHistory>
 } => {
   const popCallbacks: IRouterPopHandler[] = []
   const pushCallbacks: IRouterHandler[] = []
   const replaceCallbacks: IRouterHandler[] = []
 
+  const history = ref<RouteHistory>([])
+
+  // @ts-ignore
+  window.customHistory = history;
+
   router.isReady().then(() => {
+    history.value.push(markRaw(router.currentRoute.value))
     window.addEventListener('popstate', (event) => {
       popCallbacks.forEach(callback => callback(-1, { hasUAVisualTransition: event.hasUAVisualTransition }))
     })
   });
-  return {
+
+  const pushHistory = (route: RouteLocationNormalizedLoadedGeneric) => {
+    console.log('pushHistory', route)
+    if (history.value.length <= 0) {
+      history.value.push(markRaw(route))
+      return
+    }
+    const last = history.value[history.value.length - 1]
+    for (let i = 0; i < Math.min(last.matched.length, route.matched.length); i++) {
+      const lastMatched = last.matched[i]
+      if (lastMatched.components?.default && lastMatched.components?.default === route.matched[i].components?.default) {
+        last.instance?.dispatchPageLeave();
+        if (last.history) {
+          last.history.push(markRaw(route))
+        } else {
+          last.history = [markRaw(route)]
+        }
+        return;
+      }
+    }
+    history.value.push(markRaw(route))
+  }
+
+  const popHistoryInner = (delta: number, routeHistory: RouteHistory = history.value): [number, RouteHistory] => {
+    if (delta === 0) return [delta, routeHistory]
+    if (delta > 0) {
+      throw new Error('暂不支持前进')
+    }
+
+    let deltaLeft = delta
+    for (let i = routeHistory.length - 1; i >= 0; i--) {
+      if (routeHistory[i].history?.length) {
+        const result = popHistoryInner(delta, routeHistory[i].history)
+        deltaLeft = result[0]
+        routeHistory[i].history = result[1];
+      }
+    }
+    return [deltaLeft, routeHistory]
+  }
+
+  const popHistory = (delta: number) => {
+    const result = popHistoryInner(delta, history.value)
+    history.value = result[1]
+  }
+
+  const appRouter: Router = {
     ...router,
-    async push (...args: Parameters<typeof router.push>) {
-      const current = router.currentRoute.value
+    async push(...args: Parameters<typeof router.push>) {
+      console.log('push')
+      const lastRoute = router.currentRoute.value
       const result = await router.push(...args)
-      pushCallbacks.forEach(callback => callback(router.currentRoute.value, current))
+      const current = router.currentRoute.value;
+      pushCallbacks.forEach(callback => callback(router.currentRoute.value, lastRoute))
+
+      // 判断新的路由页面是否和上一个页面共用了同一个父组件，如果共用了，则把历史记录到父组件下面
+      pushHistory(current)
       return result
     },
     back() {
       const result = router.back()
+      history.value.pop();
+      popHistory(-1);
       return result
     },
     forward() {
@@ -156,6 +217,7 @@ const createAppRouter = (router: Router): Router & {
       }
       const current = router.currentRoute.value
       const result = router.go(delta)
+      popHistory(delta)
       if (delta < 0) {
         popCallbacks.forEach(callback => callback(delta, { hasUAVisualTransition: false }))
       } else {
@@ -168,6 +230,15 @@ const createAppRouter = (router: Router): Router & {
       const result = await router.replace(...args)
       replaceCallbacks.forEach(callback => callback(router.currentRoute.value, current))
       return result
+    },
+  }
+
+  return {
+    ...appRouter,
+    history,
+    install(app) {
+      app.use(appRouter);
+      app.provide(historyKey, history)
     },
     onPop(callback: IRouterPopHandler) {
       popCallbacks.push(callback)

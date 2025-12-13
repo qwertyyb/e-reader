@@ -1,7 +1,7 @@
 <template>
   <div class="c-router-view" ref="el">
     <ul class="route-history-list">
-      <li class="route-history-item"
+      <!-- <li class="route-history-item"
         v-for="(route, index) in history"
         :key="index"
         :class="{
@@ -16,26 +16,54 @@
           :is="matched.components?.default"
           v-bind="route.params"
         ></component>
-      </li>
+      </li> -->
+      <CHistoryPage
+        ref="pages"
+        v-for="(route, index) in history"
+        :key="index"
+        :route="route"
+        :class="{
+          'current': index === history!.length - 1,
+          'previous': index === history!.length - 2,
+        }"
+      ></CHistoryPage>
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
 import { appRouter } from '@/router';
+import { historyKey, matchRouteKey, RouteHistory } from '@/router/const';
 import { disableAnim } from '@/utils/env';
-import { nextTick, onBeforeUnmount, shallowRef, useTemplateRef } from 'vue';
-import type { RouteLocation } from 'vue-router';
+import { inject, nextTick, onBeforeUnmount, provide, Ref, shallowRef, useTemplateRef, watch } from 'vue';
+import type { RouteLocation, RouteRecordRaw } from 'vue-router';
+import CHistoryPage from './CHistoryPage.vue';
+
+const history = inject<Ref<RouteHistory>>(historyKey)
+
+console.log('history', history)
+const pages = useTemplateRef('pages')
+
+watch(pages, (pageInstances) => {
+  history?.value.forEach((item, index) => {
+    const instance = pageInstances?.[index]
+    item.instance = instance
+  })
+})
+
+watch(() => history?.value.length ?? 0, (newVal, oldVal) => {
+  if (newVal > oldVal) {
+    // 有新页面来了，在旧页面上 dispatchPageLeave
+    pages.value?.[oldVal - 1]?.dispatchPageLeave()
+  } else if (oldVal > newVal) {
+    // 有页面出栈，在旧页面上 dispatchPageBack
+    pages.value?.[newVal - 1]?.dispatchPageBack()
+  }
+})
 
 const el = useTemplateRef('el')
-const components = useTemplateRef<{
-  onBackFrom?: (to: RouteLocation, from: RouteLocation, toEl?: HTMLElement | null, fromEl?: HTMLElement | null) => void | Promise<void>,
-  onForwardTo?: (to: RouteLocation, from?: RouteLocation, toEl?: HTMLElement | null, fromEl?: HTMLElement | null) => void | Promise<void>,
-  onBackTo?: (to: RouteLocation, from: RouteLocation, toEl?: HTMLElement | null, fromEl?: HTMLElement | null) => void | Promise<void>,
-  onForwardFrom?: (to: RouteLocation, from: RouteLocation, toEl?: HTMLElement | null, fromEl?: HTMLElement | null) => void | Promise<void>,
-}[]>('components')
 
-const history = shallowRef<RouteLocation[]>([])
+// const history = shallowRef<RouteLocation[]>([])
 
 const runDefaultPushAnimation = async (cur?: HTMLElement | null, prev?: HTMLElement | null) => {
   const prevAnim = prev?.animate([{ transform: `translateX(0)` }, { transform: `translateX(-30%)` }], { duration: 200, easing: 'ease-out' })
@@ -114,19 +142,19 @@ const replaceHandler = (to: RouteLocation) => {
   history.value = [...history.value.slice(0, history.value.length - 1), to]
 }
 
-appRouter.onPush(pushHandler)
-appRouter.onPop(popHandler)
-appRouter.onReplace(replaceHandler)
+// appRouter.onPush(pushHandler)
+// appRouter.onPop(popHandler)
+// appRouter.onReplace(replaceHandler)
 
-appRouter.isReady().then(() => {
-  pushHandler(appRouter.currentRoute.value)
-})
+// appRouter.isReady().then(() => {
+//   pushHandler(appRouter.currentRoute.value)
+// })
 
-onBeforeUnmount(() => {
-  appRouter.offPop(popHandler)
-  appRouter.offPush(pushHandler)
-  appRouter.offReplace(replaceHandler)
-})
+// onBeforeUnmount(() => {
+//   appRouter.offPop(popHandler)
+//   appRouter.offPush(pushHandler)
+//   appRouter.offReplace(replaceHandler)
+// })
 
 </script>
 
