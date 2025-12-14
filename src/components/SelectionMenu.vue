@@ -89,6 +89,9 @@ import { ChapterMark, MarkColors, MarkStyles } from '@/utils/mark'
 import { computed, onMounted, onUnmounted, ref, toRaw, useTemplateRef, watch } from 'vue'
 import { parseSelectionRange } from '@/utils/chapter';
 import CTextarea from '@/components/common/CTextarea.vue';
+import Logger from 'js-logger'
+
+const logger = Logger.get('SelectionMenu')
 
 const props = defineProps<{ bookId: number, chapterId: string }>()
 
@@ -171,10 +174,10 @@ const selectionChangeHandler = () => {
   }
 
   if (!range || !text) {
-    if (mark.value && !mark.value?.id) {
-      mark.value = null
-      dialog.value = null
-    }
+    // if (mark.value && !mark.value?.id) {
+    //   mark.value = null
+    //   dialog.value = null
+    // }
     return;
   }
 
@@ -280,6 +283,9 @@ const saveThought = async () => {
 }
 
 const contentTapHandler = async (e: MouseEvent) => {
+  logger.info('contentTapHandler', window.getSelection()?.toString().length, mark.value)
+  // 经过测试，选中文字后，点击取消选择时，在 Mac Chrome 和 Mac Safari 上，selectionchange 会早于 pointerup，而在移动端safari上，selectionchange 会晚于 pointerup 事件。
+  // 所以至少在 Mac 上，在此处获取的 selection 选区状态已经是最新的了，而在移动端，此处获取的不一定是最新的(如果是调整选区就是最新的，如果是点击取消选择就不是最新的)
   if (window.getSelection()?.toString()) {
     e.preventDefault()
     e.stopPropagation()

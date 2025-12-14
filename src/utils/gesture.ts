@@ -22,7 +22,7 @@ export const createGesture = (options: IGestureOptions) => {
     startTime: 0,
     startX: 0, startY: 0,
     touching: false,
-    preventTouchMove: null as (boolean | null),
+    enableGesture: null as (boolean | null),
     moveTimeout: null as (ReturnType<typeof setTimeout> | null)
   }
 
@@ -31,36 +31,52 @@ export const createGesture = (options: IGestureOptions) => {
     startInfo.startY = event.screenY
     startInfo.startTime = Date.now()
     startInfo.touching = false
-    startInfo.preventTouchMove = null
+    startInfo.enableGesture = null;
+    if ((window.getSelection()?.toString().length ?? 0) > 0) {
+      return;
+    }
     const shouldStart = onStart?.({
       type: 'start',
       startX: startInfo.startX,
       startY: startInfo.startY,
-      deltaX: event.screenX - startInfo.startX,
-      deltaY: event.screenY - startInfo.startY,
-      velocityX: (event.screenX - startInfo.startX) / (Date.now() - startInfo.startTime),
-      velocityY: (event.screenY - startInfo.startY) / (Date.now() - startInfo.startTime)
-    })
+      deltaX: 0,
+      deltaY: 0,
+      velocityX: 0,
+      velocityY: 0
+    });
+    window.addEventListener('pointerup', pointerUpOrCancelHandler, { once: true, capture: true })
+    window.addEventListener('pointercancel', pointerUpOrCancelHandler, { once: true, capture: true })
+    window.addEventListener('pointermove', pointerMoveHandler, true)
     startInfo.touching = shouldStart !== false
     startInfo.moveTimeout = setTimeout(() => {
+      // 超时未移动，则取消手势
       startInfo.touching = false
+      startInfo.enableGesture = null
+      window.removeEventListener('pointermove', pointerMoveHandler, true)
+      window.removeEventListener('pointerup', pointerUpOrCancelHandler, true)
+      window.removeEventListener('pointercancel', pointerUpOrCancelHandler, true)
     }, delay)
   }
   const pointerMoveHandler = (event: PointerEvent) => {
     // 如果手势未开始，则无须执行回调
-    if (!startInfo.touching || startInfo.preventTouchMove === false) return;
+    if (!startInfo.touching || startInfo.enableGesture === false || event.pointerType === 'mouse' && event.buttons !== 1) return;
 
     if (startInfo.moveTimeout) {
       clearTimeout(startInfo.moveTimeout)
       startInfo.moveTimeout = null
     }
 
-    if (startInfo.preventTouchMove === null) {
-      startInfo.preventTouchMove = Math.abs(event.screenX - startInfo.startX) > Math.abs(event.screenY - startInfo.startY)
+    if (startInfo.enableGesture === null) {
+      startInfo.enableGesture = Math.abs(event.screenX - startInfo.startX) > Math.abs(event.screenY - startInfo.startY)
+      if (startInfo.enableGesture) {
+        window.getSelection()?.empty();
+        console.log('onselectstart')
+        document.onselectstart = () => false
+      }
     }
 
     // 如果滑动的方向不是横向，即 needPreventTouchMove 为 false, 则无须执行回调
-    if (!startInfo.preventTouchMove) return;
+    if (!startInfo.enableGesture) return;
     onMove?.({
       type: 'move',
       startX: startInfo.startX,
@@ -71,13 +87,12 @@ export const createGesture = (options: IGestureOptions) => {
       velocityY: (event.screenY - startInfo.startY) / (Date.now() - startInfo.startTime)
     })
   }
-  const touchMoveHandler = (event: TouchEvent) => {
-    if (startInfo.preventTouchMove) {
-      event.preventDefault()
-    }
-  }
   const pointerUpOrCancelHandler = (event: PointerEvent) => {
-    if (!startInfo.touching || startInfo.preventTouchMove === false) return;
+    document.onselectstart = null
+    window.removeEventListener('pointermove', pointerMoveHandler, true)
+    window.removeEventListener('pointerup', pointerUpOrCancelHandler, true)
+    window.removeEventListener('pointercancel', pointerUpOrCancelHandler, true)
+    if (!startInfo.touching || !startInfo.enableGesture) return;
     onEnd?.({
       type: 'end',
       startX: startInfo.startX,
@@ -88,21 +103,16 @@ export const createGesture = (options: IGestureOptions) => {
       velocityY: (event.screenY - startInfo.startY) / (Date.now() - startInfo.startTime)
     })
     startInfo.touching = false
-    startInfo.preventTouchMove = null
+    startInfo.enableGesture = null
   }
 
   el.addEventListener('pointerdown', pointerDownHandler)
-  el.addEventListener('pointermove', pointerMoveHandler)
-  el.addEventListener('touchmove', touchMoveHandler)
-  el.addEventListener('pointerup', pointerUpOrCancelHandler)
-  el.addEventListener('pointercancel', pointerUpOrCancelHandler)
   return {
     clean() {
       el.removeEventListener('pointerdown', pointerDownHandler)
-      el.removeEventListener('pointermove', pointerMoveHandler)
-      el.removeEventListener('touchmove', touchMoveHandler)
-      el.removeEventListener('pointerup', pointerUpOrCancelHandler)
-      el.removeEventListener('pointercancel', pointerUpOrCancelHandler)
+      window.removeEventListener('pointermove', pointerMoveHandler, true)
+      window.removeEventListener('pointerup', pointerUpOrCancelHandler, true)
+      window.removeEventListener('pointercancel', pointerUpOrCancelHandler, true)
     }
   }
 }

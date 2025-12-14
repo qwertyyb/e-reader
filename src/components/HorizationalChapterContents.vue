@@ -6,10 +6,14 @@
 
 <script setup lang="ts">
 import { useGesture } from '@/hooks/gesture';
+import { useWindowSize } from '@/hooks/windowSize';
 import { debounce, showToast } from '@/utils';
 import { renderChapter } from '@/utils/chapter';
 import { disableAnim } from '@/utils/env';
-import { nextTick, useTemplateRef } from 'vue'
+import { nextTick, useTemplateRef, watch } from 'vue'
+import Logger from 'js-logger'
+
+const logger = Logger.get('HorizationalChapterContents')
 
 const props = defineProps<{
   chapterList: IChapter[],
@@ -129,7 +133,7 @@ const getCurrentProgress = () => {
   }
 }
 
-useGesture(el, {
+const { gesture } = useGesture(el, {
   onStart() {
     touching = true
     if (window.getSelection()?.toString()) return false;
@@ -144,19 +148,24 @@ useGesture(el, {
     const pw = getPageWidth()
     let scrollLeft = 0
     if (detail.velocityX > 0.2) {
-      console.log('prev')
       scrollLeft = Math.max(0, Math.round(startScrollLeft / pw) - 1) * pw
     } else if (detail.velocityX < -0.2) {
-      console.log('next')
       scrollLeft = (Math.round(startScrollLeft / pw) + 1) * pw
     } else {
-      console.log('posi')
       // 以当前落点计算应该滚动的位置
       scrollLeft = Math.round(wrapper.scrollLeft / pw) * pw
     }
     wrapper.scrollTo({ left: scrollLeft, behavior: disableAnim.value ? 'instant' : 'smooth' })
     touching = false
   },
+})
+
+const { isSmall } = useWindowSize()
+
+watch(gesture, (val) => {
+  if (!isSmall.value) {
+    val?.clean()
+  }
 })
 
 const scrollHandler = debounce(() => {
@@ -189,6 +198,7 @@ const init = async () => {
 init()
 
 const tapHandler = (event: PointerEvent) => {
+  logger.info('tapHandler', window.getSelection()?.toString(), event)
   if (window.getSelection()?.toString()) return;
   const pageWidth = window.innerWidth;
   const pageHeight = window.innerHeight;
