@@ -13,6 +13,9 @@ import 'element-plus/theme-chalk/el-loading.css'
 
 import App from './App.vue'
 import { appRouter } from './router'
+import { supportTapEvent } from './utils/gesture'
+
+supportTapEvent()
 
 Logger.useDefaults({
   formatter: function (messages, context) {

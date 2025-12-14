@@ -87,8 +87,8 @@ html {
 html.mock-safe-area {
   /* --sait: 44px;
   --saib: 34px; */
-  --sait: 0;
-  --saib: 0;
-  --sail: 0;
-  --sair: 0;
+  --sait: 0px;
+  --saib: 0px;
+  --sail: 0px;
+  --sair: 0px;
 }

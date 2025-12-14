@@ -1,5 +1,5 @@
 <template>
-  <div class="horizontal-chapter-contents" ref="el">
+  <div class="horizontal-chapter-contents" ref="el" @tap="tapHandler">
     <div class="chapter-contents-wrapper" @scroll="scrollHandler"></div>
   </div>
 </template>
@@ -143,11 +143,14 @@ useGesture(el, {
     const wrapper = el.value!.querySelector<HTMLElement>('.chapter-contents-wrapper')!
     const pw = getPageWidth()
     let scrollLeft = 0
-    if (detail.velocityX > 0.3) {
+    if (detail.velocityX > 0.2) {
+      console.log('prev')
       scrollLeft = Math.max(0, Math.round(startScrollLeft / pw) - 1) * pw
-    } else if (detail.velocityX < -0.3) {
+    } else if (detail.velocityX < -0.2) {
+      console.log('next')
       scrollLeft = (Math.round(startScrollLeft / pw) + 1) * pw
     } else {
+      console.log('posi')
       // 以当前落点计算应该滚动的位置
       scrollLeft = Math.round(wrapper.scrollLeft / pw) * pw
     }
@@ -184,6 +187,43 @@ const init = async () => {
 }
 
 init()
+
+const tapHandler = (event: PointerEvent) => {
+  if (window.getSelection()?.toString()) return;
+  const pageWidth = window.innerWidth;
+  const pageHeight = window.innerHeight;
+  /**
+   * 把点击区域分为九个区域，如下
+   * 1|2|3
+   * 4|5|6
+   * 7|8|9
+   * 先计算在点击落于哪个区域
+   */
+  const x = event.clientX
+  const y = event.clientY
+  const centerLeft = pageWidth / 3
+  const centerRight = 2 * centerLeft
+  const centerTop = pageHeight / 3
+  const centerBottom = 2 * centerTop
+  let area = -1
+  if (y <= centerTop) {
+    area = x < centerLeft ? 1 : x < centerRight ? 2 : 3
+  } else if (y <= centerBottom) {
+    area = x < centerLeft ? 4 : x < centerRight ? 5 : 6
+  } else {
+    area = x < centerLeft ? 7 : x < centerRight ? 8 : 9
+  }
+
+  const nextPageArea = [3, 6, 9]
+  const prevPageArea = [1, 4, 7]
+  if (nextPageArea.includes(area)) {
+    nextPage()
+    event.stopPropagation();
+  } else if (prevPageArea.includes(area)) {
+    prevPage();
+    event.stopPropagation();
+  }
+}
 
 defineExpose({
   prevPage,

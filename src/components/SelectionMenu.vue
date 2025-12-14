@@ -1,6 +1,6 @@
 <template>
   <div class="selection-menu">
-    <div class="selection-menu-content-wrapper" @pointerdown.capture="pointerdownHandler" @pointerup.capture="contentTapHandler" ref="contentWrapper">
+    <div class="selection-menu-content-wrapper" @pointerup.capture="contentTapHandler" ref="contentWrapper">
       <slot></slot>
     </div>
     <div class="selection-menu-list-wrapper"
@@ -156,14 +156,13 @@ const selectionChangeHandler = () => {
   if (dialog.value === 'thoughtInput') return
 
   const selection = window.getSelection()
-  if (!selection) return
 
   let text = ''
   let range = null
 
-  if (selection.rangeCount) {
+  if (selection?.rangeCount) {
     // 现代浏览器只支持一个range
-    range = selection.getRangeAt(0)
+    range = selection?.getRangeAt(0)
     text = range.toString()
 
     if (range.startContainer.nodeType !== Node.TEXT_NODE || range.endContainer.nodeType !== Node.TEXT_NODE) {
@@ -171,9 +170,13 @@ const selectionChangeHandler = () => {
     }
   }
 
-  if (!range) return
-
-  if (!text) return
+  if (!range || !text) {
+    if (mark.value && !mark.value?.id) {
+      mark.value = null
+      dialog.value = null
+    }
+    return;
+  }
 
   const markRange = parseSelectionRange(range)
   if (!markRange) return
@@ -276,16 +279,19 @@ const saveThought = async () => {
   updateMenuRect()
 }
 
-const pointerdownHandler = (e: PointerEvent) => {
-  mark.value = null
-  const markEl = ((e.target as HTMLElement).nodeName === 'MARK' ? e.target : (e.target as HTMLElement).closest('mark')) as HTMLElement
-  if (!markEl) return
-  e.preventDefault()
-  e.stopImmediatePropagation()
-  e.stopPropagation()
-}
-
 const contentTapHandler = async (e: MouseEvent) => {
+  if (window.getSelection()?.toString()) {
+    e.preventDefault()
+    e.stopPropagation()
+    return;
+  }
+  if (mark.value) {
+    dialog.value = null
+    mark.value = null
+    e.preventDefault()
+    e.stopPropagation()
+    return;
+  }
   const markEl = ((e.target as HTMLElement).nodeName === 'MARK' ? e.target : (e.target as HTMLElement).closest('mark')) as HTMLElement
   if (!markEl) return
   e.preventDefault()
