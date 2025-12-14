@@ -291,7 +291,7 @@ watch(() => route.name, () => {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/_variables.scss";
+@use "../styles/variables";
 
 .book-list-view {
   display: flex;
@@ -323,7 +323,7 @@ watch(() => route.name, () => {
     }
   }
 }
-@media (width > $MAX_SMALL_WIDTH) {
+@media (width > variables.$MAX_SMALL_WIDTH) {
   .navigation-bar {
     position: static;
   }

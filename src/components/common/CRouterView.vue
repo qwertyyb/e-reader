@@ -133,7 +133,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
-@import "../../assets/_variables.scss";
+@use "../../styles/variables";
 
 .route-history-list {
   height: var(--page-height);
@@ -179,7 +179,7 @@ onBeforeUnmount(() => {
       z-index: 2;
     }
   }
-  @media (width > $MAX_SMALL_WIDTH) {
+  @media (width > variables.$MAX_SMALL_WIDTH) {
     & > * {
       visibility: visible;
       background-color: rgba(0, 0, 0, 0.65);

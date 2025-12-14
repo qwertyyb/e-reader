@@ -65,7 +65,7 @@ const prompt = (name: 'shelfServerUrl' | 'opdsServerUrl') => {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/_variables.scss";
+@import "../styles/variables";
 
 .advanced-prfs-view {
   max-width: 480px;

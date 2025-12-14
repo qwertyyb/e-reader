@@ -71,7 +71,7 @@ watch(curTab, (tab, prevTab) => {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/_variables.scss";
+@use "../styles/variables";
 
 .tab-view {
   flex: 1;
@@ -118,7 +118,7 @@ watch(curTab, (tab, prevTab) => {
   }
 }
 
-@media (width > $MAX_SMALL_WIDTH) {
+@media (width > variables.$MAX_SMALL_WIDTH) {
   .tab-view {
     flex-direction: row-reverse;
   }

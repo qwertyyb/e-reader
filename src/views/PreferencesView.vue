@@ -89,7 +89,7 @@ const feedback = () => {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/_variables.scss";
+@use "../styles/variables";
 
 .prfs-view {
   height: var(--page-height);
@@ -99,7 +99,7 @@ const feedback = () => {
   margin: 0 auto;
 }
 
-@media (width > $MAX_SMALL_WIDTH) {
+@media (width > variables.$MAX_SMALL_WIDTH) {
   .prfs-view {
     height: auto;
     margin: auto;

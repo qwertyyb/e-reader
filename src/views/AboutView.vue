@@ -49,14 +49,14 @@ onMounted(checkUpdates)
 
 
 <style lang="scss" scoped>
-@import "../assets/variables.scss";
+@use "../styles/variables";
 
 .about-view {
   text-align: center;
   height: var(--page-height);
   margin: auto;
 }
-@media (width > $MAX_SMALL_WIDTH) {
+@media (width > variables.$MAX_SMALL_WIDTH) {
   .about-view {
     max-width: 400px;
     height: auto;

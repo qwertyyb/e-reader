@@ -56,7 +56,7 @@ refresh()
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/variables.scss";
+@use "../styles/variables";
 
 .notes-state-view {
   height: 100%;
@@ -113,7 +113,7 @@ refresh()
   }
 }
 
-@media (width > $MAX_SMALL_WIDTH) {
+@media (width > variables.$MAX_SMALL_WIDTH) {
   .book-list {
     display: flex;
     flex-wrap: wrap;

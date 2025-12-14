@@ -136,7 +136,7 @@ const toRead = () => {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/variables.scss";
+@use "../styles/variables";
 
 .read-time-view {
   height: var(--page-height);
@@ -272,7 +272,7 @@ const toRead = () => {
   justify-content: center;
 }
 
-@media (width > $MAX_SMALL_WIDTH) {
+@media (width > variables.$MAX_SMALL_WIDTH) {
   .read-time-content {
     display: flex;
     flex-wrap: wrap;

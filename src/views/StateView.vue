@@ -94,7 +94,7 @@ refresh()
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/variables.scss";
+@use "../styles/variables";
 
 .state-view {
   display: flex;
@@ -191,7 +191,7 @@ refresh()
 }
 
 
-@media (width > $MAX_SMALL_WIDTH) {
+@media (width > variables.$MAX_SMALL_WIDTH) {
   .book-list {
     display: flex;
     flex-wrap: wrap;
