@@ -28,7 +28,7 @@ import { nextTick, ref, useTemplateRef, watch, type StyleValue } from 'vue';
 
 const props = defineProps<{
   visible: boolean,
-  position?: 'left' | 'bottom' | 'center',
+  position?: 'left' | 'bottom' | 'center' | 'right',
   height?: string,
   title?: string,
   width?: string,
@@ -64,12 +64,17 @@ const slideLeftInKeyframes = [
   { transform: 'translateX(100%)' },
   { transform: 'translateX(0)'}
 ]
+
+const slideRightInKeyframes = [
+  { transform: 'translateX(-100%)' },
+  { transform: 'translateX(0)'}
+]
 const slideUpInKeyframes = [
   { transform: 'translateY(100%)' },
   { transform: 'translateY(0)'}
 ]
 
-const getInKeyframes = () => props.position === 'left' ? slideLeftInKeyframes : slideUpInKeyframes
+const getInKeyframes = () => props.position === 'left' ? slideLeftInKeyframes : props.position === 'right' ? slideRightInKeyframes : slideUpInKeyframes
 
 const closeDialog = async () => {
   if (disableAnim.value) {
@@ -116,6 +121,12 @@ const openDialog = async () => {
     .c-dialog-content {
       border-radius: 6px;
       margin: auto;
+      max-width: 600px;
+    }
+  }
+  &.dialog-position-right {
+    right: initial;
+    .c-dialog-content {
       max-width: 600px;
     }
   }

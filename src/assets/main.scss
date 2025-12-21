@@ -31,7 +31,7 @@ body .material-symbols-outlined {
   font-size: inherit;
 }
 
-.selected {
+html body #app .selected {
   background: var(--selected-bg-color);
   color: var(--selected-text-color);
 }

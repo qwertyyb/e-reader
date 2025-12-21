@@ -1,7 +1,19 @@
 <template>
   <div class="control-wrapper">
     <div class="control-mask" v-show="panelVisible" @pointerup.self="maskClickHandler"></div>
-    <transition name="slide-down" :css="!disableAnim">
+    <transition name="slide-down" :css="!disableAnim" v-if="!isSmall">
+      <web-read-control
+        :title="title"
+        ref="read-control"
+        v-show="panelVisible && !selectMenuShowed"
+        :get-next-read-element="getNextReadElement"
+        @open-chapter-list="dialog='chapterList'"
+        @scroll-vertical="$emit('scroll-vertical', $event)"
+        @next-page="$emit('next-page')"
+      >
+      </web-read-control>
+    </transition>
+    <transition name="slide-down" :css="!disableAnim" v-if="isSmall">
       <navigation-bar class="navigator"
         v-show="panelVisible && !selectMenuShowed"
         :title="title"
@@ -13,7 +25,7 @@
     <c-dialog :visible="dialog==='chapterList'"
       height="var(--page-height)"
       width="min(85vw, 375px)"
-      position="left"
+      :position="isSmall ? 'left' : 'right'"
       body-style="padding-left:0;padding-right:0"
       @close="dialog=null">
       <slot name="chapterList"></slot>
@@ -74,7 +86,7 @@
       </div>
     </selection-menu>
 
-    <transition name="slide-up" :css="!disableAnim">
+    <transition name="slide-up" :css="!disableAnim" v-if="isSmall">
       <read-control
         ref="read-control"
         v-show="panelVisible && !selectMenuShowed"
@@ -99,11 +111,13 @@ import BookTocSettingsDialog from '@/components/BookTocSettingsDialog.vue';
 import BookShareDialog from '@/components/BookShareDialog.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import ReadControl from '@/components/ReadControl.vue';
+import WebReadControl from './WebReadControl.vue';
 import Hammer from 'hammerjs';
 import { settings } from '@/stores/settings';
 import type { GetNextElement } from '@/actions/read-speak';
 import { disableAnim } from '@/utils/env';
 import { useRouter } from 'vue-router';
+import { useWindowSize } from '@/hooks/windowSize';
 
 const props = defineProps<{
   bookId: number
@@ -130,6 +144,7 @@ const chapter = inject<ComputedRef<IChapter>>('chapter')
 
 const contentRef = useTemplateRef('content')
 const router = useRouter()
+const { isSmall } = useWindowSize()
 
 const refreshMarks = () => {
   const chapterEls = contentRef.value!.querySelectorAll<HTMLElement>('.chapter')
