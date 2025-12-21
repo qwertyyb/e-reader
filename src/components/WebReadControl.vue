@@ -174,6 +174,11 @@
     </div>
 
     <div class="control-list">
+      <div class="control-item back"
+        @click="$router.back()">
+        <div class="control-ico material-symbols-outlined">arrow_back</div>
+        <div class="control-label"></div>
+      </div>
       <div class="control-item" data-control="chapterList"
         @click="toggleControl('chapterList')">
         <div class="control-ico material-symbols-outlined">list</div>
@@ -376,7 +381,7 @@ defineExpose({
 }
 .control-list {
   display: flex;
-  justify-content: space-between;
+  // justify-content: space-between;
   align-items: center;
   padding: 0 12px;
   height: var(--control-height);
@@ -387,6 +392,10 @@ defineExpose({
   box-sizing: content-box;
   position: relative;
   z-index: 4;
+  .title {
+    width: calc(100% - 16px - 16px - 32px - 32px - 32px - 8px - 8px);
+    margin-right: auto;
+  }
 }
 .control-item {
   cursor: pointer;
@@ -397,6 +406,9 @@ defineExpose({
   transition: background .2s;
   &:hover {
     background: rgba(0, 0, 0, 0.1);
+  }
+  &.back {
+    margin-right: 8px;
   }
 }
 .material-symbols-outlined {
