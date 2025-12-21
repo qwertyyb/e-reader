@@ -12,7 +12,7 @@
 
     <c-dialog :visible="dialog==='chapterList'"
       height="var(--page-height)"
-      width="85vw"
+      width="min(85vw, 375px)"
       position="left"
       body-style="padding-left:0;padding-right:0"
       @close="dialog=null">

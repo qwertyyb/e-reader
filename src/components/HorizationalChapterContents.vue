@@ -1,5 +1,5 @@
 <template>
-  <div class="horizontal-chapter-contents" ref="el" @tap="tapHandler">
+  <div class="horizontal-chapter-contents" ref="el" @tap="tapHandler" :style="{'--column-count': columnCount}">
     <div class="chapter-contents-wrapper" @scroll="scrollHandler"></div>
   </div>
 </template>
@@ -10,7 +10,7 @@ import { useWindowSize } from '@/hooks/windowSize';
 import { debounce, showToast } from '@/utils';
 import { renderChapter } from '@/utils/chapter';
 import { disableAnim } from '@/utils/env';
-import { nextTick, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, useTemplateRef, watch } from 'vue'
 import Logger from 'js-logger'
 
 const logger = Logger.get('HorizationalChapterContents')
@@ -26,10 +26,12 @@ const emits = defineEmits<{
   progress: [{ chapter: IChapter, cursor: number, chapterIndex: number }]
 }>()
 
+const { isSmall } = useWindowSize()
+
 const el = useTemplateRef('el')
 const keeps = 3
-const columnGap = 12
-const getPageWidth = () => (document.querySelector<HTMLElement>('.chapter-contents-wrapper')?.clientWidth ?? window.innerWidth) - columnGap
+const columnCount = computed(() => isSmall.value ? 1 : 2);
+const getPageWidth = () => window.innerWidth / columnCount.value;
 
 let startScrollLeft = 0
 let touching = false
@@ -160,8 +162,6 @@ const { gesture } = useGesture(el, {
   },
 })
 
-const { isSmall } = useWindowSize()
-
 watch(gesture, (val) => {
   if (!isSmall.value) {
     val?.clean()
@@ -280,12 +280,15 @@ defineExpose({
   display: flex;
   align-items: center;
   width: 100%;
+  --column-count: 1;
+  --column-width: calc(100vw / var(--column-count) * 0.88);
+  --column-gap: calc(var(--column-width) * 0.12);
 }
 .chapter-contents-wrapper {
-  column-width: 100vw;
+  column-width: var(--column-width);
   width: 100vw;
-  padding: var(--sait) 12px var(--saib) 12px;
-  column-gap: 12px;
+  padding: var(--sait) calc(var(--column-gap) / 2) var(--saib) calc(var(--column-gap) / 2);
+  column-gap: var(--column-gap);
   height: var(--page-height);
   background-image: var(--read-bg-image);
   background-size: cover;
