@@ -2,6 +2,7 @@
   <div class="c-select" ref="el" :class="{'options-visible': optionsVisible}">
     <div class="c-select-label"
       @click="optionsVisible = !optionsVisible"
+      ref="reference"
       :style="{'anchor-name': '--c-select-label-' + id} as any"
     >
       <slot :value="modelValue" :label="currentLabel">
@@ -10,9 +11,10 @@
       </slot>
     </div>
     <ul class="c-select-options"
-      popover
       ref="floating"
-      :style="{'position-anchor': '--c-select-label-' + id} as any"
+      popover
+      :style="{ ...floatingStyles, 'position-anchor': '--c-select-label-' + id } as any"
+      v-if="optionsVisible && !isSmall"
     >
       <li class="c-select-option"
         v-for="(option, index) in options"
@@ -37,7 +39,8 @@
 </template>
 
 <script setup lang="ts" generic="T extends any = any">
-import { computed, ref, useId, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, ref, useId, useTemplateRef, watch } from 'vue';
+import { useFloating, offset, shift, flip } from '@floating-ui/vue';
 import CPicker from './CPicker.vue';
 import { useWindowSize } from '@/hooks/windowSize';
 
@@ -56,9 +59,11 @@ const props = defineProps<{
   }[]
 }>()
 
-const el = useTemplateRef('el')
-const floating = useTemplateRef('floating')
 const id = useId();
+const el = useTemplateRef('el')
+const reference = useTemplateRef('reference')
+const floating = useTemplateRef('floating');
+const { floatingStyles, update } = useFloating(reference, floating, { placement: 'bottom', middleware: [offset(12), flip(), shift({ padding: 12 })] });
 
 const { isSmall } = useWindowSize();
 
@@ -69,11 +74,11 @@ const currentLabel = computed(() => {
 
 const optionsVisible = ref(false)
 
-watch(optionsVisible, (val) => {
+watch(optionsVisible, async (val) => {
   if (val) {
+    await nextTick()
     floating.value?.showPopover()
-  } else {
-    floating.value?.hidePopover()
+    update()
   }
 })
 
@@ -124,40 +129,50 @@ const selectOption = (option: { value: T, label: string }) => {
   }
 }
 .c-select-options {
-  position-anchor: --c-select-label;
-  position-area: bottom span-left;
-  // position-try/position-try-fallbacks + calc-size 会导致 popover 显示时的过渡效果失效
-  position-try: left;
+  // CSS Anchor Positioning 尚不成熟，position-try-fallbacks 会导致 popover 显示时的过渡效果失效
+  // 浏览器的支持也还有提升空间，暂时不使用此方案，待后续支持
 
+  position-anchor: --c-select-label;
+
+  // 方案一: 使用 position-area
+  // position-area: bottom span-left;
+  // position-try/position-try-fallbacks + calc-size 会导致 popover 显示时的过渡效果失效
+  // position-try: left;
+
+  // 方案二: 使用 position
   // position: absolute;
   // top: anchor(bottom);
   // // left: anchor(left);
   // right: anchor(right);
-  // min-width: anchor-size(width);
+  min-width: anchor-size(width);
   // justify-self: anchor-center;
+
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 12px);
+  // min-width: 100%;
 
   background: light-dark(#fff, #000);
   z-index: 1;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.1);
   border-radius: 4px;
-  transition: all .2s;
-  transition-behavior: allow-discrete;
-  overflow: hidden;
+  // transition: height .2s;
+  // transition-behavior: allow-discrete;
+  // overflow: hidden;
   border: 1px solid var(--border-color);
   text-align: left;
-  height: 0;
-  &:popover-open {
-    height: calc-size(fit-content, size);
-    @starting-style {
-      height: 0;
-    }
-  }
+  height: fit-content;
+  // height: 0;
+  // &:popover-open {
+  //   height: fit-content;
+  //   height: calc-size(fit-content, size);
+  //   @starting-style {
+  //     height: 0;
+  //   }
+  // }
   .c-select-option {
     padding: 4px 16px;
-  }
-  .option-label {
-    font-size: 14px;
-    white-space: nowrap;
     &:first-child {
       padding-top: 8px;
     }
@@ -169,16 +184,14 @@ const selectOption = (option: { value: T, label: string }) => {
       color: #fff;
     }
   }
+  .option-label {
+    font-size: 14px;
+    white-space: nowrap;
+  }
   .option-subtitle {
     font-size: 12px;
     opacity: 0.6;
     white-space: nowrap;
-  }
-}
-
-@starting-style {
-  .c-select-options:popover-open {
-    height: 0;
   }
 }
 </style>
