@@ -2,7 +2,7 @@
   <div class="c-select" ref="el" :class="{'options-visible': optionsVisible}">
     <div class="c-select-label"
       @click="optionsVisible = !optionsVisible"
-      :style="{'anchor-name': '--c-select-label-' + id}"
+      :style="{'anchor-name': '--c-select-label-' + id} as any"
     >
       <slot :value="modelValue" :label="currentLabel">
         <span class="c-select-label-value">{{ currentLabel }}</span>
@@ -12,7 +12,7 @@
     <ul class="c-select-options"
       popover
       ref="floating"
-      :style="{'position-anchor': '--c-select-label-' + id}"
+      :style="{'position-anchor': '--c-select-label-' + id} as any"
     >
       <li class="c-select-option"
         v-for="(option, index) in options"
@@ -126,8 +126,8 @@ const selectOption = (option: { value: T, label: string }) => {
 .c-select-options {
   position-anchor: --c-select-label;
   position-area: bottom span-left;
-  // position-try/position-try-fallbacks 会导致 popover 显示时的过渡效果失效
-  // position-try: left;
+  // position-try/position-try-fallbacks + calc-size 会导致 popover 显示时的过渡效果失效
+  position-try: left;
 
   // position: absolute;
   // top: anchor(bottom);
