@@ -254,7 +254,7 @@ const readingDuration = computed(() => {
 
 const reference = useTemplateRef('reference')
 const floating = useTemplateRef('floating');
-const { floatingStyles } = useFloating(reference, floating, { placement: 'bottom', middleware: [offset(12), shift({ padding: 12 })] });
+const { floatingStyles } = useFloating(reference, floating, { transform: false, placement: 'bottom', middleware: [offset(12), shift({ padding: 12 })] });
 
 const handlePointerDown = (event: PointerEvent) => {
   if ((event.target as HTMLElement)?.closest('.control-panel') === floating.value || (event.target as HTMLElement)?.closest('.control-item') === reference.value) return;

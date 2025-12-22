@@ -1,17 +1,29 @@
 <template>
   <div class="c-select" ref="el" :class="{'options-visible': optionsVisible}">
-    <div class="c-select-label" @click="optionsVisible = !optionsVisible">
+    <div class="c-select-label"
+      @click="optionsVisible = !optionsVisible"
+      :style="{'anchor-name': '--c-select-label-' + id}"
+    >
       <slot :value="modelValue" :label="currentLabel">
         <span class="c-select-label-value">{{ currentLabel }}</span>
         <span class="material-symbols-outlined arrow-icon">chevron_right</span>
       </slot>
     </div>
-    <ul class="c-select-options" :class="{ visible: !isSmall && optionsVisible }">
+    <ul class="c-select-options"
+      popover
+      ref="floating"
+      :style="{'position-anchor': '--c-select-label-' + id}"
+    >
       <li class="c-select-option"
-        v-for="option in options"
+        v-for="(option, index) in options"
         @click="selectOption(option)"
         :key="option.value as any"
-      >{{ option.label }}</li>
+      >
+        <slot name="option" :option="option" :index="index" :selected="modelValue === option.value">
+          <div class="option-label">{{ option.label }}</div>
+          <div class="option-subtitle">{{ option.subtitle }}</div>
+        </slot>
+      </li>
     </ul>
     <c-picker
       :options="options"
@@ -25,7 +37,7 @@
 </template>
 
 <script setup lang="ts" generic="T extends any = any">
-import { computed, ref, useTemplateRef, watch } from 'vue';
+import { computed, ref, useId, useTemplateRef, watch } from 'vue';
 import CPicker from './CPicker.vue';
 import { useWindowSize } from '@/hooks/windowSize';
 
@@ -45,6 +57,8 @@ const props = defineProps<{
 }>()
 
 const el = useTemplateRef('el')
+const floating = useTemplateRef('floating')
+const id = useId();
 
 const { isSmall } = useWindowSize();
 
@@ -54,6 +68,14 @@ const currentLabel = computed(() => {
 })
 
 const optionsVisible = ref(false)
+
+watch(optionsVisible, (val) => {
+  if (val) {
+    floating.value?.showPopover()
+  } else {
+    floating.value?.hidePopover()
+  }
+})
 
 const handlePointerDown = (e: PointerEvent) => {
   if ((e.target as HTMLElement)?.closest('.c-select') === el.value) return;
@@ -91,6 +113,8 @@ const selectOption = (option: { value: T, label: string }) => {
   height: 100%;
   font-size: 16px;
   z-index: 2;
+  user-select: none;
+  anchor-name: --c-select-label;
   :deep(.arrow-icon) {
     margin-left: auto;
     font-size: 24px;
@@ -100,24 +124,39 @@ const selectOption = (option: { value: T, label: string }) => {
   }
 }
 .c-select-options {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  right: 0;
+  position-anchor: --c-select-label;
+  position-area: bottom span-left;
+  // position-try/position-try-fallbacks 会导致 popover 显示时的过渡效果失效
+  // position-try: left;
+
+  // position: absolute;
+  // top: anchor(bottom);
+  // // left: anchor(left);
+  // right: anchor(right);
+  // min-width: anchor-size(width);
+  // justify-self: anchor-center;
+
   background: light-dark(#fff, #000);
   z-index: 1;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.1);
   border-radius: 4px;
-  transition: height .2s ease-out;
-  interpolate-size: allow-keywords;
-  height: 0;
+  transition: all .2s;
+  transition-behavior: allow-discrete;
   overflow: hidden;
-  &.visible {
-    height: auto;
+  border: 1px solid var(--border-color);
+  text-align: left;
+  height: 0;
+  &:popover-open {
+    height: calc-size(fit-content, size);
+    @starting-style {
+      height: 0;
+    }
   }
   .c-select-option {
     padding: 4px 16px;
-    font-size: 16px;
+  }
+  .option-label {
+    font-size: 14px;
     white-space: nowrap;
     &:first-child {
       padding-top: 8px;
@@ -127,8 +166,19 @@ const selectOption = (option: { value: T, label: string }) => {
     }
     &:hover {
       background: var(--theme-color-hover);
-      color: light-dark(#fff, #fff);
+      color: #fff;
     }
+  }
+  .option-subtitle {
+    font-size: 12px;
+    opacity: 0.6;
+    white-space: nowrap;
+  }
+}
+
+@starting-style {
+  .c-select-options:popover-open {
+    height: 0;
   }
 }
 </style>
