@@ -10,12 +10,12 @@
         <span class="material-symbols-outlined arrow-icon">chevron_right</span>
       </slot>
     </div>
-    <ul class="c-select-options"
-      ref="floating"
+    <ul class="c-select-options c-select-popover"
+      :class="placement"
       popover
+      ref="floating"
       :style="{ ...floatingStyles, 'position-anchor': '--c-select-label-' + id } as any"
-      v-if="optionsVisible && !isSmall"
-    >
+      v-if="!isSmall">
       <li class="c-select-option"
         v-for="(option, index) in options"
         @click="selectOption(option)"
@@ -63,7 +63,7 @@ const id = useId();
 const el = useTemplateRef('el')
 const reference = useTemplateRef('reference')
 const floating = useTemplateRef('floating');
-const { floatingStyles, update } = useFloating(reference, floating, { placement: 'bottom', middleware: [offset(12), flip(), shift({ padding: 12 })] });
+const { floatingStyles, update, placement } = useFloating(reference, floating, { placement: 'bottom', middleware: [offset(12), flip(), shift({ padding: 12 })] });
 
 const { isSmall } = useWindowSize();
 
@@ -128,7 +128,7 @@ const selectOption = (option: { value: T, label: string }) => {
     transition: transform .2s ease-out;
   }
 }
-.c-select-options {
+.c-select-popover {
   // CSS Anchor Positioning 尚不成熟，position-try-fallbacks 会导致 popover 显示时的过渡效果失效
   // 浏览器的支持也还有提升空间，暂时不使用此方案，待后续支持
 
@@ -145,33 +145,45 @@ const selectOption = (option: { value: T, label: string }) => {
   // // left: anchor(left);
   // right: anchor(right);
   min-width: anchor-size(width);
+  max-height: 30vh;
   // justify-self: anchor-center;
 
   position: absolute;
   left: 0;
   right: 0;
   top: calc(100% + 12px);
-  // min-width: 100%;
-
-  background: light-dark(#fff, #000);
+  margin: 0;
+  border: none;
+}
+.c-select-options {
   z-index: 1;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.1);
   border-radius: 4px;
-  // transition: height .2s;
-  // transition-behavior: allow-discrete;
+  interpolate-size: allow-keywords;
+  transition: display .2s, overlay .2s, clip-path .2s;
+  transition-behavior: allow-discrete;
   // overflow: hidden;
   border: 1px solid var(--border-color);
   text-align: left;
   height: fit-content;
-  // height: 0;
-  // &:popover-open {
-  //   height: fit-content;
-  //   height: calc-size(fit-content, size);
-  //   @starting-style {
-  //     height: 0;
-  //   }
-  // }
+  clip-path: rect(0 100% 0 0);
+  &:popover-open {
+    clip-path: rect(0 100% 100% 0);
+    @starting-style {
+      clip-path: rect(0 100% 0 0);
+    }
+  }
+  &.top {
+    clip-path: rect(100% 100% 100% 0);
+    &:popover-open {
+      clip-path: rect(0 100% 100% 0);
+      @starting-style {
+        clip-path: rect(100% 100% 100% 0);
+      }
+    }
+  }
   .c-select-option {
+    background: light-dark(#fff, #000);
     padding: 4px 16px;
     &:first-child {
       padding-top: 8px;
