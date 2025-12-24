@@ -29,9 +29,6 @@ defineProps<{ visible: boolean }>()
 const emits = defineEmits<{ close: [] }>()
 
 const aisettings = ref({
-  baseURL: '',
-  apiKey: '',
-  model: '',
   ...preferences.value.ai
 })
 
