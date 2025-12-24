@@ -30,21 +30,16 @@ export const defaultTocRegList = [
   /^第[一二三四五六七八九十零百千万亿\d]+[章]\s*[：:·\-—]?\s*(.+)$/,
 ]
 
-export const defaultPreferences: {
-  screenKeepAlive: 'always' | 'reading' | 'never';
-  darkMode: 'system' | 'light' | 'dark';
-  shelfServerUrl: string;
-  opdsServerUrl?: string;
-  ai?: {
-    baseURL: string,
-    model: string,
-    apiKey: string
-  }
-} = {
+export const defaultPreferences: IPreferences = {
   screenKeepAlive: 'reading',
   darkMode: 'system',
   shelfServerUrl: './books/index.json',
-  opdsServerUrl: './opds/root.xml'
+  opdsServerUrl: './opds/root.xml',
+  ai: {
+    baseURL: '',
+    model: '',
+    apiKey: ''
+  }
 }
 
 export const preferencesStorageKey = 'preferences'
