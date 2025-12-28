@@ -24,7 +24,6 @@ withDefaults(defineProps<{ name: string }>(), { name: 'basic' })
   height: var(--page-height);
   display: flex;
   flex-direction: column;
-  max-width: 480px;
   margin: 0 auto;
 }
 

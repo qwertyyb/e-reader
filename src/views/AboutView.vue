@@ -31,7 +31,7 @@ const toDebugView = (() => {
       clickCount++;
       if (clickCount >= 5) {
         clickCount = 0;
-        router.push({ name: 'debug' });
+        router.push({ name: 'preferences', params: { name: 'debug' } });
       } else {
         clickCount += 1;
       }
