@@ -3,6 +3,7 @@ import { parseEpubFile } from "./epub"
 import { parseTxtFile } from "./txt-file"
 import { parseMobiFile } from "./mobi"
 import { defaultTocRegList } from "@/config"
+import { parseMarkdownFile } from "./markdown"
 
 export const parseFile = async (file: File, options?: { tocRegList: RegExp[] }) => {
   if (file.name.endsWith('.epub')) {
@@ -17,6 +18,16 @@ export const parseFile = async (file: File, options?: { tocRegList: RegExp[] }) 
   }
   if (file.name.endsWith('.txt')) {
     const result = await parseTxtFile(file, { tocRegList: options?.tocRegList || defaultTocRegList })
+    return {
+      cover: await blobToBase64(result.cover),
+      title: result.title,
+      content: result.content,
+      maxCursor: result.maxCursor,
+      chapterList: result.chapterList
+    }
+  }
+  if (file.name.endsWith('.md')) {
+    const result = await parseMarkdownFile(file)
     return {
       cover: await blobToBase64(result.cover),
       title: result.title,

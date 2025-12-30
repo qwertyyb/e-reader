@@ -204,6 +204,24 @@
       "tocRegList": [
         "^第\\d+章"
       ]
+    },
+    {
+      "id": "25",
+      "title": "大明锦衣卫之踏雪者",
+      "cover": "./covers/dmjywztxz.jpeg",
+      "author": "君天",
+      "downloadUrl": "./大明锦衣卫之踏雪者-卷壹/大明锦衣卫之踏雪者1.md",
+      "tocRegList": [
+      ]
+    },
+    {
+      "id": "26",
+      "title": "大明锦衣卫之踏雪者2",
+      "cover": "./covers/dmjywztxz2.jpeg",
+      "author": "君天",
+      "downloadUrl": "./大明锦衣卫之踏雪者-卷贰/大明锦衣卫之踏雪者2.md",
+      "tocRegList": [
+      ]
     }
   ]
 }

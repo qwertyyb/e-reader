@@ -151,6 +151,9 @@ watch(router.currentRoute, route => {
       margin-top: auto;
       border-top: 1px solid var(--border-color);
     }
+    .material-symbols-outlined {
+      margin-right: 8px;
+    }
   }
 }
 @media (hover: hover) {
