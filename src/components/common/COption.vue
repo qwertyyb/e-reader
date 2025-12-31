@@ -26,5 +26,6 @@ const select = () => {
   line-height: 42px;
   text-align: center;
   font-size: 18px;
+  color: inherit;
 }
 </style>

@@ -1,5 +1,10 @@
 <template>
-  <c-dialog class="update-dialog" :title="`新的版本已发布`" :visible="visible" @close="visible=false">
+  <c-dialog class="update-dialog"
+    :title="`新的版本已发布`"
+    :visible="visible"
+    @close="visible=false"
+    :position="isSmall ? 'bottom' : 'center'"
+  >
     <markdown-viewer :markdown="newVersionInfo.changelog" class="markdown-changelog"></markdown-viewer>
     <div class="update-actions">
       <button class="btn" @click="visible=false">取消</button>
@@ -10,12 +15,12 @@
 
 <script setup lang="ts">
 import CDialog from "@/components/common/CDialog.vue";
-// import MarkdownViewer from "@/components/MarkdownViewer.vue";
 import { disableCache, showToast } from "@/utils";
 import { defineAsyncComponent, onBeforeUnmount, ref } from "vue";
 import { updateInterval } from '@/constant';
 import { version } from '@/version';
 import { bridge } from "@/register-sw";
+import { useWindowSize } from "@/hooks/windowSize";
 
 const MarkdownViewer = defineAsyncComponent(() => import('@/components/MarkdownViewer.vue'))
 
@@ -24,6 +29,8 @@ const newVersionInfo = ref({
   version: '',
   changelog: ''
 })
+
+const { isSmall } = useWindowSize();
 
 const checkUpdates = async ({ slient = false } = {}) => {
   if (!slient) showToast('正在检查更新')

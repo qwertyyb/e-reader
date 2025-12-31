@@ -64,8 +64,12 @@ defineEmits<{
   cursor: pointer;
   text-align: center;
 }
+.option-label {
+  color: inherit;
+}
 .option-subtitle {
   font-size: 12px;
   opacity: 0.6;
+  color: inherit;
 }
 </style>

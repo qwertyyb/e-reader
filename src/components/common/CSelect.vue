@@ -20,6 +20,7 @@
         v-for="(option, index) in options"
         @click="selectOption(option)"
         :key="option.value as any"
+        :class="{'selected': modelValue === option.value}"
       >
         <slot name="option" :option="option" :index="index" :selected="modelValue === option.value">
           <div class="option-label">{{ option.label }}</div>
@@ -199,6 +200,7 @@ const selectOption = (option: { value: T, label: string }) => {
   .option-label {
     font-size: 14px;
     white-space: nowrap;
+    color: inherit;
   }
   .option-subtitle {
     font-size: 12px;
