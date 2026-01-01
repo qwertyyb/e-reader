@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { IonApp, IonRouterOutlet } from '@ionic/vue';
 import UpdateDialog from '@/components/UpdateDialog.vue'
-import CRouterView from '@/components/common/CRouterView.vue'
 </script>
 
 <template>
   <div class="root-app">
-    <c-router-view></c-router-view>
+    <ion-app>
+      <ion-router-outlet />
+    </ion-app>
 
     <update-dialog></update-dialog>
   </div>

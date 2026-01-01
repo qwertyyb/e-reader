@@ -1,44 +1,47 @@
 <template>
-  <div class="tab-view book-shelf">
-    <div class="tab-panel-container">
-      <transition :name="transitionName">
-        <shelf-view v-if="curTab === 'shelf'"></shelf-view>
-        <o-p-d-s-view v-else-if="curTab === 'opds'" no-back></o-p-d-s-view>
-        <my-view v-else></my-view>
-      </transition>
+  <ion-page>
+    <div class="tab-view book-shelf">
+      <div class="tab-panel-container">
+        <transition :name="transitionName">
+          <shelf-view v-if="curTab === 'shelf'"></shelf-view>
+          <o-p-d-s-view v-else-if="curTab === 'opds'" no-back></o-p-d-s-view>
+          <my-view v-else></my-view>
+        </transition>
+      </div>
+      <ul class="tab-nav-list">
+        <li class="tab-nav-item pointer"
+          @click="curTab = 'shelf'"
+          :class="{selected: curTab === 'shelf' }">
+          <span class="material-symbols-outlined tab-icon">newsstand</span>
+          书架
+        </li>
+        <li class="tab-nav-item pointer"
+          v-if="preferences.opdsServerUrl"
+          @click="curTab = 'opds'"
+          :class="{selected: curTab === 'opds'}">
+          <span class="material-symbols-outlined tab-icon">public</span>
+          图书馆
+        </li>
+        <li class="tab-nav-item pointer"
+          @click="curTab = 'my'"
+          :class="{selected: curTab === 'my' }">
+          <span class="material-symbols-outlined tab-icon">person</span>
+          我的
+        </li>
+        <li class="tab-nav-item pointer small-none settings-item"
+          @click="settingsVisible = true"
+        >
+          <span class="material-symbols-outlined tab-icon">settings</span>
+          设置
+        </li>
+      </ul>
+      <web-settings :visible="settingsVisible" @close="settingsVisible=false" v-if="!isSmall"></web-settings>
     </div>
-    <ul class="tab-nav-list">
-      <li class="tab-nav-item pointer"
-        @click="curTab = 'shelf'"
-        :class="{selected: curTab === 'shelf' }">
-        <span class="material-symbols-outlined tab-icon">newsstand</span>
-        书架
-      </li>
-      <li class="tab-nav-item pointer"
-        v-if="preferences.opdsServerUrl"
-        @click="curTab = 'opds'"
-        :class="{selected: curTab === 'opds'}">
-        <span class="material-symbols-outlined tab-icon">public</span>
-        图书馆
-      </li>
-      <li class="tab-nav-item pointer"
-        @click="curTab = 'my'"
-        :class="{selected: curTab === 'my' }">
-        <span class="material-symbols-outlined tab-icon">person</span>
-        我的
-      </li>
-      <li class="tab-nav-item pointer small-none settings-item"
-        @click="settingsVisible = true"
-      >
-        <span class="material-symbols-outlined tab-icon">settings</span>
-        设置
-      </li>
-    </ul>
-    <web-settings :visible="settingsVisible" @close="settingsVisible=false" v-if="!isSmall"></web-settings>
-  </div>
+  </ion-page>
 </template>
 
 <script setup lang="ts">
+import { IonPage, onIonViewWillEnter } from '@ionic/vue';
 import ShelfView from '@/views/ShelfView.vue';
 import MyView from '@/views/MyView.vue';
 import OPDSView from '@/views/OPDSView.vue';
@@ -78,6 +81,10 @@ watch(router.currentRoute, route => {
     settingsVisible.value = false
     console.log(route)
   }
+})
+
+onIonViewWillEnter(() => {
+  console.log('onIonViewWillEnter')
 })
 
 

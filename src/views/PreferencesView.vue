@@ -1,19 +1,23 @@
 <template>
-  <route-page class="prfs-view" tag="section">
+  <ion-page class="prfs-view">
     <NavigationBar title="设置" :no-menu="true"/>
 
     <main class="prfs-main">
-      <SettingsPanel :name="name || 'basic'"></SettingsPanel>
+      <SettingsPanel :name="panelName || 'basic'"></SettingsPanel>
     </main>
-  </route-page>
+  </ion-page>
 </template>
 
 <script lang="ts" setup>
-import RoutePage from '@/components/RoutePage.vue';
+import { IonPage, onIonViewWillEnter } from '@ionic/vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import SettingsPanel from '@/components/SettingsPanel.vue';
 
-withDefaults(defineProps<{ name: string }>(), { name: 'basic' })
+withDefaults(defineProps<{ panelName: string }>(), { panelName: 'basic' })
+
+onIonViewWillEnter(() => {
+  console.log('onIonViewWillEnter')
+})
 
 </script>
 

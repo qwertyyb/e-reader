@@ -1,79 +1,82 @@
 <template>
-  <book-animation ref="anim" class="read-view book-read-view">
-    <control-wrapper class="control-wrapper book-anim-main" ref="control-wrapper"
-      v-if="chapter"
-      :book-id="+id"
-      :chapter-id="chapter.id"
-      :title="chapter?.title"
-      :get-next-read-element="getNextReadElement"
-      @prev-page="pageHandler('prev')"
-      @next-page="pageHandler('next')"
-      @scroll-vertical="scrollVertical"
-      @jump="jump"
-    >
-      <template v-slot:chapterList>
-        <chapter-list-vue
-          :chapter-list="chapterList"
-          :cur-chapter-index="curChapterIndex"
-          enable-settings
-          enable-search
-          @settings="openTocSettings"
-          @search="openSearchDialog"
-          @tap="jumpToChapter"
-        ></chapter-list-vue>
-      </template>
-      <template v-slot="{ settings }" v-if="chapterList.length && progress">
-        <horizational-chapter-contents
-          v-if="settings.turnPageType === 'horizontal-scroll'"
-          :data-font="settings.fontFamily"
-          :style="{
-            fontSize: settings.fontSize + 'px',
-            fontWeight: settings.fontWeight,
-            lineHeight: settings.lineHeight,
-            '--read-text-color': settings.colorScheme?.textColor,
-            '--read-bg-color': settings.colorScheme?.backgroundColor,
-            '--text-indent': settings.textIndent,
-            '--read-bg-image': settings.colorScheme ? 'none' : undefined
-          }"
-          :chapter-list="chapterList"
-          :default-chapter-id="progress.chapter.id"
-          :default-cursor="progress.cursor"
-          :load-chapter="loadChapter"
-          @progress="updateProgress"
-          ref="chapter-contents"
-        ></horizational-chapter-contents>
-        <chapter-contents
-          v-else
-          :data-font="settings.fontFamily"
-          :style="{
-            fontSize: settings.fontSize + 'px',
-            fontWeight: settings.fontWeight,
-            lineHeight: settings.lineHeight,
-            '--read-text-color': settings.colorScheme?.textColor,
-            '--read-bg-color': settings.colorScheme?.backgroundColor,
-            '--text-indent': settings.textIndent,
-            '--read-bg-image': settings.colorScheme ? 'none' : undefined
-          }"
-          :chapter-list="chapterList"
-          :default-chapter-id="progress.chapter.id"
-          :default-cursor="progress.cursor"
-          :load-chapter="loadChapter"
-          @progress="updateProgress"
-          ref="chapter-contents"
-        ></chapter-contents>
-      </template>
-    </control-wrapper>
-  </book-animation>
+  <ion-page>
+    <book-animation ref="anim" class="read-view book-read-view">
+      <control-wrapper class="control-wrapper book-anim-main" ref="control-wrapper"
+        v-if="chapter"
+        :book-id="+id"
+        :chapter-id="chapter.id"
+        :title="chapter?.title"
+        :get-next-read-element="getNextReadElement"
+        @prev-page="pageHandler('prev')"
+        @next-page="pageHandler('next')"
+        @scroll-vertical="scrollVertical"
+        @jump="jump"
+      >
+        <template v-slot:chapterList>
+          <chapter-list-vue
+            :chapter-list="chapterList"
+            :cur-chapter-index="curChapterIndex"
+            enable-settings
+            enable-search
+            @settings="openTocSettings"
+            @search="openSearchDialog"
+            @tap="jumpToChapter"
+          ></chapter-list-vue>
+        </template>
+        <template v-slot="{ settings }" v-if="chapterList.length && progress">
+          <horizational-chapter-contents
+            v-if="settings.turnPageType === 'horizontal-scroll'"
+            :data-font="settings.fontFamily"
+            :style="{
+              fontSize: settings.fontSize + 'px',
+              fontWeight: settings.fontWeight,
+              lineHeight: settings.lineHeight,
+              '--read-text-color': settings.colorScheme?.textColor,
+              '--read-bg-color': settings.colorScheme?.backgroundColor,
+              '--text-indent': settings.textIndent,
+              '--read-bg-image': settings.colorScheme ? 'none' : undefined
+            }"
+            :chapter-list="chapterList"
+            :default-chapter-id="progress.chapter.id"
+            :default-cursor="progress.cursor"
+            :load-chapter="loadChapter"
+            @progress="updateProgress"
+            ref="chapter-contents"
+          ></horizational-chapter-contents>
+          <chapter-contents
+            v-else
+            :data-font="settings.fontFamily"
+            :style="{
+              fontSize: settings.fontSize + 'px',
+              fontWeight: settings.fontWeight,
+              lineHeight: settings.lineHeight,
+              '--read-text-color': settings.colorScheme?.textColor,
+              '--read-bg-color': settings.colorScheme?.backgroundColor,
+              '--text-indent': settings.textIndent,
+              '--read-bg-image': settings.colorScheme ? 'none' : undefined
+            }"
+            :chapter-list="chapterList"
+            :default-chapter-id="progress.chapter.id"
+            :default-cursor="progress.cursor"
+            :load-chapter="loadChapter"
+            @progress="updateProgress"
+            ref="chapter-contents"
+          ></chapter-contents>
+        </template>
+      </control-wrapper>
+    </book-animation>
+  </ion-page>
 </template>
 
 <script setup lang="ts">
+import { IonPage, onIonViewWillEnter, onIonViewWillLeave } from '@ionic/vue';
 import ControlWrapper from '@/components/ControlWrapper.vue';
 import { computed, onBeforeUnmount, provide, ref, useTemplateRef } from 'vue';
 import { localBookService as dataService } from '@/services/LocalBookService';
 import { showToast } from '@/utils';
 import { readingStateStore, readTimeStore } from '@/services/storage';
 import BookAnimation from '@/components/BookAnimation.vue';
-import { type RouteLocation } from 'vue-router';
+import { useRoute } from 'vue-router';
 import ChapterContents from '@/components/ChapterContents.vue';
 import HorizationalChapterContents from '@/components/HorizationalChapterContents.vue';
 import ChapterListVue from '@/components/ChapterList.vue';
@@ -231,35 +234,60 @@ onBeforeUnmount(() => {
   readingTime?.destroy()
 })
 
-defineExpose({
-  onBackFrom: async (to: RouteLocation, from?: RouteLocation, toEl?: HTMLElement | null) => {
-    if (from?.query.trace) {
-      const cover = toEl?.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(from.query.trace)}]`)
-      controlWrapperRef.value?.closeDialog()
-      await animRef.value?.closeBook(cover)
-      cover?.classList.remove('is-reading')
-      cover?.style.removeProperty('opacity')
-    }
-  },
-  onForwardTo: (to: RouteLocation, from?: RouteLocation, toEl?: HTMLElement, fromEl?: HTMLElement) => {
-    if (to.query.trace) {
-      const cover = fromEl?.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(to.query.trace)}]`)
-      cover?.classList.add('is-reading')
-      cover?.style.setProperty('opacity', '0')
-      animRef.value?.openBook(cover)
-    }
-  },
-  onBackTo() {
-    // 从其它页面 pop 回当前页面时，执行此回调
-    requestWakeLock()
-    readingTime?.start()
-  },
-  onForwardFrom() {
-    // 从当前页面 push 跳到新的页面时，执行此回调
-    releaseWakeLock()
-    readingTime?.pause()
+const route = useRoute()
+
+onIonViewWillEnter(() => {
+  if (route.query.trace) {
+    const cover = document.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(route.query.trace)}]`)
+    cover?.classList.add('is-reading')
+    cover?.style.setProperty('opacity', '0')
+    animRef.value?.openBook(cover)
+  }
+  // 从其它页面 pop 回当前页面时，执行此回调
+  requestWakeLock()
+  readingTime?.start()
+})
+
+onIonViewWillLeave(async () => {
+  console.log('onViewLeave')
+  // 从当前页面 push 跳到新的页面时，执行此回调
+  releaseWakeLock()
+  readingTime?.pause()
+
+  console.log('route', route.fullPath)
+  if (route?.query.trace) {
+    const cover = document?.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(route.query.trace)}]`)
+    console.log('cover', cover)
+    controlWrapperRef.value?.closeDialog()
+    await animRef.value?.closeBook(cover)
+    cover?.classList.remove('is-reading')
+    cover?.style.removeProperty('opacity')
   }
 })
+
+// defineExpose({
+  // onBackFrom: async (to: RouteLocation, from?: RouteLocation, toEl?: HTMLElement | null) => {
+  //   if (from?.query.trace) {
+  //     const cover = toEl?.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(from.query.trace)}]`)
+  //     controlWrapperRef.value?.closeDialog()
+  //     await animRef.value?.closeBook(cover)
+  //     cover?.classList.remove('is-reading')
+  //     cover?.style.removeProperty('opacity')
+  //   }
+  // },
+  // onForwardTo: (to: RouteLocation, from?: RouteLocation, toEl?: HTMLElement, fromEl?: HTMLElement) => {
+  //   if (to.query.trace) {
+  //     const cover = fromEl?.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(to.query.trace)}]`)
+  //     cover?.classList.add('is-reading')
+  //     cover?.style.setProperty('opacity', '0')
+  //     animRef.value?.openBook(cover)
+  //   }
+  // },
+  // onBackTo() {
+  // },
+  // onForwardFrom() {
+  // }
+// })
 </script>
 
 <style lang="scss" scoped>

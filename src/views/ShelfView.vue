@@ -68,7 +68,7 @@ import { computed, ref, toRaw, watch } from 'vue';
 import BookItem from '@/components/BookItem.vue';
 import { disableCache, filterEmpty, showToast } from '@/utils';
 import { localBookService } from '@/services/LocalBookService';
-import { appRouter as router }  from '@/router';
+import router  from '@/router';
 import { booksStore, readingStateStore } from '@/services/storage';
 import { useRoute } from 'vue-router';
 import { longtap as vLongtap } from '@/directives/click';
@@ -77,6 +77,7 @@ import { download, importFile } from '@/services/ImportService';
 import Logger from 'js-logger';
 import { getCache, setCache } from '@/utils/cache';
 import { useWindowSize } from '@/hooks/windowSize';
+import { useIonRouter } from '@ionic/vue';
 
 const route = useRoute()
 
@@ -238,13 +239,19 @@ const downloadItem = async (item: IBookItem) => {
   })
 }
 
+const ionRouter = useIonRouter();
 const onTap = async (book: IBookItem) => {
   if (book.downloaded) {
-    router.push({
+    ionRouter.push({
       name: 'read',
       params: { id: book.localBookId },
       query: { trace: book.trace }
     })
+    // router.push({
+    //   name: 'read',
+    //   params: { id: book.localBookId },
+    //   query: { trace: book.trace }
+    // })
     return;
   }
   await downloadItem(book)

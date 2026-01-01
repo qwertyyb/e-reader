@@ -17,6 +17,7 @@ import { computed, inject, ref, shallowRef, type Ref } from 'vue';
 import { disableAnim } from '@/utils/env';
 import { useRoute } from 'vue-router';
 import { useWindowSize } from '@/hooks/windowSize';
+import { onIonViewWillEnter } from '@ionic/vue';
 
 const route = useRoute()
 
@@ -29,6 +30,10 @@ const noAnim = computed(() => {
 })
 
 const direction = ref<'normal' | 'reverse' | 'none'>('normal')
+
+onIonViewWillEnter(() => {
+  console.log('onViewEnter')
+})
 
 /**
  * 在手机屏幕场景中，默认状态为书打开状态，书封那一半在屏幕之外。

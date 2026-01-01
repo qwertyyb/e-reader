@@ -47,7 +47,7 @@
           </c-select>
         </li>
 
-        <li class="prfs-item" v-if="isSmall" @click="appRouter.push({ name: 'preferences', params: { name: 'services' } })">
+        <li class="prfs-item" v-if="isSmall" @click="router.push({ name: 'preferences', params: { name: 'services' } })">
           <div class="prfs-label">高级</div>
           <div class="prfs-control">
             <span class="material-symbols-outlined arrow-icon">chevron_right</span>
@@ -189,7 +189,7 @@ import { debugOptions, resetToDefault, modeOptions } from '@/stores/debug';
 import { clearAllCache } from '@/utils/cache';
 import { showToast } from '@/utils';
 import { env } from '@/utils/env';
-import { appRouter } from '@/router';
+import router from '@/router';
 import { useWindowSize } from '@/hooks/windowSize';
 
 const tabName = defineModel<string>('name', { default: 'basic' })

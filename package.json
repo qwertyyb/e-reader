@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@floating-ui/vue": "^1.1.5",
+    "@ionic/vue": "^8.7.15",
+    "@ionic/vue-router": "^8.7.15",
     "@types/markdown-it": "^14.1.2",
     "@zip.js/zip.js": "^2.7.60",
     "@zumer/snapdom": "^1.2.2",

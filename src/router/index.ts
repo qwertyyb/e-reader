@@ -1,8 +1,10 @@
-import { createRouter, createWebHashHistory, type RouteLocation, type Router } from 'vue-router'
+import { createRouter, createWebHashHistory } from '@ionic/vue-router';
+import { type RouteLocation, type Router } from 'vue-router'
 import ReadView from '@/views/ReadView.vue'
 import PreferencesView from '@/views/PreferencesView.vue'
 import AboutView from '@/views/AboutView.vue'
 import HomeView from '@/views/HomeView.vue'
+import { IonRouterOutlet } from '@ionic/vue';
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -63,11 +65,13 @@ const router = createRouter({
     {
       path: '/preferences',
       redirect: '/preferences/view/basic',
+      component: IonRouterOutlet,
       children: [
         {
-          path: 'view/:name?',
+          path: 'view/:panelName',
           name: 'preferences',
-          component: PreferencesView
+          component: PreferencesView,
+          props: true,
         },
         {
           path: 'storage',
@@ -94,10 +98,12 @@ const router = createRouter({
   ],
 })
 
-window.addEventListener('hashchange', event => {
-  const hash = event.newURL.split('#')[1] || '/'
-  router.replace(hash || '/')
-})
+export default router
+
+// window.addEventListener('hashchange', event => {
+//   const hash = event.newURL.split('#')[1] || '/'
+//   router.replace(hash || '/')
+// })
 
 // export default router
 
@@ -179,5 +185,5 @@ const createAppRouter = (router: Router): Router & {
   }
 }
 
-export const appRouter = createAppRouter(router)
+// export const appRouter = createAppRouter(router)
 
