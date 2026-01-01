@@ -18,7 +18,7 @@
         </div>
       </template>
     </div>
-    <div class="navigation-bar-space"></div>
+    <div class="navigation-bar-space" v-if="isSmall"></div>
     <div class="category-wrapper" v-if="bookList.length">
       <ul class="category-list">
         <li class="category-item" :class="{selected: category === 'all'}" @click="category='all'">全部</li>
@@ -76,6 +76,7 @@ import { preferences } from '@/stores/preferences';
 import { download, importFile } from '@/services/ImportService';
 import Logger from 'js-logger';
 import { getCache, setCache } from '@/utils/cache';
+import { useWindowSize } from '@/hooks/windowSize';
 
 const route = useRoute()
 
@@ -88,6 +89,8 @@ const selecting = ref(false)
 const selectedIds = ref(new Set<string | number>())
 
 const downloadState = ref<Record<string, number>>({})
+
+const { isSmall } = useWindowSize();
 
 const logger = Logger.get('ShelfView')
 
@@ -250,7 +253,7 @@ const onTap = async (book: IBookItem) => {
 const importLocalBook = async () => {
   const input = document.createElement('input')
   input.type = 'file'
-  input.accept = '.txt,.epub,.mobi,.azw3'
+  input.accept = '.txt,.epub,.mobi,.azw3,.md'
   const selectedFile = await new Promise<File | undefined>(resolve => {
     input.addEventListener('change', () => {
       resolve(input.files?.[0])
@@ -291,7 +294,7 @@ watch(() => route.name, () => {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/_variables.scss";
+@use "../styles/variables";
 
 .book-list-view {
   display: flex;
@@ -323,7 +326,7 @@ watch(() => route.name, () => {
     }
   }
 }
-@media (width > $MAX_SMALL_WIDTH) {
+@media (width > variables.$MAX_SMALL_WIDTH) {
   .navigation-bar {
     position: static;
   }

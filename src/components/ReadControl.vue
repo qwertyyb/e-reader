@@ -355,6 +355,8 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
+@use "../styles/variables";
+
 .read-control {
   --control-height: 48px;
   position: absolute;
@@ -404,6 +406,7 @@ defineExpose({
   right: 0;
   bottom: calc(var(--control-height) + var(--saib));
 }
+
 .control-panel + .control-list {
   border-top: none;
 }
@@ -443,7 +446,7 @@ defineExpose({
 .control-panel.font-panel .font-family .c-select {
   flex: 1;
 }
-.control-panel.font-panel .font-family .font-family-label {
+.control-panel.font-panel .font-family-label {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;

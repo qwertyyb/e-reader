@@ -1,15 +1,19 @@
 <template>
-  <div class="horizontal-chapter-contents" ref="el">
+  <div class="horizontal-chapter-contents" ref="el" @tap="tapHandler" :style="{'--column-count': columnCount}">
     <div class="chapter-contents-wrapper" @scroll="scrollHandler"></div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useGesture } from '@/hooks/gesture';
+import { useWindowSize } from '@/hooks/windowSize';
 import { debounce, showToast } from '@/utils';
 import { renderChapter } from '@/utils/chapter';
 import { disableAnim } from '@/utils/env';
-import { nextTick, useTemplateRef } from 'vue'
+import { computed, nextTick, useTemplateRef, watch } from 'vue'
+import Logger from 'js-logger'
+
+const logger = Logger.get('HorizationalChapterContents')
 
 const props = defineProps<{
   chapterList: IChapter[],
@@ -22,10 +26,12 @@ const emits = defineEmits<{
   progress: [{ chapter: IChapter, cursor: number, chapterIndex: number }]
 }>()
 
+const { isSmall } = useWindowSize()
+
 const el = useTemplateRef('el')
 const keeps = 3
-const columnGap = 12
-const getPageWidth = () => (document.querySelector<HTMLElement>('.chapter-contents-wrapper')?.clientWidth ?? window.innerWidth) - columnGap
+const columnCount = computed(() => isSmall.value ? 1 : 2);
+const getPageWidth = () => window.innerWidth / columnCount.value;
 
 let startScrollLeft = 0
 let touching = false
@@ -129,7 +135,7 @@ const getCurrentProgress = () => {
   }
 }
 
-useGesture(el, {
+const { gesture } = useGesture(el, {
   onStart() {
     touching = true
     if (window.getSelection()?.toString()) return false;
@@ -143,9 +149,9 @@ useGesture(el, {
     const wrapper = el.value!.querySelector<HTMLElement>('.chapter-contents-wrapper')!
     const pw = getPageWidth()
     let scrollLeft = 0
-    if (detail.velocityX > 0.3) {
+    if (detail.velocityX > 0.2) {
       scrollLeft = Math.max(0, Math.round(startScrollLeft / pw) - 1) * pw
-    } else if (detail.velocityX < -0.3) {
+    } else if (detail.velocityX < -0.2) {
       scrollLeft = (Math.round(startScrollLeft / pw) + 1) * pw
     } else {
       // 以当前落点计算应该滚动的位置
@@ -154,6 +160,12 @@ useGesture(el, {
     wrapper.scrollTo({ left: scrollLeft, behavior: disableAnim.value ? 'instant' : 'smooth' })
     touching = false
   },
+})
+
+watch(gesture, (val) => {
+  if (!isSmall.value) {
+    val?.clean()
+  }
 })
 
 const scrollHandler = debounce(() => {
@@ -184,6 +196,44 @@ const init = async () => {
 }
 
 init()
+
+const tapHandler = (event: PointerEvent) => {
+  logger.info('tapHandler', window.getSelection()?.toString(), event)
+  if (window.getSelection()?.toString()) return;
+  const pageWidth = window.innerWidth;
+  const pageHeight = window.innerHeight;
+  /**
+   * 把点击区域分为九个区域，如下
+   * 1|2|3
+   * 4|5|6
+   * 7|8|9
+   * 先计算在点击落于哪个区域
+   */
+  const x = event.clientX
+  const y = event.clientY
+  const centerLeft = pageWidth / 3
+  const centerRight = 2 * centerLeft
+  const centerTop = pageHeight / 3
+  const centerBottom = 2 * centerTop
+  let area = -1
+  if (y <= centerTop) {
+    area = x < centerLeft ? 1 : x < centerRight ? 2 : 3
+  } else if (y <= centerBottom) {
+    area = x < centerLeft ? 4 : x < centerRight ? 5 : 6
+  } else {
+    area = x < centerLeft ? 7 : x < centerRight ? 8 : 9
+  }
+
+  const nextPageArea = [3, 6, 9]
+  const prevPageArea = [1, 4, 7]
+  if (nextPageArea.includes(area)) {
+    nextPage()
+    event.stopPropagation();
+  } else if (prevPageArea.includes(area)) {
+    prevPage();
+    event.stopPropagation();
+  }
+}
 
 defineExpose({
   prevPage,
@@ -230,12 +280,15 @@ defineExpose({
   display: flex;
   align-items: center;
   width: 100%;
+  --column-count: 1;
+  --column-width: calc(100vw / var(--column-count) * 0.88);
+  --column-gap: calc(var(--column-width) * 0.12);
 }
 .chapter-contents-wrapper {
-  column-width: 100vw;
+  column-width: var(--column-width);
   width: 100vw;
-  padding: var(--sait) 12px var(--saib) 12px;
-  column-gap: 12px;
+  padding: var(--sait) calc(var(--column-gap) / 2) var(--saib) calc(var(--column-gap) / 2);
+  column-gap: var(--column-gap);
   height: var(--page-height);
   background-image: var(--read-bg-image);
   background-size: cover;

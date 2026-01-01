@@ -1,6 +1,19 @@
 <template>
   <div class="control-wrapper">
-    <transition name="slide-down" :css="!disableAnim">
+    <div class="control-mask" v-show="panelVisible" @pointerup.self="maskClickHandler"></div>
+    <transition name="slide-down" :css="!disableAnim" v-if="!isSmall">
+      <web-read-control
+        :title="title"
+        ref="read-control"
+        v-show="panelVisible && !selectMenuShowed"
+        :get-next-read-element="getNextReadElement"
+        @open-chapter-list="dialog='chapterList'"
+        @scroll-vertical="$emit('scroll-vertical', $event)"
+        @next-page="$emit('next-page')"
+      >
+      </web-read-control>
+    </transition>
+    <transition name="slide-down" :css="!disableAnim" v-if="isSmall">
       <navigation-bar class="navigator"
         v-show="panelVisible && !selectMenuShowed"
         :title="title"
@@ -11,8 +24,8 @@
 
     <c-dialog :visible="dialog==='chapterList'"
       height="var(--page-height)"
-      width="85vw"
-      position="left"
+      width="min(85vw, 375px)"
+      :position="isSmall ? 'left' : 'right'"
       body-style="padding-left:0;padding-right:0"
       @close="dialog=null">
       <slot name="chapterList"></slot>
@@ -65,12 +78,15 @@
       @hide="selectMenuShowed = false"
       @share="shareTextHandler"
     >
-      <div class="content-container" ref="content" @touchstart="touchstartHandler">
+      <div class="content-container" ref="content"
+        @touchstart="touchstartHandler"
+        @tap="contentPointerUpHandler"
+      >
           <slot :settings="settings"></slot>
       </div>
     </selection-menu>
 
-    <transition name="slide-up" :css="!disableAnim">
+    <transition name="slide-up" :css="!disableAnim" v-if="isSmall">
       <read-control
         ref="read-control"
         v-show="panelVisible && !selectMenuShowed"
@@ -95,11 +111,13 @@ import BookTocSettingsDialog from '@/components/BookTocSettingsDialog.vue';
 import BookShareDialog from '@/components/BookShareDialog.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import ReadControl from '@/components/ReadControl.vue';
+import WebReadControl from './WebReadControl.vue';
 import Hammer from 'hammerjs';
 import { settings } from '@/stores/settings';
 import type { GetNextElement } from '@/actions/read-speak';
 import { disableAnim } from '@/utils/env';
 import { useRouter } from 'vue-router';
+import { useWindowSize } from '@/hooks/windowSize';
 
 const props = defineProps<{
   bookId: number
@@ -126,6 +144,7 @@ const chapter = inject<ComputedRef<IChapter>>('chapter')
 
 const contentRef = useTemplateRef('content')
 const router = useRouter()
+const { isSmall } = useWindowSize()
 
 const refreshMarks = () => {
   const chapterEls = contentRef.value!.querySelectorAll<HTMLElement>('.chapter')
@@ -181,54 +200,9 @@ const touchstartHandler = (e: TouchEvent) => {
 let hammerInstance: any
 
 const initHammer = () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const contentTapHandler = (event: any) => {
-    if (event.srcEvent.target.nodeName.toLowerCase() === 'mark') return
-    if (settings.value.turnPageType === 'horizontal-scroll') {
-      if (panelVisible.value) {
-        panelVisible.value = false
-        return;
-      }
-      /**
-       * 把点击区域分为九个区域，如下
-       * 1|2|3
-       * 4|5|6
-       * 7|8|9
-       * 先计算在点击落于哪个区域
-       */
-      const { x, y } = event.center
-      const centerLeft = window.innerWidth / 3
-      const centerRight = 2 * centerLeft
-      const centerTop = window.innerHeight / 3
-      const centerBottom = 2 * centerTop
-      let area = -1
-      if (y <= centerTop) {
-        area = x < centerLeft ? 1 : x < centerRight ? 2 : 3
-      } else if (y <= centerBottom) {
-        area = x < centerLeft ? 4 : x < centerRight ? 5 : 6
-      } else {
-        area = x < centerLeft ? 7 : x < centerRight ? 8 : 9
-      }
-
-      const nextPageArea = [3, 6, 9]
-      const prevPageArea = [1, 4, 7]
-      if (nextPageArea.includes(area)) {
-        emits('next-page')
-      } else if (prevPageArea.includes(area)) {
-        emits('prev-page')
-      } else {
-        panelVisible.value = !panelVisible.value
-      }
-      return
-    }
-    if (readControlRef.value?.isAutoPlaying()) {
-      readControlRef.value.openPanel('autoPlay')
-    }
-    panelVisible.value = !panelVisible.value
-  }
   const hammer = new Hammer.Manager(contentRef.value!, {
+    domEvents: true,
     recognizers: [
-      [Hammer.Tap],
       [Hammer.Swipe, { direction: Hammer.DIRECTION_ALL, threshold: 10 }]
     ]
   })
@@ -253,12 +227,24 @@ const initHammer = () => {
     if (settings.value.turnPageType === 'horizontal-scroll') return;
     dialog.value = 'chapterList'
   })
-  hammer.on('tap', contentTapHandler)
   hammerInstance = hammer
 }
 
+const maskClickHandler = () => {
+  panelVisible.value = false
+}
+
+const contentPointerUpHandler = (event: PointerEvent) => {
+  if (panelVisible.value) return;
+  panelVisible.value = true;
+  event.stopPropagation()
+  if (readControlRef.value?.isAutoPlaying()) {
+    readControlRef.value.openPanel('autoPlay')
+  }
+}
+
 onMounted(() => {
-  initHammer();
+  // initHammer();
 })
 
 onUnmounted(() => { if (hammerInstance) { hammerInstance.destroy() } })
@@ -280,6 +266,13 @@ defineExpose({
 .control-wrapper {
   height: 100%;
   flex: 1;
+  position: relative;
+  .control-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.05);
+    z-index: 5;
+  }
 }
 .control-wrapper .content-container {
   overflow: auto;

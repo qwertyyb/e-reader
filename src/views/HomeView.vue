@@ -28,12 +28,13 @@
         我的
       </li>
       <li class="tab-nav-item pointer small-none settings-item"
-        @click="$router.push({ name: 'preferences' })"
-        :class="{ selected: $route.matched.some(item => item.name === 'preferences') }">
+        @click="settingsVisible = true"
+      >
         <span class="material-symbols-outlined tab-icon">settings</span>
         设置
       </li>
     </ul>
+    <web-settings :visible="settingsVisible" @close="settingsVisible=false" v-if="!isSmall"></web-settings>
   </div>
 </template>
 
@@ -42,9 +43,11 @@ import ShelfView from '@/views/ShelfView.vue';
 import MyView from '@/views/MyView.vue';
 import OPDSView from '@/views/OPDSView.vue';
 import { preferences } from '@/stores/preferences';
-import { ref, watch } from 'vue';
+import { defineAsyncComponent, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useWindowSize } from '@/hooks/windowSize';
+
+const WebSettings = defineAsyncComponent(() => import('@/components/WebSettings.vue'))
 
 const router = useRouter()
 
@@ -68,12 +71,23 @@ watch(curTab, (tab, prevTab) => {
   transitionName.value = tabNames.indexOf(tab) < tabNames.indexOf(prevTab) ? 'tab-slide-prev' : 'tab-slide-next';
 })
 
+const settingsVisible = ref(false)
+
+watch(router.currentRoute, route => {
+  if (route.name !== 'home') {
+    settingsVisible.value = false
+    console.log(route)
+  }
+})
+
+
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/_variables.scss";
+@use "../styles/variables";
 
 .tab-view {
+  flex: 1;
   display: flex;
   flex-direction: column;
   height: var(--page-height);
@@ -83,6 +97,7 @@ watch(curTab, (tab, prevTab) => {
   flex: 1;
   overflow-x: hidden;
   display: flex;
+  background-color: var(--bg-color);
   & > * {
     width: 100%;
     flex-shrink: 0;
@@ -116,7 +131,7 @@ watch(curTab, (tab, prevTab) => {
   }
 }
 
-@media (width > $MAX_SMALL_WIDTH) {
+@media (width > variables.$MAX_SMALL_WIDTH) {
   .tab-view {
     flex-direction: row-reverse;
   }
@@ -135,6 +150,9 @@ watch(curTab, (tab, prevTab) => {
     &.settings-item {
       margin-top: auto;
       border-top: 1px solid var(--border-color);
+    }
+    .material-symbols-outlined {
+      margin-right: 8px;
     }
   }
 }

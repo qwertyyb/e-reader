@@ -3,7 +3,7 @@
     <navigation-bar title="本地导入" no-menu></navigation-bar>
     <div class="upload-book-section">
       <button class="btn primary-btn file-selector-btn" @click="selectFile">选择文件</button>
-      <p class="select-tips">支持 txt 和 epub 文件</p>
+      <p class="select-tips">支持 txt、markdown、epub、mobi 文件</p>
       <p class="select-tips" v-if="fileName">已选择文件: {{ fileName }}</p>
     </div>
     <div class="import-main">
@@ -46,15 +46,13 @@ import CDialog from '@/components/common/CDialog.vue';
 import ChapterList from '@/components/ChapterList.vue'
 import RoutePage from '@/components/RoutePage.vue';
 import BookTocSettings from '@/components/BookTocSettings.vue';
-import { parseTxtFile } from '@/services/parser/txt-file';
-import { blobToBase64, showToast } from '@/utils';
+import { showToast } from '@/utils';
 import { computed, ref, shallowRef, toRaw } from 'vue';
 import NavigationBar from '@/components/NavigationBar.vue';
-import { parseEpubFile } from '@/services/parser/epub';
 import { booksStore, chapterListStore, contentStore } from '@/services/storage';
 import { useRouter } from 'vue-router';
-import { parseMobiFile } from '@/services/parser/mobi';
 import { defaultTocRegList } from '@/config';
+import { parseFile } from '@/services/parser';
 
 const router = useRouter()
 
@@ -74,7 +72,7 @@ const fileName = ref('')
 const selectFile = async () => {
   const input = document.createElement('input')
   input.type = 'file'
-  input.accept = '.txt,.epub,.mobi,.azw3'
+  input.accept = '.txt,.epub,.mobi,.azw3,.md'
   const selectedFile = await new Promise<File | undefined>(resolve => {
     input.addEventListener('change', () => {
       resolve(input.files?.[0])
@@ -84,7 +82,7 @@ const selectFile = async () => {
   if (!selectedFile) return;
   file = selectedFile
   fileName.value = selectedFile.name
-  parseFile()
+  parseFileHandler()
 }
 
 const dialog = ref<string | null>('')
@@ -111,41 +109,14 @@ const wordCount = computed(() => {
   return length.toLocaleString()
 })
 
-const parseFile = async () => {
+const parseFileHandler = async () => {
   if (!file) return;
-  if (file.name.endsWith('.epub')) {
-    try {
-      const result = await parseEpubFile(file)
-      bookInfo.value = {
-        content: result.content,
-        cover: result.cover ? await blobToBase64(result.cover) : '',
-        title: result.title,
-        maxCursor: result.maxCursor
-      }
-      chapterList.value = result.chapterList
-    } catch (err) {
-      showToast('导入失败')
-      throw err
-    }
-    return;
-  }
-  if (file.name.endsWith('.txt')) {
-    try {
-      const result = await parseTxtFile(file, { tocRegList: getTocRegList() })
-      chapterList.value = result.chapterList
-      bookInfo.value = { cover: await blobToBase64(result.cover), title: result.title, content: result.content, maxCursor: result.maxCursor }
-      return
-    } catch (err) {
-      showToast('导入失败')
-      throw err
-    }
-  }
-  // @todo mobi 格式的支持有问题，解析可能会出错，需要重新梳理
   try {
-    const result = await parseMobiFile(file)
+    const result = await parseFile(file, { tocRegList: getTocRegList() });
+    console.log('result', result)
     bookInfo.value = {
       content: result.content,
-      cover: result.cover ? await blobToBase64(result.cover) : '',
+      cover: result.cover,
       title: result.title,
       maxCursor: result.maxCursor
     }
@@ -157,7 +128,7 @@ const parseFile = async () => {
 }
 
 const reParseFile = async () => {
-  await parseFile()
+  await parseFileHandler()
   showToast('目录已更新')
   document.querySelector('.import-view .btns')?.scrollIntoView()
   dialog.value = 'chapterList'
@@ -186,7 +157,7 @@ const previewToc = () => {
 
 const saveBook = async (refreshInfo: boolean) => {
   if (refreshInfo) {
-    await parseFile()
+    await parseFileHandler()
   }
   const { title, maxCursor, cover, content } = bookInfo.value || {}
   if (!title || !maxCursor) {

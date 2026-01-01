@@ -31,7 +31,7 @@ const toDebugView = (() => {
       clickCount++;
       if (clickCount >= 5) {
         clickCount = 0;
-        router.push({ name: 'debug' });
+        router.push({ name: 'preferences', params: { name: 'debug' } });
       } else {
         clickCount += 1;
       }
@@ -49,9 +49,20 @@ onMounted(checkUpdates)
 
 
 <style lang="scss" scoped>
+@use "../styles/variables";
+
 .about-view {
   text-align: center;
   height: var(--page-height);
+  margin: auto;
+}
+@media (width > variables.$MAX_SMALL_WIDTH) {
+  .about-view {
+    max-width: 400px;
+    height: auto;
+    border-radius: 6px;
+    overflow: hidden;
+  }
 }
 .about-view > * {
   margin-bottom: 16px;

@@ -2,7 +2,6 @@ import { createRouter, createWebHashHistory, type RouteLocation, type RouteLocat
 import ReadView from '@/views/ReadView.vue'
 import PreferencesView from '@/views/PreferencesView.vue'
 import AboutView from '@/views/AboutView.vue'
-import AdvancedPrfsView from '@/views/AdvancedPrfsView.vue'
 import HomeView from '@/views/HomeView.vue'
 import { ref, markRaw, type Ref } from 'vue'
 import { historyKey, type RouteHistory } from './const'
@@ -65,22 +64,12 @@ const router = createRouter({
     },
     {
       path: '/preferences',
-      name: 'preferences',
-      redirect: '/preferences/general',
+      redirect: '/preferences/view/basic',
       children: [
         {
-          path: 'general',
+          path: 'view/:name?',
+          name: 'preferences',
           component: PreferencesView
-        },
-        {
-          path: 'debug',
-          name: 'debug',
-          component: () => import('@/views/DebugView.vue')
-        },
-        {
-          path: 'advanced',
-          name: 'advancedPrfs',
-          component: AdvancedPrfsView
         },
         {
           path: 'storage',

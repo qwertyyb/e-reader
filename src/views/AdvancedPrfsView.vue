@@ -65,14 +65,26 @@ const prompt = (name: 'shelfServerUrl' | 'opdsServerUrl') => {
 </script>
 
 <style lang="scss" scoped>
+@import "../styles/variables";
+
 .advanced-prfs-view {
-  max-width: 600px;
+  max-width: 480px;
   height: var(--page-height);
+  margin: 0 auto;
 }
 .prfs-main {
   background: var(--card-bg-color);
   border-radius: 6px;
   margin: 16px;
+}
+@media (width > $MAX_SMALL_WIDTH) {
+  .advanced-prfs-view {
+    height: auto;
+    max-width: 420px;
+    margin: auto;
+    border-radius: 6px;
+    overflow: hidden;
+  }
 }
 .prfs-item {
   display: flex;

@@ -89,7 +89,7 @@ const html = computed(() => {
   --fontStack-monospace: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
   --fgColor-accent: Highlight;
 }
-@media (prefers-color-scheme: dark) {
+html.dark-mode {
   .markdown-body, [data-theme="dark"] {
     /* dark */
     color-scheme: dark;

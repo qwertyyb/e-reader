@@ -1,6 +1,6 @@
 <template>
   <div class="selection-menu">
-    <div class="selection-menu-content-wrapper" @pointerdown.capture="pointerdownHandler" @pointerup.capture="contentTapHandler" ref="contentWrapper">
+    <div class="selection-menu-content-wrapper" @pointerup.capture="contentTapHandler" ref="contentWrapper">
       <slot></slot>
     </div>
     <div class="selection-menu-list-wrapper"
@@ -89,6 +89,9 @@ import { ChapterMark, MarkColors, MarkStyles } from '@/utils/mark'
 import { computed, onMounted, onUnmounted, ref, toRaw, useTemplateRef, watch } from 'vue'
 import { parseSelectionRange } from '@/utils/chapter';
 import CTextarea from '@/components/common/CTextarea.vue';
+import Logger from 'js-logger'
+
+const logger = Logger.get('SelectionMenu')
 
 const props = defineProps<{ bookId: number, chapterId: string }>()
 
@@ -156,14 +159,13 @@ const selectionChangeHandler = () => {
   if (dialog.value === 'thoughtInput') return
 
   const selection = window.getSelection()
-  if (!selection) return
 
   let text = ''
   let range = null
 
-  if (selection.rangeCount) {
+  if (selection?.rangeCount) {
     // 现代浏览器只支持一个range
-    range = selection.getRangeAt(0)
+    range = selection?.getRangeAt(0)
     text = range.toString()
 
     if (range.startContainer.nodeType !== Node.TEXT_NODE || range.endContainer.nodeType !== Node.TEXT_NODE) {
@@ -171,9 +173,13 @@ const selectionChangeHandler = () => {
     }
   }
 
-  if (!range) return
-
-  if (!text) return
+  if (!range || !text) {
+    // if (mark.value && !mark.value?.id) {
+    //   mark.value = null
+    //   dialog.value = null
+    // }
+    return;
+  }
 
   const markRange = parseSelectionRange(range)
   if (!markRange) return
@@ -276,16 +282,22 @@ const saveThought = async () => {
   updateMenuRect()
 }
 
-const pointerdownHandler = (e: PointerEvent) => {
-  mark.value = null
-  const markEl = ((e.target as HTMLElement).nodeName === 'MARK' ? e.target : (e.target as HTMLElement).closest('mark')) as HTMLElement
-  if (!markEl) return
-  e.preventDefault()
-  e.stopImmediatePropagation()
-  e.stopPropagation()
-}
-
 const contentTapHandler = async (e: MouseEvent) => {
+  logger.info('contentTapHandler', window.getSelection()?.toString().length, mark.value)
+  // 经过测试，选中文字后，点击取消选择时，在 Mac Chrome 和 Mac Safari 上，selectionchange 会早于 pointerup，而在移动端safari上，selectionchange 会晚于 pointerup 事件。
+  // 所以至少在 Mac 上，在此处获取的 selection 选区状态已经是最新的了，而在移动端，此处获取的不一定是最新的(如果是调整选区就是最新的，如果是点击取消选择就不是最新的)
+  if (window.getSelection()?.toString()) {
+    e.preventDefault()
+    e.stopPropagation()
+    return;
+  }
+  if (mark.value) {
+    dialog.value = null
+    mark.value = null
+    e.preventDefault()
+    e.stopPropagation()
+    return;
+  }
   const markEl = ((e.target as HTMLElement).nodeName === 'MARK' ? e.target : (e.target as HTMLElement).closest('mark')) as HTMLElement
   if (!markEl) return
   e.preventDefault()

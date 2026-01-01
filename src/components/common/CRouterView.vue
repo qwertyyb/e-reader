@@ -32,6 +32,7 @@
 </template>
 
 <script setup lang="ts">
+import { useWindowSize } from '@/hooks/windowSize';
 import { appRouter } from '@/router';
 import { historyKey, matchRouteKey, RouteHistory } from '@/router/const';
 import { disableAnim } from '@/utils/env';
@@ -104,7 +105,7 @@ const popHandler = async (delta: number, options: { hasUAVisualTransition: boole
   const cur = components.value?.[history.value.length + delta]
   if (typeof cur?.onBackFrom === 'function') {
     await cur.onBackFrom(to, from, toEl, fromEl)
-  } else if (!disableAnim.value && !options.hasUAVisualTransition) {
+  } else if (!disableAnim.value && !options.hasUAVisualTransition && isSmall.value) {
     console.log('back', disableAnim.value)
     await runDefaultPopAnimation(fromEl, toEl);
   }
@@ -134,7 +135,7 @@ const pushHandler = async (to: RouteLocation, from?: RouteLocation) => {
     curRouteComp.onForwardTo(to, from, toEl, fromEl)
     return;
   }
-  if (disableAnim.value || history.value.length <= 1) return;
+  if (disableAnim.value || history.value.length <= 1 || !isSmall.value) return;
   runDefaultPushAnimation(toEl, fromEl);
 }
 
@@ -159,6 +160,8 @@ const replaceHandler = (to: RouteLocation) => {
 </script>
 
 <style lang="scss" scoped>
+@use "../../styles/variables";
+
 .route-history-list {
   height: var(--page-height);
   overflow: hidden;
@@ -172,7 +175,14 @@ const replaceHandler = (to: RouteLocation) => {
     height: 100%;
     overflow: auto;
     visibility: hidden;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
     --mask-opacity: 0.1;
+    &:deep(> *) {
+      width: 100%;
+    }
     &.previous, &.current {
       visibility: visible;
     }
@@ -194,6 +204,12 @@ const replaceHandler = (to: RouteLocation) => {
     }
     &.current {
       z-index: 2;
+    }
+  }
+  @media (width > variables.$MAX_SMALL_WIDTH) {
+    & > * {
+      visibility: visible;
+      background-color: rgba(0, 0, 0, 0.65);
     }
   }
 }
