@@ -242,9 +242,9 @@ onForwardTo((to) => {
 
 onBackFrom(async (current) => {
   if (current.location.query.trace) {
-    const cover = document.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(current.location.query.trace)}]`)
     controlWrapperRef.value?.closeDialog()
-    await animRef.value?.closeBook(cover)
+    await animRef.value?.closeBook(() => document.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(current.location.query.trace)}]`))
+    const cover = document.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(current.location.query.trace)}]`)
     cover?.classList.remove('is-reading')
     cover?.style.removeProperty('opacity')
   }

@@ -75,7 +75,7 @@ const calcToOriginTransform = (origin?: HTMLElement | null) => {
 
 const runBookAnimation = async (options: {
   direction: 'normal' | 'reverse',
-  origin?: HTMLElement | null
+  origin?: HTMLElement | null | (() => HTMLElement | null)
 }) => {
   const mask = document.querySelector('.book-animation')
   const bookEl = document.querySelector<HTMLElement>('.book-animation > .book-anim')
@@ -84,7 +84,6 @@ const runBookAnimation = async (options: {
   const bookCoverImg = document.querySelector<HTMLElement>('.book-animation > .book-anim > .book-cover > .book-cover-img');
   if (!bookEl || !mask || !bookContent) return
 
-  const originTransform = calcToOriginTransform(options.origin)
   const centerOffsetY = window.innerHeight / 2 - centerScale * window.innerHeight / 2
 
   // 动画1. 把从书架上拿出来
@@ -98,6 +97,7 @@ const runBookAnimation = async (options: {
       expectRatio = window.innerHeight * COVER_SIZE / window.innerWidth * 2 / (COVER_SIZE / 3 * 4)
     }
     bookContent.style.opacity = '0'
+    const originTransform = calcToOriginTransform(typeof options.origin === 'function' ? options.origin() : options.origin)
     await Promise.all([
       bookEl.animate([
         { transform: `translate(${originTransform.offsetX}px, ${originTransform.offsetY}px) scale(${originTransform.scale})` },
@@ -172,12 +172,12 @@ const openBook = async (from?: HTMLImageElement | null) => {
   direction.value = 'none'
 }
 
-const closeBook = async (to?: HTMLElement | null) => {
+const closeBook = async (getOrigin?: () => HTMLElement | null) => {
   if (noAnim.value) {
     return
   }
   direction.value = 'reverse'
-  await runBookAnimation({ direction: 'reverse', origin: to })
+  await runBookAnimation({ direction: 'reverse', origin: getOrigin })
   direction.value = 'none'
 }
 
