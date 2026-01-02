@@ -219,7 +219,6 @@ const createAppRouter = (router: Router): Router & {
   const appRouter: Router = {
     ...router,
     async push(...args: Parameters<typeof router.push>) {
-      console.log('push')
       const result = await router.push(...args)
       const current = router.currentRoute.value;
 
