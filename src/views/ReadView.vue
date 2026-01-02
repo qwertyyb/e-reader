@@ -73,14 +73,13 @@ import { localBookService as dataService } from '@/services/LocalBookService';
 import { showToast } from '@/utils';
 import { readingStateStore, readTimeStore } from '@/services/storage';
 import BookAnimation from '@/components/BookAnimation.vue';
-import { type RouteLocation } from 'vue-router';
 import ChapterContents from '@/components/ChapterContents.vue';
 import HorizationalChapterContents from '@/components/HorizationalChapterContents.vue';
 import ChapterListVue from '@/components/ChapterList.vue';
 import { ReadingTime } from '@/actions/reading-time';
 import { preferences } from '@/stores/preferences';
 import * as wakeLock from '@/utils/wake-lock'
-import { onBackFrom, onForwardTo } from '@/router/hooks';
+import { onBackFrom, onBackTo, onForwardFrom, onForwardTo } from '@/router/hooks';
 
 const props = defineProps<{
   id: string
@@ -251,34 +250,16 @@ onBackFrom(async (current) => {
   }
 })
 
-defineExpose({
-  onBackFrom: async (to: RouteLocation, from?: RouteLocation, toEl?: HTMLElement | null) => {
-    if (from?.query.trace) {
-      const cover = toEl?.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(from.query.trace)}]`)
-      controlWrapperRef.value?.closeDialog()
-      await animRef.value?.closeBook(cover)
-      cover?.classList.remove('is-reading')
-      cover?.style.removeProperty('opacity')
-    }
-  },
-  onForwardTo: (to: RouteLocation, from?: RouteLocation, toEl?: HTMLElement, fromEl?: HTMLElement) => {
-    if (to.query.trace) {
-      const cover = fromEl?.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(to.query.trace)}]`)
-      cover?.classList.add('is-reading')
-      cover?.style.setProperty('opacity', '0')
-      animRef.value?.openBook(cover)
-    }
-  },
-  onBackTo() {
-    // 从其它页面 pop 回当前页面时，执行此回调
-    requestWakeLock()
-    readingTime?.start()
-  },
-  onForwardFrom() {
-    // 从当前页面 push 跳到新的页面时，执行此回调
-    releaseWakeLock()
-    readingTime?.pause()
-  }
+onBackTo(() => {
+  // 从其它页面 pop 回当前页面时，执行此回调
+  requestWakeLock()
+  readingTime?.start()
+})
+
+onForwardFrom(() => {
+  // 从当前页面 push 跳到新的页面时，执行此回调
+  releaseWakeLock()
+  readingTime?.pause()
 })
 </script>
 
