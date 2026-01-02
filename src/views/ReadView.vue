@@ -80,6 +80,7 @@ import ChapterListVue from '@/components/ChapterList.vue';
 import { ReadingTime } from '@/actions/reading-time';
 import { preferences } from '@/stores/preferences';
 import * as wakeLock from '@/utils/wake-lock'
+import { onBackFrom, onForwardTo } from '@/router/hooks';
 
 const props = defineProps<{
   id: string
@@ -229,6 +230,25 @@ requestWakeLock()
 onBeforeUnmount(() => {
   releaseWakeLock()
   readingTime?.destroy()
+})
+
+onForwardTo((to) => {
+  if (to.query.trace) {
+    const cover = document.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(to.query.trace)}]`)
+    cover?.classList.add('is-reading')
+    cover?.style.setProperty('opacity', '0')
+    animRef.value?.openBook(cover)
+  }
+})
+
+onBackFrom(async (current) => {
+  if (current.query.trace) {
+    const cover = document.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(current.query.trace)}]`)
+    controlWrapperRef.value?.closeDialog()
+    await animRef.value?.closeBook(cover)
+    cover?.classList.remove('is-reading')
+    cover?.style.removeProperty('opacity')
+  }
 })
 
 defineExpose({

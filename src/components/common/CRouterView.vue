@@ -19,12 +19,12 @@
       </li> -->
       <CHistoryPage
         ref="pages"
-        v-for="(route, index) in history"
+        v-for="(node, index) in history?.children"
         :key="index"
-        :route="route"
+        :node="node"
         :class="{
-          'current': index === history!.length - 1,
-          'previous': index === history!.length - 2,
+          'current': index === history!.children.length - 1,
+          'previous': index === history!.children.length - 2,
         }"
       ></CHistoryPage>
     </ul>
@@ -39,109 +39,93 @@ import { disableAnim } from '@/utils/env';
 import { inject, nextTick, onBeforeUnmount, provide, Ref, shallowRef, useTemplateRef, watch } from 'vue';
 import type { RouteLocation, RouteRecordRaw } from 'vue-router';
 import CHistoryPage from './CHistoryPage.vue';
+import type { RouteHistoryNode } from '@/router/history';
 
-const history = inject<Ref<RouteHistory>>(historyKey)
+const history = inject<Ref<RouteHistoryNode>>(historyKey)
 
 console.log('history', history)
 const pages = useTemplateRef('pages')
-
-watch(pages, (pageInstances) => {
-  history?.value.forEach((item, index) => {
-    const instance = pageInstances?.[index]
-    item.instance = instance
-  })
-})
-
-watch(() => history?.value.length ?? 0, (newVal, oldVal) => {
-  if (newVal > oldVal) {
-    // 有新页面来了，在旧页面上 dispatchPageLeave
-    pages.value?.[oldVal - 1]?.dispatchPageLeave()
-  } else if (oldVal > newVal) {
-    // 有页面出栈，在旧页面上 dispatchPageBack
-    pages.value?.[newVal - 1]?.dispatchPageBack()
-  }
-})
 
 const el = useTemplateRef('el')
 
 // const history = shallowRef<RouteLocation[]>([])
 
-const runDefaultPushAnimation = async (cur?: HTMLElement | null, prev?: HTMLElement | null) => {
-  const prevAnim = prev?.animate([{ transform: `translateX(0)` }, { transform: `translateX(-30%)` }], { duration: 200, easing: 'ease-out' })
-  const curAnim = cur?.animate([{ transform: `translateX(100%)` }, { transform: `translateX(0)` }], { duration: 200, easing: 'ease-out' })
-  await Promise.all([prevAnim?.finished, curAnim?.finished])
-  prev?.classList.add('animate-end')
-}
+// const runDefaultPushAnimation = async (cur?: HTMLElement | null, prev?: HTMLElement | null) => {
+//   const prevAnim = prev?.animate([{ transform: `translateX(0)` }, { transform: `translateX(-30%)` }], { duration: 200, easing: 'ease-out' })
+//   const curAnim = cur?.animate([{ transform: `translateX(100%)` }, { transform: `translateX(0)` }], { duration: 200, easing: 'ease-out' })
+//   await Promise.all([prevAnim?.finished, curAnim?.finished])
+//   prev?.classList.add('animate-end')
+// }
 
-const runDefaultPopAnimation = async (cur?: HTMLElement | null, prev?: HTMLElement | null) => {
-  const prevAnim = prev?.animate(
-    [
-      { transform: `translateX(0)`, '--mask-opacity': '0' },
-      {
-        transform: prev.style.getPropertyValue('transform') ||`translateX(-30%)`,
-        '--mask-opacity': prev.style.getPropertyValue('--mask-opacity') || '0'
-      }
-    ],
-    { duration: 200, easing: 'ease-in', direction: 'reverse' }
-  )
-  const curAnim = cur?.animate(
-    [
-      { transform: `translateX(100%)` },
-      { transform: cur.style.getPropertyValue('transform') || `translateX(0)` }
-    ],
-    { duration: 200, easing: 'ease-in', direction: 'reverse' }
-  )
-  await Promise.all([prevAnim?.finished, curAnim?.finished])
-  prev?.style.removeProperty('transform')
-  prev?.style.removeProperty('--mask-opacity')
-}
+// const runDefaultPopAnimation = async (cur?: HTMLElement | null, prev?: HTMLElement | null) => {
+//   const prevAnim = prev?.animate(
+//     [
+//       { transform: `translateX(0)`, '--mask-opacity': '0' },
+//       {
+//         transform: prev.style.getPropertyValue('transform') ||`translateX(-30%)`,
+//         '--mask-opacity': prev.style.getPropertyValue('--mask-opacity') || '0'
+//       }
+//     ],
+//     { duration: 200, easing: 'ease-in', direction: 'reverse' }
+//   )
+//   const curAnim = cur?.animate(
+//     [
+//       { transform: `translateX(100%)` },
+//       { transform: cur.style.getPropertyValue('transform') || `translateX(0)` }
+//     ],
+//     { duration: 200, easing: 'ease-in', direction: 'reverse' }
+//   )
+//   await Promise.all([prevAnim?.finished, curAnim?.finished])
+//   prev?.style.removeProperty('transform')
+//   prev?.style.removeProperty('--mask-opacity')
+// }
 
-const popHandler = async (delta: number, options: { hasUAVisualTransition: boolean }) => {
-  const toEl = el.value?.querySelector<HTMLElement>('.route-history-item.previous')
-  const fromEl = el.value?.querySelector<HTMLElement>('.route-history-item.current')
-  const to = history.value[history.value.length + delta - 1]
-  const from = history.value[history.value.length + delta]
-  const prev = components.value?.[history.value.length + delta - 1]
-  const cur = components.value?.[history.value.length + delta]
-  if (typeof cur?.onBackFrom === 'function') {
-    await cur.onBackFrom(to, from, toEl, fromEl)
-  } else if (!disableAnim.value && !options.hasUAVisualTransition && isSmall.value) {
-    console.log('back', disableAnim.value)
-    await runDefaultPopAnimation(fromEl, toEl);
-  }
-  history.value = [...history.value.slice(0, history.value.length + delta)]
-  if (typeof prev?.onBackTo === 'function') {
-    prev.onBackTo(to, from, toEl, fromEl)
-  }
-  if (!history.value.length) {
-    // 无法后退时，回到主页
-    history.value = [appRouter.resolve({ path: '/' })]
-  }
-}
+// const popHandler = async (delta: number, options: { hasUAVisualTransition: boolean }) => {
+//   const toEl = el.value?.querySelector<HTMLElement>('.route-history-item.previous')
+//   const fromEl = el.value?.querySelector<HTMLElement>('.route-history-item.current')
+//   const to = history.value[history.value.length + delta - 1]
+//   const from = history.value[history.value.length + delta]
+//   const prev = components.value?.[history.value.length + delta - 1]
+//   const cur = components.value?.[history.value.length + delta]
+//   if (typeof cur?.onBackFrom === 'function') {
+//     await cur.onBackFrom(to, from, toEl, fromEl)
+//   } else if (!disableAnim.value && !options.hasUAVisualTransition && isSmall.value) {
+//     console.log('back', disableAnim.value)
+//     await runDefaultPopAnimation(fromEl, toEl);
+//   }
+//   history.value = [...history.value.slice(0, history.value.length + delta)]
+//   if (typeof prev?.onBackTo === 'function') {
+//     prev.onBackTo(to, from, toEl, fromEl)
+//   }
+//   if (!history.value.length) {
+//     // 无法后退时，回到主页
+//     history.value = [appRouter.resolve({ path: '/' })]
+//   }
+// }
 
-const pushHandler = async (to: RouteLocation, from?: RouteLocation) => {
-  // 暂时先不考虑多层级的嵌套路由
-  history.value = [...history.value, to]
-  await nextTick()
-  const fromEl = el.value?.querySelector<HTMLElement>('.route-history-item.previous')
-  const toEl = el.value?.querySelector<HTMLElement>('.route-history-item.current')
-  const prevRouteComp = components.value?.[history.value.length - 2]
-  const curRouteComp = components.value?.[history.value.length - 1]
-  if (typeof prevRouteComp?.onForwardFrom === 'function') {
-    prevRouteComp.onForwardFrom(to, from!, toEl, fromEl)
-  }
+// const pushHandler = async (to: RouteLocation, from?: RouteLocation) => {
+//   // 暂时先不考虑多层级的嵌套路由
+//   history.value = [...history.value, to]
+//   await nextTick()
+//   const fromEl = el.value?.querySelector<HTMLElement>('.route-history-item.previous')
+//   const toEl = el.value?.querySelector<HTMLElement>('.route-history-item.current')
+//   const prevRouteComp = components.value?.[history.value.length - 2]
+//   const curRouteComp = components.value?.[history.value.length - 1]
+//   if (typeof prevRouteComp?.onForwardFrom === 'function') {
+//     prevRouteComp.onForwardFrom(to, from!, toEl, fromEl)
+//   }
 
-  if (typeof curRouteComp?.onForwardTo === 'function') {
-    curRouteComp.onForwardTo(to, from, toEl, fromEl)
-    return;
-  }
-  if (disableAnim.value || history.value.length <= 1 || !isSmall.value) return;
-  runDefaultPushAnimation(toEl, fromEl);
-}
+//   if (typeof curRouteComp?.onForwardTo === 'function') {
+//     curRouteComp.onForwardTo(to, from, toEl, fromEl)
+//     return;
+//   }
+//   if (disableAnim.value || history.value.length <= 1 || !isSmall.value) return;
+//   runDefaultPushAnimation(toEl, fromEl);
+// }
 
-const replaceHandler = (to: RouteLocation) => {
-  history.value = [...history.value.slice(0, history.value.length - 1), to]
-}
+// const replaceHandler = (to: RouteLocation) => {
+//   history.value = [...history.value.slice(0, history.value.length - 1), to]
+// }
 
 // appRouter.onPush(pushHandler)
 // appRouter.onPop(popHandler)

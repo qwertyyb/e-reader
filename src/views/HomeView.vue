@@ -1,29 +1,25 @@
 <template>
   <div class="tab-view book-shelf">
     <div class="tab-panel-container">
-      <transition :name="transitionName">
-        <shelf-view v-if="curTab === 'shelf'"></shelf-view>
-        <o-p-d-s-view v-else-if="curTab === 'opds'" no-back></o-p-d-s-view>
-        <my-view v-else></my-view>
-      </transition>
+      <c-router-view></c-router-view>
     </div>
     <ul class="tab-nav-list">
       <li class="tab-nav-item pointer"
-        @click="curTab = 'shelf'"
-        :class="{selected: curTab === 'shelf' }">
+        @click="$router.replace({ name: 'home-tab-shelf' })"
+        :class="{selected: $route.name === 'home-tab-shelf'}">
         <span class="material-symbols-outlined tab-icon">newsstand</span>
         书架
       </li>
       <li class="tab-nav-item pointer"
         v-if="preferences.opdsServerUrl"
-        @click="curTab = 'opds'"
-        :class="{selected: curTab === 'opds'}">
+        @click="$router.replace({ name: 'home-tab-opds' })"
+        :class="{selected: $route.name === 'home-tab-opds'}">
         <span class="material-symbols-outlined tab-icon">public</span>
         图书馆
       </li>
       <li class="tab-nav-item pointer"
-        @click="curTab = 'my'"
-        :class="{selected: curTab === 'my' }">
+        @click="$router.replace({ name: 'home-tab-my'})"
+        :class="{selected: $route.name === 'home-tab-my'}">
         <span class="material-symbols-outlined tab-icon">person</span>
         我的
       </li>
@@ -39,9 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import ShelfView from '@/views/ShelfView.vue';
-import MyView from '@/views/MyView.vue';
-import OPDSView from '@/views/OPDSView.vue';
+import CRouterView from '@/components/common/CRouterView.vue';
 import { preferences } from '@/stores/preferences';
 import { defineAsyncComponent, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';

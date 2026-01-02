@@ -1,20 +1,27 @@
-import { inject, onBeforeUnmount, onMounted } from "vue"
-import { pageEventKey } from "./const"
+import { inject, onBeforeUnmount } from "vue"
+import { historyItemKey, type RouteHistoryItem, type RouteHistoryLifecycle } from "./const"
 
-const createOnPageEvent = (eventName: string) => (handler: () => void) => {
-  const pageEvent = inject<EventTarget>(pageEventKey)
-  onMounted(() => {
-    pageEvent?.addEventListener(eventName, handler)
-  })
+const createPageListener = <K extends keyof RouteHistoryLifecycle>(lifecycleName: K) => (handler: RouteHistoryLifecycle[K]) => {
+  const historyItem = inject<RouteHistoryItem>(historyItemKey)
+  if (!historyItem) return;
+  if (!historyItem.lifecycle) {
+    historyItem.lifecycle = {}
+  }
+  if (!historyItem.lifecycle[lifecycleName]) {
+    historyItem.lifecycle[lifecycleName] = []
+  }
+  historyItem.lifecycle[lifecycleName].push(handler)
   onBeforeUnmount(() => {
-    pageEvent?.removeEventListener(eventName, handler)
+    if (!historyItem.lifecycle?.[lifecycleName]) return;
+    const list = historyItem.lifecycle?.[lifecycleName]?.filter(h => h !== handler) ?? [];
+    (historyItem.lifecycle[lifecycleName] as RouteHistoryLifecycle[K][]) = list
   })
 }
 
-export const onPageEnter = createOnPageEvent('pageEnter')
+export const onForwardTo = createPageListener('onForwardTo')
 
-export const onPageExit = createOnPageEvent('pageExit')
+export const onBackTo = createPageListener('onBackTo')
 
-export const onPageBack = createOnPageEvent('pageBack')
+export const onForwardFrom = createPageListener('onForwardFrom')
 
-export const onPageLeave = createOnPageEvent('pageLeave')
+export const onBackFrom = createPageListener('onBackFrom')
