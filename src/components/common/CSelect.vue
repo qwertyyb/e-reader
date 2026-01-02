@@ -78,6 +78,8 @@ watch(optionsVisible, async (val) => {
     await nextTick()
     floating.value?.showPopover()
     update()
+  } else {
+    floating.value?.hidePopover()
   }
 })
 
