@@ -1,30 +1,13 @@
 <template>
   <div class="c-router-view" ref="el">
     <ul class="route-history-list">
-      <!-- <li class="route-history-item"
-        v-for="(route, index) in history"
-        :key="index"
-        :class="{
-          'current': index === history.length - 1,
-          'previous': index === history.length - 2,
-        }"
-      >
-        <component
-          ref="components"
-          v-for="matched in route.matched.filter(i => i.components?.default).slice(0, 1)"
-          :key="matched.path"
-          :is="matched.components?.default"
-          v-bind="route.params"
-        ></component>
-      </li> -->
       <CHistoryPage
-        ref="pages"
-        v-for="(node, index) in history?.children"
-        :key="index"
-        :node="node"
+        v-for="(node, index) in matchedList"
+        :key="node.locations[0].uniqueId"
+        :item="node"
         :class="{
-          'current': index === history!.children.length - 1,
-          'previous': index === history!.children.length - 2,
+          'current': index === matchedList.length - 1,
+          'previous': index === matchedList.length - 2,
         }"
       ></CHistoryPage>
     </ul>
@@ -32,21 +15,74 @@
 </template>
 
 <script setup lang="ts">
-import { useWindowSize } from '@/hooks/windowSize';
-import { appRouter } from '@/router';
-import { historyKey, matchRouteKey, RouteHistory } from '@/router/const';
-import { disableAnim } from '@/utils/env';
-import { inject, nextTick, onBeforeUnmount, provide, Ref, shallowRef, useTemplateRef, watch } from 'vue';
-import type { RouteLocation, RouteRecordRaw } from 'vue-router';
+import { isEqual } from 'es-toolkit'
+import { historyKey, viewDepthKey, type RouteHistoryItem } from '@/router/const';
+import { computed, inject, unref, type Ref } from 'vue';
+import { type RouteLocationMatched, type RouteParamsGeneric } from 'vue-router';
 import CHistoryPage from './CHistoryPage.vue';
-import type { RouteHistoryNode } from '@/router/history';
 
-const history = inject<Ref<RouteHistoryNode>>(historyKey)
+const history = inject<Ref<RouteHistoryItem[]>>(historyKey)
+const depth = inject<number>(viewDepthKey, 0)
 
-console.log('history', history)
-const pages = useTemplateRef('pages')
+const findMatchIndex = (route: RouteHistoryItem) => {
+  for (let i = unref(depth); i < route.location.matched.length; i += 1) {
+    if (route.location.matched[i].components?.default) {
+      return i
+    }
+  }
+  return -1
+}
 
-const el = useTemplateRef('el')
+const parseMatchedParams = (path: string, params: RouteParamsGeneric) => {
+  const variables = path.match(/(?<=\/:)(\w+)/g) || []
+  const result: RouteParamsGeneric = {}
+  variables.forEach(key => {
+    result[key] = params[key]
+  })
+  return result
+}
+
+type MatchedListItem = {
+  matched: RouteLocationMatched,
+  params: RouteParamsGeneric,
+  matchIndex: number,
+  locations: RouteHistoryItem[]
+}
+
+const matchedList = computed(() => {
+  const results: MatchedListItem[] = []
+  let last: MatchedListItem | null = null
+  const locations = unref(history!)
+  for (let i = 0; i < locations.length; i += 1) {
+    const item = locations[i]
+    if (
+      last &&
+      last.matched === item.location.matched[last.matchIndex] &&
+      isEqual(last.params, parseMatchedParams(last.matched.path, item.location.params))
+    ) {
+      // 多个相同的路由，合并到一个页面中
+      last.locations.push(item)
+    } else {
+      const matchIndex = findMatchIndex(item)
+      const matched = item.location.matched[matchIndex]
+      const params = parseMatchedParams(matched.path, item.location.params)
+      last = {
+        matched,
+        params,
+        matchIndex,
+        locations: [item]
+      }
+      results.push(last)
+    }
+  }
+  return results;
+})
+
+console.log('matchedList', matchedList)
+
+// const pages = useTemplateRef('pages')
+
+// const el = useTemplateRef('el')
 
 // const history = shallowRef<RouteLocation[]>([])
 
@@ -147,7 +183,7 @@ const el = useTemplateRef('el')
 @use "../../styles/variables";
 
 .route-history-list {
-  height: var(--page-height);
+  height: 100%;
   overflow: hidden;
   position: relative;
   width: 100%;
@@ -157,11 +193,9 @@ const el = useTemplateRef('el')
     left: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
+    overflow: hidden;
     visibility: hidden;
     display: flex;
-    width: 100%;
-    height: 100%;
     z-index: 0;
     --mask-opacity: 0.1;
     &:deep(> *) {

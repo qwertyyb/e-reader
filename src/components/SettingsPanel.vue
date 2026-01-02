@@ -188,13 +188,10 @@ import { version, buildVersion } from '@/version';
 import { debugOptions, resetToDefault, modeOptions } from '@/stores/debug';
 import { clearAllCache } from '@/utils/cache';
 import { showToast } from '@/utils';
-import { env } from '@/utils/env';
+import { env, isSmall } from '@/utils/env';
 import { appRouter } from '@/router';
-import { useWindowSize } from '@/hooks/windowSize';
 
 const tabName = defineModel<string>('name', { default: 'basic' })
-
-const { isSmall } = useWindowSize()
 
 const checkUpdates = async () => {
   document.dispatchEvent(new CustomEvent('app:checkupdates', { detail: { slient: false } }))
@@ -285,6 +282,7 @@ const feedback = () => {
     text-align: right;
     // field-sizing: content;
     padding: 4px 0 4px 6px;
+    background: transparent;
   }
 }
 

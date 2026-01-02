@@ -1,7 +1,8 @@
 <template>
   <section class="my-view">
     <div class="navigation-bar">
-      <span class="material-symbols-outlined pointer settings-icon" @click="$router.push({ name: 'preferences' })">tune</span>
+      <span v-if="isSmall" class="material-symbols-outlined pointer settings-icon"
+        @click="$router.push({ name: 'preferences' })">tune</span>
     </div>
     <header class="my-info">
       <img :src="'./icons/icon128.png'" alt="" class="avatar">
@@ -31,6 +32,7 @@
 <script setup lang="ts">
 import { marks, readingStateStore } from '@/services/storage';
 import { formatDuration } from '@/utils';
+import { isSmall } from '@/utils/env';
 import { ref } from 'vue';
 
 const durationTotal = ref('')

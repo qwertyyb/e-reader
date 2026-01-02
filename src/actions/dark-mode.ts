@@ -44,18 +44,18 @@ export class DarkMode extends EventTarget {
 
   enter() {
     logger.info('enter darkMode')
-    document.documentElement.classList.add('dark-mode')
+    document.documentElement.classList.add('dark')
     this.#changeHandler()
   }
 
   exit() {
     logger.info('exit darkMode')
-    document.documentElement.classList.remove('dark-mode')
+    document.documentElement.classList.remove('dark')
     this.#changeHandler()
   }
 
   isActivated() {
-    return document.documentElement.classList.contains('dark-mode')
+    return document.documentElement.classList.contains('dark')
   }
 
   toggle() {

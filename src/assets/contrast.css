@@ -17,7 +17,7 @@ html.more-contrast img {
   filter: grayscale(100%) contrast(140%);
 }
 
-html.more-contrast.dark-mode {
+html.more-contrast.dark {
   color-scheme: dark;
 
   --card-bg-color: #333;

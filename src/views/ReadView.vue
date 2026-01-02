@@ -233,8 +233,8 @@ onBeforeUnmount(() => {
 })
 
 onForwardTo((to) => {
-  if (to.query.trace) {
-    const cover = document.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(to.query.trace)}]`)
+  if (to.location.query.trace) {
+    const cover = document.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(to.location.query.trace)}]`)
     cover?.classList.add('is-reading')
     cover?.style.setProperty('opacity', '0')
     animRef.value?.openBook(cover)
@@ -242,8 +242,8 @@ onForwardTo((to) => {
 })
 
 onBackFrom(async (current) => {
-  if (current.query.trace) {
-    const cover = document.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(current.query.trace)}]`)
+  if (current.location.query.trace) {
+    const cover = document.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(current.location.query.trace)}]`)
     controlWrapperRef.value?.closeDialog()
     await animRef.value?.closeBook(cover)
     cover?.classList.remove('is-reading')

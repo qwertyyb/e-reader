@@ -37,40 +37,19 @@
 <script setup lang="ts">
 import CRouterView from '@/components/common/CRouterView.vue';
 import { preferences } from '@/stores/preferences';
+import { isSmall } from '@/utils/env';
 import { defineAsyncComponent, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { useWindowSize } from '@/hooks/windowSize';
 
 const WebSettings = defineAsyncComponent(() => import('@/components/WebSettings.vue'))
 
 const router = useRouter()
-
-const getDefaultTab = () => {
-  const tab  = router.currentRoute.value.query.tab as string | undefined;
-  if (tab === 'my' || tab === 'shelf') {
-    return tab;
-  }
-  return 'shelf';
-}
-const curTab = ref(getDefaultTab())
-const { isSmall } = useWindowSize();
-
-const tabNames = ['shelf', 'opds', 'my']
-const transitionName = ref(isSmall.value ? 'tab-slide-next' : '')
-
-watch(curTab, (tab, prevTab) => {
-  if (!isSmall.value) return;
-  // 要切换的tab 位于当前 tab 之前，则使用 tab-slide-prev
-  // 否则使用 tab-slide-next
-  transitionName.value = tabNames.indexOf(tab) < tabNames.indexOf(prevTab) ? 'tab-slide-prev' : 'tab-slide-next';
-})
 
 const settingsVisible = ref(false)
 
 watch(router.currentRoute, route => {
   if (route.name !== 'home') {
     settingsVisible.value = false
-    console.log(route)
   }
 })
 

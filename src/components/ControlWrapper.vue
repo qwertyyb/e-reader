@@ -115,9 +115,8 @@ import WebReadControl from './WebReadControl.vue';
 import Hammer from 'hammerjs';
 import { settings } from '@/stores/settings';
 import type { GetNextElement } from '@/actions/read-speak';
-import { disableAnim } from '@/utils/env';
+import { disableAnim, isSmall } from '@/utils/env';
 import { useRouter } from 'vue-router';
-import { useWindowSize } from '@/hooks/windowSize';
 
 const props = defineProps<{
   bookId: number
@@ -144,7 +143,6 @@ const chapter = inject<ComputedRef<IChapter>>('chapter')
 
 const contentRef = useTemplateRef('content')
 const router = useRouter()
-const { isSmall } = useWindowSize()
 
 const refreshMarks = () => {
   const chapterEls = contentRef.value!.querySelectorAll<HTMLElement>('.chapter')

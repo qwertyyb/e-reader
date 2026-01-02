@@ -13,7 +13,7 @@ import RoutePage from '@/components/RoutePage.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import SettingsPanel from '@/components/SettingsPanel.vue';
 
-withDefaults(defineProps<{ name: string }>(), { name: 'basic' })
+withDefaults(defineProps<{ name?: string }>(), { name: 'basic' })
 
 </script>
 

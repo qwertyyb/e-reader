@@ -9,27 +9,19 @@ export const historyKey = Symbol('history')
 
 export const pageEventKey = Symbol('pageEvent')
 
-export type RouteHistoryLifecycle = {
-  onForwardTo: (to: RouteLocation, from?: RouteLocation) => any,
-  onBackTo: (to: RouteLocation, from: RouteLocation) => any,
-  onBackFrom: (current: RouteLocation, prev: RouteLocation) => any,
-  onForwardFrom: (current: RouteLocation, next: RouteLocation) => any,
-  onReplaceFrom: (current: RouteLocation, next: RouteLocation) => any,
-  onReplaceTo: (current: RouteLocation, next: RouteLocation) => any
-}
-
 export type RouteHistoryItem = {
   location: RouteLocation
-  history?: RouteHistoryItem[]
+  uniqueId: string,
   lifecycle?: {
     [key in keyof RouteHistoryLifecycle]?: RouteHistoryLifecycle[key][]
   }
-  instance?: {
-    dispatchPageLeave: () => void,
-    dispatchPageBack: () => void,
-    dispatchPageEnter: () => void,
-    dispatchPageExit: () => void,
-  } | null
 }
 
-export type RouteHistory = RouteHistoryItem[]
+export type RouteHistoryLifecycle = {
+  onForwardTo: (to: RouteHistoryItem, from?: RouteHistoryItem) => any,
+  onBackTo: (to: RouteHistoryItem, from: RouteHistoryItem) => any,
+  onBackFrom: (current: RouteHistoryItem, prev: RouteHistoryItem) => any,
+  onForwardFrom: (current: RouteHistoryItem, next: RouteHistoryItem) => any,
+  onReplaceFrom: (current: RouteHistoryItem, next: RouteHistoryItem) => any,
+  onReplaceTo: (current: RouteHistoryItem, next: RouteHistoryItem) => any
+}

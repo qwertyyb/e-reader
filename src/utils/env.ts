@@ -1,3 +1,4 @@
+import { MAX_SMALL_WIDTH } from "@/constant";
 import { ref, watch, type Ref } from "vue"
 
 // 声明 window.eruda 类型
@@ -138,3 +139,11 @@ export const destroyEruda = () => {
     window.erudaInited = false
   }
 }
+
+export const isSmall = ref(false)
+
+const handler = () => {
+  isSmall.value = window.innerWidth <= MAX_SMALL_WIDTH
+}
+
+window.addEventListener('resize', handler)

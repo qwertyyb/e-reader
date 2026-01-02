@@ -14,9 +14,8 @@
 
 <script setup lang="ts">
 import { computed, inject, ref, shallowRef, type Ref } from 'vue';
-import { disableAnim } from '@/utils/env';
+import { disableAnim, isSmall } from '@/utils/env';
 import { useRoute } from 'vue-router';
-import { useWindowSize } from '@/hooks/windowSize';
 
 const route = useRoute()
 
@@ -42,8 +41,6 @@ const centerSize = Math.min(COVER_SIZE * 3, Math.min(window.innerWidth, window.i
 const centerScale = Math.min(3, centerSize / window.innerWidth)
 
 console.log(centerSize, centerScale)
-
-const { isSmall } = useWindowSize()
 
 const getOriginalRect = (origin?: HTMLElement | null) => {
   return origin?.getBoundingClientRect() || {
@@ -266,7 +263,7 @@ defineExpose({
     transform: rotateY(-180deg);
     z-index: 1;
   }
-  :global(html.dark-mode .book-animation .book-cover .book-cover-backface) {
+  :global(html.dark .book-animation .book-cover .book-cover-backface) {
     background-image: none;
   }
   .book-cover-img {

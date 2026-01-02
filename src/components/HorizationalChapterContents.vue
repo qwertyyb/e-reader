@@ -6,10 +6,9 @@
 
 <script setup lang="ts">
 import { useGesture } from '@/hooks/gesture';
-import { useWindowSize } from '@/hooks/windowSize';
 import { debounce, showToast } from '@/utils';
 import { renderChapter } from '@/utils/chapter';
-import { disableAnim } from '@/utils/env';
+import { disableAnim, isSmall } from '@/utils/env';
 import { computed, nextTick, useTemplateRef, watch } from 'vue'
 import Logger from 'js-logger'
 
@@ -25,8 +24,6 @@ const props = defineProps<{
 const emits = defineEmits<{
   progress: [{ chapter: IChapter, cursor: number, chapterIndex: number }]
 }>()
-
-const { isSmall } = useWindowSize()
 
 const el = useTemplateRef('el')
 const keeps = 3

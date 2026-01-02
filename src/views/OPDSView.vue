@@ -1,6 +1,6 @@
 <template>
   <route-page class="opds-view">
-    <NavigationBar :title="cur ? cur.feed.title : '加载中...'" noMenu :noBack="noBack"></NavigationBar>
+    <NavigationBar :title="cur ? cur.feed.title : '加载中...'" noMenu :noBack="$route.name === 'home-tab-opds'"></NavigationBar>
     <div class="opds-main" v-if="cur" @scroll="scrollHandler">
       <div class="search-input" v-if="searchDescUrl">
         <span class="material-symbols-outlined search-icon">search</span>
@@ -82,8 +82,6 @@ import { showToast } from '@/utils';
 import { computed, nextTick, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { booksStore } from '@/services/storage';
-
-defineProps<{ noBack?: boolean }>()
 
 const route = useRoute()
 const router = useRouter()

@@ -43,7 +43,7 @@
 import { computed, nextTick, ref, useId, useTemplateRef, watch } from 'vue';
 import { useFloating, offset, shift, flip } from '@floating-ui/vue';
 import CPicker from './CPicker.vue';
-import { useWindowSize } from '@/hooks/windowSize';
+import { isSmall } from '@/utils/env';
 
 const modelValue = defineModel<T>({ required: true })
 
@@ -65,8 +65,6 @@ const el = useTemplateRef('el')
 const reference = useTemplateRef('reference')
 const floating = useTemplateRef('floating');
 const { floatingStyles, update, placement } = useFloating(reference, floating, { placement: 'bottom', middleware: [offset(12), flip(), shift({ padding: 12 })] });
-
-const { isSmall } = useWindowSize();
 
 const currentLabel = computed(() => {
   const selectedOption = props.options.find(option => option.value === modelValue.value)

@@ -20,7 +20,7 @@ import { defineAsyncComponent, onBeforeUnmount, ref } from "vue";
 import { updateInterval } from '@/constant';
 import { version } from '@/version';
 import { bridge } from "@/register-sw";
-import { useWindowSize } from "@/hooks/windowSize";
+import { isSmall } from "@/utils/env";
 
 const MarkdownViewer = defineAsyncComponent(() => import('@/components/MarkdownViewer.vue'))
 
@@ -29,8 +29,6 @@ const newVersionInfo = ref({
   version: '',
   changelog: ''
 })
-
-const { isSmall } = useWindowSize();
 
 const checkUpdates = async ({ slient = false } = {}) => {
   if (!slient) showToast('正在检查更新')

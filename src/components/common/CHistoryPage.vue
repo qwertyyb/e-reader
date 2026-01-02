@@ -1,28 +1,45 @@
 <template>
-  <div class="c-history-page">
+  <div class="c-history-page" :data-route-unique-id="item.locations[0].uniqueId">
     <component
-      :key="node.matchedRoute.path"
-      :is="node.matchedRoute.components?.default"
+      :key="item.locations[0].uniqueId"
+      :is="item.matched.components?.default"
+      v-bind="item.locations[0]?.location.params"
     ></component>
   </div>
 </template>
 
 <script setup lang="ts">
-import { historyKey, historyItemKey, pageEventKey, viewDepthKey, type RouteHistoryItem } from '@/router/const';
-import type { RouteHistoryNode } from '@/router/history';
-import { computed, inject, provide } from 'vue';
+import { historyKey, historyItemKey, viewDepthKey, type RouteHistoryItem } from '@/router/const';
+import { computed, provide } from 'vue';
+import type { RouteLocationMatched } from 'vue-router';
 
 const props = defineProps<{
-  node: RouteHistoryNode
+  item: { matched: RouteLocationMatched, matchIndex: number, locations: RouteHistoryItem[] }
 }>()
 
-console.log(props.node)
-
-const historyNode = computed(() => {
-  return props.node
+const history = computed(() => {
+  return props.item.locations
 })
 
-provide(historyKey, historyNode)
-provide(historyItemKey, historyNode)
+const nextDepth = computed(() => {
+  return props.item.matchIndex + 1
+})
+
+provide(historyKey, history)
+provide(viewDepthKey, nextDepth)
+provide(historyItemKey, props.item.locations[0])
 
 </script>
+
+<!-- <style lang="scss" scoped>
+@keyframes slide-left-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+.c-history-page.current {
+  transform: translateX(100%);
+  @starting-style {
+    animation: slide-left-in .2s forwards;
+  }
+}
+</style> -->

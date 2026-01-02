@@ -76,7 +76,7 @@ import { preferences } from '@/stores/preferences';
 import { download, importFile } from '@/services/ImportService';
 import Logger from 'js-logger';
 import { getCache, setCache } from '@/utils/cache';
-import { useWindowSize } from '@/hooks/windowSize';
+import { isSmall } from '@/utils/env';
 
 const route = useRoute()
 
@@ -89,8 +89,6 @@ const selecting = ref(false)
 const selectedIds = ref(new Set<string | number>())
 
 const downloadState = ref<Record<string, number>>({})
-
-const { isSmall } = useWindowSize();
 
 const logger = Logger.get('ShelfView')
 
