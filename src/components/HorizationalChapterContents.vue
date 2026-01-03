@@ -5,12 +5,12 @@
 </template>
 
 <script setup lang="ts">
-import { useGesture } from '@/hooks/gesture';
 import { debounce, showToast } from '@/utils';
 import { renderChapter } from '@/utils/chapter';
 import { disableAnim, isSmall } from '@/utils/env';
-import { computed, nextTick, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, useTemplateRef, watch } from 'vue'
 import Logger from 'js-logger'
+import { createGesture } from '@/utils/gesture';
 
 const logger = Logger.get('HorizationalChapterContents')
 
@@ -132,40 +132,53 @@ const getCurrentProgress = () => {
   }
 }
 
-const { gesture } = useGesture(el, {
-  onStart() {
-    touching = true
-    if (window.getSelection()?.toString()) return false;
-    startScrollLeft = el.value?.querySelector<HTMLElement>('.chapter-contents-wrapper')?.scrollLeft || 0
-  },
-  onMove(detail) {
-    if (window.getSelection()?.toString()) return;
-    el.value?.querySelector<HTMLElement>('.chapter-contents-wrapper')?.scrollTo({ left: startScrollLeft - detail.deltaX })
-  },
-  onEnd(detail) {
-    const wrapper = el.value!.querySelector<HTMLElement>('.chapter-contents-wrapper')!
-    const pw = getPageWidth()
-    let scrollLeft = 0
-    if (detail.velocityX > 0.2) {
-      scrollLeft = Math.max(0, Math.round(startScrollLeft / pw) - 1) * pw
-    } else if (detail.velocityX < -0.2) {
-      scrollLeft = (Math.round(startScrollLeft / pw) + 1) * pw
-    } else {
-      // 以当前落点计算应该滚动的位置
-      scrollLeft = Math.round(wrapper.scrollLeft / pw) * pw
-    }
-    wrapper.scrollTo({ left: scrollLeft, behavior: disableAnim.value ? 'instant' : 'smooth' })
-    touching = false
-  },
-})
-
-watch(gesture, (val) => {
-  if (!isSmall.value) {
-    val?.clean()
+let gesture: ReturnType<typeof createGesture> | null = null
+watch(isSmall, async (val) => {
+  if (val) {
+    gesture?.clean()
+  } else {
+    if (!el.value) return;
+    await nextTick()
+    if (!el.value) return;
+    gesture = createGesture({
+      el: el.value,
+      onStart() {
+        logger.info('gesture.onStart')
+        touching = true
+        if (window.getSelection()?.toString()) return false;
+        startScrollLeft = el.value?.querySelector<HTMLElement>('.chapter-contents-wrapper')?.scrollLeft || 0
+      },
+      onMove(detail) {
+        logger.info('gesture.onMove', detail)
+        if (window.getSelection()?.toString()) return;
+        el.value?.querySelector<HTMLElement>('.chapter-contents-wrapper')?.scrollTo({ left: startScrollLeft - detail.deltaX })
+      },
+      onEnd(detail) {
+        logger.info('gesture.onEnd', detail)
+        const wrapper = el.value!.querySelector<HTMLElement>('.chapter-contents-wrapper')!
+        const pw = getPageWidth()
+        let scrollLeft = 0
+        if (detail.velocityX > 0.2) {
+          scrollLeft = Math.max(0, Math.round(startScrollLeft / pw) - 1) * pw
+        } else if (detail.velocityX < -0.2) {
+          scrollLeft = (Math.round(startScrollLeft / pw) + 1) * pw
+        } else {
+          // 以当前落点计算应该滚动的位置
+          scrollLeft = Math.round(wrapper.scrollLeft / pw) * pw
+        }
+        wrapper.scrollTo({ left: scrollLeft, behavior: disableAnim.value ? 'instant' : 'smooth' })
+        touching = false
+      },
+    })
   }
 })
 
+onBeforeUnmount(() => {
+  gesture?.clean()
+})
+
 const scrollHandler = debounce(() => {
+  logger.info('scrollHandler', { touching }, getCurrentProgress())
   if (touching) return;
   const progress = getCurrentProgress()
   if (!progress) return;

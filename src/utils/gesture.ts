@@ -1,3 +1,7 @@
+import Logger from "js-logger"
+
+const logger = Logger.get('gesture')
+
 interface IGestureDetail {
   type: 'start' | 'move' | 'end'
   startX: number
@@ -88,11 +92,12 @@ export const createGesture = (options: IGestureOptions) => {
     })
   }
   const pointerUpOrCancelHandler = (event: PointerEvent) => {
+    logger.info('pointerUpOrCancelHandler', event, startInfo)
     document.onselectstart = null
     window.removeEventListener('pointermove', pointerMoveHandler, true)
     window.removeEventListener('pointerup', pointerUpOrCancelHandler, true)
     window.removeEventListener('pointercancel', pointerUpOrCancelHandler, true)
-    if (!startInfo.touching || !startInfo.enableGesture) return;
+    if (!startInfo.touching) return;
     onEnd?.({
       type: 'end',
       startX: startInfo.startX,
