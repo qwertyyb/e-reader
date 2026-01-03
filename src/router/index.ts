@@ -8,6 +8,9 @@ import { historyKey, type RouteHistoryItem, type RouteHistoryLifecycle } from '.
 import ShelfView from '@/views/ShelfView.vue'
 import MyView from '@/views/MyView.vue'
 import { disableAnim, isSmall } from '@/utils/env'
+import Logger from 'js-logger'
+
+const logger = Logger.get('router')
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -202,7 +205,7 @@ const createAppRouter = (router: Router): Router & {
   }
   const replaceHistory = async (route: RouteLocation) => {
     // replace 的实现会有些反直觉，实现上需要先 push 新路由再移除原路由
-
+    logger.info('replaceHistory', route)
     const newItem: RouteHistoryItem = markRaw({
       location: route,
       uniqueId: crypto.randomUUID()
@@ -223,37 +226,28 @@ const createAppRouter = (router: Router): Router & {
     })
   }
 
-  const appRouter: Router = {
-    ...router,
-    async push(...args: Parameters<typeof router.push>) {
-      const result = await router.push(...args)
-      const current = router.currentRoute.value;
+  const oldPush = router.push.bind(router)
+  router.push = async (...args: Parameters<typeof router.push>) => {
+    const result = await oldPush(...args)
+    const current = router.currentRoute.value;
 
-      // 判断新的路由页面是否和上一个页面共用了同一个父组件，如果共用了，则把历史记录到父组件下面
-      pushHistory(current)
-      return result
-    },
-    back() {
-      return router.back()
-    },
-    forward() {
-      return router.forward()
-    },
-    go (delta: number) {
-      return router.go(delta)
-    },
-    async replace(...args: Parameters<typeof router.replace>) {
-      const result = await router.replace(...args)
-      replaceHistory(router.currentRoute.value)
-      return result
-    },
+    // 判断新的路由页面是否和上一个页面共用了同一个父组件，如果共用了，则把历史记录到父组件下面
+    pushHistory(current)
+    return result
+  }
+  
+  const oldReplace = router.replace.bind(router)
+  router.replace = async (...args: Parameters<typeof router.replace>) => {
+    const result = await oldReplace(...args)
+    replaceHistory(router.currentRoute.value)
+    return result
   }
 
   return {
-    ...appRouter,
+    ...router,
     history,
     install(app) {
-      app.use(appRouter);
+      router.install.call(router, app)
       app.provide(historyKey, history)
     },
     onBackFrom(fn) {
