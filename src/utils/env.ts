@@ -140,7 +140,7 @@ export const destroyEruda = () => {
   }
 }
 
-export const isSmall = ref(false)
+export const isSmall = ref(window.innerWidth <= MAX_SMALL_WIDTH)
 
 const handler = () => {
   isSmall.value = window.innerWidth <= MAX_SMALL_WIDTH
