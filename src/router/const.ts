@@ -18,10 +18,10 @@ export type RouteHistoryItem = {
 }
 
 export type RouteHistoryLifecycle = {
-  onForwardTo: (to: RouteHistoryItem, from?: RouteHistoryItem) => any,
-  onBackTo: (to: RouteHistoryItem, from: RouteHistoryItem) => any,
-  onBackFrom: (current: RouteHistoryItem, prev: RouteHistoryItem) => any,
-  onForwardFrom: (current: RouteHistoryItem, next: RouteHistoryItem) => any,
+  onForwardTo: (to: RouteHistoryItem, from?: RouteHistoryItem, options?: { hasUAVisualTransition?: boolean }) => any,
+  onBackTo: (to: RouteHistoryItem, from: RouteHistoryItem, options?: { hasUAVisualTransition?: boolean }) => any,
+  onBackFrom: (current: RouteHistoryItem, prev: RouteHistoryItem, options?: { hasUAVisualTransition?: boolean }) => any,
+  onForwardFrom: (current: RouteHistoryItem, next: RouteHistoryItem, options?: { hasUAVisualTransition?: boolean }) => any,
   onReplaceFrom: (current: RouteHistoryItem, next: RouteHistoryItem) => any,
   onReplaceTo: (current: RouteHistoryItem, next: RouteHistoryItem) => any
 }

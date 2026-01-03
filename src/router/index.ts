@@ -121,7 +121,7 @@ const router = createRouter({
 const createAppRouter = (router: Router): Router & {
   [key in keyof RouteHistoryLifecycle]: (fn: RouteHistoryLifecycle[key]) => void
 } & {
-    history: Ref<RouteHistoryItem[]>
+  history: Ref<RouteHistoryItem[]>
 } => {
 
   const lifecycle: { 
@@ -140,15 +140,18 @@ const createAppRouter = (router: Router): Router & {
   router.isReady().then(() => {
     pushHistory(router.currentRoute.value)
     router.options.history.listen((to, from, info) => {
+      console.log('route listen callback', info)
       if (info.delta > 0) {
-        pushHistory(router.resolve(to))
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        pushHistory(router.resolve(to), { hasUAVisualTransition: (info as any).hasUAVisualTransition })
       } else {
-        popHistory(info.delta)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        popHistory(info.delta, { hasUAVisualTransition: (info as any).hasUAVisualTransition })
       }
     })
   });
 
-  const pushHistory = async (location: RouteLocation) => {
+  const pushHistory = async (location: RouteLocation, options?: { hasUAVisualTransition?: boolean }) => {
     const newItem: RouteHistoryItem = markRaw({
       location,
       uniqueId: crypto.randomUUID()
@@ -157,21 +160,21 @@ const createAppRouter = (router: Router): Router & {
     // 执行生命周期函数，先执行组件上的 onForwardFrom 再执行全局的 onForwardFrom
     const last = history.value[history.value.length - 1];
     if (last) {
-      await Promise.all(last.lifecycle?.onForwardFrom?.map(fn => fn(last, newItem)) ?? [])
+      await Promise.all(last.lifecycle?.onForwardFrom?.map(fn => fn(last, newItem, options)) ?? [])
     }
 
-    await Promise.all(lifecycle.onForwardFrom.map(fn => fn(last, newItem)))
+    await Promise.all(lifecycle.onForwardFrom.map(fn => fn(last, newItem, options)))
 
     history.value.push(newItem)
 
     Promise.resolve().then(async () => {
       // 先执行全局的 onForwadTo 再执行 组件内的 onFowardTo
-      await Promise.all(lifecycle.onForwardTo.map(fn => fn(newItem, last)))
-      await Promise.all(newItem.lifecycle?.onForwardTo?.map(fn => fn(newItem, last)) ?? [])
+      await Promise.all(lifecycle.onForwardTo.map(fn => fn(newItem, last, options)))
+      await Promise.all(newItem.lifecycle?.onForwardTo?.map(fn => fn(newItem, last, options)) ?? [])
     })
   }
 
-  const popHistory = async (delta: number) => {
+  const popHistory = async (delta: number, options?: {  hasUAVisualTransition?: boolean }) => {
     if (delta > 0) {
       throw new Error('暂不支持前进')
     }
@@ -180,17 +183,17 @@ const createAppRouter = (router: Router): Router & {
 
     // 执行生命周期函数，在当前路由上执行 onBackFrom，在目标路由上执行 onBackTo
     // 先执行组件内的 onBackFrom 生命周期函数，再执行全局的 onBackFrom 生命周期函数
-    await Promise.all(current.lifecycle?.onBackFrom?.map(fn => fn(current, target)) ?? [])
+    await Promise.all(current.lifecycle?.onBackFrom?.map(fn => fn(current, target, options)) ?? [])
 
-    await Promise.all(lifecycle.onBackFrom.map(fn => fn(current, target)))
+    await Promise.all(lifecycle.onBackFrom.map(fn => fn(current, target, options)))
 
     history.value = history.value.slice(0, history.value.length + delta)
 
     // 先执行全局的 onBackTo 生命周期函数，再执行组件内的 onBackTo 生命周期函数
-    await Promise.all(lifecycle.onBackTo.map(fn => fn(target, current)))
+    await Promise.all(lifecycle.onBackTo.map(fn => fn(target, current, options)))
 
     if (target) {
-      await Promise.all(target.lifecycle?.onBackTo?.map(fn => fn(target, current)) ?? [])
+      await Promise.all(target.lifecycle?.onBackTo?.map(fn => fn(target, current, options)) ?? [])
     }
   }
   const replaceHistory = async (route: RouteLocation) => {
@@ -227,21 +230,13 @@ const createAppRouter = (router: Router): Router & {
       return result
     },
     back() {
-      const result = router.back()
-      // popHistory(-1);
-      return result
+      return router.back()
     },
     forward() {
-      const result = router.forward()
-      return result
+      return router.forward()
     },
     go (delta: number) {
-      if (delta > 1) {
-        throw new Error('暂不支持前进多个路由')
-      }
-      const result = router.go(delta)
-      popHistory(delta)
-      return result
+      return router.go(delta)
     },
     async replace(...args: Parameters<typeof router.replace>) {
       const result = await router.replace(...args)
@@ -280,8 +275,8 @@ const createAppRouter = (router: Router): Router & {
 
 export const appRouter = createAppRouter(router)
 
-appRouter.onForwardTo((to, from) => {
-  if (disableAnim.value || !from || to.location.name === 'read') return;
+appRouter.onForwardTo((to, from, options) => {
+  if (options?.hasUAVisualTransition || disableAnim.value || !from || to.location.name === 'read') return;
   const list = Array.from(document.querySelectorAll('.c-history-page.current'))
   const cur = list.at(-1)
   const prev = cur?.previousElementSibling
@@ -291,8 +286,8 @@ appRouter.onForwardTo((to, from) => {
   cur.animate([{ transform: `translateX(100%)` }, { transform: `translateX(0)` }], { duration: 200, easing: 'ease-out' })
 })
 
-appRouter.onBackFrom((curRoute) => {
-  if (disableAnim.value || curRoute.location.name === 'read') return;
+appRouter.onBackFrom((curRoute, prevRoute, options) => {
+  if (options?.hasUAVisualTransition || disableAnim.value || curRoute.location.name === 'read') return;
   const list = Array.from(document.querySelectorAll('.c-history-page.current'))
   const cur = list.at(-1)
   const prev = cur?.previousElementSibling
