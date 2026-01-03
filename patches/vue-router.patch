@@ -1,0 +1,21 @@
+diff --git a/dist/vue-router.mjs b/dist/vue-router.mjs
+index 51101d6dd1cac25eb9d15726a21e06fff56139e8..1d2e81dcf447d1e1e2db30cced9f81e8d64ef2d6 100644
+--- a/dist/vue-router.mjs
++++ b/dist/vue-router.mjs
+@@ -28,7 +28,7 @@ function useHistoryListeners(base, historyState, currentLocation, replace) {
+ 	let listeners = [];
+ 	let teardowns = [];
+ 	let pauseState = null;
+-	const popStateHandler = ({ state }) => {
++	const popStateHandler = ({ state, hasUAVisualTransition }) => {
+ 		const to = createCurrentLocation(base, location);
+ 		const from = currentLocation.value;
+ 		const fromState = historyState.value;
+@@ -46,6 +46,7 @@ function useHistoryListeners(base, historyState, currentLocation, replace) {
+ 			listener(currentLocation.value, from, {
+ 				delta,
+ 				type: NavigationType.pop,
++        hasUAVisualTransition,
+ 				direction: delta ? delta > 0 ? NavigationDirection.forward : NavigationDirection.back : NavigationDirection.unknown
+ 			});
+ 		});

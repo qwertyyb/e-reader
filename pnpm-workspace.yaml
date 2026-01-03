@@ -1,0 +1,2 @@
+patchedDependencies:
+  vue-router: patches/vue-router.patch
