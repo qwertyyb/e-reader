@@ -167,11 +167,6 @@ export const supportTapEvent = () => {
       screenY: event.screenY,
     })
     tapEvent.rawEvent = event;
-    const originStop = tapEvent.stopPropagation.bind(tapEvent)
-    tapEvent.stopPropagation = () => {
-      originStop()
-      event.stopPropagation()
-    }
     event.target?.dispatchEvent(tapEvent)
   })
 }

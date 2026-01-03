@@ -71,20 +71,21 @@
     >
     </marks-dialog>
 
-    <selection-menu
-      :book-id="bookId"
-      :chapterId="chapterId"
-      @show="selectMenuShowed = true"
-      @hide="selectMenuShowed = false"
-      @share="shareTextHandler"
+
+    <div class="content-container" ref="content"
+      @touchstart="touchstartHandler"
+      @tap="contentPointerUpHandler"
     >
-      <div class="content-container" ref="content"
-        @touchstart="touchstartHandler"
-        @tap="contentPointerUpHandler"
+      <selection-menu
+        :book-id="bookId"
+        :chapterId="chapterId"
+        @show="selectMenuShowed = true"
+        @hide="selectMenuShowed = false"
+        @share="shareTextHandler"
       >
-          <slot :settings="settings"></slot>
-      </div>
-    </selection-menu>
+        <slot :settings="settings"></slot>
+      </selection-menu>
+    </div>
 
     <transition name="slide-up" :css="!disableAnim" v-if="isSmall">
       <read-control
@@ -100,7 +101,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, onMounted, onUnmounted, ref, useTemplateRef, type ComputedRef, type Ref } from 'vue';
+import { inject, ref, useTemplateRef, type ComputedRef, type Ref } from 'vue';
 import CDialog from '@/components/common/CDialog.vue';
 import SelectionMenu from '@/components/SelectionMenu.vue';
 import BookMenuDialog from '@/components/BookMenuDialog.vue';
@@ -112,11 +113,13 @@ import BookShareDialog from '@/components/BookShareDialog.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import ReadControl from '@/components/ReadControl.vue';
 import WebReadControl from './WebReadControl.vue';
-import Hammer from 'hammerjs';
 import { settings } from '@/stores/settings';
 import type { GetNextElement } from '@/actions/read-speak';
 import { disableAnim, isSmall } from '@/utils/env';
 import { useRouter } from 'vue-router';
+import Logger from 'js-logger';
+
+const logger = Logger.get('ControlWrapper');
 
 const props = defineProps<{
   bookId: number
@@ -194,45 +197,13 @@ const touchstartHandler = (e: TouchEvent) => {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let hammerInstance: any
-
-const initHammer = () => {
-  const hammer = new Hammer.Manager(contentRef.value!, {
-    domEvents: true,
-    recognizers: [
-      [Hammer.Swipe, { direction: Hammer.DIRECTION_ALL, threshold: 10 }]
-    ]
-  })
-  hammer.on('swiperight', (() => {
-    let backed = false
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (e: any) => {
-      if (settings.value.turnPageType === 'horizontal-scroll') return;
-      if ((window.getSelection()?.toString().length ?? 0) > 0) {
-        return
-      }
-      const { center: { x }, deltaX } = e
-      const startX = x - deltaX
-      if (startX <= 80 && !backed) {
-        backed = true
-        router.back()
-      }
-    }
-  })())
-  hammer.on('swipeleft', () => {
-    // 如果是横向滑动翻页，这个手势会和下一页手势冲突，所以这里需要屏蔽
-    if (settings.value.turnPageType === 'horizontal-scroll') return;
-    dialog.value = 'chapterList'
-  })
-  hammerInstance = hammer
-}
 
 const maskClickHandler = () => {
   panelVisible.value = false
 }
 
 const contentPointerUpHandler = (event: PointerEvent) => {
+  logger.info('contentPointerUpHandler', event.target)
   if (panelVisible.value) return;
   panelVisible.value = true;
   event.stopPropagation()
@@ -240,12 +211,6 @@ const contentPointerUpHandler = (event: PointerEvent) => {
     readControlRef.value.openPanel('autoPlay')
   }
 }
-
-onMounted(() => {
-  // initHammer();
-})
-
-onUnmounted(() => { if (hammerInstance) { hammerInstance.destroy() } })
 
 defineExpose({
   closeDialog() {

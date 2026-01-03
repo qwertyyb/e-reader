@@ -1,54 +1,60 @@
 <template>
   <div class="selection-menu">
-    <div class="selection-menu-content-wrapper" @pointerup.capture="contentTapHandler" ref="contentWrapper">
+    <div class="selection-menu-content-wrapper"
+      @pointerdown.capture="isPointerDown = true"
+      @pointerup.capture="isPointerDown = false"
+      @tap.capture="contentTapHandler"
+      ref="contentWrapper">
       <slot></slot>
     </div>
-    <div class="selection-menu-list-wrapper"
-      @pointerdown.prevent
-      :style="floatingStyles"
-      v-if="visible"
-      ref="floating">
-      <ul class="selection-menu-list"
-        :class="{ 'count-3': mark?.id }"
-      >
-        <li class="selection-menu-item" @click="actionHandler($event, 'thought')">
-          <div class="menu-item-wrapper">
-            <span class="material-symbols-outlined menu-icon">lightbulb</span>
-            <span class="menu-item-label">想法</span>
-          </div>
-        </li>
-        <li class="selection-menu-item" v-if="mark?.id && mark?.style !== MarkStyles.NONE">
-          <mark-style-menu
-            :mark="mark"
-            :key="mark.id"
-            @update="updateMarkHandler"
-            @remove-underline="removeUnderlineHandler"
-          ></mark-style-menu>
-        </li>
-        <li class="selection-menu-item" v-else
-          @click="actionHandler($event, 'underline')">
-          <div class="menu-item-wrapper">
-            <span class="material-symbols-outlined menu-icon">format_color_text</span>
-            <span class="menu-item-label">划线</span>
-          </div>
-        </li>
-        <li class="selection-menu-item"
-          v-if="mark?.id"
-          @click="actionHandler($event, 'viewMark')">
-          <div class="menu-item-wrapper">
-            <span class="material-symbols-outlined menu-icon">visibility</span>
-            <span class="menu-item-label">查看</span>
-          </div>
-        </li>
-        <li class="selection-menu-item"
-          @click="actionHandler($event, 'share')">
-          <div class="menu-item-wrapper">
-            <span class="material-symbols-outlined menu-icon">open_in_new</span>
-            <span class="menu-item-label">分享</span>
-          </div>
-        </li>
-      </ul>
-    </div>
+    <teleport to="#app">
+      <div class="selection-menu-list-wrapper"
+        @pointerdown.prevent
+        :style="floatingStyles"
+        v-show="visible"
+        ref="floating">
+        <ul class="selection-menu-list"
+          :class="{ 'count-3': mark?.id }"
+        >
+          <li class="selection-menu-item" @click="actionHandler($event, 'thought')">
+            <div class="menu-item-wrapper">
+              <span class="material-symbols-outlined menu-icon">lightbulb</span>
+              <span class="menu-item-label">想法</span>
+            </div>
+          </li>
+          <li class="selection-menu-item" v-if="mark?.id && mark?.style !== MarkStyles.NONE">
+            <mark-style-menu
+              :mark="mark"
+              :key="mark.id"
+              @update="updateMarkHandler"
+              @remove-underline="removeUnderlineHandler"
+            ></mark-style-menu>
+          </li>
+          <li class="selection-menu-item" v-else
+            @click="actionHandler($event, 'underline')">
+            <div class="menu-item-wrapper">
+              <span class="material-symbols-outlined menu-icon">format_color_text</span>
+              <span class="menu-item-label">划线</span>
+            </div>
+          </li>
+          <li class="selection-menu-item"
+            v-if="mark?.id"
+            @click="actionHandler($event, 'viewMark')">
+            <div class="menu-item-wrapper">
+              <span class="material-symbols-outlined menu-icon">visibility</span>
+              <span class="menu-item-label">查看</span>
+            </div>
+          </li>
+          <li class="selection-menu-item"
+            @click="actionHandler($event, 'share')">
+            <div class="menu-item-wrapper">
+              <span class="material-symbols-outlined menu-icon">open_in_new</span>
+              <span class="menu-item-label">分享</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </teleport>
     <c-dialog
       :visible="dialog==='thoughtInput'"
       class="thought-input-dialog"
@@ -110,9 +116,10 @@ const { floatingStyles, update: updateMenuRect } = useFloating(reference, floati
 
 const contentWrapperRef = useTemplateRef('contentWrapper')
 const inputRef = useTemplateRef('input')
+const isPointerDown = ref(false)
 
 const visible = computed(() => {
-  return !dialog.value && mark.value
+  return !isPointerDown.value && !dialog.value && mark.value
 })
 
 watch(() => visible.value || dialog.value, (val) => val ? emits('show') : emits('hide'))
@@ -156,6 +163,7 @@ const unregisterMutationObserver = () => {
   observer?.disconnect()
 }
 const selectionChangeHandler = () => {
+  logger.info('selectionChangeHandler', window.getSelection()?.toString().length)
   if (dialog.value === 'thoughtInput') return
 
   const selection = window.getSelection()
@@ -174,10 +182,10 @@ const selectionChangeHandler = () => {
   }
 
   if (!range || !text) {
-    // if (mark.value && !mark.value?.id) {
-    //   mark.value = null
-    //   dialog.value = null
-    // }
+    if (mark.value && !mark.value?.id) {
+      mark.value = null
+      dialog.value = null
+    }
     return;
   }
 
@@ -282,24 +290,33 @@ const saveThought = async () => {
   updateMenuRect()
 }
 
-const contentTapHandler = async (e: MouseEvent) => {
+const contentTapHandler = async (e: PointerEvent) => {
   logger.info('contentTapHandler', window.getSelection()?.toString().length, mark.value)
+  // 等待 selectionchange 事件触发后再显示
+  setTimeout(() => {
+    isPointerDown.value = false
+  }, 100)
   // 经过测试，选中文字后，点击取消选择时，在 Mac Chrome 和 Mac Safari 上，selectionchange 会早于 pointerup，而在移动端safari上，selectionchange 会晚于 pointerup 事件。
   // 所以至少在 Mac 上，在此处获取的 selection 选区状态已经是最新的了，而在移动端，此处获取的不一定是最新的(如果是调整选区就是最新的，如果是点击取消选择就不是最新的)
   if (window.getSelection()?.toString()) {
-    e.preventDefault()
     e.stopPropagation()
     return;
   }
-  if (mark.value) {
-    dialog.value = null
-    mark.value = null
-    e.preventDefault()
-    e.stopPropagation()
-    return;
-  }
+  // if (mark.value) {
+  //   dialog.value = null
+  //   mark.value = null
+  //   e.preventDefault()
+  //   e.stopPropagation()
+  //   return;
+  // }
   const markEl = ((e.target as HTMLElement).nodeName === 'MARK' ? e.target : (e.target as HTMLElement).closest('mark')) as HTMLElement
-  if (!markEl) return
+  if (!markEl) {
+    if (mark.value) {
+      e.stopPropagation()
+      mark.value = null
+    }
+    return;
+  }
   e.preventDefault()
   e.stopImmediatePropagation()
   e.stopPropagation()
@@ -371,7 +388,7 @@ const actionHandler = async (event: Event, action: string) => {
   }
 }
 
-.selection-menu .selection-menu-list {
+.selection-menu-list {
   position: relative;
   z-index: 2;
   background: light-dark(#fff, #000);
@@ -381,15 +398,13 @@ const actionHandler = async (event: Event, action: string) => {
   box-shadow: 0 3px 7px light-dark(#ddd, #2a2a2a);
   justify-content: space-around;
   padding: 0 8px;
-  animation: slide-down-scale .2s ease;
-  pointer-events: none;
 }
-.selection-menu .selection-menu-list .selection-menu-item {
+.selection-menu-list .selection-menu-item {
   position: relative;
   cursor: default;
   pointer-events: auto;
 }
-.selection-menu .selection-menu-list .selection-menu-item .menu-item-wrapper {
+.selection-menu-list .selection-menu-item .menu-item-wrapper {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -397,10 +412,10 @@ const actionHandler = async (event: Event, action: string) => {
   font-size: 12px;
   padding: 6px 10px;
 }
-.selection-menu .selection-menu-list .selection-menu-item .menu-item-wrapper > .menu-icon {
+.selection-menu-list .selection-menu-item .menu-item-wrapper > .menu-icon {
   font-size: 20px;
 }
-.selection-menu .selection-menu-list .menu-item-label {
+.selection-menu-list .menu-item-label {
   margin-top: 3px;
   white-space: nowrap;
 }

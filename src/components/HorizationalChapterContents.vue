@@ -134,12 +134,15 @@ const getCurrentProgress = () => {
 
 let gesture: ReturnType<typeof createGesture> | null = null
 watch(isSmall, async (val) => {
-  if (val) {
+  if (!val) {
     gesture?.clean()
   } else {
-    if (!el.value) return;
-    await nextTick()
-    if (!el.value) return;
+    if (!el.value) {
+      // DOM 可能尚未 ready, 等待下一个 tick
+      await nextTick()
+      if (!el.value) return;
+    }
+    console.log('createGesture')
     gesture = createGesture({
       el: el.value,
       onStart() {
@@ -171,7 +174,7 @@ watch(isSmall, async (val) => {
       },
     })
   }
-})
+}, { immediate: true })
 
 onBeforeUnmount(() => {
   gesture?.clean()
