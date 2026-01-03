@@ -64,12 +64,12 @@ const refresh = async () => {
   ])
   const results = books.map(book => {
     const rs = state[book.id]
-    const progress = !rs?.cursor || !book.maxCursor ? '在读' : rs.cursor / book.maxCursor < 0.01 ? '在读' : `<span class="big-text">${formatProgress(rs.cursor, book.maxCursor)}</span>`
+    const progress = !rs?.cursor || !book.maxCursor ? '在读' : rs.cursor / book.maxCursor < 0.01 ? '在读' : `<span class="big-text num">${formatProgress(rs.cursor, book.maxCursor)}</span>`
     return {
       ...book,
       state: rs,
       duration: rs?.duration || 0,
-      time: formatDuration(rs?.duration || 0).replace(/(\d+)/g, `<span class="big-text">$1</span>`),
+      time: formatDuration(rs?.duration || 0).replace(/(\d+)/g, `<span class="big-text num">$1</span>`),
       progress,
       lastReadTime: rs?.lastReadTime ? new Date(rs.lastReadTime).toLocaleDateString('zh-CN', { dateStyle: 'medium' }) : ''
     }

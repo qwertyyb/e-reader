@@ -41,11 +41,11 @@ const marksTotal = ref('')
 const refreshDuration = async () => {
   const list = await readingStateStore.getList()
   const duration = list.reduce((acc, item) => acc + (item.duration ?? 0), 0)
-  durationTotal.value = formatDuration(duration).replace(/(\d+)/g, `<span class="big-text">$1</span>`)
+  durationTotal.value = formatDuration(duration).replace(/(\d+)/g, `<span class="big-text num">$1</span>`)
 }
 
 const refreshMarks = async () => {
-  marksTotal.value = `<span class="big-text">${await marks.count()}</span>条笔记`
+  marksTotal.value = `<span class="big-text num">${await marks.count()}</span>条笔记`
 }
 
 const refresh = () => {

@@ -48,6 +48,9 @@ html body #app .selected {
 .pointer {
   cursor: pointer;
 }
+.num {
+  font-family: fantasy;
+}
 
 @media (width <= variables.$MAX_SMALL_WIDTH) {
   html body .small-none {
