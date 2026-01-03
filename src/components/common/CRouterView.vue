@@ -125,11 +125,5 @@ const matchedList = computed(() => {
       z-index: 2;
     }
   }
-  @media (width > variables.$MAX_SMALL_WIDTH) {
-    & > * {
-      visibility: visible;
-      background-color: rgba(0, 0, 0, 0.65);
-    }
-  }
 }
 </style>
