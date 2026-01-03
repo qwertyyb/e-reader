@@ -68,6 +68,7 @@ const refresh = async () => {
     return {
       ...book,
       state: rs,
+      duration: rs?.duration || 0,
       time: formatDuration(rs?.duration || 0).replace(/(\d+)/g, `<span class="big-text">$1</span>`),
       progress,
       lastReadTime: rs?.lastReadTime ? new Date(rs.lastReadTime).toLocaleDateString('zh-CN', { dateStyle: 'medium' }) : ''
@@ -86,7 +87,7 @@ const refresh = async () => {
     }
     return 0
   })
-  list.value = results
+  list.value = results.filter(i => i.duration)
 }
 
 refresh()

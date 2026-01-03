@@ -139,14 +139,18 @@ const createAppRouter = (router: Router): Router & {
 
   router.isReady().then(() => {
     pushHistory(router.currentRoute.value)
-    router.options.history.listen((to, from, info) => {
+    router.options.history.listen(async (to, from, info) => {
       console.log('route listen callback', info)
       if (info.delta > 0) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         pushHistory(router.resolve(to), { hasUAVisualTransition: (info as any).hasUAVisualTransition })
       } else {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        popHistory(info.delta, { hasUAVisualTransition: (info as any).hasUAVisualTransition })
+        await popHistory(info.delta, { hasUAVisualTransition: (info as any).hasUAVisualTransition })
+        // 如果后退后历史记录已空(常见于页面重新加载场景)，则重新推入当前路由
+        if (!history.value.length) {
+          pushHistory(router.resolve(to))
+        }
       }
     })
   });
