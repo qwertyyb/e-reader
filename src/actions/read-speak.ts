@@ -97,7 +97,7 @@ export class ReadSpeak extends EventTarget implements TTSAction {
     }
   }
   stop() {
-    window.speechSynthesis.cancel()
+    window.speechSynthesis?.cancel()
     this.spearkingSSU = null
     this.speakingEl?.classList.remove('reading')
     this.speakingEl = null

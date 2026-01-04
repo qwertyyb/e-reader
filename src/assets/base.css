@@ -68,6 +68,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
   padding: 0;
+  --sait: var(--safe-area-inset-top, env(safe-area-inset-top));
+  --saib: var(--safe-area-inset-bottom, env(safe-area-inset-bottom));
+  --sail: var(--safe-area-inset-left, env(safe-area-inset-left));
+  --sair: var(--safe-area-inset-right, env(safe-area-inset-right));
 }
 ul, h1, h2, h3, h4, h5, h6, p {
   padding: 0;
