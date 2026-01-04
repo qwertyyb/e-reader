@@ -216,7 +216,7 @@ import CProgress from '@/components/common/CProgress.vue';
 import CSelect from '@/components/common/CSelect.vue';
 import { fontFamilyList, readColorScheme, textIndentList } from '@/config';
 import { settings } from '@/stores/settings';
-import { EdgeTTSReadSpeak, type GetNextElement } from '@/actions/read-speak';
+import { type GetNextElement } from '@/actions/read-speak';
 import { darkMode, preferences } from '@/stores/preferences';
 import { disableAnim } from '@/utils/env';
 import { formatDuration } from '@/utils';
@@ -276,7 +276,7 @@ const createReadSpeakAction = () => {
       }
     }
   }
-  return preferences.value.tts === 'local' ? new ReadSpeak(options) : new EdgeTTSReadSpeak(options)
+  return new ReadSpeak(options)
 }
 
 const createActions = () => {
