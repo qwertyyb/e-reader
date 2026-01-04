@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">E Reader</string>
+    <string name="title_activity_main">E Reader</string>
+    <string name="package_name">com.qwertyyb.ereader</string>
+    <string name="custom_url_scheme">com.qwertyyb.ereader</string>
+</resources>

@@ -12,6 +12,9 @@
     "lint": "eslint . --fix"
   },
   "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
     "@floating-ui/vue": "^1.1.5",
     "@types/markdown-it": "^14.1.2",
     "@zip.js/zip.js": "^2.7.60",
@@ -43,6 +46,7 @@
     "vue-virtual-list-v3": "^1.5.7"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.0.0",
     "@tsconfig/node22": "^22.0.0",
     "@types/hammerjs": "^2.0.46",
     "@types/mark.js": "^8.11.12",
