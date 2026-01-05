@@ -1,5 +1,8 @@
 import { SegmentAudio, StreamAudioPlayer } from '@/lib/StreamAudioPlayer';
 import { Communicate } from 'edge-tts-universal/browser'
+import Logger from 'js-logger';
+
+const logger = Logger.get('read-speak')
 
 export interface TTSAction {
   start(options?: { rate: number }): void | Promise<void | boolean>;
@@ -18,10 +21,14 @@ export interface TTSActionConstructor {
 
 export type GetNextElement = (current?: HTMLElement) => { nextEl: HTMLElement | null | undefined, scrollIntoView: () => void } | null
 
+export const SILENCE_DATA =
+  'data:audio/mp3;base64,//MkxAAHiAICWABElBeKPL/RANb2w+yiT1g/gTok//lP/W/l3h8QO/OCdCqCW2Cw//MkxAQHkAIWUAhEmAQXWUOFW2dxPu//9mr60ElY5sseQ+xxesmHKtZr7bsqqX2L//MkxAgFwAYiQAhEAC2hq22d3///9FTV6tA36JdgBJoOGgc+7qvqej5Zu7/7uI9l//MkxBQHAAYi8AhEAO193vt9KGOq+6qcT7hhfN5FTInmwk8RkqKImTM55pRQHQSq//MkxBsGkgoIAABHhTACIJLf99nVI///yuW1uBqWfEu7CgNPWGpUadBmZ////4sL//MkxCMHMAH9iABEmAsKioqKigsLCwtVTEFNRTMuOTkuNVVVVVVVVVVVVVVVVVVV//MkxCkECAUYCAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
+
 export class ReadSpeak extends EventTarget implements TTSAction {
   static CHANGE_EVENT_NAME = 'change'
   #rate = 1
   #uttrProgress = new WeakMap<SpeechSynthesisUtterance, number>()
+  #backgroundAudio: HTMLAudioElement | null = null
   spearkingSSU: SpeechSynthesisUtterance | null = null
   speakingEl: HTMLElement | null = null
 
@@ -87,6 +94,35 @@ export class ReadSpeak extends EventTarget implements TTSAction {
     })
     return utter
   }
+  createBackgroundAudio = () => {
+    // 启动一个背景音频，防止在页面进入后台后，无法继续播放
+    if (this.#backgroundAudio) return;
+    this.#backgroundAudio = document.createElement('audio');
+    this.#backgroundAudio.setAttribute('x-webkit-airplay', 'deny');
+    this.#backgroundAudio.addEventListener('play', () => {
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = null;
+      }
+    });
+    this.#backgroundAudio.preload = 'auto';
+    this.#backgroundAudio.loop = true;
+    this.#backgroundAudio.src = SILENCE_DATA;
+    this.#backgroundAudio.play();
+  };
+  destroyAudio = () => {
+    if (!this.#backgroundAudio) return;
+    try {
+      this.#backgroundAudio.pause();
+      this.#backgroundAudio.currentTime = 0;
+      this.#backgroundAudio.removeAttribute('src');
+      this.#backgroundAudio.src = '';
+      this.#backgroundAudio.load();
+      this.#backgroundAudio = null;
+    } catch (err) {
+      logger.error('Error releasing unblock audio:', err);
+    }
+  };
+
   start(options?: { rate: number }) {
     if (options?.rate) {
       this.updateRate(options.rate || 1)
@@ -94,6 +130,7 @@ export class ReadSpeak extends EventTarget implements TTSAction {
     const utterance = this.#createUtterance(this.getNextElement?.())
     if (utterance) {
       window.speechSynthesis.speak(utterance)
+      this.createBackgroundAudio()
     }
   }
   stop() {
@@ -102,6 +139,7 @@ export class ReadSpeak extends EventTarget implements TTSAction {
     this.speakingEl?.classList.remove('reading')
     this.speakingEl = null
     this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: false } }))
+    this.destroyAudio()
   }
   toggle() {
     if (window.speechSynthesis.speaking) {
@@ -134,7 +172,7 @@ export class EdgeTTSReadSpeak extends EventTarget implements TTSAction {
   #waitNext: Promise<{ el: HTMLElement, audioUrl: string, scrollIntoView: () => void } | null> | null = null
   speakingEl: HTMLElement | null = null
   generatedEl: HTMLElement | null = null
-  
+
 
   getNextElement?: GetNextElement
   constructor({ getNextElement, changeHandler }: {
