@@ -1,5 +1,5 @@
 diff --git a/dist/browser.js b/dist/browser.js
-index 265831aa0ec2c7b3e101a54d802caa27b9ddb1bc..17e661421bfbd7e6bdd8592718c20fcc6907a73f 100644
+index 265831aa0ec2c7b3e101a54d802caa27b9ddb1bc..a176cedce1f7b4d154dc3184b5be91e016575c61 100644
 --- a/dist/browser.js
 +++ b/dist/browser.js
 @@ -279,11 +279,11 @@ var ValueError = class extends EdgeTTSException {
@@ -25,7 +25,17 @@ index 265831aa0ec2c7b3e101a54d802caa27b9ddb1bc..17e661421bfbd7e6bdd8592718c20fcc
     * @param text - The text to synthesize
     * @param options - Configuration options for synthesis
     */
-@@ -648,6 +648,15 @@ var BrowserCommunicate = class {
+@@ -632,7 +632,8 @@ var BrowserCommunicate = class {
+       messageQueue.push(new WebSocketError("WebSocket error occurred"));
+       if (resolveMessage) resolveMessage();
+     };
+-    websocket.onclose = () => {
++    websocket.onclose = (event) => {
++      console.log('websocket close', event, event.code, event.reason);
+       if (timeoutId) {
+         window.clearTimeout(timeoutId);
+         timeoutId = void 0;
+@@ -648,6 +649,15 @@ var BrowserCommunicate = class {
          }
          resolve();
        };
@@ -41,7 +51,7 @@ index 265831aa0ec2c7b3e101a54d802caa27b9ddb1bc..17e661421bfbd7e6bdd8592718c20fcc
        if (this.connectionTimeout) {
          setTimeout(() => {
            if (websocket.readyState === WebSocket.CONNECTING) {
-@@ -698,7 +707,7 @@ Path:speech.config\r
+@@ -698,7 +708,7 @@ Path:speech.config\r
    /**
     * Streams text-to-speech synthesis results using native browser WebSocket.
     * Uses only browser-native APIs, avoiding Node.js dependencies.
@@ -50,7 +60,7 @@ index 265831aa0ec2c7b3e101a54d802caa27b9ddb1bc..17e661421bfbd7e6bdd8592718c20fcc
     * @yields BrowserTTSChunk - Audio data or word boundary information
     * @throws {Error} If called more than once
     * @throws {NoAudioReceived} If no audio data is received
-@@ -878,7 +887,7 @@ var BrowserVoicesManager = class _BrowserVoicesManager {
+@@ -878,7 +888,7 @@ var BrowserVoicesManager = class _BrowserVoicesManager {
    }
    /**
     * Creates a new BrowserVoicesManager instance.
@@ -59,7 +69,7 @@ index 265831aa0ec2c7b3e101a54d802caa27b9ddb1bc..17e661421bfbd7e6bdd8592718c20fcc
     * @param customVoices - Optional custom voice list instead of fetching from API
     * @returns Promise resolving to BrowserVoicesManager instance
     */
-@@ -894,7 +903,7 @@ var BrowserVoicesManager = class _BrowserVoicesManager {
+@@ -894,7 +904,7 @@ var BrowserVoicesManager = class _BrowserVoicesManager {
    }
    /**
     * Finds voices matching the specified criteria.
@@ -68,7 +78,7 @@ index 265831aa0ec2c7b3e101a54d802caa27b9ddb1bc..17e661421bfbd7e6bdd8592718c20fcc
     * @param filter - Filter criteria for voice selection
     * @returns Array of voices matching the filter
     * @throws {Error} If called before create()
-@@ -926,7 +935,7 @@ var SubMaker = class {
+@@ -926,7 +936,7 @@ var SubMaker = class {
    }
    /**
     * Adds a WordBoundary chunk to the subtitle maker.
@@ -77,7 +87,7 @@ index 265831aa0ec2c7b3e101a54d802caa27b9ddb1bc..17e661421bfbd7e6bdd8592718c20fcc
     * @param msg - Must be a WordBoundary type chunk with offset, duration, and text
     * @throws {ValueError} If chunk is not a WordBoundary with required fields
     */
-@@ -946,7 +955,7 @@ var SubMaker = class {
+@@ -946,7 +956,7 @@ var SubMaker = class {
    /**
     * Merges consecutive cues to create subtitle entries with multiple words.
     * This is useful for creating more readable subtitles instead of word-by-word display.
@@ -86,7 +96,7 @@ index 265831aa0ec2c7b3e101a54d802caa27b9ddb1bc..17e661421bfbd7e6bdd8592718c20fcc
     * @param words - Maximum number of words per merged cue
     * @throws {ValueError} If words parameter is invalid
     */
-@@ -976,7 +985,7 @@ var SubMaker = class {
+@@ -976,7 +986,7 @@ var SubMaker = class {
    }
    /**
     * Returns the subtitles in SRT format.

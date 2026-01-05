@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   edge-tts-universal:
-    hash: 62ad9474e4862691cfde39153c070300265e9f0b4ce6b31492be34955393c7b7
+    hash: c75e4fbc4fbb17a99f0878bb34bfd8238605c78240f1d2cf7605a6b2087a2717
     path: patches/edge-tts-universal.patch
   vue-router:
     hash: c9d347575fc4b387901b67855133211d95c4550b3066e0da5a5de7021930cccf
@@ -33,7 +33,7 @@ importers:
         version: 1.6.0
       edge-tts-universal:
         specifier: ^1.3.3
-        version: 1.3.3(patch_hash=62ad9474e4862691cfde39153c070300265e9f0b4ce6b31492be34955393c7b7)
+        version: 1.3.3(patch_hash=c75e4fbc4fbb17a99f0878bb34bfd8238605c78240f1d2cf7605a6b2087a2717)
       element-plus:
         specifier: ^2.9.8
         version: 2.9.8(vue@3.5.13(typescript@5.6.3))
@@ -3878,7 +3878,7 @@ snapshots:
       es-errors: 1.3.0
       gopd: 1.2.0
 
-  edge-tts-universal@1.3.3(patch_hash=62ad9474e4862691cfde39153c070300265e9f0b4ce6b31492be34955393c7b7):
+  edge-tts-universal@1.3.3(patch_hash=c75e4fbc4fbb17a99f0878bb34bfd8238605c78240f1d2cf7605a6b2087a2717):
     dependencies:
       axios: 1.13.2
       cross-fetch: 4.1.0
