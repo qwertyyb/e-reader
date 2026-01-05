@@ -1,5 +1,5 @@
 diff --git a/dist/browser.js b/dist/browser.js
-index 265831aa0ec2c7b3e101a54d802caa27b9ddb1bc..39d79e0ea7ef546639b68292d756770e95e7527c 100644
+index 265831aa0ec2c7b3e101a54d802caa27b9ddb1bc..4fe7359758be7b3260e638c0baf8c05b274549f7 100644
 --- a/dist/browser.js
 +++ b/dist/browser.js
 @@ -279,11 +279,11 @@ var ValueError = class extends EdgeTTSException {
@@ -46,7 +46,7 @@ index 265831aa0ec2c7b3e101a54d802caa27b9ddb1bc..39d79e0ea7ef546639b68292d756770e
          resolve();
        };
 +      websocket.onclose = (event) => {
-+        console.log('websocket close', this.state.partialText, event, event.code, event.reason);
++        console.log('websocket close', new TextDecoder().decode(this.state.partialText), event, event.code, event.reason);
 +        reject()
 +        if (timeoutId) {
 +          window.clearTimeout(timeoutId);
