@@ -1,3 +1,3 @@
 patchedDependencies:
-  vue-router: /Users/qwertyyb/mine/e-reader/patches/vue-router.patch
+  vue-router: patches/vue-router.patch
   edge-tts-universal: patches/edge-tts-universal.patch
