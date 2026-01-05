@@ -165,6 +165,28 @@ export class ReadSpeak extends EventTarget implements TTSAction {
   }
 }
 
+const createAudioBufferRequest = (text: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const requestAudioBuffer = async function* (retryTimes: number = 0): any {
+    if (retryTimes > 3) {
+      throw new Error('request audio buffer failed, text: ' + text)
+    }
+    const communicate = new Communicate(text, { voice: 'zh-CN-XiaoxiaoNeural' })
+    try {
+      for await (const chunk of communicate.stream()) {
+        if (chunk.type === 'audio') {
+          yield chunk.data!.buffer
+        }
+      }
+    } catch (err) {
+      logger.info(`request audio buffer error, text: ${text} retry times`, retryTimes, err)
+      await new Promise(resolve => setTimeout(resolve, 200 * (retryTimes + 1)))
+      yield* requestAudioBuffer(retryTimes + 1)
+    }
+  }
+  return requestAudioBuffer
+}
+
 export class EdgeTTSReadSpeak extends EventTarget implements TTSAction {
   static CHANGE_EVENT_NAME = 'change'
   #rate;
@@ -205,13 +227,9 @@ export class EdgeTTSReadSpeak extends EventTarget implements TTSAction {
         return;
     }
     const { nextEl: el, scrollIntoView } = next;
-    const text = el.innerText || ''
-
-    const communicate = new Communicate(text, { voice: 'zh-CN-XiaoxiaoNeural' })
     return {
       el,
       scrollIntoView,
-      communicate,
     }
   }
   requestSegment = () => {
@@ -220,15 +238,9 @@ export class EdgeTTSReadSpeak extends EventTarget implements TTSAction {
       this.stop();
       throw new Error('no next info')
     }
-    const { el, scrollIntoView, communicate } = info;
+    const { el, scrollIntoView } = info;
     this.generatedEl = el
-    const seg = new SegmentAudio(async function* (){
-      for await (const chunk of communicate.stream()) {
-        if (chunk.type === 'audio') {
-          yield chunk.data!.buffer
-        }
-      }
-    })
+    const seg = new SegmentAudio(createAudioBufferRequest(el.innerText || ''))
 
     seg.addEventListener('start', () => {
       el.classList.add('reading')

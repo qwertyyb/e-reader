@@ -3,7 +3,10 @@
 //   const mediaType = 'audio/mpeg';
 //   const MediaSource = window.MediaSource || window.ManagedMediaSource
 
+import Logger from "js-logger";
 import { TypedEventTarget } from "./TypedEventTarget"
+
+const logger = Logger.get('StreamAudioPlayer')
 
 
 //   // Check if the type of video format / codect is supported.
@@ -201,11 +204,14 @@ export class StreamAudioPlayer {
     }
   }
   async play() {
+    logger.info('play', this.#audio.readyState)
+    this.#buffering = false
     if (this.#audio.readyState == 3 || this.#audio.readyState === 4) {
       return this.#audio.play()
     }
     // 没有可播放的内容，加载
-    await this.#requestBuffer()
+    // await this.#requestBuffer()
+    logger.info('play after requestBuffer')
     return this.#audio.play()
   }
   pause() {
@@ -238,19 +244,30 @@ export class StreamAudioPlayer {
   }
 
   #requestBuffer = async (): Promise<void> => {
+    logger.info('requestBuffer buffering: ', this.#buffering)
     if (this.#buffering) return;
     this.#buffering = true
     const len = this.#sourceBuffer?.buffered.length ?? 0
     const start = len <= 0 ? 0 : this.#sourceBuffer?.buffered.end(len - 1);
-    const segment = this.options.request();
-    if (!segment) {
-      // 没有下个段落，已播完
-      this.#buffering = false;
-      return;
-    }
-    this.#segments.push({ segment, start: start ?? 0 })
-    for await (const data of segment.requestData()) {
-      await this.#appendBuffer(data as ArrayBuffer)
+    try {
+      const segment = this.options.request();
+      if (!segment) {
+        // 没有下个段落，已播完
+        this.#buffering = false;
+        return;
+      }
+      this.#segments.push({ segment, start: start ?? 0 })
+      try {
+        for await (const data of segment.requestData()) {
+          await this.#appendBuffer(data as ArrayBuffer)
+        }
+      } catch (err) {
+        logger.error('requestBuffer error', err)
+        this.#buffering = false
+      }
+    } catch (err) {
+      logger.error('request error', err)
+      this.#buffering = false
     }
     const afterLen = this.#sourceBuffer?.buffered.length ?? 0
     const end = afterLen <= 0 ? 0 : this.#sourceBuffer?.buffered.end(afterLen - 1);
