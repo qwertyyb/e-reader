@@ -8,9 +8,17 @@ import { historyKey, type RouteHistoryItem, type RouteHistoryLifecycle } from '.
 import ShelfView from '@/views/ShelfView.vue'
 import MyView from '@/views/MyView.vue'
 import { disableAnim, isSmall } from '@/utils/env'
+import { App } from '@capacitor/app'
 import Logger from 'js-logger'
+import { Capacitor } from '@capacitor/core'
 
 const logger = Logger.get('router')
+
+if (Capacitor.getPlatform() === 'android') {
+  App.addListener('backButton', () => {
+    window.history.back()
+  })
+}
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),

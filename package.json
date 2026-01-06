@@ -9,9 +9,16 @@
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
-    "lint": "eslint . --fix"
+    "lint": "eslint . --fix",
+    "dev:android": "RUN_ENV=dev cap run android",
+    "dev:ios": "RUN_ENV=dev cap run ios",
+    "build:android": "rm -rf appdist/e-reader && mkdir -p appdist/e-reader && cp -R dist/* appdist/e-reader/ && cp dist/index.html appdist/index.html && cap run android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
     "@floating-ui/vue": "^1.1.5",
     "@types/markdown-it": "^14.1.2",
     "@zip.js/zip.js": "^2.7.60",
@@ -24,6 +31,7 @@
     "fflate": "^0.8.2",
     "foliate-js": "github:johnfactotum/foliate-js",
     "hammerjs": "^2.0.8",
+    "internal-ip": "^8.0.1",
     "js-logger": "^1.6.1",
     "jschardet": "^3.1.4",
     "mark.js": "^8.11.1",
@@ -43,6 +51,7 @@
     "vue-virtual-list-v3": "^1.5.7"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.0.0",
     "@tsconfig/node22": "^22.0.0",
     "@types/hammerjs": "^2.0.46",
     "@types/mark.js": "^8.11.12",
