@@ -53,6 +53,7 @@
   "devDependencies": {
     "@capacitor/cli": "^8.0.0",
     "@tsconfig/node22": "^22.0.0",
+    "@types/dom-close-watcher": "^1.0.0",
     "@types/hammerjs": "^2.0.46",
     "@types/mark.js": "^8.11.12",
     "@types/markdown-it-emoji": "^3.0.1",

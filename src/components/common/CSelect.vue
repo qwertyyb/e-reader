@@ -14,6 +14,7 @@
       :class="placement"
       popover
       ref="floating"
+      @toggle="toggleHandler"
       :style="{ ...floatingStyles, 'position-anchor': '--c-select-label-' + id } as any"
       v-if="!isSmall">
       <li class="c-select-option"
@@ -82,6 +83,10 @@ watch(optionsVisible, async (val) => {
     floating.value?.hidePopover()
   }
 })
+
+const toggleHandler = (event: ToggleEvent) => {
+  optionsVisible.value = event.newState === 'open'
+}
 
 const handlePointerDown = (e: PointerEvent) => {
   if ((e.target as HTMLElement)?.closest('.c-select') === el.value) return;
