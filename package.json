@@ -15,6 +15,7 @@
     "build:android": "rm -rf appdist/e-reader && mkdir -p appdist/e-reader && cp -R dist/* appdist/e-reader/ && cp dist/index.html appdist/index.html && cap run android"
   },
   "dependencies": {
+    "@capacitor-community/text-to-speech": "^6.1.0",
     "@capacitor/android": "^8.0.0",
     "@capacitor/app": "^8.0.0",
     "@capacitor/core": "^8.0.0",
@@ -53,7 +54,6 @@
   "devDependencies": {
     "@capacitor/cli": "^8.0.0",
     "@tsconfig/node22": "^22.0.0",
-    "@types/dom-close-watcher": "^1.0.0",
     "@types/hammerjs": "^2.0.46",
     "@types/mark.js": "^8.11.12",
     "@types/markdown-it-emoji": "^3.0.1",

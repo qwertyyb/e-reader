@@ -351,6 +351,7 @@ appRouter.onReplaceTo((newRoute, oldRoute) => {
 const currentIsHome = () => appRouter.currentRoute.value.name === 'home-tab-shelf'
 
 if (Capacitor.getPlatform() === 'android') {
+  // Android 上监听后退按钮，执行路由后退、回到首页、退出应用
   let nextShouldExit = false
   onCloseRequest(() => {
     if (currentIsHome()) {

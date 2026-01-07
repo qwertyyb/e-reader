@@ -1,8 +1,12 @@
 import { SegmentAudio, StreamAudioPlayer } from '@/lib/StreamAudioPlayer';
+import { isSpeaking, NativeSpeechSynthesisUtterance, speak, stop } from '@/platform/tts';
+import { Capacitor } from '@capacitor/core';
 import { Communicate } from 'edge-tts-universal/browser'
 import Logger from 'js-logger';
 
 const logger = Logger.get('read-speak')
+
+const isAndroid = Capacitor.getPlatform() === 'android'
 
 export interface TTSAction {
   start(options?: { rate: number }): void | Promise<void | boolean>;
@@ -27,9 +31,9 @@ export const SILENCE_DATA =
 export class ReadSpeak extends EventTarget implements TTSAction {
   static CHANGE_EVENT_NAME = 'change'
   #rate = 1
-  #uttrProgress = new WeakMap<SpeechSynthesisUtterance, number>()
+  #uttrProgress = new WeakMap<SpeechSynthesisUtterance | NativeSpeechSynthesisUtterance, number>()
   #backgroundAudio: HTMLAudioElement | null = null
-  spearkingSSU: SpeechSynthesisUtterance | null = null
+  spearkingSSU: SpeechSynthesisUtterance | NativeSpeechSynthesisUtterance | null = null
   speakingEl: HTMLElement | null = null
 
   getNextElement?: GetNextElement
@@ -51,7 +55,11 @@ export class ReadSpeak extends EventTarget implements TTSAction {
     const nextEl = this.getNextElement?.(current)
     if (!nextEl?.nextEl) return
     const utterance = this.#createUtterance(nextEl)!
-    window.speechSynthesis.speak(utterance)
+    if (isAndroid) {
+      speak(utterance)
+    } else {
+      window.speechSynthesis.speak(utterance as SpeechSynthesisUtterance)
+    }
   }
   #createUtterance(next?: ReturnType<GetNextElement>) {
     if (!next?.nextEl) {
@@ -59,42 +67,72 @@ export class ReadSpeak extends EventTarget implements TTSAction {
       return;
     }
     const { nextEl: el, scrollIntoView } = next
-    const utter = new SpeechSynthesisUtterance(el.textContent || '');
-    utter.rate = this.#rate
-    let nextTriggered = false
-    utter.addEventListener('boundary', event => {
-      const left = event.utterance.text.length - event.charIndex
-      this.#uttrProgress.set(utter, event.charIndex)
-      if (left <= 10 && !nextTriggered) {
-        nextTriggered = true
-        this.#readyNext(el)
-      }
-    })
-    utter.addEventListener('resume', () => {
-      this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: false } }))
-    })
-    utter.addEventListener('start', () => {
-      el.classList.add('reading')
-      this.speakingEl = el
-      scrollIntoView()
-      this.spearkingSSU = utter
-      this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: true } }))
-    })
-    utter.addEventListener('end', () => {
-      el.classList.remove('reading')
-      this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: true } }))
-      if (!nextTriggered) {
-        nextTriggered = true
-        this.#readyNext(el)
-      }
-    })
-    utter.addEventListener('pause', () => {
-      el.classList.remove('reading')
-      this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: false } }))
-    })
-    return utter
+    if (isAndroid) {
+      const utter = new NativeSpeechSynthesisUtterance(el.textContent || '')
+      utter.rate = this.#rate
+      let nextTriggered = false
+      utter.addEventListener('boundary', event => {
+        const left = event.utterance.text.length - event.charIndex
+        this.#uttrProgress.set(utter, event.charIndex)
+        if (left <= 10 && !nextTriggered) {
+          nextTriggered = true
+          this.#readyNext(el)
+        }
+      })
+      utter.addEventListener('start', () => {
+        el.classList.add('reading')
+        this.speakingEl = el
+        scrollIntoView()
+        this.spearkingSSU = utter
+        this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: true } }))
+      })
+      utter.addEventListener('end', () => {
+        el.classList.remove('reading')
+        this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: true } }))
+        if (!nextTriggered) {
+          nextTriggered = true
+          this.#readyNext(el)
+        }
+      })
+      return utter;
+    } else {
+      const utter = new SpeechSynthesisUtterance(el.textContent || '');
+      utter.rate = this.#rate
+      let nextTriggered = false
+      utter.addEventListener('boundary', event => {
+        const left = event.utterance.text.length - event.charIndex
+        this.#uttrProgress.set(utter, event.charIndex)
+        if (left <= 10 && !nextTriggered) {
+          nextTriggered = true
+          this.#readyNext(el)
+        }
+      })
+      utter.addEventListener('resume', () => {
+        this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: false } }))
+      })
+      utter.addEventListener('start', () => {
+        el.classList.add('reading')
+        this.speakingEl = el
+        scrollIntoView()
+        this.spearkingSSU = utter
+        this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: true } }))
+      })
+      utter.addEventListener('end', () => {
+        el.classList.remove('reading')
+        this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: true } }))
+        if (!nextTriggered) {
+          nextTriggered = true
+          this.#readyNext(el)
+        }
+      })
+      utter.addEventListener('pause', () => {
+        el.classList.remove('reading')
+        this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: false } }))
+      })
+      return utter
+    }
   }
-  createBackgroundAudio = () => {
+  #createBackgroundAudio = () => {
     // 启动一个背景音频，防止在页面进入后台后，无法继续播放
     if (this.#backgroundAudio) return;
     this.#backgroundAudio = document.createElement('audio');
@@ -109,7 +147,7 @@ export class ReadSpeak extends EventTarget implements TTSAction {
     this.#backgroundAudio.src = SILENCE_DATA;
     this.#backgroundAudio.play();
   };
-  destroyAudio = () => {
+  #destroyAudio = () => {
     if (!this.#backgroundAudio) return;
     try {
       this.#backgroundAudio.pause();
@@ -122,6 +160,23 @@ export class ReadSpeak extends EventTarget implements TTSAction {
       logger.error('Error releasing unblock audio:', err);
     }
   };
+  #updateMediaSession = () => {
+    if (!('mediaSession' in navigator)) return;
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: '自动朗读中',
+      artist: 'EdgeTTS',
+      album: 'hello',
+      artwork: [
+        {
+          src: './books/covers/asjct.jpeg',
+        },
+      ],
+    });
+  }
+  #removeMediaSession = () => {
+    if (!('mediaSession' in navigator)) return;
+    navigator.mediaSession.metadata = null;
+  }
 
   start(options?: { rate: number }) {
     if (options?.rate) {
@@ -129,25 +184,37 @@ export class ReadSpeak extends EventTarget implements TTSAction {
     }
     const utterance = this.#createUtterance(this.getNextElement?.())
     if (utterance) {
-      window.speechSynthesis.speak(utterance)
-      this.createBackgroundAudio()
+      if (isAndroid) {
+        speak(utterance)
+      } else {
+        window.speechSynthesis.speak(utterance as SpeechSynthesisUtterance)
+      }
+      this.#createBackgroundAudio()
+      this.#updateMediaSession()
     }
   }
   stop() {
+    if (isAndroid) {
+      stop()
+    }
     window.speechSynthesis?.cancel()
     this.spearkingSSU = null
     this.speakingEl?.classList.remove('reading')
     this.speakingEl = null
     this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { speaking: false } }))
-    this.destroyAudio()
+    this.#destroyAudio()
+    this.#removeMediaSession()
   }
-  toggle() {
-    if (window.speechSynthesis.speaking) {
+  toggle = () => {
+    if (this.isSpeaking()) {
       return this.stop()
     }
     this.start()
   }
   isSpeaking() {
+    if (Capacitor.getPlatform() === 'android') {
+      return isSpeaking()
+    }
     return window.speechSynthesis.speaking
   }
   updateRate = (newRate: number) => {
@@ -159,7 +226,11 @@ export class ReadSpeak extends EventTarget implements TTSAction {
       // 把剩余的重新说
       window.speechSynthesis.cancel()
       this.spearkingSSU.text = this.spearkingSSU.text.substring(this.#uttrProgress.get(this.spearkingSSU)!)
-      window.speechSynthesis.speak(this.spearkingSSU)
+      if (isAndroid) {
+        speak(this.spearkingSSU)
+      } else {
+        window.speechSynthesis.speak(this.spearkingSSU as SpeechSynthesisUtterance)
+      }
     }
     this.dispatchEvent(new CustomEvent(ReadSpeak.CHANGE_EVENT_NAME, { detail: { rate: newRate } }))
   }
