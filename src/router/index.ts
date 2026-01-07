@@ -8,17 +8,13 @@ import { historyKey, type RouteHistoryItem, type RouteHistoryLifecycle } from '.
 import ShelfView from '@/views/ShelfView.vue'
 import MyView from '@/views/MyView.vue'
 import { disableAnim, isSmall } from '@/utils/env'
-import { App } from '@capacitor/app'
 import Logger from 'js-logger'
+import { onCloseRequest } from '@/platform/close-listener'
 import { Capacitor } from '@capacitor/core'
+import { App } from '@capacitor/app'
+import { showToast } from '@/utils'
 
 const logger = Logger.get('router')
-
-if (Capacitor.getPlatform() === 'android') {
-  App.addListener('backButton', () => {
-    window.history.back()
-  })
-}
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -351,3 +347,28 @@ appRouter.onReplaceTo((newRoute, oldRoute) => {
   )
   return Promise.all([oldAnim.finished, newAnim.finished])
 })
+
+const currentIsHome = () => appRouter.currentRoute.value.name === 'home-tab-shelf'
+
+if (Capacitor.getPlatform() === 'android') {
+  let nextShouldExit = false
+  onCloseRequest(() => {
+    if (currentIsHome()) {
+      if (nextShouldExit) {
+        nextShouldExit = false
+        return App.exitApp()
+      }
+      showToast('再按一次退出')
+      nextShouldExit = true
+      setTimeout(() => {
+        nextShouldExit = false
+      }, 2000)
+      return;
+    }
+    if (typeof appRouter.currentRoute.value.name === 'string' && appRouter.currentRoute.value.name?.startsWith('home-tab-')) {
+      appRouter.replace({ name: 'home-tab-shelf' })
+      return;
+    }
+    window.history.back()
+  })
+}

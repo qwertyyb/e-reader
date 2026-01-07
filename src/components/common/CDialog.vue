@@ -23,8 +23,9 @@
 </template>
 
 <script setup lang="ts">
+import { onCloseRequest } from '@/platform/close-listener';
 import { disableAnim } from '@/utils/env';
-import { nextTick, ref, useTemplateRef, watch, type StyleValue } from 'vue';
+import { nextTick, onBeforeUnmount, ref, useTemplateRef, watch, type StyleValue } from 'vue';
 
 const props = defineProps<{
   visible: boolean,
@@ -76,7 +77,10 @@ const slideUpInKeyframes = [
 
 const getInKeyframes = () => props.position === 'left' ? slideLeftInKeyframes : props.position === 'right' ? slideRightInKeyframes : slideUpInKeyframes
 
+let removeCloseRequestListener: ReturnType<typeof onCloseRequest> | null = null
+
 const closeDialog = async () => {
+  removeCloseRequestListener?.()
   if (disableAnim.value) {
     containerVisible.value = false
     emits('closed')
@@ -92,13 +96,20 @@ const closeDialog = async () => {
 }
 const openDialog = async () => {
   containerVisible.value = true
-  if (disableAnim.value) return;
-  await nextTick()
-  await Promise.all([
-    dialog.value?.animate(getInKeyframes(), { duration: 200, easing: 'ease-out', fill: 'both' }).finished,
-    mask.value?.animate(fadeInKeyframes, { duration: 200, easing: 'ease-out', fill: 'both' }).finished
-  ])
+  if (!disableAnim.value) {
+    await nextTick()
+    await Promise.all([
+      dialog.value?.animate(getInKeyframes(), { duration: 200, easing: 'ease-out', fill: 'both' }).finished,
+      mask.value?.animate(fadeInKeyframes, { duration: 200, easing: 'ease-out', fill: 'both' }).finished
+    ])
+  }
+  // 监听Android返回键
+  removeCloseRequestListener = onCloseRequest(closeDialog, { once: true })
 }
+
+onBeforeUnmount(() => {
+  removeCloseRequestListener?.()
+})
 </script>
 
 <style lang="scss" scoped>
