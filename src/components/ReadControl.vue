@@ -1,17 +1,24 @@
 <template>
   <div class="read-control">
     <transition name="slide-up" :css="!disableAnim">
-      <div class="control-panel play-panel" data-target-control="autoPlay" v-if="visiblePanel === 'autoPlay'">
+      <div class="control-panel read-speak-panel" data-target-control="readSpeak" v-if="visiblePanel === 'readSpeak'">
+        <div class="read-speak-control" @click="toggleReadSpeak">
+          <span class="control-icon material-symbols-outlined loading-rotate" v-if="controlState.readSpeak === 'loading'">hourglass_bottom</span>
+          <span class="control-icon material-symbols-outlined" v-else>
+            {{ controlState.readSpeak ? 'pause_circle' : 'play_circle' }}
+          </span>
+        </div>
         <div class="speed">
           <c-progress
-            :min="10"
-            :max="200"
-            :step="10"
-            style="flex: 1"
-            @change="changeAutoPlaySpeed"
-            v-model="settings.speed">
-            <template v-slot:prefix><span class="material-symbols-outlined">fast_rewind</span></template>
-            <template v-slot:suffix><span class="material-symbols-outlined">fast_forward</span></template>
+            style="flex:1"
+            :min="0.1"
+            :max="3"
+            :step="0.1"
+            v-model="settings.readSpeakRate"
+            @change="changeReadSpeakRate"
+          >
+            <template v-slot:prefix>慢</template>
+            <template v-slot:suffix>快</template>
           </c-progress>
         </div>
       </div>
@@ -54,24 +61,24 @@
           </c-progress>
         </div>
         <div class="line-item">
-          <p class="read-speak-toggle pointer" @click="toggleReadSpeak">
-            朗读
-            <span class="control-icon material-symbols-outlined loading-rotate" v-if="controlState.readSpeak === 'loading'">hourglass_bottom</span>
-            <span class="control-icon material-symbols-outlined" v-else>
-              {{ controlState.readSpeak ? 'pause_circle' : 'play_circle' }}
+          <p class="auto-play-toggle pointer" @click="toggleControl('autoPlay')">
+            自动
+            <span class="control-icon material-symbols-outlined">
+              {{ controlState.autoPlay ? 'pause_circle' : 'play_circle' }}
             </span>
           </p>
-          <c-progress
-            style="flex:1"
-            :min="0.1"
-            :max="3"
-            :step="0.1"
-            v-model="settings.readSpeakRate"
-            @change="changeReadSpeakRate"
-          >
-            <template v-slot:prefix>慢</template>
-            <template v-slot:suffix>快</template>
-          </c-progress>
+          <div class="speed" style="flex:1">
+            <c-progress
+              :min="10"
+              :max="200"
+              :step="10"
+              style="flex: 1"
+              @change="changeAutoPlaySpeed"
+              v-model="settings.speed">
+              <template v-slot:prefix>慢</template>
+              <template v-slot:suffix>快</template>
+            </c-progress>
+          </div>
         </div>
       </div>
     </transition>
@@ -178,10 +185,15 @@
         <div class="control-label"></div>
       </div>
       <div class="control-item"
-        :class="{selected: visiblePanel === 'autoPlay'}"
-        data-control="autoPlay"
-        @click="toggleControl('autoPlay')">
-        <div class="control-icon material-symbols-outlined">{{ controlState.autoPlay ? 'pause' : 'play_arrow' }}</div>
+        :class="{selected: controlState.readSpeak}"
+        data-control="readSpeak"
+        @click="toggleControl('readSpeak')">
+        <div class="control-icon material-symbols-outlined">
+          <span class="control-icon material-symbols-outlined loading-rotate" v-if="controlState.readSpeak === 'loading'">hourglass_bottom</span>
+          <span class="control-icon material-symbols-outlined" v-else>
+            {{ controlState.readSpeak ? 'graphic_eq' : 'headphones' }}
+          </span>
+        </div>
         <div class="control-label"></div>
       </div>
       <div class="control-item"
@@ -321,12 +333,13 @@ const changeReadSpeakRate = (rate: number) => {
 
 const toggleReadSpeak = () => {
   controlState.value.readSpeak = 'loading'
+  visiblePanel.value = 'readSpeak'
   actions.readSpeak.toggle()
 }
 
 const toggleControl = async (control: string) => {
-  // action: darkMode | autoPlay | chapterList | font | progress
-  if (['autoPlay', 'progress', 'font', 'colorScheme'].includes(control)) {
+  // action: darkMode | readSpeak | chapterList | font | progress
+  if (['progress', 'font', 'colorScheme', 'readSpeak'].includes(control)) {
     if (visiblePanel.value === control) {
       visiblePanel.value = null
     } else {
@@ -475,15 +488,16 @@ defineExpose({
   outline: none;
 }
 
-.control-panel.play-panel {
+.control-panel.read-speak-panel {
   display: flex;
   justify-content: space-around;
-}
-.control-panel.play-panel button {
-  border: 1px solid #000;
-  border-radius: 999px;
-  font-size: 24px;
-  padding: 6px;
+  flex-direction: column;
+  .read-speak-control {
+    margin: 0 auto 12px auto;
+    .control-icon {
+      font-size: 48px;
+    }
+  }
 }
 .control-panel.play-panel .speed {
   width: 100%;
@@ -535,14 +549,13 @@ defineExpose({
   font-size: 12px;
 }
 
-.read-speak-toggle {
+.auto-play-toggle {
   display: flex;
   align-items: center;
   background-color: light-dark(#e3e3e3, #333);
   padding: 4px 12px;
   border-radius: 9999px;
   width: fit-content;
-  margin-right: 18px;
   .control-icon {
     margin-left: 4px;
     font-size: 22px;

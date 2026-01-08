@@ -3,7 +3,7 @@
     <div class="c-progress-prefix" @click="action('dec')"><slot name="prefix"></slot></div>
     <div class="c-progress-bar" @click="onTap" @touchmove="onMove" ref="bar">
       <div class="c-progress-line" :style="{width: left}"></div>
-      <div class="c-progress-indicator" :style="{left: left}"><slot name="label">{{ modelValue }}</slot></div>
+      <div class="c-progress-indicator" :style="{left: left}"><slot name="label">{{ formatValue(modelValue) }}</slot></div>
     </div>
     <div class="c-progress-suffix" @click="action('inc')"><slot name="suffix"></slot></div>
   </div>
@@ -36,6 +36,11 @@ const setValue = (value: number) => {
   const pointLength = arr[1]?.length ?? 0
   emits('change', Number(value.toFixed(pointLength)))
 }
+
+const formatValue = (value: number) => {
+  return value.toFixed(props.step.toString().split('.')[1]?.length ?? 0)
+}
+
 const setValueFromOffset = (left: number) => {
   const { x, width } = barRef.value!.getBoundingClientRect();
   const percent = (left - x) / width
@@ -65,6 +70,7 @@ const action = (action: 'dec' | 'inc') => {
 <style lang="scss" scoped>
 .c-progress {
   --progress-height: 32px;
+  font-size: 14px;
 }
 .c-progress, .c-progress .c-progress-bar {
   display: flex;
@@ -77,7 +83,7 @@ const action = (action: 'dec' | 'inc') => {
 
 .c-progress .c-progress-bar {
   flex: 1;
-  margin: 0 10px;
+  margin: 0 6px;
   height: var(--progress-height);
   position: relative;
   background-color: light-dark(#e3e3e3, #333);
