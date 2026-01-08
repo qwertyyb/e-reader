@@ -276,7 +276,9 @@ const createReadSpeakAction = () => {
       }
     }
   }
-  return preferences.value.tts === 'local' ? new ReadSpeak(options) : new EdgeTTSReadSpeak(options)
+  const tts = preferences.value.tts === 'local' ? new ReadSpeak(options) : new EdgeTTSReadSpeak(options)
+  tts.updateRate(settings.value.readSpeakRate)
+  return tts
 }
 
 const createActions = () => {

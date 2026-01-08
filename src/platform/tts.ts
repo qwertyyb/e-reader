@@ -50,9 +50,10 @@ const startSpeak = async () => {
     uttr.dispatchEvent(endEvent)
     uttrs.shift()
   }
+  nativeStop()
 }
 
-export const speak = async (uttr: NativeSpeechSynthesisUtterance) => {
+export const nativeSpeak = async (uttr: NativeSpeechSynthesisUtterance) => {
   uttrs.push(uttr)
   if (!speaking) {
     progressListener?.remove()
@@ -66,10 +67,11 @@ export const speak = async (uttr: NativeSpeechSynthesisUtterance) => {
   }
 }
 
-export const stop = async () => {
+export const nativeStop = async () => {
   speaking = false
   await TextToSpeech.stop()
   await progressListener?.remove()
+  uttrs.splice(0, uttrs.length)
 }
 
-export const isSpeaking = () => speaking
+export const isNativeSpeaking = () => speaking
