@@ -100,7 +100,7 @@ const chapterInfo = computed(() => {
   })
   return {
     levelsCount: levels.size,
-    levelCount: levelCount.keys().toArray().sort((prev, next) => prev - next).map(level => ({ level, count: levelCount.get(level) }))
+    levelCount: Array.from(levelCount.keys()).sort((prev, next) => prev - next).map(level => ({ level, count: levelCount.get(level) }))
   }
 })
 const wordCount = computed(() => {
