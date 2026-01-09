@@ -2,7 +2,7 @@ import { env } from "./env"
 
 export const getSettings = (): ISettings => {
   const defaultSettings: ISettings = {
-    fontFamily: 'SYST',
+    fontFamily: '落霞文楷 屏幕阅读版',
     fontSize: 24,
     fontWeight: 500,
     speed: 30, // 每秒滚动的像素

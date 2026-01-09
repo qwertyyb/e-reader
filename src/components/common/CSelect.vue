@@ -30,13 +30,18 @@
       </li>
     </ul>
     <c-picker
+      v-else
       :options="options"
       :visible="optionsVisible && isSmall"
       :model-value="modelValue"
       :title="title"
       @select="selectOption"
       @close="optionsVisible=false"
-    ></c-picker>
+    >
+      <template v-slot:option="{ option, index, selected }">
+        <slot name="option" :option="option" :index="index" :selected="selected"></slot>
+      </template>
+    </c-picker>
   </div>
 </template>
 

@@ -7,10 +7,9 @@ import { ref, markRaw, type Ref } from 'vue'
 import { historyKey, type RouteHistoryItem, type RouteHistoryLifecycle } from './const'
 import ShelfView from '@/views/ShelfView.vue'
 import MyView from '@/views/MyView.vue'
-import { disableAnim, isSmall } from '@/utils/env'
+import { disableAnim, env, isSmall } from '@/utils/env'
 import Logger from 'js-logger'
 import { onCloseRequest } from '@/platform/close-listener'
-import { Capacitor } from '@capacitor/core'
 import { App } from '@capacitor/app'
 import { showToast } from '@/utils'
 
@@ -350,7 +349,7 @@ appRouter.onReplaceTo((newRoute, oldRoute) => {
 
 const currentIsHome = () => appRouter.currentRoute.value.name === 'home-tab-shelf'
 
-if (Capacitor.getPlatform() === 'android') {
+if (env.isAndroidApp()) {
   // Android 上监听后退按钮，执行路由后退、回到首页、退出应用
   let nextShouldExit = false
   onCloseRequest(() => {

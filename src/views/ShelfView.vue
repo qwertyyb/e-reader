@@ -116,7 +116,7 @@ const visibleList = computed(() => {
   if (category.value === 'imported') {
     list = list.filter(item => !item.onlineBookId)
   } else if (category.value === 'downloaded') {
-    list.filter(item => item.onlineBookId && item.localBookId)
+    list = list.filter(item => item.onlineBookId && item.localBookId)
   }
   // 如果正在选择，则只显示已下载或导入的书籍
   if (selecting.value) {
@@ -279,7 +279,6 @@ const onLongtap = (book: IBookItem) => {
   // console.log('before refresh', document.querySelectorAll('.book-item-wrapper'))
 // 先从缓存中取，再刷网络
 refresh({ cacheFirst: true }).then(() => {
-  console.log('refresh', document.querySelectorAll('.book-item-wrapper'))
   refresh({ cacheFirst: false })
 })
 

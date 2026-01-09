@@ -1,12 +1,12 @@
 import { SegmentAudio, StreamAudioPlayer } from '@/lib/StreamAudioPlayer';
 import { isNativeSpeaking, NativeSpeechSynthesisUtterance, nativeSpeak, nativeStop } from '@/platform/tts';
-import { Capacitor } from '@capacitor/core';
+import { env } from '@/utils/env';
 import { Communicate } from 'edge-tts-universal/browser'
 import Logger from 'js-logger';
 
 const logger = Logger.get('read-speak')
 
-const isApp = ['android', 'ios'].includes(Capacitor.getPlatform())
+const isApp = env.isAndroidApp()
 
 const speak = (utter: NativeSpeechSynthesisUtterance | SpeechSynthesisUtterance) => {
   if (isApp) {

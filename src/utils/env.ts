@@ -1,4 +1,5 @@
 import { MAX_SMALL_WIDTH } from "@/constant";
+import { Capacitor } from "@capacitor/core";
 import { ref, watch, type Ref } from "vue"
 
 // 声明 window.eruda 类型
@@ -29,6 +30,9 @@ export const env = {
   isHorizontal: () => navigator.userAgent.includes('Leaf') || location.href.includes('ink=1'),
   isInk: () => navigator.userAgent.includes('Leaf') || location.href.includes('ink=1'),
   isIOS: () => /iPad|iPhone|iPod/.test(navigator.userAgent),
+  isApp: () => ['android', 'ios'].includes(Capacitor.getPlatform()),
+  isAndroidApp: () => Capacitor.getPlatform() === 'android',
+  isIosApp: () => Capacitor.getPlatform() === 'ios',
 }
 
 export const getSafeAreaTop = () => window.parseInt(getComputedStyle(document.documentElement).getPropertyValue("--sait"), 10)

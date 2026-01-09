@@ -3,7 +3,7 @@
  * Web: 监听 ESC 按钮，并执行相应的操作
  * 当有多个回调时，只执行最新的一个回调
  */
-import { Capacitor } from '@capacitor/core'
+import { env } from '@/utils/env'
 import { App } from '@capacitor/app'
 
 type BackButtonCallback = () => void
@@ -37,11 +37,9 @@ const handler = () => {
   }
 }
 
-const platform = Capacitor.getPlatform()
-
-if (platform === 'android') {
+if (env.isAndroidApp()) {
   App.addListener('backButton', handler)
-} else if (platform === 'web') {
+} else if (!env.isApp()) {
   window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && !event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey) {
       handler()

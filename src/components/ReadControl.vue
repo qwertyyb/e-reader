@@ -144,6 +144,9 @@
               </div>
               <span class="material-symbols-outlined arrow-icon" style="margin-left: auto">chevron_right</span>
             </template>
+            <template v-slot:option="{ option }">
+              <div class="option-label" :data-font="option.value">{{ option.label }}</div>
+            </template>
           </c-select>
           <c-select
             title="翻页方式"
