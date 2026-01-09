@@ -1,7 +1,6 @@
 <template>
   <div class="c-history-page" :data-route-unique-id="item.locations[0].uniqueId">
     <component
-      :key="item.locations[0].uniqueId"
       :is="item.matched.components?.default"
       v-bind="item.locations[0]?.location.params"
     ></component>

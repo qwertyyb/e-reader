@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRaw, watch } from 'vue';
+import { computed, ref, toRaw } from 'vue';
 
 import BookItem from '@/components/BookItem.vue';
 import { disableCache, filterEmpty, showToast } from '@/utils';
@@ -276,17 +276,11 @@ const onLongtap = (book: IBookItem) => {
   selecting.value = true
 }
 
-loading.value = true
+  // console.log('before refresh', document.querySelectorAll('.book-item-wrapper'))
 // 先从缓存中取，再刷网络
 refresh({ cacheFirst: true }).then(() => {
-  loading.value = false
+  console.log('refresh', document.querySelectorAll('.book-item-wrapper'))
   refresh({ cacheFirst: false })
-})
-
-watch(() => route.name, () => {
-  category.value = 'all'
-  selecting.value = false
-  refresh()
 })
 
 </script>

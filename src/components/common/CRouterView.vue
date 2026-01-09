@@ -3,7 +3,7 @@
     <ul class="route-history-list">
       <CHistoryPage
         v-for="(node, index) in matchedList"
-        :key="node.locations[0].uniqueId"
+        :key="node.matched.path"
         :item="node"
         :class="{
           'current': index === matchedList.length - 1,
@@ -75,6 +75,7 @@ const matchedList = computed(() => {
       results.push(last)
     }
   }
+  console.log('path', results?.[0]?.matched.path)
   return results;
 })
 
