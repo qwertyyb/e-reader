@@ -75,7 +75,6 @@ const matchedList = computed(() => {
       results.push(last)
     }
   }
-  console.log('path', results?.[0]?.matched.path)
   return results;
 })
 

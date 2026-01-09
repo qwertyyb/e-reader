@@ -37,7 +37,7 @@
         </li>
       </ul>
     </teleport>
-    <ul class="book-list" v-loading="loading">
+    <ul class="book-list">
       <li class="book-item-wrapper"
         v-for="book in visibleList"
         :key="book.id"
@@ -103,7 +103,6 @@ const toggleSelect = (book: IBookItem) => {
 
 const deleteSelected = async () => {
   if (window.confirm('删除所选书籍？')) {
-    console.log('delete');
     await Promise.all([...selectedIds.value].map(value => booksStore.remove(Number(value))))
     selectedIds.value.clear()
     selecting.value = false
@@ -276,8 +275,8 @@ const onLongtap = (book: IBookItem) => {
   selecting.value = true
 }
 
-  // console.log('before refresh', document.querySelectorAll('.book-item-wrapper'))
 // 先从缓存中取，再刷网络
+loading.value = true
 refresh({ cacheFirst: true }).then(() => {
   refresh({ cacheFirst: false })
 })

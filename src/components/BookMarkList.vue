@@ -1,5 +1,5 @@
 <template>
-  <ul class="book-mark-list"  v-loading="loading">
+  <ul class="book-mark-list">
     <li class="chapter-mark-list" v-for="chapter in chapterMarkList" :key="chapter.chapterId">
       <h4 class="mark-chapter-title">{{ chapter.title }}</h4>
       <mark-list :mark-list="chapter.markList" @remove="removeMark" @tap="$emit('mark-tap', $event)" class="mark-list"></mark-list>

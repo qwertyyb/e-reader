@@ -88,11 +88,9 @@ html {
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
 }
-html.mock-safe-area {
-  /* --sait: 44px;
-  --saib: 34px; */
-  --sait: 0px;
-  --saib: 0px;
+html.mock-safe-area body {
+  --sait: 44px;
+  --saib: 34px;
   --sail: 0px;
   --sair: 0px;
 }
