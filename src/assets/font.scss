@@ -1,0 +1,150 @@
+@use "sass:map";
+
+$fonts: (
+  '思源黑体': (
+    name: '思源黑体',
+    src: url('https://cdn.jsdelivr.net/gh/adobe-fonts/source-han-sans@release/Variable/WOFF2/OTF/SourceHanSansSC-VF.otf.woff2') format('woff2')
+  ),
+
+  '思源宋体': (
+    name: '思源宋体',
+    src: url('https://cdn.jsdelivr.net/gh/adobe-fonts/source-han-serif@release/Variable/WOFF2/OTF/SourceHanSerifSC-VF.otf.woff2') format('woff2')
+  ),
+
+  '思源等宽': (
+    name: '思源等宽',
+    src: url('https://cdn.jsdelivr.net/gh/adobe-fonts/source-han-mono/Regular/OTC/SourceHanMonoSC-Regular.otf') format('opentype')
+  ),
+
+  '方正楷体': (
+    name: '方正楷体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/FZKTSC.ttf") format("truetype"),
+  ),
+
+  '方正仿宋': (
+    name: '方正仿宋',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/FZFSSC.ttf") format("truetype")
+  ),
+
+  '方正书宋': (
+    name: '方正书宋',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/FZSSSC.ttf") format("truetype")
+  ),
+
+  '方正黑体': (
+    name: '方正黑体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/FZHTSC.ttf") format("truetype")
+  ),
+
+  '落霞文楷-Light': (
+    name: '落霞文楷',
+    src: url("https://cdn.jsdelivr.net/gh/lxgw/LxgwWenKai/fonts/TTF/LXGWWenKai-Light.ttf") format("truetype"),
+    weights: (100)
+  ),
+  '落霞文楷-Regular': (
+    name: '落霞文楷',
+    src: url("https://cdn.jsdelivr.net/gh/lxgw/LxgwWenKai/fonts/TTF/LXGWWenKai-Regular.ttf") format("truetype"),
+    weights: (400)
+  ),
+  '落霞文楷-Bold': (
+    name: '落霞文楷',
+    src: url("https://cdn.jsdelivr.net/gh/lxgw/LxgwWenKai/fonts/TTF/LXGWWenKai-Bold.ttf") format("truetype"),
+    weights: (700)
+  ),
+
+
+  '落霞文楷等宽-Light': (
+    name: '落霞文楷 等宽',
+    src: url("https://cdn.jsdelivr.net/gh/lxgw/LxgwWenKai/fonts/TTF/LXGWWenKaiMono-Light.ttf") format("truetype"),
+    weights: (100)
+  ),
+  '落霞文楷等宽-Regular': (
+    name: '落霞文楷 等宽',
+    src: url("https://cdn.jsdelivr.net/gh/lxgw/LxgwWenKai/fonts/TTF/LXGWWenKaiMono-Regular.ttf") format("truetype"),
+    weights: (400)
+  ),
+  '落霞文楷等宽-Bold': (
+    name: '落霞文楷 等宽',
+    src: url("https://cdn.jsdelivr.net/gh/lxgw/LxgwWenKai/fonts/TTF/LXGWWenKaiMono-Bold.ttf") format("truetype"),
+    weights: (700)
+  ),
+
+  '落霞文楷 屏幕阅读版': (
+    name: '落霞文楷 屏幕阅读版',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/LXGWWenKaiGBScreenR.ttf") format("truetype")
+  ),
+
+  '975圆体-Regular': (
+    name: '975圆体',
+    src: url("https://cdn.jsdelivr.net/gh/lxgw/975maru/TTF%20SC/975MaruSC-Regular.ttf") format("truetype"),
+    weights: (200)
+  ),
+  '975圆体-Medium': (
+    name: '975圆体',
+    src: url("https://cdn.jsdelivr.net/gh/lxgw/975maru/TTF%20SC/975MaruSC-Medium.ttf") format("truetype"),
+    weights: (500)
+  ),
+  '975圆体-Bold': (
+    name: '975圆体',
+    src: url("https://cdn.jsdelivr.net/gh/lxgw/975maru/TTF%20SC/975MaruSC-Bold.ttf") format("truetype"),
+    weights: (800)
+  ),
+
+  '朱雀仿宋': (
+    name: '朱雀仿宋',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/ZhuqueFangsong-Regular.ttf") format("truetype")
+  ),
+
+  '阿里妈妈东方大楷': (
+    name: '阿里妈妈东方大楷',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/AlimamaDongFangDaKai-Regular.woff2") format("woff2")
+  ),
+
+  '钉钉进步体': (
+    name: '钉钉进步体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/DingTalkJinBuTi-Regular.ttf") format("truetype")
+  ),
+
+  '阿里妈妈数黑体': (
+    name: '阿里妈妈数黑体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/AlimamaShuHeiTi/AlimamaShuHeiTi-Bold/AlimamaShuHeiTi-Bold.woff2") format("woff2"),
+    weights: (700)
+  ),
+
+  '阿里妈妈刀隶体': (
+    name: '阿里妈妈刀隶体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/AlimamaDaoLiTi.woff2") format("woff2")
+  ),
+
+  '阿里妈妈方圆体': (
+    name: '阿里妈妈方圆体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/AlimamaFangYuanTiVF-Thin.woff2") format("woff2"),
+    weights: (100)
+  ),
+
+  '淘宝买菜体': (
+    name: '淘宝买菜体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/TaoBaoMaiCaiTi-Regular.woff2") format("woff2")
+  )
+);
+
+// 自动生成 @font-face
+@each $identifier, $config in $fonts {
+  $font-name: map.get($config, 'name');
+  $font-src: map.get($config, 'src');
+  $font-weights: map.get($config, 'weights');
+
+  @each $weight in $font-weights {
+    @debug $font-name, $weight;
+    @font-face {
+      font-family: $font-name;
+      src: $font-src;
+      font-weight: $weight;
+      font-display: swap;
+    }
+  }
+
+  [data-font="#{$font-name}"] {
+    font-family: '#{$font-name}', system-ui, -apple-system, sans-serif;
+  }
+}

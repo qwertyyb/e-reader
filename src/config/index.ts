@@ -1,14 +1,25 @@
 import dedent from "dedent";
 
+// 需要在 assets/font.scss 中定义
 export const fontFamilyList = [
+  { value: '思源黑体', label: '思源黑体' },
   { value: '思源宋体', label: '思源宋体' },
+  { value: '思源等宽', label: '思源等宽' },
   { value: '方正书宋', label: '方正书宋' },
   { value: '方正仿宋', label: '方正仿宋' },
   { value: '方正黑体', label: '方正黑体' },
   { value: '方正楷体', label: '方正楷体' },
   { value: '落霞文楷', label: '落霞文楷' },
+  { value: '落霞文楷 等宽', label: '落霞文楷 等宽' },
   { value: '落霞文楷 屏幕阅读版', label: '落霞文楷 阅读版' },
-  { value: '975圆体', label: '975圆体' }
+  { value: '975圆体', label: '975圆体' },
+  { value: '朱雀仿宋', label: '朱雀仿宋' },
+  { value: '阿里妈妈东方大楷', label: '阿里妈妈东方大楷' },
+  { value: '钉钉进步体', label: '钉钉进步体' },
+  { value: '阿里妈妈数黑体', label: '阿里妈妈数黑体' },
+  { value: '阿里妈妈刀隶体', label: '阿里妈妈刀隶体' },
+  { value: '阿里妈妈方圆体', label: '阿里妈妈方圆体' },
+  { value: '淘宝买菜体', label: '淘宝买菜体' },
 ]
 
 export const turnPageType = [

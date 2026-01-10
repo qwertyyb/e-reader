@@ -58,6 +58,11 @@ defineEmits<{
   font-size: 22px;
   padding: 4px;
 }
+.c-option-list {
+  max-height: calc(100vh - 300px);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
 .c-option {
   padding: 12px 16px;
   font-size: 16px;

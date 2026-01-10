@@ -1,10 +1,11 @@
 @use "../styles/variables";
 @use "./animation";
 
+@use "./font";
+
 @import './base.css';
 @import './contrast.css';
 @import './dark-mode.css';
-@import './fonts.css';
 
 #app {
   min-height: var(--page-height);
