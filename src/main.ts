@@ -2,6 +2,7 @@ import { register, unregister } from './register-sw'
 import { env, initDisableAnim, initEruda, initMoreContrast } from '@/utils/env'
 import './assets/main.scss'
 import 'material-symbols/outlined.css'
+import 'normalize.css'
 
 import VirtualList from 'vue-virtual-list-v3'
 import { createApp } from 'vue'

@@ -6,7 +6,10 @@
       <span class="material-symbols-outlined menu-icon">format_underlined</span>
       <span class="menu-item-label">删除划线</span>
     </div>
-    <div class="underline-submenu" ref="floating" :style="floatingStyles">
+    <div class="underline-submenu"
+      ref="floating"
+      :style="floatingStyles"
+    >
       <ul class="underline-submenu-list">
         <li class="underline-submenu-item mark-style"
           v-for="style in MarkStyles"
@@ -35,7 +38,7 @@
 <script setup lang="ts">
 import { useFloating, offset, shift, autoUpdate } from '@floating-ui/vue';
 import { MarkStyles, MarkStyleIcons, MarkColors } from '@/utils/mark';
-import { ref } from 'vue';
+import { useTemplateRef } from 'vue';
 
 defineProps<{
   mark: Omit<IMarkEntity, 'id'> & { id?: number } | null
@@ -46,14 +49,14 @@ const emits = defineEmits<{
   update: [{ style: number } | { color: string }]
 }>()
 
-const reference = ref<HTMLElement | null>(null)
-const floating = ref<HTMLElement | null>(null)
+const reference = useTemplateRef('reference')
+const floating = useTemplateRef('floating')
 
 
 const { floatingStyles: floatingStyles } = useFloating(reference, floating, {
   placement: 'bottom',
-  middleware: [offset(10), shift({ padding: 12 })],
-  whileElementsMounted: autoUpdate,
+  middleware: [offset(6), shift({ padding: 12 })],
+  whileElementsMounted: autoUpdate
 })
 
 </script>
@@ -71,13 +74,16 @@ const { floatingStyles: floatingStyles } = useFloating(reference, floating, {
 }
 .underline-submenu-list {
   display: flex;
-  background: #fff;
+  background: light-dark(#fff, #000);
   padding: 6px 12px;
-  box-shadow: 0 0 14px gray;
+  box-shadow: 1px 2px 2px light-dark(#bbb, #222);
   list-style: none;
   border-radius: 99999px;
   width: 322px;
-  animation: slide-down-scale .2s ease-in;
+  animation: slide-down-scale .07s ease-in;
+}
+:global(html.disable-anim) .underline-submenu-list {
+  animation: none;
 }
 .underline-submenu-item {
   width: 24px;
@@ -93,13 +99,12 @@ const { floatingStyles: floatingStyles } = useFloating(reference, floating, {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 10px;
-  padding: 4px 10px;
-  height: 50px;
-  width: 50px;
+  font-size: 12px;
+  padding: 6px 10px;
 }
 .menu-icon {
-  font-size: 18px;
+  font-size: 20px;
+  width: 20px;
 }
 .menu-item-label {
   margin-top: 3px;

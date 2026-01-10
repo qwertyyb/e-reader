@@ -2,7 +2,7 @@
   <div class="selection-menu">
     <div class="selection-menu-content-wrapper"
       @pointerdown.capture="isPointerDown = true"
-      @pointerup.capture="isPointerDown = false"
+      @pointerup.capture="isPointerDown = false;updateFloating()"
       @tap.capture="contentTapHandler"
       ref="contentWrapper">
       <slot></slot>
@@ -13,6 +13,20 @@
         :style="floatingStyles"
         v-show="visible"
         ref="floating">
+        <div class="arrow"
+          ref="floating-arrow"
+          :style="{
+            position: 'absolute',
+            left:
+              middlewareData.arrow?.x != null
+                ? `${middlewareData.arrow.x}px`
+                : '',
+            top:
+              middlewareData.arrow?.y != null
+                ? `${middlewareData.arrow.y}px`
+                : '',
+          }"
+        ></div>
         <ul class="selection-menu-list"
           :class="{ 'count-3': mark?.id }"
         >
@@ -86,13 +100,13 @@
 </template>
 
 <script setup lang="ts">
-import { useFloating, offset, shift } from '@floating-ui/vue';
+import { useFloating, offset, shift, arrow } from '@floating-ui/vue';
 import CDialog from '@/components/common/CDialog.vue'
 import RangeMarksDialog from '@/components/RangeMarksDialog.vue';
 import MarkStyleMenu from '@/components/MarkStyleMenu.vue';
 import { marks } from '@/services/storage';
 import { ChapterMark, MarkColors, MarkStyles } from '@/utils/mark'
-import { computed, onMounted, onUnmounted, ref, toRaw, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, toRaw, useTemplateRef, watch } from 'vue'
 import { parseSelectionRange } from '@/utils/chapter';
 import CTextarea from '@/components/common/CTextarea.vue';
 import Logger from 'js-logger'
@@ -111,15 +125,19 @@ const dialog = ref<string | null>(null)
 const marksRange = ref<{ start: number, length: number } | null>(null)
 const mark = ref<Omit<IMarkEntity, 'id'> & { id?: number } | null>(null)
 const reference = ref<{ getBoundingClientRect: () => DOMRect }>()
-const floating = ref(null);
-const { floatingStyles, update: updateMenuRect } = useFloating(reference, floating, { placement: 'bottom', middleware: [offset(12), shift({ padding: 12 })] });
+const floating = useTemplateRef('floating')
+const arrowEl = useTemplateRef('floating-arrow')
+const { floatingStyles, update: updateMenuRect, middlewareData, update: updateFloating } = useFloating(reference, floating, {
+  placement: 'bottom',
+  middleware: [offset(12), shift({ padding: 12 }), arrow({ element: arrowEl, padding: 6 })] 
+});
 
 const contentWrapperRef = useTemplateRef('contentWrapper')
 const inputRef = useTemplateRef('input')
 const isPointerDown = ref(false)
 
 const visible = computed(() => {
-  return !isPointerDown.value && !dialog.value && mark.value
+  return !isPointerDown.value && mark.value
 })
 
 watch(() => visible.value || dialog.value, (val) => val ? emits('show') : emits('hide'))
@@ -190,6 +208,7 @@ const selectionChangeHandler = () => {
   }
 
   const markRange = parseSelectionRange(range)
+  logger.info('selection markRange', markRange)
   if (!markRange) return
   const { chapterId, chapterIndex, startOffset, length, start, end } = markRange
   mark.value = {
@@ -215,6 +234,7 @@ const selectionChangeHandler = () => {
       return rect
     },
   };
+  updateFloating()
 }
 const underlineActionHandler = async () => {
   if (!mark.value) return;
@@ -293,9 +313,11 @@ const saveThought = async () => {
 const contentTapHandler = async (e: PointerEvent) => {
   logger.info('contentTapHandler', window.getSelection()?.toString().length, mark.value)
   // 等待 selectionchange 事件触发后再显示
-  setTimeout(() => {
+  setTimeout(async() => {
     isPointerDown.value = false
-  }, 100)
+    await nextTick()
+    updateFloating()
+  }, 10)
   // 经过测试，选中文字后，点击取消选择时，在 Mac Chrome 和 Mac Safari 上，selectionchange 会早于 pointerup，而在移动端safari上，selectionchange 会晚于 pointerup 事件。
   // 所以至少在 Mac 上，在此处获取的 selection 选区状态已经是最新的了，而在移动端，此处获取的不一定是最新的(如果是调整选区就是最新的，如果是点击取消选择就不是最新的)
   if (window.getSelection()?.toString()) {
@@ -323,12 +345,23 @@ const contentTapHandler = async (e: PointerEvent) => {
   const markValue = await marks.get(parseInt(markEl.dataset.id || '0', 10))
   if (!markValue) return
   mark.value = markValue
-  const rect = markEl.getBoundingClientRect()
+  contentWrapperRef.value?.querySelectorAll(`mark[data-id=${JSON.stringify(markValue.id.toString())}]`).forEach(el => {
+    el.classList.add('active')
+    setTimeout(() => {
+      el.classList.remove('active')
+    }, 300)
+  })
   reference.value = {
     getBoundingClientRect() {
-      return rect
+      // 当 mark 跨段落时，可能有不止一个 mark 元素，使用 range 对多个 markEl 的元素位置作合并计算
+      const markEls = contentWrapperRef.value!.querySelectorAll(`mark[data-id=${JSON.stringify(markValue.id.toString())}]`)
+      const range = document.createRange()
+      range.setStart(markEls.item(0).firstChild!, 0)
+      range.setEnd(markEls.item(markEls.length - 1).lastChild!, markEls.item(markEls.length - 1).lastChild!.textContent!.length)
+      return range.getBoundingClientRect()
     },
   }
+  logger.info('isPointerDown', isPointerDown.value)
   if (mark.value.thought) {
     dialog.value = 'marks'
     marksRange.value = mark.value.range
@@ -378,26 +411,46 @@ const actionHandler = async (event: Event, action: string) => {
   height: 100%;
   position: relative;
   z-index: 1;
+  :deep(mark) {
+    transition: text-shadow 0.1s ease;
+    &.active {
+      text-shadow: 0.5px 0.5px 1px rgba(0, 0, 0, 0.5);
+    }
+  }
 }
 .selection-menu-list-wrapper {
-  position: relative;
   z-index: 2;
   user-select: none;
+  position: absolute;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
   * {
     user-select: none;
   }
+  .arrow {
+    position: absolute;
+    top: -7px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid light-dark(#fff, #000);
+  }
 }
-
+@keyframes pulse {
+  0% { transform: scale(1) }
+  50% { transform: scale(1.1) }
+  100% { transform: scale(1) }
+}
 .selection-menu-list {
   position: relative;
   z-index: 2;
   background: light-dark(#fff, #000);
-  border-radius: 12px;
+  border-radius: 4px;
   list-style: none;
   display: flex;
-  box-shadow: 0 3px 7px light-dark(#ddd, #2a2a2a);
   justify-content: space-around;
   padding: 0 8px;
+  animation: pulse .2s;
 }
 .selection-menu-list .selection-menu-item {
   position: relative;
@@ -414,11 +467,34 @@ const actionHandler = async (event: Event, action: string) => {
 }
 .selection-menu-list .selection-menu-item .menu-item-wrapper > .menu-icon {
   font-size: 20px;
+  width: 20px;
 }
 .selection-menu-list .menu-item-label {
   margin-top: 3px;
   white-space: nowrap;
 }
+
+.underline-submenu-list {
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+.underline-submenu-item.mark-style .style-icon {
+  color: inherit;
+}
+.underline-submenu-item + .underline-submenu-item {
+  margin-left: 8px;
+}
+.underline-submenu-list .divider {
+  width: 2px;
+  height: 24px;
+  background: #bbb;
+  margin: 0 12px;
+}
+
 .thought-input-dialog .thought-input-wrapper {
   padding: 12px 0;
   display: flex;
