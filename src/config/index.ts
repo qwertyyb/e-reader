@@ -51,6 +51,8 @@ export const fontFamilyList = [
   { value: '源云明体', label: '源云明体' },
 
   { value: 'jf open 粉圓', label: 'jf open 粉圓' },
+
+  { value: '三极行楷简体-粗', label: '三极行楷简体-粗' }
 ]
 
 export const turnPageType = [

@@ -152,10 +152,11 @@ $fonts: (
     weights: (700)
   ),
 
-  '站酷庆科黄油体': (
-    name: '站酷庆科黄油体',
-    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/站酷庆科黄油体.ttf") format("truetype")
-  ),
+  // 文件有些问题，暂时不使用，使用 google fonts
+  // '站酷庆科黄油体': (
+  //   name: '站酷庆科黄油体',
+  //   src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/站酷庆科黄油体.ttf") format("truetype")
+  // ),
 
   '站酷快乐体': (
     name: '站酷快乐体',
@@ -266,7 +267,7 @@ $fonts: (
 
   '抖音美好体': (
     name: '抖音美好体',
-    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/抖音美好体.ttf") format("truetype")
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/抖音美好体.otf") format("opentype")
   ),
 
   '源泉圆体-200': (
@@ -412,6 +413,11 @@ $fonts: (
   'jf open 粉圓': (
     name: 'jf open 粉圓',
     src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/jf open 粉圓.ttf") format("truetype"),
+  ),
+
+  '三极行楷简体-粗': (
+    name: '三极行楷简体-粗',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/三极行楷简体-粗.ttf") format("truetype"),
   )
 );
 // 自动生成 @font-face
@@ -434,4 +440,8 @@ $fonts: (
   [data-font="#{$font-name}"] {
     font-family: '#{$font-name}', system-ui, -apple-system, sans-serif;
   }
+}
+
+[data-font="站酷庆科黄油体"] {
+  font-family: "ZCOOL QingKe HuangYou", system-ui, -apple-system, sans-serif;
 }
