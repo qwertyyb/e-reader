@@ -78,6 +78,17 @@ const router = createRouter({
       component: () => import('@/views/StateView.vue')
     },
     {
+      path: '/stats',
+      children: [
+        {
+          path: 'duration',
+          name: 'durationStats',
+          props: true,
+          component: () => import('@/views/ReadTimeStatsView.vue')
+        }
+      ]
+    },
+    {
       path: '/state/notes',
       name: 'notesState',
       props: true,

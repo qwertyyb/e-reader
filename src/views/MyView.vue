@@ -24,6 +24,11 @@
           <h3 class="item-title">笔记</h3>
           <div class="item-desc" v-html="marksTotal"></div>
         </li>
+
+        <li class="my-item duration-stats-item pointer" @click="$router.push({ name: 'durationStats' })">
+          <h3 class="item-title">阅读统计</h3>
+          <div class="material-symbols-outlined more-icon">arrow_forward_ios</div>
+        </li>
       </ul>
     </main>
   </section>
@@ -103,6 +108,11 @@ refresh()
   position: relative;
   overflow: hidden;
   // background-image: linear-gradient(to top right, #e2e7e8, rgb(186, 221, 255));
+  &.duration-stats-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
   & + .my-item {
     margin-top: 12px;
   }

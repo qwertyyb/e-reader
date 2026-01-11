@@ -215,16 +215,23 @@ export const formatSize = (size: number) => {
   return `${(size / 1024 / 1024 / 1024).toFixed(1)} GB`;
 };
 
-export const formatDuration = (duration: number) => {
-  if (duration < 60) {
-    return `${duration}秒`
+export const formatDuration = (duration: number, options?: { style: false }) => {
+  const wrapNum = (num: number, name: string) => options?.style ? `<span class="num ${name}">${num}</span>` : String(num)
+  let result = ''
+  if (duration % 60) {
+    result = `${wrapNum(duration % 60, 'seconds')}秒`
   }
   const minutes = Math.floor(duration / 60)
-  if (minutes < 60) {
-    return `${minutes}分钟${duration % 60 ? `${duration % 60}秒` : ''}`
+  if (minutes % 60) {
+    result = `${wrapNum(minutes % 60, 'minutes')}分钟${result}`
   }
+  if (minutes < 60) return result
+  result = `${wrapNum(minutes % 60, 'minutes')}分钟`
   const hours = Math.floor(minutes / 60)
-  return `${hours}小时${minutes % 60 ? `${minutes % 60}分钟` : ''}`
+  if (hours) {
+    result = `${wrapNum(hours, 'hours')}小时${result}`
+  }
+  return result
 }
 
 export const formatProgress = (cursor: number, maxCursor: number) => {

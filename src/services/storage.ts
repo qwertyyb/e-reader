@@ -215,5 +215,9 @@ export const readTimeStore = {
       return wrap(db => db.transaction('readTime', 'readwrite').objectStore('readTime').put({ ...row, ...value, duration: row.duration + value.duration, id: row.id }))
     }
     return wrap(db => db.transaction('readTime', 'readwrite').objectStore('readTime').add({ ...value, duration: value.duration }))
+  },
+  getListByDateRange(startDate: string, endDate: string) {
+    console.log('startDate', startDate, 'endDate', endDate)
+    return wrap<IReadTime[]>(db => db.transaction('readTime', 'readonly').objectStore('readTime').index('book').getAll(IDBKeyRange.bound(['2', startDate], ['2', endDate])))
   }
 }
