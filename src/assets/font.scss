@@ -126,33 +126,294 @@ $fonts: (
     src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/TaoBaoMaiCaiTi-Regular.woff2") format("woff2")
   ),
 
-  '仓耳渔阳体-W01': (
-    name: '仓耳渔阳体',
-    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93-W01.ttf") format("ttf"),
+  '站酷仓耳渔阳体-W01': (
+    name: '站酷仓耳渔阳体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93-W01.ttf") format("truetype"),
     weights: (200)
   ),
-  '仓耳渔阳体-W02': (
-    name: '仓耳渔阳体',
-    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93-W02.ttf") format("ttf"),
+  '站酷仓耳渔阳体-W02': (
+    name: '站酷仓耳渔阳体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93-W02.ttf") format("truetype"),
     weights: (300)
   ),
-  '仓耳渔阳体-W03': (
-    name: '仓耳渔阳体',
-    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93-W03.ttf") format("ttf"),
+  '站酷仓耳渔阳体-W03': (
+    name: '站酷仓耳渔阳体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93-W03.ttf") format("truetype"),
     weights: (400)
   ),
-  '仓耳渔阳体-W04': (
-    name: '仓耳渔阳体',
-    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93-W04.ttf") format("ttf"),
+  '站酷仓耳渔阳体-W04': (
+    name: '站酷仓耳渔阳体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93-W04.ttf") format("truetype"),
     weights: (500)
   ),
-  '仓耳渔阳体-W05': (
-    name: '仓耳渔阳体',
-    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93-W05.ttf") format("ttf"),
+  '站酷仓耳渔阳体-W05': (
+    name: '站酷仓耳渔阳体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93-W05.ttf") format("truetype"),
     weights: (700)
   ),
-);
 
+  '站酷庆科黄油体': (
+    name: '站酷庆科黄油体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/站酷庆科黄油体.ttf") format("truetype")
+  ),
+
+  '站酷快乐体': (
+    name: '站酷快乐体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/站酷快乐体2016修订版.ttf") format("truetype")
+  ),
+
+  '站酷酷黑体': (
+    name: '站酷酷黑体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/站酷酷黑体.ttf") format("truetype")
+  ),
+
+  '站酷高端黑体': (
+    name: '站酷高端黑体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/站酷高端黑.ttf") format("truetype")
+  ),
+
+  '站酷文艺体': (
+    name: '站酷文艺体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/站酷文艺体.ttf") format("truetype")
+  ),
+
+  '站酷小薇LOGO体': (
+    name: '站酷小薇LOGO体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/站酷小薇LOGO体.otf") format("opentype")
+  ),
+
+  '仓耳小丸子': (
+    name: '仓耳小丸子',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/仓耳小丸子.ttf") format("truetype")
+  ),
+
+  '仓耳非白-W01': (
+    name: '仓耳非白',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/仓耳非白/仓耳非白W01.ttf") format("truetype"),
+    weights: (200)
+  ),
+  '仓耳非白-W02': (
+    name: '仓耳非白',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/仓耳非白/仓耳非白W02.ttf") format("truetype"),
+    weights: (300)
+  ),
+  '仓耳非白-W03': (
+    name: '仓耳非白',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/仓耳非白/仓耳非白W03.ttf") format("truetype"),
+    weights: (400)
+  ),
+  '仓耳非白-W04': (
+    name: '仓耳非白',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/仓耳非白/仓耳非白W04.ttf") format("truetype"),
+    weights: (500)
+  ),
+  '仓耳非白-W05': (
+    name: '仓耳非白',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/仓耳非白/仓耳非白W05.ttf") format("truetype"),
+    weights: (700)
+  ),
+
+  '仓耳与墨-W01': (
+    name: '仓耳与墨',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/仓耳与墨/仓耳与墨W01.ttf") format("truetype"),
+    weights: (200)
+  ),
+  '仓耳与墨-W02': (
+    name: '仓耳与墨',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/仓耳与墨/仓耳与墨W02.ttf") format("truetype"),
+    weights: (300)
+  ),
+  '仓耳与墨-W03': (
+    name: '仓耳与墨',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/仓耳与墨/仓耳与墨W03.ttf") format("truetype"),
+    weights: (400)
+  ),
+  '仓耳与墨-W04': (
+    name: '仓耳与墨',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/仓耳与墨/仓耳与墨W04.ttf") format("truetype"),
+    weights: (500)
+  ),
+  '仓耳与墨-W05': (
+    name: '仓耳与墨',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/仓耳与墨/仓耳与墨W05.ttf") format("truetype"),
+    weights: (700)
+  ),
+
+  '仓耳周珂正大榜书': (
+    name: '仓耳周珂正大榜书',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/仓耳周珂正大榜书.ttf") format("truetype")
+  ),
+
+  '芫荽': (
+    name: '芫荽',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/芫荽.ttf") format("truetype")
+  ),
+
+  'OPPO Sans': (
+    name: 'OPPO Sans',
+    src: url("https://github.com/qwertyyb/e-reader/raw/refs/heads/master/assets/fonts/OPPO Sans 4.0.ttf") format("truetype")
+  ),
+
+  '文泉驿正黑体': (
+    name: '文泉驿正黑体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/文泉驿正黑体.ttf") format("truetype")
+  ),
+
+  '文泉驿微米黑': (
+    name: '文泉驿微米黑',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/文泉驿微米黑.ttf") format("truetype")
+  ),
+
+  '抖音美好体': (
+    name: '抖音美好体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/抖音美好体.ttf") format("truetype")
+  ),
+
+  '源泉圆体-200': (
+    name: '源泉圆体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/gensen-font/otf/TW/GenSenRounded2TW-EL.otf") format("opentype"),
+    weights: (200)
+  ),
+  '源泉圆体-300': (
+    name: '源泉圆体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/gensen-font/otf/TW/GenSenRounded2TW-L.otf") format("opentype"),
+    weights: (300)
+  ),
+  '源泉圆体-500': (
+    name: '源泉圆体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/gensen-font/otf/TW/GenSenRounded2TW-M.otf") format("opentype"),
+    weights: (500)
+  ),
+  '源泉圆体-700': (
+    name: '源泉圆体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/gensen-font/otf/TW/GenSenRounded2TW-B.otf") format("opentype"),
+    weights: (700)
+  ),
+  '源泉圆体-900': (
+    name: '源泉圆体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/gensen-font/otf/TW/GenSenRounded2TW-H.otf") format("opentype"),
+    weights: (900)
+  ),
+
+  '源流明體-200': (
+    name: '源流明體',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genryu-font/otf/TW/GenRyuMin2TW-EL.otf") format("opentype"),
+    weights: (200)
+  ),
+  '源流明體-300': (
+    name: '源流明體',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genryu-font/otf/TW/GenRyuMin2TW-L.otf") format("opentype"),
+    weights: (300)
+  ),
+  '源流明體-500': (
+    name: '源流明體',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genryu-font/otf/TW/GenRyuMin2TW-M.otf") format("opentype"),
+    weights: (500)
+  ),
+  '源流明體-600': (
+    name: '源流明體',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genryu-font/otf/TW/GenRyuMin2TW-SB.otf") format("opentype"),
+    weights: (600)
+  ),
+  '源流明體-700': (
+    name: '源流明體',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genryu-font/otf/TW/GenRyuMin2TW-B.otf") format("opentype"),
+    weights: (700)
+  ),
+  '源流明體-900': (
+    name: '源流明體',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genryu-font/otf/TW/GenRyuMin2TW-H.otf") format("opentype"),
+    weights: (900)
+  ),
+
+  '源样明体-200': (
+    name: '源样明体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genyo-font/otf/TW/GenYoMin2TW-EL.otf") format("opentype"),
+    weights: (200)
+  ),
+  '源样明体-300': (
+    name: '源样明体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genyo-font/otf/TW/GenYoMin2TW-L.otf") format("opentype"),
+    weights: (300)
+  ),
+  '源样明体-500': (
+    name: '源样明体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genyo-font/otf/TW/GenYoMin2TW-M.otf") format("opentype"),
+    weights: (500)
+  ),
+  '源样明体-600': (
+    name: '源样明体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genyo-font/otf/TW/GenYoMin2TW-SB.otf") format("opentype"),
+    weights: (600)
+  ),
+  '源样明体-700': (
+    name: '源样明体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genyo-font/otf/TW/GenYoMin2TW-B.otf") format("opentype"),
+    weights: (700)
+  ),
+  '源样明体-900': (
+    name: '源样明体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genyo-font/otf/TW/GenYoMin2TW-H.otf") format("opentype"),
+    weights: (900)
+  ),
+
+  '源起明体-200': (
+    name: '源起明体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genyo-font/otf/TW/GenKiMin2TW-EL.otf") format("opentype"),
+    weights: (200)
+  ),
+  '源起明体-300': (
+    name: '源起明体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genyo-font/otf/TW/GenKiMin2TW-L.otf") format("opentype"),
+    weights: (300)
+  ),
+  '源起明体-500': (
+    name: '源起明体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genyo-font/otf/TW/GenKiMin2TW-M.otf") format("opentype"),
+    weights: (500)
+  ),
+  '源起明体-600': (
+    name: '源起明体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genyo-font/otf/TW/GenKiMin2TW-SB.otf") format("opentype"),
+    weights: (600)
+  ),
+  '源起明体-700': (
+    name: '源起明体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genyo-font/otf/TW/GenKiMin2TW-B.otf") format("opentype"),
+    weights: (700)
+  ),
+  '源起明体-900': (
+    name: '源起明体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genyo-font/otf/TW/GenKiMin2TW-H.otf") format("opentype"),
+    weights: (900)
+  ),
+
+  '源云明体-200': (
+    name: '源云明体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genyo-font/otf/TW/GenKiMin2TW-EL.otf") format("opentype"),
+    weights: (200)
+  ),
+  '源云明体-300': (
+    name: '源云明体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genyo-font/otf/TW/GenKiMin2TW-L.otf") format("opentype"),
+    weights: (300)
+  ),
+  '源云明体-500': (
+    name: '源云明体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genyo-font/otf/TW/GenKiMin2TW-M.otf") format("opentype"),
+    weights: (500)
+  ),
+  '源云明体-600': (
+    name: '源云明体',
+    src: url("https://cdn.jsdelivr.net/gh/ButTaiwan/genyo-font/otf/TW/GenKiMin2TW-SB.otf") format("opentype"),
+    weights: (600)
+  ),
+
+  'jf open 粉圓': (
+    name: 'jf open 粉圓',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/jf open 粉圓.ttf") format("truetype"),
+  )
+);
 // 自动生成 @font-face
 @each $identifier, $config in $fonts {
   $font-name: map.get($config, 'name');

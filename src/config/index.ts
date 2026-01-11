@@ -20,7 +20,37 @@ export const fontFamilyList = [
   { value: '阿里妈妈刀隶体', label: '阿里妈妈刀隶体' },
   { value: '阿里妈妈方圆体', label: '阿里妈妈方圆体' },
   { value: '淘宝买菜体', label: '淘宝买菜体' },
-  { value: '仓耳渔阳体', label: '仓耳渔阳体' },
+
+  { value: '站酷仓耳渔阳体', label: '站酷仓耳渔阳体' },
+  { value: '站酷庆科黄油体', label: '站酷庆科黄油体' },
+  { value: '站酷快乐体', label: '站酷快乐体' },
+  { value: '站酷酷黑体', label: '站酷酷黑体' },
+  { value: '站酷高端黑体', label: '站酷高端黑体' },
+  { value: '站酷文艺体', label: '站酷文艺体' },
+  { value: '站酷小薇LOGO体', label: '站酷小薇LOGO体' },
+
+  { value: '仓耳舒圆体', label: '仓耳舒圆体' },
+  { value: '仓耳非白', label: '仓耳非白' },
+  { value: '仓耳与墨', label: '仓耳与墨' },
+  { value: '仓耳周珂正大榜书', label: '仓耳周珂正大榜书' },
+  { value: '仓耳小丸子', label: '仓耳小丸子' },
+
+
+  { value: '芫荽', label: '芫荽' },
+
+  { value: 'OPPO Sans', label: 'OPPO Sans' },
+
+  { value: '文泉驿正黑体', label: '文泉驿正黑体' },
+  { value: '文泉驿微米黑', label: '文泉驿微米黑' }, 
+
+  { value: '抖音美好体', label: '抖音美好体' },
+
+  { value: '源泉圆体', label: '源泉圆体' },
+  { value: '源样明体', label: '源样明体' },
+  { value: '源起明体', label: '源起明体' },
+  { value: '源云明体', label: '源云明体' },
+
+  { value: 'jf open 粉圓', label: 'jf open 粉圓' },
 ]
 
 export const turnPageType = [
