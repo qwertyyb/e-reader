@@ -136,6 +136,7 @@
             v-model="settings.fontFamily"
             class="font-family-select"
             :options="fontFamilyList"
+            layout="grid"
           >
             <template v-slot="{ label }">
               <div class="font-family-label"

@@ -20,6 +20,7 @@ export const fontFamilyList = [
   { value: '阿里妈妈刀隶体', label: '阿里妈妈刀隶体' },
   { value: '阿里妈妈方圆体', label: '阿里妈妈方圆体' },
   { value: '淘宝买菜体', label: '淘宝买菜体' },
+  { value: '仓耳渔阳体', label: '仓耳渔阳体' },
 ]
 
 export const turnPageType = [

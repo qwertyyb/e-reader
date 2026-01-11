@@ -3,12 +3,12 @@
 $fonts: (
   '思源黑体': (
     name: '思源黑体',
-    src: url('https://cdn.jsdelivr.net/gh/adobe-fonts/source-han-sans@release/Variable/WOFF2/OTF/SourceHanSansSC-VF.otf.woff2') format('woff2')
+    src: url('https://cdn.jsdelivr.net/gh/adobe-fonts/source-han-sans@release/Variable/WOFF2/OTF/Subset/SourceHanSansCN-VF.otf.woff2') format('woff2')
   ),
 
   '思源宋体': (
     name: '思源宋体',
-    src: url('https://cdn.jsdelivr.net/gh/adobe-fonts/source-han-serif@release/Variable/WOFF2/OTF/SourceHanSerifSC-VF.otf.woff2') format('woff2')
+    src: url('https://cdn.jsdelivr.net/gh/adobe-fonts/source-han-serif@release/Variable/WOFF2/OTF/Subset/SourceHanSerifCN-VF.otf.woff2') format('woff2')
   ),
 
   '思源等宽': (
@@ -119,13 +119,38 @@ $fonts: (
   '阿里妈妈方圆体': (
     name: '阿里妈妈方圆体',
     src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/AlimamaFangYuanTiVF-Thin.woff2") format("woff2"),
-    weights: (100)
   ),
 
   '淘宝买菜体': (
     name: '淘宝买菜体',
     src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/TaoBaoMaiCaiTi-Regular.woff2") format("woff2")
-  )
+  ),
+
+  '仓耳渔阳体-W01': (
+    name: '仓耳渔阳体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93-W01.ttf") format("ttf"),
+    weights: (200)
+  ),
+  '仓耳渔阳体-W02': (
+    name: '仓耳渔阳体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93-W02.ttf") format("ttf"),
+    weights: (300)
+  ),
+  '仓耳渔阳体-W03': (
+    name: '仓耳渔阳体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93-W03.ttf") format("ttf"),
+    weights: (400)
+  ),
+  '仓耳渔阳体-W04': (
+    name: '仓耳渔阳体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93-W04.ttf") format("ttf"),
+    weights: (500)
+  ),
+  '仓耳渔阳体-W05': (
+    name: '仓耳渔阳体',
+    src: url("https://cdn.jsdelivr.net/gh/qwertyyb/e-reader/assets/fonts/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93/%E7%AB%99%E9%85%B7%E4%BB%93%E8%80%B3%E6%B8%94%E9%98%B3%E4%BD%93-W05.ttf") format("ttf"),
+    weights: (700)
+  ),
 );
 
 // 自动生成 @font-face
@@ -144,6 +169,7 @@ $fonts: (
     }
   }
 
+  @debug "register #{$font-name}";
   [data-font="#{$font-name}"] {
     font-family: '#{$font-name}', system-ui, -apple-system, sans-serif;
   }
