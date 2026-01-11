@@ -38,7 +38,7 @@ export const fontFamilyList = [
 
   { value: '芫荽', label: '芫荽' },
 
-  { value: 'OPPO Sans', label: 'OPPO Sans' },
+  // { value: 'OPPO Sans', label: 'OPPO Sans' },
 
   { value: '文泉驿正黑体', label: '文泉驿正黑体' },
   { value: '文泉驿微米黑', label: '文泉驿微米黑' }, 
