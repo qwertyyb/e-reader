@@ -15,8 +15,8 @@
         </div>
       </div>
       <div class="duration-summary">
-        <p class="duration-total" v-html="formatDuration(totalDuration, { style: true }) || `本周没有阅读`"></p>
-        <p class="duration-day" v-if="totalDuration">日均阅读{{ formatDuration(dayDuration, { style: false }) || '0分钟' }}<template v-if="range !== 'all'"> · 比{{ lastLabel[range] }} {{ dayDurationDiff > 0 ? '增加' : '减少'}} {{ Math.abs(dayDurationDiff) }}%</template></p>
+        <p class="duration-total" v-html="totalDurationText"></p>
+        <p class="duration-day" v-if="totalDuration">日均阅读{{ formatDuration(dayDuration, { style: false }) || '0分钟' }}<template v-if="range !== 'all'"> · 比{{ lastLabel[range] }}{{ dayDurationDiff > 0 ? '增加' : '减少'}} {{ Math.abs(dayDurationDiff) }}%</template></p>
       </div>
       <div class="duration-stats">
         <div class="stats-header">
@@ -62,6 +62,12 @@ const list = shallowRef<IReadTimeRecord[]>([])
 const totalDuration = computed(() => {
   return list.value.reduce((acc, item) => acc + item.duration, 0) || 0
 })
+
+const totalDurationText = computed(() => {
+  const label = { week: '本周', month: '本月', year: '今年', all: '' }[props.range]
+  return formatDuration(totalDuration.value, { style: true }) || props.range === 'all' ? '尚未开始阅读' : `${label}没有阅读`
+})
+
 const maxDurationRecord = computed(() => {
   // 过滤出最大阅读时间的记录
   const maxDuration = Math.max(...list.value.map(item => item.duration))
@@ -145,6 +151,33 @@ watch(dateRange, async ({ start, end }) => {
   // 查询出的数据可能缺少某些日期，需要补全, 并补充 label 字段
   // 按周/月查询时，每个时间段是天，按年/总查询时，每个时间段是月
   const completeData = formatData(results)
+  let  data: (IReadTimeRecord & { durationF: number })[] = []
+  const maxDuration = Math.max(...completeData.map(item => item.duration)) || 150 * 60 * 1000
+  if (maxDuration > 1.5 * 60 * 60) {
+    // 超过两小时了，单位使用小时
+    data = completeData.map(item => {
+      return {
+        ...item,
+        durationF: Math.round(item.duration / 60 / 60)
+      }
+    })
+  } else if (maxDuration >= 60) {
+    // 超过一分钟了，单位使用分钟
+    data = completeData.map(item => {
+      return {
+        ...item,
+        durationF: Math.round(item.duration / 60)
+      }
+    })
+  } else {
+    // 否则使用秒
+    data = completeData.map(item => {
+      return {
+        ...item,
+        durationF: item.duration
+      }
+    })
+  }
   chart?.destroy()
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -153,7 +186,7 @@ watch(dateRange, async ({ start, end }) => {
     data: {
       datasets: [{
         label: '阅读时长',
-        data: completeData,
+        data: data,
         borderRadius: 4,
         backgroundColor: '#007bff'
       }]
@@ -161,14 +194,19 @@ watch(dateRange, async ({ start, end }) => {
     options: {
       parsing: {
         xAxisKey: 'label',
-        yAxisKey: 'duration'
+        yAxisKey: 'durationF'
       },
       scales: {
         y: {
-          beginAtZero: true
+          beginAtZero: true,
+          ticks: {
+            callback: (value, index) => {
+              return index % 2 ? '' : value + (maxDuration > 1.5 * 60 * 60 ? 'h' : maxDuration >= 60 ? 'min' : 's')
+            }
+          }
         },
         x: {
-          grid: { display: false }
+          grid: { display: false },
         }
       },
       plugins: {
