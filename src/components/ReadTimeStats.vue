@@ -1,6 +1,6 @@
 <template>
   <div class="read-time-stats">
-    <div class="date-range">
+    <div class="date-range" v-if="range !== 'all'">
         <p class="date-range-text">{{ dateRange.start }} - {{ dateRange.end }}</p>
         <div class="date-range-btns">
           <button
@@ -30,9 +30,14 @@
         <div class="stats-header">
           <div class="stats-title">阅读最久</div>
         </div>
-        <div class="book-item">
+        <div class="book-item"
+          @click="$router.push({ name: 'read', params: { id: longestBook.id }, query: { trace: longestBook.id } })"
+        >
           <div class="book-cover">
-            <img :src="longestBook.cover" alt="">
+            <img :src="longestBook.cover"
+              alt=""
+              :data-book-cover-trace="longestBook.id"
+            >
           </div>
           <div class="book-info">
             <div class="book-duration" v-html="formatDuration(longestBook.duration, { style: true })"></div>
@@ -267,12 +272,12 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 .date-range {
-  margin-top: 16px;
   margin-left: 16px;
   font-weight: 500;
   opacity: 0.8;
   display: flex;
   align-items: center;
+  margin-top: 24px;
   .date-range-btns {
     display: flex;
     align-items: center;
@@ -349,6 +354,7 @@ onBeforeUnmount(() => {
   background: var(--card-bg-color);
   border-radius: 6px;
   padding: 16px;
+  cursor: pointer;
   .book-item {
     display: flex;
     align-items: center;
