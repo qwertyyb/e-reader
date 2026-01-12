@@ -427,7 +427,6 @@ $fonts: (
   $font-weights: map.get($config, 'weights');
 
   @each $weight in $font-weights {
-    @debug $font-name, $weight;
     @font-face {
       font-family: $font-name;
       src: $font-src;
@@ -436,7 +435,6 @@ $fonts: (
     }
   }
 
-  @debug "register #{$font-name}";
   [data-font="#{$font-name}"] {
     font-family: '#{$font-name}', system-ui, -apple-system, sans-serif;
   }

@@ -72,12 +72,6 @@ const router = createRouter({
       ]
     },
     {
-      path: '/state/read-time',
-      name: 'readTimeState',
-      props: true,
-      component: () => import('@/views/StateView.vue')
-    },
-    {
       path: '/stats',
       children: [
         {
@@ -85,14 +79,20 @@ const router = createRouter({
           name: 'durationStats',
           props: true,
           component: () => import('@/views/ReadTimeStatsView.vue')
+        },
+        {
+          path: 'reading',
+          name: 'readingStats',
+          props: true,
+          component: () => import('@/views/ReadingStatsView.vue')
+        },
+        {
+          path: 'notes',
+          name: 'notesStats',
+          props: true,
+          component: () => import('@/views/NotesStatsView.vue')
         }
       ]
-    },
-    {
-      path: '/state/notes',
-      name: 'notesState',
-      props: true,
-      component: () => import('@/views/NotesStateView.vue')
     },
     {
       path: '/import',
@@ -145,7 +145,7 @@ const createAppRouter = (router: Router): Router & {
   history: Ref<RouteHistoryItem[]>
 } => {
 
-  const lifecycle: { 
+  const lifecycle: {
     [key in keyof RouteHistoryLifecycle]: RouteHistoryLifecycle[key][]
   } = {
     onForwardTo: [],
@@ -236,7 +236,7 @@ const createAppRouter = (router: Router): Router & {
     await Promise.all(lifecycle.onReplaceFrom.map(fn => fn(current, newItem)))
 
     history.value = [...history.value, newItem]
-    
+
     Promise.resolve().then(async () => {
       await Promise.all(lifecycle.onReplaceTo.map(fn => fn(newItem, current)))
       await Promise.all(newItem.lifecycle?.onReplaceTo?.map(fn => fn(newItem, current)) ?? [])
@@ -253,7 +253,7 @@ const createAppRouter = (router: Router): Router & {
     pushHistory(current)
     return result
   }
-  
+
   const oldReplace = router.replace.bind(router)
   router.replace = async (...args: Parameters<typeof router.replace>) => {
     const result = await oldReplace(...args)

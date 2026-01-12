@@ -1,5 +1,9 @@
 import { register, unregister } from './register-sw'
 import { env, initDisableAnim, initEruda, initMoreContrast } from '@/utils/env'
+import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
+import 'dayjs/locale/zh-cn'
 import './assets/main.scss'
 import 'material-symbols/outlined.css'
 import 'normalize.css'
@@ -12,6 +16,10 @@ import Logger from 'js-logger'
 import App from './App.vue'
 import { appRouter } from './router'
 import { supportTapEvent } from './utils/gesture'
+
+dayjs.locale('zh-cn')
+dayjs.extend(isSameOrAfter)
+dayjs.extend(isSameOrBefore)
 
 supportTapEvent()
 

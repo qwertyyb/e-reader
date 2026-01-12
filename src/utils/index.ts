@@ -215,7 +215,7 @@ export const formatSize = (size: number) => {
   return `${(size / 1024 / 1024 / 1024).toFixed(1)} GB`;
 };
 
-export const formatDuration = (duration: number, options?: { style: false }) => {
+export const formatDuration = (duration: number, options?: { style: boolean }) => {
   const wrapNum = (num: number, name: string) => options?.style ? `<span class="num ${name}">${num}</span>` : String(num)
   let result = ''
   if (duration % 60) {

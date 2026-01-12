@@ -37,6 +37,9 @@ const migrations: TMigration[] = [
   ({ database }) => {
     const readTimeStore = database.createObjectStore('readTime', { keyPath: 'id', autoIncrement: true })
     readTimeStore.createIndex('book', ['bookId', 'date'], { unique: true })
+  },
+  ({ transaction }) => {
+    transaction!.objectStore('readTime').createIndex('date', 'date', { unique: false })
   }
 ]
 const version = migrations.length
@@ -217,7 +220,6 @@ export const readTimeStore = {
     return wrap(db => db.transaction('readTime', 'readwrite').objectStore('readTime').add({ ...value, duration: value.duration }))
   },
   getListByDateRange(startDate: string, endDate: string) {
-    console.log('startDate', startDate, 'endDate', endDate)
-    return wrap<IReadTime[]>(db => db.transaction('readTime', 'readonly').objectStore('readTime').index('book').getAll(IDBKeyRange.bound(['2', startDate], ['2', endDate])))
+    return wrap<IReadTime[]>(db => db.transaction('readTime', 'readonly').objectStore('readTime').index('date').getAll(IDBKeyRange.bound(startDate, endDate)))
   }
 }

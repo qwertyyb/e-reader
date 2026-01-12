@@ -36,7 +36,7 @@ const toggle = async (item: { name: string, title: string }, event: PointerEvent
   display: flex;
   align-items: center;
   border-radius: 9999px;
-  background: #ddd;
+  background: light-dark(#ddd, #3a3a3a);
   padding: 4px;
   font-size: 13px;
 }
@@ -52,6 +52,7 @@ html body #app .c-tab-nav .tab-nav-item {
   padding: 4px 0;
   position: relative;
   z-index: 0;
+  font-weight: 500;
   &.selected {
     color: inherit;
   }
