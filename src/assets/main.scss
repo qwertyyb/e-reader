@@ -50,7 +50,8 @@ html body #app .selected {
   cursor: pointer;
 }
 .num {
-  font-family: fantasy;
+  font-family: "New Tegomin", serif, fantasy;
+  font-weight: bold;
 }
 
 @media (width <= variables.$MAX_SMALL_WIDTH) {
