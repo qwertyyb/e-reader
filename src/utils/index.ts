@@ -226,7 +226,7 @@ export const formatDuration = (duration: number, options?: { style: boolean }) =
     result = `${wrapNum(minutes % 60, 'minutes')}分钟${result}`
   }
   if (minutes < 60) return result
-  result = `${wrapNum(minutes % 60, 'minutes')}分钟`
+  result = minutes % 60 ? `${wrapNum(minutes % 60, 'minutes')}分钟` : ''
   const hours = Math.floor(minutes / 60)
   if (hours) {
     result = `${wrapNum(hours, 'hours')}小时${result}`

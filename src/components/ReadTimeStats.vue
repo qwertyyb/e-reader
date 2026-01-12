@@ -26,12 +26,27 @@
         <canvas ref="canvas" class="chart-canvas"></canvas>
         <p class="longest-desc" v-if="totalDuration">{{ maxDurationRecord?.label }}阅读最久 · {{ formatDuration(maxDurationRecord?.duration ?? 0) }}</p>
       </div>
+      <div class="longest-book" v-if="longestBook">
+        <div class="stats-header">
+          <div class="stats-title">阅读最久</div>
+        </div>
+        <div class="book-item">
+          <div class="book-cover">
+            <img :src="longestBook.cover" alt="">
+          </div>
+          <div class="book-info">
+            <div class="book-duration" v-html="formatDuration(longestBook.duration, { style: true })"></div>
+            <div class="book-title">{{ longestBook.title }}</div>
+            <div class="book-author">{{ longestBook.author }}</div>
+          </div>
+        </div>
+      </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef, watch } from 'vue';
-import { readTimeStore } from '@/services/storage';
+import { booksStore, readTimeStore } from '@/services/storage';
 import { formatDuration } from '@/utils';
 import { Chart } from 'chart.js/auto'
 import dayjs from 'dayjs';
@@ -65,7 +80,7 @@ const totalDuration = computed(() => {
 
 const totalDurationText = computed(() => {
   const label = { week: '本周', month: '本月', year: '今年', all: '' }[props.range]
-  return formatDuration(totalDuration.value, { style: true }) || props.range === 'all' ? '尚未开始阅读' : `${label}没有阅读`
+  return formatDuration(totalDuration.value, { style: true }) || (props.range === 'all' ? '尚未开始阅读' : `${label}没有阅读`)
 })
 
 const maxDurationRecord = computed(() => {
@@ -137,20 +152,13 @@ watch(() => props.range, () => {
   offset.value = 0
 })
 
+const longestBook = shallowRef<IBook & { duration: number }>()
+
 const canvas = useTemplateRef('canvas')
-let chart: Chart | null = null
-watch(dateRange, async ({ start, end }) => {
-  const lastDateRange = getLastDateRange()
-  const [results, lastResults] = await Promise.all([
-    readTimeStore.getListByDateRange(start, end),
-    lastDateRange ? readTimeStore.getListByDateRange(lastDateRange.start, lastDateRange.end) : Promise.resolve([])
-  ])
-  if (lastDateRange) {
-    lastDayDuration.value = (lastResults.reduce((acc, item) => acc + item.duration, 0) || 0) / getDurationDays(lastDateRange.start, lastDateRange.end)
-  }
-  // 查询出的数据可能缺少某些日期，需要补全, 并补充 label 字段
-  // 按周/月查询时，每个时间段是天，按年/总查询时，每个时间段是月
-  const completeData = formatData(results)
+let chart: Chart<'bar', (IReadTimeRecord & { durationF: number })[]> | null = null
+
+const renderChart = (completeData: IReadTimeRecord[]) => {
+  chart?.destroy()
   let  data: (IReadTimeRecord & { durationF: number })[] = []
   const maxDuration = Math.max(...completeData.map(item => item.duration)) || 150 * 60 * 1000
   if (maxDuration > 1.5 * 60 * 60) {
@@ -178,10 +186,7 @@ watch(dateRange, async ({ start, end }) => {
       }
     })
   }
-  chart?.destroy()
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  chart = new Chart(canvas.value, {
+  chart = new Chart(canvas.value!, {
     type: 'bar',
     data: {
       datasets: [{
@@ -216,6 +221,42 @@ watch(dateRange, async ({ start, end }) => {
       },
     }
   })
+}
+
+watch(dateRange, async ({ start, end }) => {
+  const lastDateRange = getLastDateRange()
+  const [results, lastResults] = await Promise.all([
+    readTimeStore.getListByDateRange(start, end),
+    lastDateRange ? readTimeStore.getListByDateRange(lastDateRange.start, lastDateRange.end) : Promise.resolve([])
+  ])
+  if (lastDateRange) {
+    lastDayDuration.value = (lastResults.reduce((acc, item) => acc + item.duration, 0) || 0) / getDurationDays(lastDateRange.start, lastDateRange.end)
+  }
+  // 按累加时长，找到阅读时长最久的书
+  const bookDurations: Record<string, number> = {}
+  results.forEach(item => {
+    if (bookDurations[item.bookId]) {
+      bookDurations[item.bookId] += item.duration
+    } else {
+      bookDurations[item.bookId] = item.duration
+    }
+  })
+
+  // 找到阅读时长最长的书
+  const topBookId = Object.keys(bookDurations).reduce((a, b) => bookDurations[a] > bookDurations[b] ? a : b, '')
+  if (topBookId) {
+    booksStore.get(Number(topBookId)).then(book => {
+      longestBook.value = { ...book, duration: bookDurations[topBookId] }
+    })
+  }
+
+
+  // 查询出的数据可能缺少某些日期，需要补全, 并补充 label 字段
+  // 按周/月查询时，每个时间段是天，按年/总查询时，每个时间段是月
+  const completeData = formatData(results)
+
+  renderChart(completeData)
+  
   list.value = completeData
 }, { immediate: true })
 
@@ -300,6 +341,38 @@ onBeforeUnmount(() => {
       z-index: -1;
       background: var(--theme-color);
       opacity: 0.1;
+    }
+  }
+}
+.longest-book {
+  margin-top: 16px;
+  background: var(--card-bg-color);
+  border-radius: 6px;
+  padding: 16px;
+  .book-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .book-cover {
+    width: 100px;
+    img { width: 100%; height: auto; vertical-align: middle; }
+  }
+  .book-title {
+    font-weight: bold;
+  }
+  .book-author {
+    opacity: 0.8;
+    font-size: 14px;
+    margin-top: 8px;
+  }
+  .book-duration {
+    margin-bottom: 8px;
+    :deep(.num) {
+      font-size: 30px;
+      font-weight: bold;
+      margin: 0 0.13em;
     }
   }
 }
