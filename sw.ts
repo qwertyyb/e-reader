@@ -6,6 +6,9 @@ import { createBridge } from "./src/utils/bridge";
 declare let self: ServiceWorkerGlobalScope
 
 const CACHE_NAME = 'V5';
+// 保留最近的一个版本，方便出问题后回滚
+const keepVersions = 1;
+const versionCachePrefix = 'version-'
 
 console.log('self', self)
 
@@ -15,43 +18,63 @@ const logger = {
   error: (...args: Parameters<typeof console.error>) => console.error('[sw]', ...args),
 }
 
-const clearCache = async () => {
-  return caches.delete(CACHE_NAME)
+interface IResource {
+  path: string
+  integrity: string
 }
 
-const fetchResourcesNeedCache = async () => {
-  const resources: string[] = [
-    './',
-    './index.html',
-    './index.html?source=pwa',
-    './favicon.ico',
-    './manifest.json',
-    './sw.js',
-    './icons/icon48.png',
-    './icons/icon64.png',
-    './icons/icon96.png',
-    './icons/icon128.png',
-    './icons/icon256.png',
+const fetchVersionInfo = async () => {
+  const resources: IResource[] = [
     'https://unpkg.com/pwacompat',
     'https://cdn.jsdelivr.net/npm/eruda'
-  ]
-  const url = new URL('.vite/manifest.json?t=' + Date.now(), location.origin + location.pathname)
+  ].map(item => ({ path: item, integrity: '' }))
+  const url = new URL('releases.json?t=' + Date.now(), location.origin + location.pathname)
   const response = await fetch(url, { cache: 'no-store' })
   const json = await response.json()
-  return [
-    ...resources,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ...new Set(Object.values(json).map((item: any) => {
-      return [item.file, ...(item.css || []), ...(item.assets || [])]
-    }).flat())
-  ]
+  const release = json.releases[0]
+  if (!release) {
+    throw new Error('No release found')
+  }
+  if (!release.buildVersion) {
+    throw new Error('No build version found')
+  }
+  if (!release.assets?.length) {
+    throw new Error('No assets found')
+  }
+  return {
+    buildVersion: release.buildVersion,
+    assets: [
+      ...resources,
+      ...release.assets
+    ]
+  }
+}
+
+const deleteOutdateCache = async () => {
+  const cacheNames = await caches.keys()
+  const needDeleteVersionCacheNames = cacheNames.filter(name => name.startsWith(versionCachePrefix)).sort((prev, next) => next.localeCompare(prev)).slice(keepVersions + 1)
+  console.log('needDeleteVersionCacheNames', needDeleteVersionCacheNames, cacheNames)
+  const deleteResults = await Promise.all(needDeleteVersionCacheNames.map(name => caches.delete(name)))
+  console.log('deleteResults', deleteResults)
+  return deleteResults
 }
 
 const cacheResources = async () => {
-  const assets = await fetchResourcesNeedCache()
-  const cache = await caches.open(CACHE_NAME)
-  bridge.invoke('toast', '开始下载新版本')
-  await cache.addAll(assets)
+  const { buildVersion, assets } = await fetchVersionInfo()
+  const cacheName = `${versionCachePrefix}${buildVersion}`
+  try {
+    const cache = await caches.open(cacheName)
+    console.log(assets)
+    bridge.invoke('toast', '开始下载新版本')
+    await cache.addAll(assets.map(item => {
+      return new Request(item.path, { integrity: item.integrity })
+    }))
+    await deleteOutdateCache()
+  } catch (err) {
+    // 缓存出错，删除未完成的缓存
+    caches.delete(cacheName)
+    throw err
+  }
 }
 
 const functions = {
@@ -66,7 +89,6 @@ const functions = {
     }), {})
   },
   async update() {
-    await clearCache()
     bridge.invoke('toast', '开始下载新版本')
     await cacheResources()
     bridge.invoke('toast', '已完成版本更新')
@@ -88,13 +110,9 @@ const bridge = createBridge(
 
 
 self.addEventListener('install', function(event) {
-  logger.info('service worker installing...')
-  if (self.registration.active) {
-    // 首次安装，缓存资源
-    event.waitUntil(Promise.all([cacheResources(), self.skipWaiting()]))
-  } else {
-    event.waitUntil(self.skipWaiting());
-  }
+  logger.info('service worker installing...', self.registration.active)
+  // 首次安装，缓存资源
+  event.waitUntil(Promise.all([cacheResources(), self.skipWaiting()]))
 });
 
 self.addEventListener('activate', event => {
@@ -149,27 +167,36 @@ const handleShare = (event: FetchEvent) => {
   return false
 }
 
+const getCacheName = async () => {
+  return caches.keys().then(names => {
+    const versionNames = names.filter(name => name.startsWith(versionCachePrefix)).sort((prev, next) => next.localeCompare(prev))
+    return versionNames[0]
+  })
+}
 
 self.addEventListener('fetch', function(event) {
   const handled = handleShare(event)
   if (handled) return;
   if (!resourceNeedCache(event.request)) return;
   event.respondWith(
-    // 可以简单用 url 字符串做缓存
-    caches.match(event.request.url, { cacheName: CACHE_NAME, ignoreVary: true }).then(function(cachedResp) {
-      if (cachedResp) {
-        logger.info('cache hit', event.request.url)
-        return cachedResp
-      }
-      return fetch(event.request).then(function(response) {
-        if (!response.ok) {
-          return response
+    getCacheName().then(cacheName => {
+      if (!cacheName) return this.fetch(event.request)
+      // 可以简单用 url 字符串做缓存
+      return caches.match(event.request.url, { cacheName, ignoreVary: true }).then(function(cachedResp) {
+        if (cachedResp) {
+          logger.info('cache hit', event.request.url)
+          return cachedResp
         }
-        return caches.open(CACHE_NAME).then(function(cache) {
-          cache.put(event.request, response.clone());
-          return response;
+        return fetch(event.request).then(function(response) {
+          if (!response.ok) {
+            return response
+          }
+          return caches.open(cacheName).then(function(cache) {
+            cache.put(event.request, response.clone());
+            return response;
+          });
         });
-      });
+      })
     })
-  );
+  )
 });
