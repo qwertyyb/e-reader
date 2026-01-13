@@ -31,13 +31,10 @@
           <div class="stats-title">阅读最久</div>
         </div>
         <div class="book-item"
-          @click="$router.push({ name: 'read', params: { id: longestBook.id }, query: { trace: longestBook.id } })"
+          @click="$router.push({ name: 'readTime', params: { id: longestBook.id } })"
         >
           <div class="book-cover">
-            <img :src="longestBook.cover"
-              alt=""
-              :data-book-cover-trace="longestBook.id"
-            >
+            <img :src="longestBook.cover" alt="书本封面">
           </div>
           <div class="book-info">
             <div class="book-duration" v-html="formatDuration(longestBook.duration, { style: true })"></div>
@@ -261,7 +258,7 @@ watch(dateRange, async ({ start, end }) => {
   const completeData = formatData(results)
 
   renderChart(completeData)
-  
+
   list.value = completeData
 }, { immediate: true })
 

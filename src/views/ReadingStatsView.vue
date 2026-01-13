@@ -1,6 +1,6 @@
 <template>
   <route-page class="state-view" tag="section">
-    <navigation-bar title="在读"></navigation-bar>
+    <navigation-bar title="在读" no-menu></navigation-bar>
     <header class="state-header">
       <c-select v-model="query.sort"
         title="排序"

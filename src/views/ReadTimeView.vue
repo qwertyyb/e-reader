@@ -17,7 +17,7 @@
         </div>
       </header>
       <ul class="summary-list">
-        <li class="summary-item" v-for="summary in summaryList" :key="summary.title">
+        <li class="summary-item" v-for="summary in summaryList" :key="summary.title" @click="summaryHandler(summary)">
           <h3 class="summary-title">{{ summary.title }}</h3>
           <div class="summary-text" v-html="summary.text"></div>
           <div class="summary-detail">{{ summary.desc }}</div>
@@ -52,7 +52,7 @@ import RoutePage from '@/components/RoutePage.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import BookShareDialog from '@/components/BookShareDialog.vue';
 import { shallowRef } from 'vue';
-import { booksStore, readTimeStore } from '@/services/storage';
+import { booksStore, marks, readTimeStore } from '@/services/storage';
 import { formatDuration } from '@/utils';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -65,7 +65,7 @@ interface ITimeItem {
 
 const minPercent = 30
 
-const summaryList = shallowRef<{ title: string, text: string, desc: string }[]>([])
+const summaryList = shallowRef<{ title: string, text: string, desc: string, name?: string }[]>([])
 
 const timeList = shallowRef<ITimeItem[]>([])
 const book = shallowRef<IBook>()
@@ -74,11 +74,14 @@ const dialog = shallowRef('')
 booksStore.get(Number(props.id)).then(result => book.value = result)
 
 const refreshTimeList = async () => {
-  const list = await readTimeStore.getListByBookId(props.id)
-  if (!list.length) return;
+  const [list, markList] = await Promise.all([
+    readTimeStore.getListByBookId(props.id),
+    marks.getListByBook(Number(props.id))
+  ])
+  if (!list.length && !markList.length) return;
   list.sort((prev, next) => next.date.localeCompare(prev.date))
   const max = Math.max(...list.map(i => i.duration))
-  const firstDay = list[list.length - 1]
+  const firstDay = list.at(-1)!
   const lastDay = list[0]
   let maxDay: IReadTime
   let durationTotal = 0
@@ -110,9 +113,10 @@ const refreshTimeList = async () => {
     }
   })
   summaryList.value = [
-    { title: '累计时长', text: '<span class="big-text">' + formatDuration(durationTotal) + '</span>', desc: `${firstDay.date}开始阅读` },
-    { title: '阅读天数', text: '<span class="big-text">' + list.length + '</span>天', desc: `上次阅读${lastDay.date}` },
-    { title: '单日阅读最久', text: '<span class="big-text">' + formatDuration(maxDay!.duration) + '</span>', desc: maxDay!.date },
+    { title: '累计时长', text: formatDuration(durationTotal, { style: true }), desc: `${firstDay.date}开始阅读` },
+    { title: '阅读天数', text: '<span class="big-text num">' + list.length + '</span>天', desc: `上次阅读${lastDay.date}` },
+    ...(markList.length ? [{ name: 'marks', title: '想法笔记', text: `<span class="num">${markList.length}</span>条`, desc: `${markList.filter(i => i.thought).length}个想法` }] : []),
+    { title: '单日阅读最久', text: formatDuration(maxDay!.duration, { style: true }), desc: maxDay!.date },
   ]
 }
 
@@ -133,6 +137,11 @@ const toRead = () => {
   }
 }
 
+const summaryHandler = (item: { name?: string }) => {
+  if (item.name === 'marks') {
+    router.push({ name: 'notes', params: { id: book.value!.id } })
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -205,18 +214,21 @@ const toRead = () => {
   display: flex;
   flex-direction: column;
   .summary-title {
-    font-size: 14px;
-    font-weight: bold;
+    font-size: 12px;
+    font-weight: 400;
     opacity: 0.7;
   }
   .summary-text {
     font-size: 14px;
     font-weight: bold;
-    margin: 2px 0 4px 0;
+    margin: 4px 0 4px 0;
   }
   .summary-detail {
     font-size: 12px;
     opacity: 0.5;
+  }
+  :deep(.num) {
+    font-size: 24px;
   }
 }
 .stats-title {
