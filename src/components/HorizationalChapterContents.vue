@@ -11,6 +11,7 @@ import { disableAnim, isSmall } from '@/utils/env';
 import { computed, nextTick, onBeforeUnmount, useTemplateRef, watch } from 'vue'
 import Logger from 'js-logger'
 import { createGesture } from '@/utils/gesture';
+import { settings } from '@/stores/settings';
 
 const logger = Logger.get('HorizationalChapterContents')
 
@@ -205,6 +206,19 @@ const prevPage = () => scrollToPage(page => Math.max(0, (page - 1)))
 
 const init = async () => {
   await loadContents(props.defaultChapterId)
+
+  await Promise.all([
+    loadContents(props.defaultChapterId),
+    new Promise<void>(resolve => {
+      document.fonts.load(`${settings.value.fontWeight} ${settings.value.fontSize}px "${settings.value.fontFamily}"`)
+        .then(() => resolve())
+        .catch((err) => {
+          resolve()
+          throw err;
+        })
+      setTimeout(resolve, 1500)
+    })
+  ])
   scrollToCursor(props.defaultCursor)
 }
 

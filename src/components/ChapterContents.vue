@@ -9,6 +9,7 @@
 </template>
 
 <script setup lang="ts">
+import { settings } from '@/stores/settings';
 import { debounce, showToast, throttle } from '@/utils';
 import { renderChapter } from '@/utils/chapter';
 import { disableAnim, getSafeAreaTop } from '@/utils/env';
@@ -203,7 +204,18 @@ const scrollHandler = () => {
 }
 
 const init = async () => {
-  await loadContentsWithSignal(props.defaultChapterId)
+  await Promise.all([
+    loadContentsWithSignal(props.defaultChapterId),
+    new Promise<void>(resolve => {
+      document.fonts.load(`${settings.value.fontWeight} ${settings.value.fontSize}px "${settings.value.fontFamily}"`)
+        .then(() => resolve())
+        .catch((err) => {
+          resolve()
+          throw err;
+        })
+      setTimeout(resolve, 1500)
+    })
+  ])
   scrollToCursor(props.defaultCursor)
 }
 
