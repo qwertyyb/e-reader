@@ -80,6 +80,11 @@ import { ReadingTime } from '@/actions/reading-time';
 import { preferences } from '@/stores/preferences';
 import * as wakeLock from '@/utils/wake-lock'
 import { onBackFrom, onBackTo, onForwardFrom, onForwardTo } from '@/router/hooks';
+import { LAST_READ_BOOK_STORAGE_KEY } from '@/constant';
+import Logger from 'js-logger';
+import { appRouter } from '@/router';
+
+const logger = Logger.get('ReadView')
 
 const props = defineProps<{
   id: string
@@ -223,31 +228,49 @@ const releaseWakeLock = () => {
   }
 }
 
-init()
+init().catch((err) => {
+  logger.error('获取书籍信息失败', err)
+  showToast('获取书籍信息失败')
+  appRouter.back()
+})
 requestWakeLock()
 
 onBeforeUnmount(() => {
   releaseWakeLock()
   readingTime?.destroy()
+  localStorage.removeItem(LAST_READ_BOOK_STORAGE_KEY)
 })
 
 onForwardTo((to) => {
-  if (to.location.query.trace) {
+  if (to.location.query.trace && !to.location.query.noForwardAnim) {
     const cover = document.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(to.location.query.trace)}]`)
     cover?.classList.add('is-reading')
     cover?.style.setProperty('opacity', '0')
     animRef.value?.openBook(cover)
+  }
+  if (to.location.params.id) {
+    localStorage.setItem(LAST_READ_BOOK_STORAGE_KEY, JSON.stringify({
+      name: 'read',
+      params: { id: to.location.params.id },
+      query: to.location.query
+    }))
   }
 })
 
 onBackFrom(async (current) => {
   if (current.location.query.trace) {
     controlWrapperRef.value?.closeDialog()
+    let cover = document.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(current.location.query.trace)}]`)
+    if (cover) {
+      cover?.classList.add('is-reading')
+      cover.style.setProperty('opacity', '0')
+    }
     await animRef.value?.closeBook(() => document.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(current.location.query.trace)}]`))
-    const cover = document.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(current.location.query.trace)}]`)
+    cover = document.querySelector<HTMLImageElement>(`img[data-book-cover-trace=${JSON.stringify(current.location.query.trace)}]`)
     cover?.classList.remove('is-reading')
     cover?.style.removeProperty('opacity')
   }
+  localStorage.removeItem(LAST_READ_BOOK_STORAGE_KEY)
 })
 
 onBackTo(() => {

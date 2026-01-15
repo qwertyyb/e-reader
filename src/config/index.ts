@@ -41,7 +41,7 @@ export const fontFamilyList = [
   // { value: 'OPPO Sans', label: 'OPPO Sans' },
 
   { value: '文泉驿正黑体', label: '文泉驿正黑体' },
-  { value: '文泉驿微米黑', label: '文泉驿微米黑' }, 
+  { value: '文泉驿微米黑', label: '文泉驿微米黑' },
 
   { value: '抖音美好体', label: '抖音美好体' },
 
@@ -77,6 +77,7 @@ export const defaultTocRegList = [
 export const defaultPreferences: IPreferences = {
   screenKeepAlive: 'reading',
   darkMode: 'system',
+  autoOpenLastRead: true,
   shelfServerUrl: './books/index.json',
   opdsServerUrl: './opds/root.xml',
   ai: {

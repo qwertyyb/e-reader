@@ -16,6 +16,8 @@ import Logger from 'js-logger'
 import App from './App.vue'
 import { appRouter } from './router'
 import { supportTapEvent } from './utils/gesture'
+import { preferences } from './stores/preferences';
+import { LAST_READ_BOOK_STORAGE_KEY } from './constant';
 
 dayjs.locale('zh-cn')
 dayjs.extend(isSameOrAfter)
@@ -53,4 +55,12 @@ if (import.meta.env.PROD) {
   register()
 } else {
   unregister()
+}
+
+if (preferences.value.autoOpenLastRead && localStorage.getItem(LAST_READ_BOOK_STORAGE_KEY) || '') {
+  appRouter.isReady().then(() => {
+    if (appRouter.currentRoute.value.name !== 'home-tab-shelf') return;
+    const { name, params, query } = JSON.parse(localStorage.getItem(LAST_READ_BOOK_STORAGE_KEY)!)
+    appRouter.push({ name, params, query: { ...query, noForwardAnim: 1 } })
+  })
 }

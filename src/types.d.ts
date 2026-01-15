@@ -143,6 +143,7 @@ interface ISettings {
 interface IPreferences {
   screenKeepAlive: 'always' | 'reading' | 'autoPlay' | 'never';
   darkMode: 'system' | 'light' | 'dark';
+  autoOpenLastRead: boolean;
   shelfServerUrl: string;
   opdsServerUrl?: string;
   ai: { baseURL: string, apiKey: string, model: string };

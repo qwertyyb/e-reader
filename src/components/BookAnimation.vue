@@ -1,5 +1,5 @@
 <template>
-  <div class="book-animation" :class="{ animting: !noAnim && direction !== 'none', closing: !noAnim && direction === 'reverse' }">
+  <div class="book-animation" :class="{ animting: animating, closing: !noAnim && direction === 'reverse' }">
     <div class="book-anim">
       <div class="book-cover book-anim-cover">
         <img class="book-cover-img" :src="animData.cover || book?.cover" :alt="animData.title" />
@@ -27,11 +27,13 @@ const noAnim = computed(() => {
   return disableAnim.value || route.query.noAnim
 })
 
+const animating = ref(false)
+
 const direction = ref<'normal' | 'reverse' | 'none'>('normal')
 
 /**
  * 在手机屏幕场景中，默认状态为书打开状态，书封那一半在屏幕之外。
- * 
+ *
  * 在宽屏场景中，默认状态为书打开状态，书封那一半在屏幕左半边。
  */
 
@@ -39,8 +41,6 @@ const COVER_SIZE = 100
 
 const centerSize = Math.min(COVER_SIZE * 3, Math.min(window.innerWidth, window.innerHeight) / 2)
 const centerScale = Math.min(3, centerSize / window.innerWidth)
-
-console.log(centerSize, centerScale)
 
 const getOriginalRect = (origin?: HTMLElement | null) => {
   return origin?.getBoundingClientRect() || {
@@ -153,9 +153,11 @@ const runBookAnimation = async (options: {
     animations.reverse()
   }
 
+  animating.value = true
   for (let i = 0; i < animations.length; i += 1) {
     await animations[i]()
   }
+  animating.value = false
 }
 
 

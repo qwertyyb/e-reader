@@ -33,6 +33,12 @@
           </c-select>
         </li>
         <li class="prfs-item">
+          <div class="prfs-label">自动打开上次阅读</div>
+          <div class="prfs-control">
+            <c-switch v-model="preferences.autoOpenLastRead" />
+          </div>
+        </li>
+        <li class="prfs-item">
           <div class="prfs-label">TTS 服务</div>
           <c-select
             title="选择 TTS 服务"
@@ -287,7 +293,7 @@ const feedback = () => {
 }
 
 .prfs-label {
-  flex: 0 0 120px;
+  flex: 0 0 140px;
   font-size: 17px;
   font-weight: 500;
 }
