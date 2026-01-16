@@ -147,6 +147,7 @@ interface IPreferences {
   shelfServerUrl: string;
   opdsServerUrl?: string;
   ai: { baseURL: string, apiKey: string, model: string };
+  sync: { enabled: boolean, server: string };
   tts?: 'local' | 'edge-tts'
 }
 

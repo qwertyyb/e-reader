@@ -80,6 +80,10 @@ export const defaultPreferences: IPreferences = {
   autoOpenLastRead: true,
   shelfServerUrl: './books/index.json',
   opdsServerUrl: './opds/root.xml',
+  sync: {
+    enabled: true,
+    server: 'https://e-reader.qwertyyb.cn',
+  },
   ai: {
     baseURL: '',
     model: '',

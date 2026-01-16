@@ -122,6 +122,16 @@
           </div>
         </li>
       </ul>
+
+      <div class="prfs-group-title">进度同步</div>
+      <ul class="prfs-group">
+        <li class="prfs-item">
+          <div class="prfs-label">启用</div>
+          <div class="prfs-control">
+            <c-switch v-model="preferences.sync.enabled"></c-switch>
+          </div>
+        </li>
+      </ul>
     </li>
 
     <li class="tab-panel-item" v-else-if="tabName === 'debug'">
