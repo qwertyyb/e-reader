@@ -6,8 +6,18 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "start": "tsx ./src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsx ./src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker:build": "./scripts/build.sh",
+    "docker:build:x64": "./scripts/build.sh latest Dockerfile linux/amd64",
+    "docker:build:arm64": "./scripts/build.sh latest Dockerfile linux/arm64",
+    "docker:build:multiarch": "./scripts/build-multiarch.sh",
+    "docker:deploy": "./scripts/deploy.sh",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
   },
   "keywords": [],
   "author": "",

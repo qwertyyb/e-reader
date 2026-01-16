@@ -9,11 +9,21 @@ const app = new Koa()
 
 app.use(bodyParser())
 
+// 健康检查端点
+app.use(async (ctx, next) => {
+  if (ctx.path === '/health') {
+    ctx.status = 200
+    ctx.body = { status: 'ok', timestamp: new Date().toISOString() }
+    return
+  }
+  await next()
+})
+
 app.use(usersRouter.routes())
 app.use(syncRouter.routes())
 
 const port = process.env.PORT || 3000
 
-app.listen(port, () => {
+app.listen(Number(port), '0.0.0.0', () => {
   console.log(`Server is running on port ${port}`)
 })
