@@ -5,7 +5,7 @@ export const getRemoteProgress = async (options: {
   document: string
 }): Promise<{ document: string, percentage: number, progress: string, timestamp: number, device: string, deviceId: string } | null> => {
   const { server, username, password, document } = options
-  const url = new URL(`/sync/progress/${document}`, server)
+  const url = new URL(`/sync/progress/${document}?remote=1`, server)
   const r = await fetch(url, {
     headers: {
       'content-type': 'application/json',
@@ -25,7 +25,7 @@ export const getRemoteProgress = async (options: {
 
 export const createUser = async (options: { server: string, username: string, password: string }) => {
   const { server, username, password } = options
-  const url = new URL(`/users/create`, server)
+  const url = new URL(`/users/create?remote=1`, server)
   const r = await fetch(url, {
     method: 'POST',
     headers: {
@@ -44,7 +44,7 @@ export const createUser = async (options: { server: string, username: string, pa
 
 export const authUser = async (options: { server: string, username: string, password: string }) => {
   const { server, username, password } = options
-  const url = new URL(`/users/auth`, server)
+  const url = new URL(`/users/auth?remote=1`, server)
   const r = await fetch(url, {
     headers: {
       'x-auth-user': username,
@@ -70,7 +70,7 @@ export const setRemoteProgress = async (options: {
   percentage: number
 }) => {
   const { server, username, password, document, progress, device, deviceId, percentage } = options
-  const url = new URL(`/sync/progress`, server)
+  const url = new URL(`/sync/progress?remote=1`, server)
   const r = await fetch(url, {
     method: 'PUT',
     headers: {
