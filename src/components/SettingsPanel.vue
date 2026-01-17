@@ -199,7 +199,7 @@
       @close="syncInfo.visible = false"
     >
       <div class="status-info" :class="{connected: syncInfo.connected}">
-        <p>当前状态：未连接</p>
+        <p>当前状态：{{ syncInfo.connected ? '已连接' : '未连接' }}</p>
       </div>
       <div class="form">
         <div class="form-item">
@@ -284,12 +284,9 @@ const registerOrLogin = async () => {
   }
 
   try {
-    const res = await createUser({ server, username, password })
-    logger.info('createUser Response', res)
+    await createUser({ server, username, password })
   } catch (err) {
     logger.error('创建同步用户失败', err)
-    showToast('创建同步用户失败,' + ((err as Error)?.message ?? err))
-    throw err;
   }
 
   syncInfo.value.connected = await authUser({ server, username, password }).then(res => {

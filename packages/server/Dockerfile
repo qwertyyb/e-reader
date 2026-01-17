@@ -1,7 +1,7 @@
 # ================================
 # 第一阶段：构建阶段
 # ================================
-FROM --platform=$BUILDPLATFORM node:18-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:22-alpine AS builder
 
 # 设置工作目录
 WORKDIR /app
@@ -25,7 +25,7 @@ RUN pnpm run build
 # ================================
 # 第二阶段：运行阶段
 # ================================
-FROM --platform=$TARGETPLATFORM node:18-alpine AS runtime
+FROM --platform=$TARGETPLATFORM node:22-alpine AS runtime
 
 # 设置工作目录
 WORKDIR /app
@@ -35,6 +35,8 @@ RUN npm install -g pnpm@10.8.0
 
 # 复制 package.json
 COPY package.json ./
+
+RUN mkdir /app/data
 
 # 只安装生产依赖
 RUN pnpm install --prod && \
