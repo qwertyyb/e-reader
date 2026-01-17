@@ -7,52 +7,32 @@ const router = new Router({ prefix: '/sync' })
 router.get('/progress/:document', createAuthMiddleware(), async (ctx) => {
   const { document } = ctx.params
   if (!document) {
-    ctx.body = {
-      errCode: -1,
-      errMsg: 'document is empty'
-    }
+    ctx.throw(400, 'document is empty')
     return
   }
-  try {
-    const progress = getProgress(ctx.username, document)
+  const progress = getProgress(ctx.username, document)
+  if (progress) {
     ctx.body = {
-      errCode: 0,
-      errMsg: 'success',
-      data: progress ? {
-        ...progress,
-        device_id: progress.deviceId
-      } : null
+      ...progress,
+      document,
     }
-  } catch(err) {
-    ctx.body = {
-      errCode: -1,
-      errMsg: (err as Error).message
-    }
-    return
+  } else {
+    ctx.status = 204
   }
 })
 
 router.put('/progress', createAuthMiddleware(), async (ctx) => {
   const { progress, percentage, device, device_id: deviceId, document } = ctx.request.body
   if (!progress || !percentage || !device || !deviceId || !document) {
-    ctx.body = {
-      errCode: -1,
-      errMsg: 'progress, percentage, device or device_id is empty'
-    }
+    ctx.throw(400, 'document、progress、percentage、device or device_id is empty')
     return
   }
   try {
-    await updateProgress(ctx.username, progress, { progress, percentage, device, deviceId, document, timestamp: Date.now() })
-    ctx.body = {
-      errCode: 0,
-      errMsg: 'success'
-    }
+    const timestamp = Date.now()
+    await updateProgress(ctx.username, document, { progress, percentage, device, deviceId, document, timestamp })
+    ctx.body = { document, timestamp }
   } catch(err) {
-    ctx.body = {
-      errCode: -1,
-      errMsg: (err as Error).message
-    }
-    return
+    ctx.throw(500, (err as Error).message || String(err))
   }
 })
 

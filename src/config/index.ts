@@ -1,3 +1,4 @@
+import { getDeviceInfo } from "@/utils/env";
 import dedent from "dedent";
 
 // 需要在 assets/font.scss 中定义
@@ -74,7 +75,7 @@ export const defaultTocRegList = [
   /^第[一二三四五六七八九十零百千万亿\d]+[章]\s*[：:·\-—]?\s*(.+)$/,
 ]
 
-export const defaultPreferences: IPreferences = {
+export const getDefaultPreferences = (): IPreferences => ({
   screenKeepAlive: 'reading',
   darkMode: 'system',
   autoOpenLastRead: true,
@@ -83,13 +84,16 @@ export const defaultPreferences: IPreferences = {
   sync: {
     enabled: true,
     server: 'https://e-reader.qwertyyb.cn',
+    username: '',
+    password: '',
+    ...getDeviceInfo()
   },
   ai: {
     baseURL: '',
     model: '',
     apiKey: ''
   }
-}
+})
 
 export const preferencesStorageKey = 'preferences'
 

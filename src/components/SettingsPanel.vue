@@ -123,12 +123,11 @@
         </li>
       </ul>
 
-      <div class="prfs-group-title">进度同步</div>
       <ul class="prfs-group">
-        <li class="prfs-item">
-          <div class="prfs-label">启用</div>
+        <li class="prfs-item" @click="openSyncDialog">
+          <div class="prfs-label">进度同步</div>
           <div class="prfs-control">
-            <c-switch v-model="preferences.sync.enabled"></c-switch>
+            <span class="material-symbols-outlined arrow-icon">chevron_right</span>
           </div>
         </li>
       </ul>
@@ -193,12 +192,49 @@
       <p class="version">v{{ version }}({{ buildVersion }})</p>
       <button class="check-update-btn btn primary-btn" @click="checkUpdates">检查版本更新</button>
     </li>
+
+    <CDialog :visible="syncInfo.visible"
+      height="95vh"
+      title="进度同步设置"
+      @close="syncInfo.visible = false"
+    >
+      <div class="status-info" :class="{connected: syncInfo.connected}">
+        <p>当前状态：未连接</p>
+      </div>
+      <div class="form">
+        <div class="form-item">
+          <div class="form-value">设备: {{ preferences.sync.device }}({{ preferences.sync.deviceId }})</div>
+        </div>
+        <div class="form-item">
+          <label for="sync-enabled">启用同步</label>
+          <c-switch v-model="preferences.sync.enabled" @change="syncChangeHandler"></c-switch>
+        </div>
+        <div class="form-item">
+          <label for="sync-server-input">服务器</label>
+          <input type="text" class="form-input" id="sync-server-input" :disabled="!preferences.sync.enabled" v-model="preferences.sync.server">
+        </div>
+        <div class="form-item">
+          <label for="sync-username-input">用户名</label>
+          <input type="text" id="sync-username-input" class="form-input" :disabled="!preferences.sync.enabled" v-model="preferences.sync.username">
+        </div>
+        <div class="form-item">
+          <label for="sync-password-input">密码</label>
+          <input type="password" id="sync-password-input" class="form-input" :disabled="!preferences.sync.enabled" v-model="preferences.sync.password">
+        </div>
+        <div class="form-actions">
+          <button class="btn primary-btn" @click="registerOrLogin" :disabled="!preferences.sync.enabled">注册或登录</button>
+          <button class="btn" @click="resetSync">恢复默认</button>
+        </div>
+      </div>
+    </CDialog>
   </ul>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import CSelect from './common/CSelect.vue';
 import CSwitch from './common/CSwitch.vue';
+import CDialog from './common/CDialog.vue';
 import { preferences } from '@/stores/preferences';
 import { version, buildVersion } from '@/version';
 import { debugOptions, resetToDefault, modeOptions } from '@/stores/debug';
@@ -206,6 +242,11 @@ import { clearAllCache } from '@/utils/cache';
 import { showToast } from '@/utils';
 import { env, isSmall } from '@/utils/env';
 import { appRouter } from '@/router';
+import { getDefaultPreferences } from '@/config';
+import Logger from 'js-logger';
+import { authUser, createUser } from '@/services/sync';
+
+const logger = Logger.get('SettingsPanel');
 
 const tabName = defineModel<string>('name', { default: 'basic' })
 
@@ -222,6 +263,62 @@ const feedback = () => {
   const feedbackUrl = 'https://github.com/qwertyyb/e-reader/issues'
   window.open(env.isIOS() ? `x-safari-${feedbackUrl}` : feedbackUrl, '_blank')
 }
+
+const syncInfo = ref({ device: '', deviceId: '', connected: false, visible: false })
+
+const openSyncDialog = async () => {
+  const { enabled, server, username, password } = preferences.value.sync;
+  syncInfo.value = {
+    ...syncInfo.value,
+    visible: true,
+    connected: false
+  }
+  syncInfo.value.connected = Boolean(enabled && server && username && password && await authUser({ server, username, password }).then(res => res.success))
+}
+
+const registerOrLogin = async () => {
+  const { server, username, password } = preferences.value.sync
+  if (!server || !username || !password) {
+    showToast('请输入完整信息')
+    return;
+  }
+
+  try {
+    const res = await createUser({ server, username, password })
+    logger.info('createUser Response', res)
+  } catch (err) {
+    logger.error('创建同步用户失败', err)
+    showToast('创建同步用户失败,' + ((err as Error)?.message ?? err))
+    throw err;
+  }
+
+  syncInfo.value.connected = await authUser({ server, username, password }).then(res => {
+    showToast('登录成功')
+    return res.success
+  }).catch(err => {
+    showToast('连接服务器失败,' + err)
+    return false;
+  })
+}
+
+const resetSync = () => {
+  const defaultPrfs = getDefaultPreferences()
+  preferences.value.sync = { ...defaultPrfs.sync }
+  syncInfo.value = { ...syncInfo.value, ...defaultPrfs.sync, visible: false, connected: false }
+}
+
+const syncChangeHandler = (value: boolean) => {
+  if (!value) {
+    syncInfo.value.connected = false
+    return
+  }
+  const { server, username, password } = preferences.value.sync
+  if (!server || !username || !password) {
+    return;
+  }
+  registerOrLogin()
+}
+
 
 </script>
 
@@ -291,21 +388,75 @@ const feedback = () => {
   .arrow-icon {
     font-size: 24px;
   }
-  .text-input {
-    font-size: 16px;
-    border: none;
-    outline: none;
-    text-align: right;
-    // field-sizing: content;
-    padding: 4px 0 4px 6px;
-    background: transparent;
-  }
 }
 
 .prfs-label {
   flex: 0 0 140px;
   font-size: 17px;
   font-weight: 500;
+}
+
+.text-input {
+  font-size: 16px;
+  border: none;
+  outline: none;
+  text-align: right;
+  // field-sizing: content;
+  padding: 4px 0 4px 6px;
+  background: transparent;
+}
+
+.status-info {
+  margin-top: 8px;
+  font-size: 14px;
+  opacity: 0.6;
+  position: relative;
+  padding-left: 12px;
+  --color: red;
+  color: var(--color);
+  * {
+    color: var(--color);
+  }
+  &::before {
+    content: " ";
+    display: block;
+    width: 6px;
+    height: 6px;
+    background: var(--color);
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 999px;
+  }
+  &.connected {
+    --color: green;
+  }
+}
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+  margin-top: 16px;
+  label {
+    opacity: 0.8;
+  }
+  .form-input {
+    margin-top: 6px;
+    font-size: 16px;
+    padding: 6px 8px;
+    outline: none;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--card-bg-color);
+    &[disabled] {
+      opacity: 0.6;
+    }
+  }
+}
+.form-actions {
+  margin-top: 16px;
 }
 
 </style>

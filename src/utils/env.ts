@@ -1,6 +1,10 @@
-import { MAX_SMALL_WIDTH } from "@/constant";
+import { MAX_SMALL_WIDTH, SYNC_DEVICE_STORAGE_KEY } from "@/constant";
 import { Capacitor } from "@capacitor/core";
+import Logger from "js-logger";
 import { ref, watch, type Ref } from "vue"
+import { randomString } from "./index";
+
+const logger = Logger.get('env')
 
 // 声明 window.eruda 类型
 declare global {
@@ -24,6 +28,67 @@ const getDebugOption = <T>(key: string): T | undefined => {
   }
 }
 
+function extractOsVersion(userAgent: string) {
+  const result = {
+    os: 'Unknown',
+    version: ''
+  };
+  const ua = userAgent.toLowerCase();
+
+  // 1. 匹配 iOS (iPhone/iPad/iPod 均为 iOS 系统)
+  const iosReg = /iphone os ([\d_]+)|ipad os ([\d_]+)|ipod touch ([\d_]+)/;
+  const iosMatch = ua.match(iosReg);
+  if (iosMatch) {
+    result.os = 'iOS';
+    // 取匹配到的版本号（正则分组里有值的那个）
+    result.version = iosMatch.slice(1).filter(Boolean)[0].replace(/_/g, '.');
+    return result;
+  }
+
+  // 2. 匹配 Android
+  const androidReg = /android\s+([\d.]+)/;
+  const androidMatch = ua.match(androidReg);
+  if (androidMatch) {
+    result.os = 'Android';
+    result.version = androidMatch[1];
+    return result;
+  }
+
+  // 3. 匹配 macOS (兼容新旧UA格式：Mac OS X / macOS)
+  const macReg = /mac os x ([\d_]+)|macos ([\d.]+)/;
+  const macMatch = ua.match(macReg);
+  if (macMatch) {
+    result.os = 'MacOS';
+    const versionStr = macMatch.slice(1).filter(Boolean)[0];
+    // 处理下划线转点
+    result.version = versionStr.replace(/_/g, '.');
+    return result;
+  }
+
+  // 4. 匹配 Windows + 版本映射
+  const winReg = /windows nt ([\d.]+)/;
+  const winMatch = ua.match(winReg);
+  if (winMatch) {
+    result.os = 'Windows';
+    const winVersionMap: Record<string, string> = {
+      '5.0': 'XP',
+      '5.1': 'XP',
+      '5.2': 'Server 2003',
+      '6.0': 'Vista',
+      '6.1': '7',
+      '6.2': '8',
+      '6.3': '8.1',
+      '10.0': '10/11' // Win10/11 的UA内核版本均为 10.0
+    };
+    // 匹配到的内核版本
+    const kernelVersion = winMatch[1];
+    result.version = winVersionMap[kernelVersion] || kernelVersion;
+    return result;
+  }
+
+  return result;
+}
+
 export const env = {
   isPwa: () => window.matchMedia('(display-mode: standalone)').matches,
   isBooxLeaf: () => navigator.userAgent.includes('Leaf'),
@@ -33,6 +98,10 @@ export const env = {
   isApp: () => ['android', 'ios'].includes(Capacitor.getPlatform()),
   isAndroidApp: () => Capacitor.getPlatform() === 'android',
   isIosApp: () => Capacitor.getPlatform() === 'ios',
+  isAndroid: () => navigator.userAgent.includes('Android'),
+  isWindows: () => navigator.userAgent.includes('Windows'),
+  isMacOS: () => navigator.userAgent.includes('Macintosh'),
+  version: () => extractOsVersion(navigator.userAgent)
 }
 
 export const getSafeAreaTop = () => window.parseInt(getComputedStyle(document.documentElement).getPropertyValue("--sait"), 10)
@@ -151,3 +220,26 @@ const handler = () => {
 }
 
 window.addEventListener('resize', handler)
+
+export const getDeviceInfo = () => {
+  const storageValue = localStorage.getItem(SYNC_DEVICE_STORAGE_KEY)
+  if (storageValue) {
+    try {
+      const info = JSON.parse(storageValue)
+      if (info.deviceId && info.device) {
+        return { deviceId: info.deviceId, device: info.device }
+      }
+    } catch (err) {
+      logger.error('parse device info error', err, storageValue)
+    }
+  }
+  const deviceId = randomString()
+  // 从 userAgent 中获取设备类型（iOS、Android、PC、MacOS、Linux、Windows）、系统版本、浏览器类型、浏览器版本
+  const { os, version } = env.version()
+  const device = [os, version, randomString(4)].filter(Boolean).join('-')
+  localStorage.setItem(SYNC_DEVICE_STORAGE_KEY, JSON.stringify({ deviceId, device }))
+  return {
+    deviceId,
+    device
+  }
+}

@@ -1,13 +1,15 @@
 import Koa from 'koa'
 import bodyParser from '@koa/bodyparser'
+import cors from '@koa/cors'
 
 import usersRouter from './routes/users.js'
 import syncRouter from './routes/sync.js'
 
-
 const app = new Koa()
 
 app.use(bodyParser())
+
+app.use(cors())
 
 // 健康检查端点
 app.use(async (ctx, next) => {

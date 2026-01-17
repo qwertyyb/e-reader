@@ -44,15 +44,18 @@ const handleChange = () => {
 
 <style scoped>
 .c-switch {
+  --height: 28px;
+  --width: 52px;
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  width: 56px; /* Increased from 48px */
-  height: 32px; /* Increased from 24px */
+  width: var(--width); /* Increased from 48px */
+  height: var(--height); /* Increased from 24px */
   border-radius: 16px; /* Increased from 12px */
-  background-color: var(--bg-color);
+  background-color: light-dark(#bbb, #444);
   cursor: pointer;
+  padding: 2px;
 }
 
 .c-switch.is-checked {
@@ -61,14 +64,14 @@ const handleChange = () => {
 
 .c-switch__inner {
   position: relative;
-  width: 32px; /* Increased from 24px */
-  height: 32px; /* Increased from 24px */
+  width: calc(var(--height) - 4px); /* Increased from 24px */
+  height: calc(var(--height) - 4px); /* Increased from 24px */
   border-radius: 50%;
-  background-color: var(--border-color);
+  background-color: #fff;
 }
 
 .c-switch.is-checked .c-switch__inner {
-  transform: translateX(24px); /* Adjusted to match new width */
+  transform: translateX(calc(var(--width) - var(--height))); /* Adjusted to match new width */
 }
 
 .c-switch__text {

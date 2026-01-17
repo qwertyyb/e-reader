@@ -11,7 +11,7 @@ import { disableAnim, env, isSmall } from '@/utils/env'
 import Logger from 'js-logger'
 import { onCloseRequest } from '@/platform/close-listener'
 import { App } from '@capacitor/app'
-import { showToast } from '@/utils'
+import { randomString, showToast } from '@/utils'
 
 const logger = Logger.get('router')
 
@@ -135,10 +135,6 @@ const router = createRouter({
   ],
 })
 
-const generateId = () => {
-  return window.crypto?.randomUUID?.() || Math.random().toString(16).substring(2)
-}
-
 const createAppRouter = (router: Router): Router & {
   [key in keyof RouteHistoryLifecycle]: (fn: RouteHistoryLifecycle[key]) => void
 } & {
@@ -179,7 +175,7 @@ const createAppRouter = (router: Router): Router & {
   const pushHistory = async (location: RouteLocation, options?: { hasUAVisualTransition?: boolean }) => {
     const newItem: RouteHistoryItem = markRaw({
       location,
-      uniqueId: generateId()
+      uniqueId: randomString()
     })
 
     // 执行生命周期函数，先执行组件上的 onForwardFrom 再执行全局的 onForwardFrom
@@ -226,7 +222,7 @@ const createAppRouter = (router: Router): Router & {
     logger.info('replaceHistory', route)
     const newItem: RouteHistoryItem = markRaw({
       location: route,
-      uniqueId: generateId()
+      uniqueId: randomString()
     })
 
     const current = history.value[history.value.length - 1]

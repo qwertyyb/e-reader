@@ -83,6 +83,7 @@ import { onBackFrom, onBackTo, onForwardFrom, onForwardTo } from '@/router/hooks
 import { LAST_READ_BOOK_STORAGE_KEY } from '@/constant';
 import Logger from 'js-logger';
 import { appRouter } from '@/router';
+import { getRemoteProgress, setRemoteProgress } from '@/services/sync';
 
 const logger = Logger.get('ReadView')
 
@@ -160,20 +161,31 @@ const updateProgress = (info: { chapter: IChapter, cursor: number, chapterIndex:
   progress.value = { ...progress.value!, ...info }
 
   updateReadingState()
+
+  if (syncEnabled(book.value)) {
+    const data = {
+      ...preferences.value.sync,
+      document: book.value!.title,
+      progress: JSON.stringify({ chapterId: progress.value.chapter.id, cursor: progress.value.cursor }),
+      percentage: progress.value.cursor / book.value!.maxCursor,
+    }
+    logger.info('同步进度到远端', data)
+    setRemoteProgress(data)
+  }
 }
 
-const fetchChapterList = async () => {
-  const [bookInfo, toc] = await Promise.all([
+const fetchBookInfo = async () => {
+  const [bookInfo, cl] = await Promise.all([
     dataService.getBook(props.id),
     dataService.getChapterList(props.id)
   ])
-  if (!toc) {
+  if (!cl) {
     showToast(`获取目录失败: ${props.id}`)
-    return []
+    return { book: bookInfo, chapterList: [] }
   }
   book.value = bookInfo
-  chapterList.value = toc
-  return toc
+  chapterList.value = cl
+  return { book: bookInfo, chapterList: cl }
 }
 
 const jump = async (options: { chapterId: string, cursor: number }) => {
@@ -193,25 +205,108 @@ const openSearchDialog = () => {
   controlWrapperRef.value?.openDialog('search')
 }
 
+const syncEnabled = (book?: ILocalBook) => {
+  // 进度同步启用的必需配置可用
+  const { enabled, server, username, password } = preferences.value.sync
+  return enabled && server && username && password && book?.title
+}
+
+const getProgress = (
+  local: IReadingState | undefined | null,
+  remote: { progress: string, timestamp: number, percentage: number } | null,
+  { chapterList, book }: { chapterList: IChapter[], book: ILocalBook }
+): { type: 'local' | 'remote', progress: IReadingState } | null => {
+  logger.info('getProgress', local, remote)
+  if (!remote) {
+    return local ? {
+      type: 'local',
+      progress: local
+    } : null
+  }
+  if ((local?.lastReadTime ?? 0) >= remote.timestamp) {
+    return {
+      type: 'local',
+      progress: local!
+    }
+  }
+  // 远程比较新
+  // 首先尝试从 progress 中解析出章节和位置
+  try {
+    const { chapterId, cursor } = JSON.parse(remote.progress)
+    const chapter = chapterList.find(chapter => chapter.id === chapterId)
+    if (chapter && chapter.cursorStart <= cursor && ((chapter.cursorEnd && cursor <= chapter.cursorEnd) || !chapter?.cursorEnd)) {
+      return {
+        type: 'remote',
+        progress: {
+          bookId: book.id,
+          chapterId,
+          cursor,
+          duration: local?.duration ?? 0,
+          lastReadTime: remote.timestamp
+        }
+      }
+    }
+  } catch (err) {
+    logger.error('解析远程 progress 失败', err, '从 percentage 中计算章节 id 和 cursor')
+    const cursor = Math.round(remote.percentage * book.maxCursor)
+    const chapter = chapterList.find(chapter => {
+      return chapter.cursorStart <= cursor && (chapter.cursorEnd && chapter.cursorEnd >= cursor || !chapter.cursorEnd)
+    })
+    if (chapter) {
+      return {
+        type: 'remote',
+        progress: {
+          bookId: book.id,
+          chapterId: chapter.id,
+          cursor,
+          duration: local?.duration ?? 0,
+          lastReadTime: remote.timestamp
+        }
+      }
+    }
+  }
+  return null
+}
+
 const init = async () => {
-  const [chapterList, readingState] = await Promise.all([
-    fetchChapterList(),
-    readingStateStore.get(props.id)
+  const [{ book, chapterList }, readingState] = await Promise.all([
+    fetchBookInfo(),
+    readingStateStore.get(props.id),
   ])
-  const chapterIndex = readingState?.chapterId
-    ? chapterList.findIndex(chapter => chapter.id === readingState.chapterId) || 0
+  let finalReadingState: IReadingState | undefined | null = readingState
+  if (syncEnabled(book)) {
+    let remotePosition: { progress: string, timestamp: number, percentage: number } | null = null
+    try {
+      remotePosition = await getRemoteProgress({
+        server: preferences.value.sync.server,
+        username: preferences.value.sync.username,
+        password: preferences.value.sync.password,
+        document: book.title
+      });
+      logger.info('远端进度', remotePosition)
+    } catch (err) {
+      logger.error('获取远程进度失败', err)
+    }
+
+    const result = getProgress(readingState, remotePosition, { chapterList, book })
+    logger.info('getProgress result', result)
+    finalReadingState = result?.progress
+  }
+  logger.info('finalReadingState', finalReadingState)
+  const chapterIndex = finalReadingState?.chapterId
+    ? chapterList.findIndex(chapter => chapter.id === finalReadingState.chapterId) || 0
     : 0
 
   progress.value = {
     chapter: chapterList[chapterIndex],
     chapterIndex,
-    cursor: readingState?.cursor || 0,
-    duration: readingState?.duration || 0
+    cursor: finalReadingState?.cursor || 0,
+    duration: finalReadingState?.duration || 0
   }
 
   readingStateStore.update(props.id, { lastReadTime: Date.now() })
   readingTime = new ReadingTime((time, delta) => {
-    progress.value = { ...progress.value!, duration: (readingState?.duration || 0) + time }
+    progress.value = { ...progress.value!, duration: (finalReadingState?.duration || 0) + time }
     updateReadingState(delta)
   })
 }

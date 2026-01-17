@@ -1,21 +1,25 @@
 import { DarkMode } from "@/actions";
-import { defaultPreferences, preferencesStorageKey } from "@/config";
+import { getDefaultPreferences, preferencesStorageKey } from "@/config";
 import * as wakeLock from "@/utils/wake-lock";
+import { clone, merge } from "es-toolkit";
 import Logger from "js-logger";
 import { ref, watch } from "vue";
 
 const logger = Logger.get('preferences')
 
 const getPreferences = (): IPreferences => {
+  const defaultPrfs = getDefaultPreferences()
   try {
-    return {
-      ...defaultPreferences,
-      ...JSON.parse(localStorage.getItem(preferencesStorageKey) || '{}')
-    }
+    const result = merge(
+      clone({ ...defaultPrfs }),
+      { ...JSON.parse(localStorage.getItem(preferencesStorageKey) || '{}')}
+    )
+    logger.info('preferences', result)
+    return result;
   } catch(err) {
     logger.error(err)
   }
-  return { ...defaultPreferences }
+  return { ...defaultPrfs }
 }
 
 export const preferences = ref<IPreferences>(getPreferences());

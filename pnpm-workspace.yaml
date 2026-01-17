@@ -1,3 +1,6 @@
+packages:
+  - "packages/*"
+
 patchedDependencies:
   vue-router: patches/vue-router.patch
   edge-tts-universal: patches/edge-tts-universal.patch

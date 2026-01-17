@@ -1,0 +1,23 @@
+{
+  "users": [
+    {
+      "username": "qwertyyb",
+      "password": "10633dd272f191e08e12c4db25e108c651f2934e12787f8525e440bdf02dcbd2"
+    },
+    {
+      "username": "localdev",
+      "password": "e9501a252b778bce5a3d77710667afdd9198a750d1d989d95fb32d80e485bf15"
+    }
+  ],
+  "progress": [
+    {
+      "progress": "{\"chapterId\":\"navPoint-6\",\"cursor\":96}",
+      "percentage": 0.019112084411706153,
+      "device": "MacOS-10.15.7-6238",
+      "deviceId": "6048d78f-518d-429b-bc52-0188f5d6b1c2",
+      "document": "Run Wild_ Sa Ye Vol_ 1 -- Zhe, Wu -- Run Wild 01, 2024 -- Seven Seas Entertainment -- 9788895612676 -- 50dcdd9c224182e9655b03fd720c7b8c -- Anna’s Archive",
+      "timestamp": 1768659272848,
+      "username": "localdev"
+    }
+  ]
+}

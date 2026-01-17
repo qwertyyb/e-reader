@@ -1,0 +1,1 @@
+export const DATABASE_PATH = process.env.DEV ? 'db.json' : '/app/data/db.json'

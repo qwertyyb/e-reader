@@ -6,22 +6,15 @@ export const createAuthMiddleware = (): Middleware => {
     const username = (ctx.request.headers["x-auth-user"] as string)?.trim?.()
     const password = (ctx.request.headers["x-auth-key"] as string)?.trim?.()
     if (!username || !password) {
-      ctx.body = {
-        errCode: -1,
-        errMsg: 'username or password is empty'
-      }
+      ctx.throw(400, 'username or password is empty')
       return
     }
-    try {
-      authUser(username, password)
-      ctx.username = username
-      await next()
-    } catch(err) {
-      ctx.body = {
-        errCode: -1,
-        errMsg: (err as Error).message
-      }
+    const user = authUser(username, password)
+    if (!user) {
+      ctx.throw(403, 'username or password is incorrect')
       return
     }
+    ctx.username = username
+    await next()
   }
 }

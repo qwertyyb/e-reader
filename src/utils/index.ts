@@ -238,3 +238,11 @@ export const formatProgress = (cursor: number, maxCursor: number) => {
   if (!maxCursor) return ''
   return Math.round(cursor / maxCursor * 100) + '%'
 }
+
+export const randomString = (len?: number) => {
+  const str = window.crypto?.randomUUID?.() || Math.random().toString(16).substring(2)
+  if (len) {
+    return str.substring(0, len)
+  }
+  return str
+}

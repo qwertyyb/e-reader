@@ -5,11 +5,11 @@ export const getProgress = (username: string, document: string) => {
 }
 
 export const updateProgress = async (username: string, document: string, progress: Progress) => {
-  db.data.progress = db.data.progress.map(item => {
-    if (item.document === document && item.username === username) {
-      return { ...progress, username, document }
-    }
-    return item
-  })
+  const existsIndex = db.data.progress.findIndex(i => i.username === username && i.document === document)
+  if (existsIndex >= 0) {
+    db.data.progress.splice(existsIndex, 1, { ...progress, username, document })
+  } else {
+    db.data.progress.unshift({ ...progress, username, document })
+  }
   await db.write()
 }

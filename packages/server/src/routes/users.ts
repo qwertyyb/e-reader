@@ -8,42 +8,32 @@ router.post('/create', async (ctx) => {
   const username: string | undefined = ctx.request.body.username?.trim?.();
   const password: string | undefined = ctx.request.body.password?.trim?.();
   if (!username || !password) {
-    ctx.body = {
-      errCode: -1,
-      errMsg: 'username or password is empty'
-    }
+    ctx.throw(400, 'username or password is empty')
     return
   }
-  await createUser(username, password)
-  ctx.body = {
-    errCode: 0,
-    errMsg: 'success'
+  const { exists } = await createUser(username, password)
+  if (exists) {
+    ctx.throw(409, 'username already exists')
+    return
   }
+  ctx.status = 201
+  ctx.body = { username }
 })
 
 router.post('/auth', async (ctx) => {
   const username: string | undefined = ctx.request.body.username?.trim?.();
   const password: string | undefined = ctx.request.body.password?.trim?.();
   if (!username || !password) {
-    ctx.body = {
-      errCode: -1,
-      errMsg: 'username or password is empty'
-    }
+    ctx.throw(400, 'username or password is empty')
     return
   }
-  try {
-    authUser(username, password)
-    ctx.body = {
-      errCode: 0,
-      errMsg: 'success'
-    }
-  } catch(err) {
-    ctx.body = {
-      errCode: -1,
-      errMsg: (err as Error).message
-    }
+  const user = authUser(username, password)
+  if (!user) {
+    ctx.throw(403, 'username or password is incorrect')
     return
   }
+  ctx.status = 200
+  ctx.body = { authorized: 'OK' }
 })
 
 export default router
