@@ -314,11 +314,17 @@ const createActions = () => {
 }
 
 const actions = createActions()
-darkMode.addEventListener('change', (event) => controlState.value.darkMode = (event as CustomEvent<{ enabled: boolean }>).detail.enabled)
+
+const darkModeChangeHandler = (event: CustomEvent<{ enabled: boolean }>) => {
+  controlState.value.darkMode = event.detail.enabled
+}
+
+darkMode.addEventListener('change', darkModeChangeHandler)
 
 onBeforeUnmount(() => {
   actions.autoPlay.stop()
   actions.readSpeak.stop()
+  darkMode.removeEventListener('change', darkModeChangeHandler)
 })
 
 const changeAutoPlaySpeed = (speed: number) => {

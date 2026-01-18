@@ -5,3 +5,5 @@ export const MAX_SMALL_WIDTH = 768
 export const LAST_READ_BOOK_STORAGE_KEY = 'E-READ-LAST-READ-BOOK'
 
 export const SYNC_DEVICE_STORAGE_KEY = 'E-READ-SYNC-DEVICE'
+
+export const PREFERENCES_STORAGE_KEY = 'preferences'

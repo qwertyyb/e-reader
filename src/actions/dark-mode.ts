@@ -1,9 +1,12 @@
+import { TypedEventTarget } from "@/lib/TypedEventTarget"
 import Logger from "js-logger"
 
 const logger = Logger.get('dark-mode')
 
-export class DarkMode extends EventTarget {
-  static CHANGE_EVENT_NAME = 'change'
+export class DarkMode extends TypedEventTarget<{
+  change: CustomEvent<{ enabled: boolean }>
+}> {
+  static CHANGE_EVENT_NAME = 'change' as const
   #auto = true
   #match = window.matchMedia('(prefers-color-scheme: dark)')
 
@@ -14,8 +17,7 @@ export class DarkMode extends EventTarget {
     super()
     this.#auto = auto
     if (typeof changeHandler === 'function') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this.addEventListener(DarkMode.CHANGE_EVENT_NAME, changeHandler as any)
+      this.addEventListener(DarkMode.CHANGE_EVENT_NAME, changeHandler)
     }
     if (auto) {
       this.#match.addEventListener('change', this.#callback)

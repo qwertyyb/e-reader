@@ -95,8 +95,6 @@ export const getDefaultPreferences = (): IPreferences => ({
   }
 })
 
-export const preferencesStorageKey = 'preferences'
-
 export const readColorScheme: Record<string, IColorScheme> = {
   // 基础模式
   default: { textColor: '#333333', backgroundColor: '#FAF4E3' }, // 经典暖黄

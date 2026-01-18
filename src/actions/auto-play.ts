@@ -1,10 +1,11 @@
+import { TypedEventTarget } from '@/lib/TypedEventTarget'
 import * as wakeLock from '@/utils/wake-lock'
 import Logger from 'js-logger'
 
 const logger = Logger.get('auto-play')
 
-export class AutoPlay extends EventTarget {
-  static CHANGE_EVENT_NAME = 'change'
+export class AutoPlay extends TypedEventTarget<{ change: CustomEvent<{ playing: boolean }> }> {
+  static CHANGE_EVENT_NAME = 'change' as const
 
   scrollVertical: (distance: number) => void
   nextPage = () => {}
@@ -29,7 +30,7 @@ export class AutoPlay extends EventTarget {
     this.turnPageType = turnPageType
     this.#requestWakeLock = requestWakeLock
     if (typeof changeHandler === 'function') {
-      this.addEventListener(AutoPlay.CHANGE_EVENT_NAME, changeHandler as EventListenerOrEventListenerObject)
+      this.addEventListener(AutoPlay.CHANGE_EVENT_NAME, changeHandler)
     }
   }
 

@@ -1,5 +1,6 @@
 import { DarkMode } from "@/actions";
-import { getDefaultPreferences, preferencesStorageKey } from "@/config";
+import { getDefaultPreferences } from "@/config";
+import { PREFERENCES_STORAGE_KEY } from "@/constant";
 import * as wakeLock from "@/utils/wake-lock";
 import { clone, merge } from "es-toolkit";
 import Logger from "js-logger";
@@ -12,7 +13,7 @@ const getPreferences = (): IPreferences => {
   try {
     const result = merge(
       clone({ ...defaultPrfs }),
-      { ...JSON.parse(localStorage.getItem(preferencesStorageKey) || '{}')}
+      { ...JSON.parse(localStorage.getItem(PREFERENCES_STORAGE_KEY) || '{}')}
     )
     logger.info('preferences', result)
     return result;
@@ -29,10 +30,6 @@ export const darkMode = new DarkMode({
   changeHandler: () => {}
 })
 
-if (preferences.value.darkMode === 'dark') {
-  darkMode.enter()
-}
-
 const darkModeHandler = (darkModeConfig: IPreferences["darkMode"]) => {
   if (darkModeConfig === 'dark' && !darkMode.isActivated()) {
     darkMode.enter()
@@ -44,14 +41,27 @@ const darkModeHandler = (darkModeConfig: IPreferences["darkMode"]) => {
 
 const screenKeepAliveHandler = (setting: IPreferences['screenKeepAlive']) => {
   if (setting === 'always') {
-    wakeLock.release()
+    wakeLock.request()
   } else {
     wakeLock.release()
   }
 }
 
+if (preferences.value.darkMode === 'dark') {
+  darkMode.enter()
+}
+
+if (preferences.value.screenKeepAlive === 'always') {
+  wakeLock.request()
+}
+
 watch(preferences, (newConfig) => {
-  darkModeHandler(newConfig.darkMode)
-  screenKeepAliveHandler(newConfig.screenKeepAlive)
-  localStorage.setItem(preferencesStorageKey, JSON.stringify(newConfig));
+  localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(newConfig));
 }, { deep: true });
+
+watch(() => preferences.value.darkMode, (val) => {
+  darkModeHandler(val)
+})
+watch(() => preferences.value.screenKeepAlive, val => {
+  screenKeepAliveHandler(val)
+})
