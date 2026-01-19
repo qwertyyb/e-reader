@@ -11,6 +11,15 @@
   ],
   "progress": [
     {
+      "progress": "{\"chapterId\":\"132549\",\"cursor\":132581}",
+      "percentage": 0.9789633020748726,
+      "device": "Android-6.0-77c3",
+      "deviceId": "1d99a527-b6bc-4f4b-96fc-71744ffd1382",
+      "document": "我师兄实在太稳健了",
+      "timestamp": 1768819938352,
+      "username": "localdev"
+    },
+    {
       "progress": "{\"chapterId\":\"navPoint-6\",\"cursor\":96}",
       "percentage": 0.019112084411706153,
       "device": "MacOS-10.15.7-6238",
