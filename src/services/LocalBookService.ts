@@ -13,7 +13,7 @@ export class LocalBookService implements IBookService {
     })
   }
 
-  async getBook(id: string): Promise<ILocalBook> {
+  async getBook(id: string) {
     return booksStore.get(Number(id)).then(item => {
       return {
         ...item,
