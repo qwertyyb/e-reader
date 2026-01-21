@@ -1,5 +1,6 @@
 import { TypedEventTarget } from "@/lib/TypedEventTarget"
 import Logger from "js-logger"
+import { SystemBars, SystemBarsStyle } from '@capacitor/core'
 
 const logger = Logger.get('dark-mode')
 
@@ -47,12 +48,14 @@ export class DarkMode extends TypedEventTarget<{
   enter() {
     logger.info('enter darkMode')
     document.documentElement.classList.add('dark')
+    SystemBars.setStyle({ style: SystemBarsStyle.Dark })
     this.#changeHandler()
   }
 
   exit() {
     logger.info('exit darkMode')
     document.documentElement.classList.remove('dark')
+    SystemBars.setStyle({ style: SystemBarsStyle.Dark })
     this.#changeHandler()
   }
 

@@ -81,7 +81,6 @@ watch(router.currentRoute, route => {
   list-style: none;
   padding-bottom: var(--saib);
   width: 100%;
-  height: 54px;
   box-sizing: content-box;
   border-top: 1px solid var(--border-color);
   position: relative;
@@ -96,6 +95,7 @@ watch(router.currentRoute, route => {
   align-items: center;
   font-weight: 500;
   padding-top: 12px;
+  padding-bottom: 12px;
   .material-symbols-outlined {
     color: inherit;
     font-size: 24px;
