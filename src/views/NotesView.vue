@@ -2,13 +2,29 @@
   <route-page class="notes-view">
     <navigation-bar no-menu :title="book?.title"></navigation-bar>
     <main class="notes-main">
-      <div class="book-info">
-        <img :src="book?.cover" alt="" class="book-cover">
-        <div class="book-info-content">
-          <h3 class="book-title">{{ book?.title }}</h3>
-          <p class="summary-desc" v-if="readingState && book"><span class="material-symbols-outlined icon progress-icon">arrow_cool_down</span>已读到{{ (readingState.cursor / book.maxCursor * 100).toFixed(0) + '%' }} · {{ marksCount }}条笔记</p>
-          <p class="summary-desc"><span class="material-symbols-outlined icon duration-icon">trending_up</span>{{ formatDuration(readingState?.duration || 0) }} · <router-link class="summary-link" :to="{ name: 'readTime', params: { id: props.id } }">阅读明细</router-link></p>
+      <div class="book-summary" v-if="book">
+        <div class="book-info">
+          <div class="book-info-content">
+            <h3 class="book-title">{{ book.title }}</h3>
+            <p class="summary-desc" v-if="readingState && book"><span class="material-symbols-outlined icon progress-icon">arrow_cool_down</span>{{ progress }} · {{ marksCount }}条笔记</p>
+            <p class="summary-desc"><span class="material-symbols-outlined icon duration-icon">trending_up</span>{{ formatDuration(readingState?.duration || 0) }} · <router-link class="summary-link" :to="{ name: 'readTime', params: { id: props.id } }">阅读明细</router-link></p>
+          </div>
+          <img :src="book.cover" alt="" class="book-cover">
         </div>
+        <ul class="actions">
+          <li class="action-item">
+            <span class="material-symbols-outlined icon">image</span>
+            <span class="desc">图片模式</span>
+          </li>
+          <li class="action-item">
+            <span class="material-symbols-outlined icon">search</span>
+            <span class="desc">搜索</span>
+          </li>
+          <li class="action-item">
+            <span class="material-symbols-outlined icon">upload</span>
+            <span class="desc">导出</span>
+          </li>
+        </ul>
       </div>
       <book-mark-list :book-id="+id"></book-mark-list>
     </main>
@@ -20,7 +36,7 @@ import RoutePage from '@/components/RoutePage.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import BookMarkList from '@/components/BookMarkList.vue';
 import { localBookService } from '@/services/LocalBookService';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { formatDuration } from '@/utils';
 import { marks, readingStateStore } from '@/services/storage';
 
@@ -31,6 +47,10 @@ const props = defineProps<{
 const book = ref<ILocalBook>()
 const readingState = ref<IReadingState>()
 const marksCount = ref(0)
+
+const progress = computed(() => {
+  return `已读到${((readingState.value?.cursor ?? 0) / (book.value?.maxCursor ?? 0) * 100).toFixed(0)}%`
+})
 
 const refresh = async () => {
   const [result, rs, count] = await Promise.all([
@@ -62,14 +82,11 @@ refresh()
   .book-info {
     display: flex;
     margin-bottom: 16px;
-    background: var(--card-bg-color);
-    padding: 16px;
-    border-radius: 6px;
     .book-cover {
       width: 80px;
     }
     .book-info-content {
-      margin-left: 12px;
+      margin-right: auto;
     }
     .book-title {
       margin-bottom: 12px;
@@ -78,6 +95,9 @@ refresh()
       display: flex;
       align-items: center;
       font-size: 13px;
+      & + .summary-desc {
+        margin-top: 12px;
+      }
       .icon {
         margin-right: 6px;
         &.progress-icon {
@@ -89,6 +109,31 @@ refresh()
       margin-left: 0.6em;
       color: var(--theme-color);
     }
+  }
+}
+.book-summary {
+  background: var(--card-bg-color);
+  border-radius: 6px;
+  padding: 16px 16px 0 16px;
+  margin-bottom: 16px;
+}
+.actions {
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-around;
+  .action-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 16px;
+    opacity: 0.8;
+  }
+  .icon {
+    font-size: 20px;
+  }
+  .desc {
+    font-size: 10px;
+    margin-top: 4px;
   }
 }
 </style>

@@ -46,6 +46,9 @@ importers:
       chart.js:
         specifier: ^4.5.1
         version: 4.5.1
+      chartjs-adapter-dayjs-4:
+        specifier: ^1.0.4
+        version: 1.0.4(chart.js@4.5.1)(dayjs@1.11.19)
       dayjs:
         specifier: ^1.11.19
         version: 1.11.19
@@ -66,7 +69,7 @@ importers:
         version: 0.8.2
       foliate-js:
         specifier: github:johnfactotum/foliate-js
-        version: https://codeload.github.com/johnfactotum/foliate-js/tar.gz/052123beafed921a9a2a45ef6330c235289a634e
+        version: https://codeload.github.com/johnfactotum/foliate-js/tar.gz/6b11e1744346f60504b727984f7d42f0fef3ab54
       internal-ip:
         specifier: ^8.0.1
         version: 8.0.1
@@ -1558,6 +1561,13 @@ packages:
     resolution: {integrity: sha512-GIjfiT9dbmHRiYi6Nl2yFCq7kkwdkp1W/lp2J99rX0yo9tgJGn3lKQATztIjb5tVtevcBtIdICNWqlq5+E8/Pw==}
     engines: {pnpm: '>=8'}
 
+  chartjs-adapter-dayjs-4@1.0.4:
+    resolution: {integrity: sha512-yy9BAYW4aNzPVrCWZetbILegTRb7HokhgospPoC3b5iZ5qdlqNmXts2KdSp6AqnjkPAp/YWyHDxLvIvwt5x81w==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      chart.js: '>=4.0.1'
+      dayjs: ^1.9.7
+
   chownr@2.0.0:
     resolution: {integrity: sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==}
     engines: {node: '>=10'}
@@ -1944,8 +1954,8 @@ packages:
   flatted@3.3.2:
     resolution: {integrity: sha512-AiwGJM8YcNOaobumgtng+6NHuOqC3A7MixFeDafM3X9cIUM+xUXoS5Vfgf+OihAYe20fxqNM9yPBXJzRtZ/4eA==}
 
-  foliate-js@https://codeload.github.com/johnfactotum/foliate-js/tar.gz/052123beafed921a9a2a45ef6330c235289a634e:
-    resolution: {tarball: https://codeload.github.com/johnfactotum/foliate-js/tar.gz/052123beafed921a9a2a45ef6330c235289a634e}
+  foliate-js@https://codeload.github.com/johnfactotum/foliate-js/tar.gz/6b11e1744346f60504b727984f7d42f0fef3ab54:
+    resolution: {tarball: https://codeload.github.com/johnfactotum/foliate-js/tar.gz/6b11e1744346f60504b727984f7d42f0fef3ab54}
     version: 0.0.0
 
   follow-redirects@1.15.11:
@@ -4958,6 +4968,11 @@ snapshots:
     dependencies:
       '@kurkle/color': 0.3.4
 
+  chartjs-adapter-dayjs-4@1.0.4(chart.js@4.5.1)(dayjs@1.11.19):
+    dependencies:
+      chart.js: 4.5.1
+      dayjs: 1.11.19
+
   chownr@2.0.0: {}
 
   cidr-regex@4.0.3:
@@ -5402,7 +5417,7 @@ snapshots:
 
   flatted@3.3.2: {}
 
-  foliate-js@https://codeload.github.com/johnfactotum/foliate-js/tar.gz/052123beafed921a9a2a45ef6330c235289a634e: {}
+  foliate-js@https://codeload.github.com/johnfactotum/foliate-js/tar.gz/6b11e1744346f60504b727984f7d42f0fef3ab54: {}
 
   follow-redirects@1.15.11: {}
 

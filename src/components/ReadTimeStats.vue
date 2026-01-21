@@ -23,7 +23,7 @@
           <div class="stats-title">阅读时长分布</div>
           <span class="material-symbols-outlined calendar-icon">calendar_month</span>
         </div>
-        <canvas ref="canvas" class="chart-canvas"></canvas>
+        <canvas ref="canvas" class="chart-canvas" @pointerdown.capture="chartPointerDownHandler"></canvas>
         <p class="longest-desc" v-if="totalDuration">{{ maxDurationRecord?.label }}阅读最久 · {{ formatDuration(maxDurationRecord?.duration ?? 0) }}</p>
       </div>
       <div class="longest-book" v-if="longestBook">
@@ -47,17 +47,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, shallowRef, toRaw, useTemplateRef, watch } from 'vue';
 import { booksStore, readTimeStore } from '@/services/storage';
 import { formatDuration } from '@/utils';
-import { Chart } from 'chart.js/auto'
+import { Chart, type TooltipModel } from 'chart.js/auto'
 import dayjs from 'dayjs';
+import 'chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm';
 
 const props = defineProps<{ range: 'week' | 'month' | 'year' | 'all' }>()
 
-interface IReadTimeRecord extends Omit<IReadTime, 'bookId'> {
-  label: string;
-}
+const emits = defineEmits<{ view: ['month' | 'year', string] }>()
+
+type IReadTimeRecord = Omit<IReadTime, 'bookId'>
 
 const lastLabel = { week: '上周', month: '上月', year: '去年', all: '' }
 
@@ -92,13 +93,13 @@ const maxDurationRecord = computed(() => {
   if (!item) return item
   let label = ''
   if (props.range === 'week') {
-    label = `周${item.label}`
+    label = dayjs(item.date).format('ddd')
   } else if (props.range === 'month') {
-    label = `${item.label}日`
+    label = dayjs(item.date).format('D日')
   } else if (props.range === 'year') {
-    label = `${item.label}月`
+    label = dayjs(item.date).format('M月')
   } else {
-    label = `${item.label}年`
+    label = dayjs(item.date).format('YYYY年')
   }
   return {
     ...item,
@@ -128,13 +129,11 @@ const formatData = (list: IReadTime[]): IReadTimeRecord[] => {
   const endDate = dayjs(dateRange.value.end)
 
   const results: IReadTimeRecord[] = []
-  const format = { week: 'dd', month: 'D', year: 'M', all: 'YYYY' }[props.range]
   const unit = ({ week: 'days', month: 'days', year: 'months', all: 'years' } as const)[props.range]
   for (let cur = startDate; cur.isSameOrBefore(endDate); cur = cur.add(1, unit)) {
     const nextDate = cur.add(1, unit)
     const items = list.filter(item => dayjs(item.date).isSameOrAfter(cur) && dayjs(item.date).isBefore(nextDate))
-    const label = dayjs(cur).format(format)
-      results.push({ date: cur.format('YYYY/MM/DD'), label, duration: items.reduce((acc, cur) => acc + cur.duration, 0) })
+    results.push({ date: cur.format('YYYY/MM/DD'), duration: items.reduce((acc, cur) => acc + cur.duration, 0) })
   }
 
   return results;
@@ -157,68 +156,103 @@ watch(() => props.range, () => {
 const longestBook = shallowRef<IBook & { duration: number }>()
 
 const canvas = useTemplateRef('canvas')
-let chart: Chart<'bar', (IReadTimeRecord & { durationF: number })[]> | null = null
+let chart: Chart<'bar', IReadTimeRecord[]> | null = null
+let tooltip: TooltipModel<"bar"> | null = null
 
-const renderChart = (completeData: IReadTimeRecord[]) => {
-  chart?.destroy()
-  let  data: (IReadTimeRecord & { durationF: number })[] = []
-  const maxDuration = Math.max(...completeData.map(item => item.duration)) || 150 * 60 * 1000
-  if (maxDuration > 1.5 * 60 * 60) {
-    // 超过两小时了，单位使用小时
-    data = completeData.map(item => {
-      return {
-        ...item,
-        durationF: Math.round(item.duration / 60 / 60)
-      }
-    })
-  } else if (maxDuration >= 60) {
-    // 超过一分钟了，单位使用分钟
-    data = completeData.map(item => {
-      return {
-        ...item,
-        durationF: Math.round(item.duration / 60)
-      }
-    })
-  } else {
-    // 否则使用秒
-    data = completeData.map(item => {
-      return {
-        ...item,
-        durationF: item.duration
-      }
-    })
+const chartPointerDownHandler = (event: PointerEvent) => {
+  if (!tooltip || tooltip.opacity === 0) return;
+  const rect = (event.target as HTMLCanvasElement).getBoundingClientRect()
+  const offsetX = event.clientX - rect.x
+  const offsetY = event.clientY - rect.y
+  if (tooltip.x < offsetX && tooltip.x + tooltip.width > offsetX && tooltip.y < offsetY && tooltip.y + tooltip.height > offsetY) {
+    const date = (tooltip.dataPoints[0].raw as { date: string, duration: number })?.date
+    if (!date) return
+    const range = props.range === 'all' ? 'year' : 'month'
+    emits('view', range, date)
   }
+}
+
+const renderChart = async (data: IReadTimeRecord[]) => {
+  chart?.destroy()
+  const unit = { week: 'day', month: 'day', year: 'month', all: 'year' }[props.range] as 'day' | 'month' | 'year'
+  const displayFormat = { week: 'ddd', month: 'D', year: 'M', all: 'YYYY' }[props.range]
+  const tooltipFormat = { week: 'dddd', month: 'YYYY年M月D日', year: 'YYYY年M月', all: 'YYYY' }[props.range]
+  await document.fonts.load(`12px 'material-symbols-outlined'`)
   chart = new Chart(canvas.value!, {
     type: 'bar',
     data: {
       datasets: [{
         label: '阅读时长',
-        data: data,
+        data: toRaw(data),
         borderRadius: 4,
         backgroundColor: '#007bff'
       }]
     },
     options: {
+      locale: 'zh-CN',
       parsing: {
-        xAxisKey: 'label',
-        yAxisKey: 'durationF'
+        xAxisKey: 'date',
+        yAxisKey: 'duration'
       },
       scales: {
         y: {
           beginAtZero: true,
+          border: { display: false },
           ticks: {
-            callback: (value, index) => {
-              return index % 2 ? '' : value + (maxDuration > 1.5 * 60 * 60 ? 'h' : maxDuration >= 60 ? 'min' : 's')
+            maxTicksLimit: 3,
+            font: {
+              size: 8
+            },
+            callback: (value, index, ticks) => {
+              const val = value as number;
+              const max = Math.max(...ticks.map(item => item.value))
+              if (max > 2 * 60 * 60) {
+                // 超过两小时了，单位使用小时
+                return Math.round(val / 60 / 60) + 'h'
+              }
+              if (max >= 60) {
+                // 超过一分钟了，单位使用分钟
+                return Math.round(val / 60) + 'm'
+              }
+              return val + 's'
             }
           }
         },
         x: {
+          type: 'timeseries',
+          time: {
+            unit,
+            displayFormats: {
+              [unit]: displayFormat
+            },
+            tooltipFormat,
+          },
           grid: { display: false },
         }
       },
       plugins: {
         legend: {
           display: false
+        },
+        tooltip: {
+          displayColors: false,
+          external: (context) => {
+            tooltip = context.tooltip
+          },
+          footerColor: '#007bff',
+          footerFont: {
+            size: 12
+          },
+          callbacks: {
+            label: (item) => {
+              return item.parsed.y ? formatDuration(item.parsed.y) : ''
+            },
+            ...(['year', 'all'].includes(props.range) ? {
+              footer(tooltipItems) {
+                return tooltipItems.map(() => '查看详情')
+              },
+            } : {})
+          }
         }
       },
     }
@@ -264,6 +298,26 @@ watch(dateRange, async ({ start, end }) => {
 
 onBeforeUnmount(() => {
   chart?.destroy()
+})
+
+const calcOffset = (expectDate: string) => {
+  const date = dayjs(expectDate)
+  if (!date.isValid()) return;
+  const year = date.year() - dayjs().year()
+  if (props.range === 'year') {
+    return year
+  }
+  if (props.range === 'month') {
+    return year * 12 + date.month() - dayjs().month()
+  }
+}
+
+defineExpose({
+  view: (expectDate: string) => {
+    const expectOffset = calcOffset(expectDate)
+    if (!expectOffset) return
+    offset.value = expectOffset
+  }
 })
 </script>
 

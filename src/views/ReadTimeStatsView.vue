@@ -4,7 +4,7 @@
     <main>
       <c-tab-nav :list="tabs" v-model="curTab"></c-tab-nav>
       <keep-alive>
-        <read-time-stats :range="curTab" :key="curTab"></read-time-stats>
+        <read-time-stats :range="curTab" :key="curTab" @view="view" ref="readTimeStats"></read-time-stats>
       </keep-alive>
     </main>
   </route-page>
@@ -15,7 +15,7 @@ import RoutePage from '@/components/RoutePage.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import CTabNav from '@/components/common/CTabNav.vue';
 import ReadTimeStats from '@/components/ReadTimeStats.vue';
-import { ref } from 'vue';
+import { nextTick, ref, useTemplateRef } from 'vue';
 
 const tabs = [
   { name: 'week', title: '周' },
@@ -25,6 +25,15 @@ const tabs = [
 ]
 
 const curTab = ref<'week' | 'month' | 'year' | 'all'>('week')
+const rsRef = useTemplateRef('readTimeStats')
+
+const view = async (range: 'month' | 'year', expectDate: string) => {
+  // 此处需要等一下，否则 chart 会报错
+  await new Promise(resolve => setTimeout(resolve, 0));
+  curTab.value = range
+  await nextTick()
+  rsRef.value?.view(expectDate)
+}
 
 </script>
 
