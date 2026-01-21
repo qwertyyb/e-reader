@@ -6,7 +6,7 @@
   "display": "standalone",
   "id": "/e-reader/",
   "description": "易读 E-Reader: 读你想读，自由自在",
-  "theme_color": "#3563A9",
+  "theme_color": "#ffffff",
   "dir": "ltr",
   "lang": "zh",
   "categories": ["utilities", "books",  "personalization", "productivity"],
