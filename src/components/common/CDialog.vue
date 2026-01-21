@@ -6,6 +6,7 @@
         ref="dialog"
         :style="{ height: props.height || 'auto', width: props.width }"
       >
+        <div class="nav-indicator" v-if="position === 'bottom' || !position"></div>
         <header class="c-dialog-header" v-if="$slots.header || title || $slots.title">
           <slot name="header">
             <slot name="title">
@@ -155,6 +156,13 @@ onBeforeUnmount(() => {
   & > * {
     width: 100%;
   }
+}
+.nav-indicator {
+  background: light-dark(#ddd, #444);
+  width: 60px;
+  height: 4px;
+  border-radius: 6px;
+  margin: 16px auto 8px auto;
 }
 .c-dialog-header {
   display: flex;

@@ -193,45 +193,53 @@
       <button class="check-update-btn btn primary-btn" @click="checkUpdates">检查版本更新</button>
     </li>
 
-    <CDialog :visible="syncInfo.visible"
+    <CDialog :visible="dialogVisible"
       height="95vh"
       title="进度同步设置"
-      @close="syncInfo.visible = false"
+      @close="dialogVisible = false"
     >
-      <div class="status-info" :class="{connected: syncInfo.connected}">
-        <p>当前状态：{{ syncInfo.connected ? '已连接' : '未连接' }}</p>
+      <template #header>
+        <div class="header-row">
+          <button class="btn text-btn cancel-btn" @click="dialogVisible = false">取消</button>
+          <div class="header-title">进度同步设置</div>
+          <button class="btn text-btn confirm-btn" @click="registerOrLogin">保存</button>
+        </div>
+      </template>
+      <div class="status-info" :class="{connected: formValue.connected}">
+        <p>当前状态：{{ formValue.connected ? '已连接' : '未连接' }}</p>
       </div>
       <div class="form">
-        <div class="form-item">
-          <div class="form-value">设备: {{ preferences.sync.device }}({{ preferences.sync.deviceId }})</div>
-        </div>
-        <div class="form-item">
+        <div class="form-item row">
           <label for="sync-enabled">启用同步</label>
-          <c-switch v-model="preferences.sync.enabled" @change="syncChangeHandler"></c-switch>
+          <c-switch v-model="formValue.enabled" @change="syncEnableChangeHandler"></c-switch>
         </div>
         <div class="form-item">
           <label for="sync-server-input">服务器</label>
-          <input type="text" class="form-input" id="sync-server-input" :disabled="!preferences.sync.enabled" v-model="preferences.sync.server">
+          <input type="text" class="form-input" id="sync-server-input" :disabled="!formValue.enabled" v-model="formValue.server">
         </div>
         <div class="form-item">
           <label for="sync-username-input">用户名</label>
-          <input type="text" id="sync-username-input" class="form-input" :disabled="!preferences.sync.enabled" v-model="preferences.sync.username">
+          <input type="text" id="sync-username-input" class="form-input" :disabled="!formValue.enabled" v-model="formValue.username">
         </div>
         <div class="form-item">
           <label for="sync-password-input">密码</label>
-          <input type="password" id="sync-password-input" class="form-input" :disabled="!preferences.sync.enabled" v-model="preferences.sync.password">
+          <input type="password" id="sync-password-input" class="form-input" :disabled="!formValue.enabled" v-model="formValue.password">
         </div>
         <div class="form-actions">
-          <button class="btn primary-btn" @click="registerOrLogin" :disabled="!preferences.sync.enabled">注册或登录</button>
           <button class="btn" @click="resetSync">恢复默认</button>
         </div>
+      </div>
+      <div class="device-info">
+        设备信息<br />
+        {{ preferences.sync.device }}<br />
+        {{ preferences.sync.deviceId }}
       </div>
     </CDialog>
   </ul>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, toRaw } from 'vue';
 import CSelect from './common/CSelect.vue';
 import CSwitch from './common/CSwitch.vue';
 import CDialog from './common/CDialog.vue';
@@ -264,33 +272,40 @@ const feedback = () => {
   window.open(env.isIOS() ? `x-safari-${feedbackUrl}` : feedbackUrl, '_blank')
 }
 
-const syncInfo = ref({ device: '', deviceId: '', connected: false, visible: false })
+const dialogVisible = ref(false)
+const formValue = ref({ enabled: false, server: '', username: '', password: '', device: '', deviceId: '', connected: false })
 
 const openSyncDialog = async () => {
-  const { enabled, server, username, password } = preferences.value.sync;
-  syncInfo.value = {
-    ...syncInfo.value,
-    visible: true,
-    connected: false
+  const { enabled, server, username, password, device, deviceId } = preferences.value.sync;
+  formValue.value = {
+    ...toRaw(formValue.value),
+    enabled,
+    server,
+    username,
+    password,
+    device,
+    deviceId,
+    connected: Boolean(enabled && server && username && password && await authUser({ server, username, password }).then(res => res.success))
   }
-  syncInfo.value.connected = Boolean(enabled && server && username && password && await authUser({ server, username, password }).then(res => res.success))
+  dialogVisible.value = true
 }
 
 const registerOrLogin = async () => {
-  const { server, username, password } = preferences.value.sync
+  const { server, username, password, enabled, device, deviceId } = formValue.value
   if (!server || !username || !password) {
     showToast('请输入完整信息')
     return;
   }
-
+  preferences.value.sync = { ...preferences.value.sync, enabled, server, username, password, device, deviceId }
   try {
     await createUser({ server, username, password })
   } catch (err) {
     logger.error('创建同步用户失败', err)
   }
 
-  syncInfo.value.connected = await authUser({ server, username, password }).then(res => {
+  formValue.value.connected = await authUser({ server, username, password }).then(res => {
     showToast('登录成功')
+    dialogVisible.value = false
     return res.success
   }).catch(err => {
     showToast('连接服务器失败,' + err)
@@ -301,12 +316,13 @@ const registerOrLogin = async () => {
 const resetSync = () => {
   const defaultPrfs = getDefaultPreferences()
   preferences.value.sync = { ...defaultPrfs.sync }
-  syncInfo.value = { ...syncInfo.value, ...defaultPrfs.sync, visible: false, connected: false }
+  formValue.value = { ...formValue.value, ...defaultPrfs.sync, connected: false }
+  dialogVisible.value = false
 }
 
-const syncChangeHandler = (value: boolean) => {
+const syncEnableChangeHandler = (value: boolean) => {
   if (!value) {
-    syncInfo.value.connected = false
+    formValue.value.connected = false
     return
   }
   const { server, username, password } = preferences.value.sync
@@ -405,6 +421,7 @@ const syncChangeHandler = (value: boolean) => {
 
 .status-info {
   margin-top: 8px;
+  margin-bottom: 8px;
   font-size: 14px;
   opacity: 0.6;
   position: relative;
@@ -430,19 +447,44 @@ const syncChangeHandler = (value: boolean) => {
     --color: green;
   }
 }
-
+.header-row {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  .header-title {
+    font-weight: bold;
+  }
+  .btn.cancel-btn {
+    margin-left: -16px;
+  }
+  .btn.confirm-btn {
+    margin-right: -16px;
+  }
+}
+.form {
+  background: var(--card-bg-color);
+  padding: 16px;
+  border-radius: 6px;
+}
 .form-item {
   display: flex;
   flex-direction: column;
   font-size: 16px;
-  margin-top: 16px;
+  &.row {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  & + .form-item {
+    margin-top: 16px;
+  }
   label {
     opacity: 0.8;
   }
   .form-input {
     margin-top: 6px;
     font-size: 16px;
-    padding: 6px 8px;
+    padding: 6px 0;
     outline: none;
     border: none;
     border-bottom: 1px solid var(--border-color);
@@ -454,6 +496,12 @@ const syncChangeHandler = (value: boolean) => {
 }
 .form-actions {
   margin-top: 16px;
+}
+.device-info {
+  font-size: 12px;
+  opacity: 0.6;
+  text-align: center;
+  margin-top: 60px;
 }
 
 </style>
