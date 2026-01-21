@@ -55,7 +55,7 @@ export class DarkMode extends TypedEventTarget<{
   exit() {
     logger.info('exit darkMode')
     document.documentElement.classList.remove('dark')
-    SystemBars.setStyle({ style: SystemBarsStyle.Dark })
+    SystemBars.setStyle({ style: SystemBarsStyle.Default })
     this.#changeHandler()
   }
 
