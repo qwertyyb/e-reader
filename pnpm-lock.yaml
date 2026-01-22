@@ -34,9 +34,6 @@ importers:
       '@capacitor/ios':
         specifier: ^8.0.0
         version: 8.0.0(@capacitor/core@8.0.0)
-      '@capacitor/splash-screen':
-        specifier: ^8.0.0
-        version: 8.0.0(@capacitor/core@8.0.0)
       '@floating-ui/vue':
         specifier: ^1.1.9
         version: 1.1.9(vue@3.5.26(typescript@5.6.3))
@@ -540,11 +537,6 @@ packages:
     resolution: {integrity: sha512-gwSn6X4uHYNHlM8zZmVmM1zjEhexxbHpPSSnH1DZkp8o3zdK/RmH8tmDma+3zPZrhhTSrMC7sT24dKTOvV8www==}
     peerDependencies:
       '@capacitor/core': ^8.0.0
-
-  '@capacitor/splash-screen@8.0.0':
-    resolution: {integrity: sha512-zkFdUSd6C6gd3s3bIEgtO3DVjfwpaX5mmWU9er8xYTg47zr2toEkGtfyE6CPhhErG09fl4rCqrK5DfnGrXLh9w==}
-    peerDependencies:
-      '@capacitor/core': '>=8.0.0'
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -4991,10 +4983,6 @@ snapshots:
       tslib: 2.8.1
 
   '@capacitor/ios@8.0.0(@capacitor/core@8.0.0)':
-    dependencies:
-      '@capacitor/core': 8.0.0
-
-  '@capacitor/splash-screen@8.0.0(@capacitor/core@8.0.0)':
     dependencies:
       '@capacitor/core': 8.0.0
 

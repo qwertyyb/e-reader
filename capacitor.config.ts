@@ -10,12 +10,6 @@ const config: CapacitorConfig = {
   server: {
     appStartPath: '/e-reader/index.html'
   },
-  plugins: {
-    SplashScreen: {
-      splashFullScreen: true,
-      splashImmersive: true
-    },
-  }
 }
 
 if (runEnv === 'dev') {

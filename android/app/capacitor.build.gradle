@@ -12,7 +12,6 @@ dependencies {
     implementation project(':capacitor-community-text-to-speech')
     implementation project(':capacitor-community-volume-buttons')
     implementation project(':capacitor-app')
-    implementation project(':capacitor-splash-screen')
 
 }
 
