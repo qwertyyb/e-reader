@@ -2,7 +2,8 @@
   <div class="selection-menu">
     <div class="selection-menu-content-wrapper"
       @pointerdown.capture="isPointerDown = true"
-      @pointerup.capture="isPointerDown = false;updateFloating()"
+      @pointerup.capture="pointerUpHandler"
+      @pointercancel.capture="pointerUpHandler"
       @tap.capture="contentTapHandler"
       ref="contentWrapper">
       <slot></slot>
@@ -141,6 +142,8 @@ const visible = computed(() => {
 })
 
 watch(() => visible.value || dialog.value, (val) => val ? emits('show') : emits('hide'))
+
+logger.info('state', isPointerDown, mark)
 
 onMounted(() => {
   document.addEventListener('selectionchange', selectionChangeHandler)
@@ -308,6 +311,12 @@ const saveThought = async () => {
   refreshMark()
   dialog.value = null
   updateMenuRect()
+}
+
+const pointerUpHandler = () => {
+  logger.info('pointerUpHandler')
+  isPointerDown.value = false
+  updateFloating()
 }
 
 const contentTapHandler = async (e: PointerEvent) => {

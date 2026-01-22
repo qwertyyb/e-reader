@@ -145,6 +145,7 @@ export const supportTapEvent = () => {
     startY = event.screenY
   })
   window.addEventListener('pointerup', (event) => {
+    logger.info('supportTapEvent pointerup', Date.now() - startTime > time, Math.abs(event.screenX - startX) > threshold, Math.abs(event.screenY - startY) > threshold, event.target !== target, event.target)
     if (Date.now() - startTime > time) return;
     if (Math.abs(event.screenX - startX) > threshold || Math.abs(event.screenY - startY) > threshold) return;
     if (event.target !== target) return;
@@ -167,6 +168,7 @@ export const supportTapEvent = () => {
       screenY: event.screenY,
     })
     tapEvent.rawEvent = event;
+    logger.info('supportTapEvent pointerup tapEvent', tapEvent)
     event.target?.dispatchEvent(tapEvent)
   })
 }
