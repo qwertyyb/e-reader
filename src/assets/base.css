@@ -22,6 +22,10 @@
   --text-color: #333;
   --shadow-color: rgba(0, 0, 0, 0.2);
   --card-bg-color: #fff;
+  --grey-color-3: #acacac;
+  --card-light-bg-color: #d0d0d0;
+  --card-light-bg-color-1: #e3e3e3;
+
   --card-border-color: #f4f4f4;
   --selected-bg-color: none;
   --selected-text-color: var(--theme-color);

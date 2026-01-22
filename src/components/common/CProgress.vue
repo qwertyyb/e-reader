@@ -86,13 +86,13 @@ const action = (action: 'dec' | 'inc') => {
   margin: 0 6px;
   height: var(--progress-height);
   position: relative;
-  background-color: light-dark(#e3e3e3, #333);
+  background-color: var(--card-light-bg-color-1);
   border-radius: 9999px;
 }
 
 .c-progress .c-progress-bar .c-progress-line {
   height: 100%;
-  background: light-dark(#d0d0d0, #444);
+  background-color: var(--card-light-bg-color);
   border-radius: 9999px;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
@@ -106,7 +106,7 @@ const action = (action: 'dec' | 'inc') => {
   top: 0;
   left: 50%;
   margin-left: calc(0px - var(--progress-height) / 2);
-  background: light-dark(#fff, #000);
+  background: var(--card-bg-color);
   font-size: 12px;
   display: flex;
   justify-content: center;

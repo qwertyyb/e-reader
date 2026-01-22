@@ -148,7 +148,9 @@ interface IPreferences {
   opdsServerUrl?: string;
   ai: { baseURL: string, apiKey: string, model: string };
   sync: { enabled: boolean, server: string, username: string, password: string, device: string, deviceId: string };
-  tts?: 'local' | 'edge-tts'
+  tts?: 'local' | 'edge-tts',
+
+  volumeControl: 'disabled' | 'normal' | 'reverse', // 音量键翻页，仅 APP 内生效
 }
 
 interface DocumentEventMap {

@@ -94,8 +94,9 @@ const markListWithStyle = computed(() => {
 }
 .mark-list .mark-quote-wrapper .pre-line {
   width: 3px;
+  flex-shrink: 0;
   margin-top: 2px;
-  background: light-dark(#ccc, #666);
+  background: var(--card-light-bg-color-1);
   margin-right: 6px;
   border-radius: 999px;
 }
@@ -114,7 +115,7 @@ const markListWithStyle = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: light-dark(#eee, #444);
+  background-color: var(--card-light-bg-color-1);
   border-radius: 9999px;
 }
 </style>

@@ -32,6 +32,25 @@
           >
           </c-select>
         </li>
+
+        <li class="prfs-item" v-if="isApp">
+          <div class="prfs-label">
+            <div class="prfs-title">音量键翻页</div>
+            <div class="prfs-desc">仅在翻页方式为横向滑动时生效</div>
+          </div>
+          <c-select
+            title="音量键翻页"
+            v-model="preferences.volumeControl"
+            class="prfs-control"
+            :options="[
+              { label: '禁用', value: 'disabled', subtitle: '禁用音量键翻页' },
+              { label: '启用', value: 'normal', subtitle: '音量+上一页，音量-下一页' },
+              { label: '反向', value: 'reverse', subtitle: '音量+下一页，音量-上一页' }
+            ]"
+          >
+          </c-select>
+        </li>
+
         <li class="prfs-item">
           <div class="prfs-label">自动打开上次阅读</div>
           <div class="prfs-control">
@@ -262,6 +281,8 @@ const checkUpdates = async () => {
   document.dispatchEvent(new CustomEvent('app:checkupdates', { detail: { slient: false } }))
 }
 
+const isApp = env.isApp() || import.meta.env.DEV
+
 const clearCache = async () => {
   await clearAllCache();
   showToast('缓存已清除')
@@ -372,6 +393,9 @@ const syncEnableChangeHandler = (value: boolean) => {
   & + .prfs-item {
     border-top: 1px solid var(--card-border-color);
   }
+  .c-select {
+    width: auto;
+  }
 }
 .prfs-group-title {
   margin-top: 16px;
@@ -404,9 +428,15 @@ const syncEnableChangeHandler = (value: boolean) => {
 }
 
 .prfs-label {
-  flex: 0 0 140px;
+  // flex: 0 0 140px;
+  flex: 1;
   font-size: 17px;
   font-weight: 500;
+  .prfs-desc {
+    font-size: 12px;
+    opacity: 0.4;
+    font-weight: normal;
+  }
 }
 
 .text-input {

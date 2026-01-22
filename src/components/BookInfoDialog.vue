@@ -127,6 +127,6 @@ watch(() => props.visible, async (visible) => {
   left: 0;
   width: 1px;
   height: 40px;
-  background: light-dark(#ddd, #333);
+  background: var(--card-light-bg-color);
 }
 </style>

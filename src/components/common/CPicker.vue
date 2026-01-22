@@ -3,7 +3,6 @@
     :visible="visible"
     @close="$emit('close')"
     class="c-picker"
-    body-style="padding: 16px 0"
     :title="title"
     @open="openHandler"
   >
@@ -58,8 +57,10 @@ const openHandler = async () => {
 .c-picker-title {
   width: 100%;
   text-align: center;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: normal;
+  opacity: 0.6;
+  font-weight: bold;
 }
 .close-icon {
   position: absolute;

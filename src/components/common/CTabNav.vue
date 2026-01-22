@@ -36,7 +36,7 @@ const toggle = async (item: { name: string, title: string }, event: PointerEvent
   display: flex;
   align-items: center;
   border-radius: 9999px;
-  background: light-dark(#ddd, #3a3a3a);
+  background: var(--card-light-bg-color-1);
   padding: 4px;
   font-size: 13px;
 }

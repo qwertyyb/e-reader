@@ -13,6 +13,7 @@ import Logger from 'js-logger'
 import { createGesture } from '@/utils/gesture';
 import { settings } from '@/stores/settings';
 import { VolumeButtons } from '@capacitor-community/volume-buttons'
+import { preferences } from '@/stores/preferences';
 
 const logger = Logger.get('HorizationalChapterContents')
 
@@ -222,10 +223,11 @@ const init = async () => {
     })
   ])
   scrollToCursor(props.defaultCursor)
-  if (env.isApp()) {
+  if (env.isApp() && ['normal', 'reverse'].includes(preferences.value.volumeControl)) {
     VolumeButtons.clearWatch()
     VolumeButtons.watchVolume({ disableSystemVolumeHandler: true, suppressVolumeIndicator: true }, (event) => {
-      if (event.direction === 'up') {
+      const shouldNext = preferences.value.volumeControl === 'normal' ? event.direction === 'down' : event.direction === 'up'
+      if (shouldNext) {
         nextPage()
       } else {
         prevPage()

@@ -338,7 +338,7 @@ defineExpose({
     & > * {
       padding: 4px;
       border-radius: 9999px;
-      background: light-dark(#ddd, #333);
+      background: var(--card-light-bg-color-1);
       text-align: center;
       &.disabled {
         opacity: 0.4;
@@ -370,7 +370,7 @@ defineExpose({
     font-size: 14px;
     .calendar-icon {
       font-size: 20px;
-      background: light-dark(#ddd, #555);
+      background: var(--card-light-bg-color-1);
       padding: 4px;
       border-radius: 9999px;
     }

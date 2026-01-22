@@ -74,9 +74,9 @@ const { floatingStyles: floatingStyles } = useFloating(reference, floating, {
 }
 .underline-submenu-list {
   display: flex;
-  background: light-dark(#fff, #000);
+  background: var(--card-bg-color);
   padding: 6px 12px;
-  box-shadow: 1px 2px 2px light-dark(#bbb, #222);
+  box-shadow: 1px 2px 2px var(--shadow-color);
   list-style: none;
   border-radius: 99999px;
   width: 322px;

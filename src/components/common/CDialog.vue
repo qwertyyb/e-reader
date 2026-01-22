@@ -158,7 +158,7 @@ onBeforeUnmount(() => {
   }
 }
 .nav-indicator {
-  background: light-dark(#ddd, #444);
+  background: var(--card-light-bg-color);
   width: 60px;
   height: 4px;
   border-radius: 6px;

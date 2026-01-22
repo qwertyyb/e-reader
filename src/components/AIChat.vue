@@ -254,7 +254,6 @@ defineExpose({
   }
   .query-item {
     padding: 4px 16px;
-    border: 1px solid light-dark(#dadada, #333);
     background: var(--card-bg-color);
     border-radius: 6px;
     white-space: nowrap;

@@ -170,7 +170,7 @@ const toResult = (source: IResult, result: { cursor: number, text: string }) => 
   align-items: center;
   position: relative;
   flex: 1;
-  background: light-dark(#d8d8d8, #333);
+  background: var(--card-light-bg-color-1);
   border-radius: 9999px;
   padding: 4px 8px;
   height: 30px;
@@ -208,27 +208,28 @@ const toResult = (source: IResult, result: { cursor: number, text: string }) => 
     display: block;
     width: 1px;
     height: 14px;
-    background: light-dark(#bbb, #777);
+    background: var(--card-light-bg-color);
   }
 }
 .regexp-icon {
   font-size: 18px;
-  color: light-dark(#555, #aaa);
+  opacity: 0.6;
   padding: 0 4px;
   height: 30px;
   line-height: 30px;
   margin-right: 8px;
 }
 .regexp-icon.active {
-  background: light-dark(#bbb, #444);
+  background: var(--selected-bg-color);
+  color: var(--selected-text-color);
 }
 .close-icon {
   font-size: 12px;
   font-weight: 600;
   border-radius: 999px;
-  background: light-dark(#acacac, #888);
+  background: var(--grey-color-3);
   padding: 2px;
-  color: light-dark(#fff, #444);
+  color: var(--card-bg-color);
   margin-right: 8px;
 }
 
@@ -265,7 +266,7 @@ const toResult = (source: IResult, result: { cursor: number, text: string }) => 
   letter-spacing: 0.5px;
   &:deep(mark) {
     text-decoration: none;
-    color: light-dark(rgb(0, 64, 255), rgb(70, 116, 255));
+    color: var(--theme-color);
   }
 }
 .chapter-result-item + .chapter-result-item {

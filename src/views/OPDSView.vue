@@ -324,7 +324,7 @@ const search = async () => {
   display: flex;
   align-items: center;
   position: relative;
-  background: light-dark(#d8d8d8, #333);
+  background: var(--card-light-bg-color);
   border-radius: 9999px;
   padding: 4px 8px;
   height: 30px;
@@ -364,16 +364,16 @@ const search = async () => {
     display: block;
     width: 1px;
     height: 14px;
-    background: light-dark(#bbb, #777);
+    background: var(--grey-color-3);
   }
 }
 .close-icon {
   font-size: 12px;
   font-weight: 600;
   border-radius: 999px;
-  background: light-dark(#acacac, #888);
+  background: var(--grey-color-3);
   padding: 2px;
-  color: light-dark(#fff, #444);
+  color: var(--card-bg-color);
   margin-right: 8px;
 }
 

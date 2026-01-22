@@ -129,7 +129,7 @@ const floating = useTemplateRef('floating')
 const arrowEl = useTemplateRef('floating-arrow')
 const { floatingStyles, update: updateMenuRect, middlewareData, update: updateFloating } = useFloating(reference, floating, {
   placement: 'bottom',
-  middleware: [offset(12), shift({ padding: 12 }), arrow({ element: arrowEl, padding: 6 })] 
+  middleware: [offset(12), shift({ padding: 12 }), arrow({ element: arrowEl, padding: 6 })]
 });
 
 const contentWrapperRef = useTemplateRef('contentWrapper')
@@ -433,7 +433,7 @@ const actionHandler = async (event: Event, action: string) => {
     height: 0;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
-    border-bottom: 8px solid light-dark(#fff, #000);
+    border-bottom: 8px solid var(--card-bg-color);
   }
 }
 @keyframes pulse {
@@ -444,7 +444,7 @@ const actionHandler = async (event: Event, action: string) => {
 .selection-menu-list {
   position: relative;
   z-index: 2;
-  background: light-dark(#fff, #000);
+  background: var(--card-bg-color);
   border-radius: 4px;
   list-style: none;
   display: flex;

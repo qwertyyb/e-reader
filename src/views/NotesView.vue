@@ -129,10 +129,10 @@ refresh()
     opacity: 0.8;
   }
   .icon {
-    font-size: 20px;
+    font-size: 24px;
   }
   .desc {
-    font-size: 10px;
+    font-size: 12px;
     margin-top: 4px;
   }
 }

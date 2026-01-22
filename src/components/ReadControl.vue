@@ -562,7 +562,7 @@ defineExpose({
 .auto-play-toggle {
   display: flex;
   align-items: center;
-  background-color: light-dark(#e3e3e3, #333);
+  background-color: var(--card-light-bg-color-1);
   padding: 4px 12px;
   border-radius: 9999px;
   width: fit-content;

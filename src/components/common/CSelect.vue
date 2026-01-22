@@ -196,7 +196,7 @@ const selectOption = (option: { value: T, label: string }) => {
     }
   }
   .c-select-option {
-    background: light-dark(#fff, #000);
+    background: var(--card-bg-color);
     padding: 4px 16px;
     &:first-child {
       padding-top: 8px;

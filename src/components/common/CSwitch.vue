@@ -53,7 +53,7 @@ const handleChange = () => {
   width: var(--width); /* Increased from 48px */
   height: var(--height); /* Increased from 24px */
   border-radius: 16px; /* Increased from 12px */
-  background-color: light-dark(#bbb, #444);
+  background-color: var(--card-light-bg-color);
   cursor: pointer;
   padding: 2px;
 }

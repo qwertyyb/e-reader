@@ -92,7 +92,8 @@ export const getDefaultPreferences = (): IPreferences => ({
     baseURL: '',
     model: '',
     apiKey: ''
-  }
+  },
+  volumeControl: 'disabled'
 })
 
 export const readColorScheme: Record<string, IColorScheme> = {
