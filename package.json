@@ -12,7 +12,8 @@
     "lint": "eslint . --fix",
     "dev:android": "RUN_ENV=dev cap run android",
     "dev:ios": "RUN_ENV=dev cap run ios",
-    "build:android": "rm -rf appdist/e-reader && mkdir -p appdist/e-reader && cp -R dist/* appdist/e-reader/ && cp dist/index.html appdist/index.html && cap run android"
+    "build:android": "rm -rf appdist/e-reader && mkdir -p appdist/e-reader && cp -R dist/* appdist/e-reader/ && cp dist/index.html appdist/index.html && cap run android",
+    "generate-icon": "npx @capacitor/assets generate --iconBackgroundColor '#ffffff' --iconBackgroundColorDark '#000000' --splashBackgroundColor '#ffffff' --splashBackgroundColorDark '#000000' --android --ios"
   },
   "dependencies": {
     "@capacitor-community/text-to-speech": "^6.1.0",
@@ -21,6 +22,7 @@
     "@capacitor/app": "^8.0.0",
     "@capacitor/core": "^8.0.0",
     "@capacitor/ios": "^8.0.0",
+    "@capacitor/splash-screen": "^8.0.0",
     "@floating-ui/vue": "^1.1.9",
     "@types/markdown-it": "^14.1.2",
     "@zip.js/zip.js": "^2.7.60",
@@ -55,6 +57,7 @@
     "vue-virtual-list-v3": "^1.5.7"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^8.0.0",
     "@tsconfig/node22": "^22.0.0",
     "@types/mark.js": "^8.11.12",
