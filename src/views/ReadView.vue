@@ -223,7 +223,7 @@ const getProgress = (
       progress: local
     } : null
   }
-  if ((local?.lastReadTime ?? 0) >= remote.timestamp) {
+  if ((local?.lastReadTime ?? 0) >= remote.timestamp && local?.cursor) {
     return {
       type: 'local',
       progress: local!

@@ -7,11 +7,12 @@
 <script setup lang="ts">
 import { debounce, showToast } from '@/utils';
 import { renderChapter } from '@/utils/chapter';
-import { disableAnim, isSmall } from '@/utils/env';
+import { disableAnim, env, isSmall } from '@/utils/env';
 import { computed, nextTick, onBeforeUnmount, useTemplateRef, watch } from 'vue'
 import Logger from 'js-logger'
 import { createGesture } from '@/utils/gesture';
 import { settings } from '@/stores/settings';
+import { VolumeButtons } from '@capacitor-community/volume-buttons'
 
 const logger = Logger.get('HorizationalChapterContents')
 
@@ -179,6 +180,7 @@ watch(isSmall, async (val) => {
 
 onBeforeUnmount(() => {
   gesture?.clean()
+  VolumeButtons.clearWatch()
 })
 
 const scrollHandler = debounce(() => {
@@ -220,6 +222,16 @@ const init = async () => {
     })
   ])
   scrollToCursor(props.defaultCursor)
+  if (env.isApp()) {
+    VolumeButtons.clearWatch()
+    VolumeButtons.watchVolume({ disableSystemVolumeHandler: true, suppressVolumeIndicator: true }, (event) => {
+      if (event.direction === 'up') {
+        nextPage()
+      } else {
+        prevPage()
+      }
+    })
+  }
 }
 
 init()

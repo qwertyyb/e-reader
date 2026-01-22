@@ -19,6 +19,9 @@ importers:
       '@capacitor-community/text-to-speech':
         specifier: ^6.1.0
         version: 6.1.0(@capacitor/core@8.0.0)
+      '@capacitor-community/volume-buttons':
+        specifier: ^7.0.0
+        version: 7.0.0(@capacitor/core@8.0.0)
       '@capacitor/android':
         specifier: ^8.0.0
         version: 8.0.0(@capacitor/core@8.0.0)
@@ -490,6 +493,12 @@ packages:
 
   '@capacitor-community/text-to-speech@6.1.0':
     resolution: {integrity: sha512-K9kbQm7BEkUGhZQYMrPaLfHTbOjQPtXZyQTtZxR+lNJyl1pbSFWwRmK3PCIa5C5M2HLf3iPgj/vTaMvMxlk1Ag==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
+
+  '@capacitor-community/volume-buttons@7.0.0':
+    resolution: {integrity: sha512-Co9Cz0XhZs1REIPWGYF9CKqiBGFxnmQx9C32CYlW9//JrclYpn+DGmN3aGlIPfXDSifL57LBBids6MswnRd8tA==}
+    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
     peerDependencies:
       '@capacitor/core': '>=7.0.0'
 
@@ -3890,6 +3899,10 @@ snapshots:
   '@bufbuild/protobuf@2.2.3': {}
 
   '@capacitor-community/text-to-speech@6.1.0(@capacitor/core@8.0.0)':
+    dependencies:
+      '@capacitor/core': 8.0.0
+
+  '@capacitor-community/volume-buttons@7.0.0(@capacitor/core@8.0.0)':
     dependencies:
       '@capacitor/core': 8.0.0
 

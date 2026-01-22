@@ -5,5 +5,8 @@ project(':capacitor-android').projectDir = new File('../node_modules/.pnpm/@capa
 include ':capacitor-community-text-to-speech'
 project(':capacitor-community-text-to-speech').projectDir = new File('../node_modules/.pnpm/@capacitor-community+text-to-speech@6.1.0_@capacitor+core@8.0.0/node_modules/@capacitor-community/text-to-speech/android')
 
+include ':capacitor-community-volume-buttons'
+project(':capacitor-community-volume-buttons').projectDir = new File('../node_modules/.pnpm/@capacitor-community+volume-buttons@7.0.0_@capacitor+core@8.0.0/node_modules/@capacitor-community/volume-buttons/android')
+
 include ':capacitor-app'
 project(':capacitor-app').projectDir = new File('../node_modules/.pnpm/@capacitor+app@8.0.0_@capacitor+core@8.0.0/node_modules/@capacitor/app/android')
