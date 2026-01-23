@@ -240,11 +240,28 @@ onMounted(() => {
 
     &.selected {
       border-color: var(--theme-color);
+      .front-preview-image {
+        filter: invert(0);
+      }
     }
 
     &:hover {
       border-color: var(--theme-color-hover);
     }
+  }
+}
+
+html.more-contrast.dark {
+  .font-selector-picker .c-option.selected .font-preview-image {
+    filter: invert(0);
+  }
+  .font-selector .font-preview-image {
+    filter: invert(1);
+  }
+}
+html.more-contrast:not(.dark) {
+  .font-selector-picker .c-option.selected .font-preview-image {
+    filter: invert(1);
   }
 }
 
