@@ -9,7 +9,7 @@ const config: CapacitorConfig = {
   webDir: 'appdist',
   server: {
     appStartPath: '/e-reader/index.html'
-  },
+  }
 }
 
 if (runEnv === 'dev') {

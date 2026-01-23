@@ -51,7 +51,7 @@ if (import.meta.env.DEV && !env.isApp()) {
   document.documentElement.classList.add('mock-safe-area')
 }
 
-if (import.meta.env.PROD) {
+if (import.meta.env.PROD && !env.isApp()) {
   register()
 } else {
   unregister()

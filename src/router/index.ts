@@ -131,6 +131,17 @@ const router = createRouter({
           return `${String(route.name)}-${route.query.url}`
         }
       }
+    },
+    {
+      path: '/debug',
+      name: 'debug',
+      children: [
+        {
+          path: 'font',
+          name: 'fontDebug',
+          component: () => import('@/views/debug/FontImageView.vue')
+        }
+      ]
     }
   ],
 })
