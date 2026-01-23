@@ -38,6 +38,7 @@
       @select="selectOption"
       @close="optionsVisible=false"
       :layout="layout"
+      :class="pickerClass"
     >
       <template v-slot:option="{ option, index, selected }">
         <slot name="option" :option="option" :index="index" :selected="selected"></slot>
@@ -60,7 +61,8 @@ const emit = defineEmits<{
 
 const props = defineProps<{
   title?: string
-  layout?: 'list' | 'grid'
+  layout?: 'list' | 'grid',
+  pickerClass?: string,
   options: {
     label: string
     value: T,

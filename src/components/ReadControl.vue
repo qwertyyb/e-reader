@@ -131,24 +131,10 @@
           </c-select>
         </div>
         <div class="font-family-and-turn-page line-item">
-          <c-select
-            title="字体"
+          <font-selector
             v-model="settings.fontFamily"
             class="font-family-select"
-            :options="fontFamilyList"
-            layout="grid"
-          >
-            <template v-slot="{ label }">
-              <div class="font-family-label"
-                :data-font="settings.fontFamily">
-                {{ label || '默认' }}
-              </div>
-              <span class="material-symbols-outlined arrow-icon" style="margin-left: auto">chevron_right</span>
-            </template>
-            <template v-slot:option="{ option }">
-              <div class="option-label" :data-font="option.value">{{ option.label }}</div>
-            </template>
-          </c-select>
+          />
           <c-select
             title="翻页方式"
             v-model="settings.turnPageType"
@@ -230,7 +216,8 @@ import { AutoPlay, ReadSpeak } from '@/actions';
 import { computed, inject, onBeforeUnmount, type Ref, ref } from 'vue';
 import CProgress from '@/components/common/CProgress.vue';
 import CSelect from '@/components/common/CSelect.vue';
-import { fontFamilyList, readColorScheme, textIndentList } from '@/config';
+import FontSelector from '@/components/FontSelector.vue';
+import { readColorScheme, textIndentList } from '@/config';
 import { settings } from '@/stores/settings';
 import { EdgeTTSReadSpeak, type GetNextElement } from '@/actions/read-speak';
 import { darkMode, preferences } from '@/stores/preferences';
@@ -462,20 +449,6 @@ defineExpose({
 }
 .control-panel.font-panel > div {
   width: 100%;
-}
-.control-panel.font-panel .font-family {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.control-panel.font-panel .font-family .c-select {
-  flex: 1;
-}
-.control-panel.font-panel .font-family-label {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  max-width: 100%;
 }
 .control-panel.font-panel .font-weight {
   display: flex;
