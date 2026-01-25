@@ -102,8 +102,8 @@ jobs:
         run: pnpm run build:android --keystorepath ${{ github.workspace }}/android-release.jks --keystorepass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }} --keystorealias ${{ secrets.ANDROID_KEYSTORE_ALIAS }} --keystorealiaspass ${{ secrets.ANDROID_KEYSTORE_ALIAS_PASSWORD }}
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: android-release
           path: ./android/app/build/outputs/apk/release/app-release-signed.apk
-          retention-days: 10
+          retention-days: 1
