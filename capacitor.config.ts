@@ -9,6 +9,11 @@ const config: CapacitorConfig = {
   webDir: 'appdist',
   server: {
     appStartPath: '/e-reader/index.html'
+  },
+  android: {
+    buildOptions: {
+      releaseType: 'APK'
+    }
   }
 }
 

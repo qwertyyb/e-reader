@@ -88,3 +88,22 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      
+      - name: Decode keystore file
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d > android-release.jks
+
+      - name: Build App
+        run: pnpm run build:android --keystorepath ${{ github.workspace }}/android-release.jks --keystorepass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }} --keystorealias ${{ secrets.ANDROID_KEYSTORE_ALIAS }} --keystorealiaspass ${{ secrets.ANDROID_KEYSTORE_ALIAS_PASSWORD }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: android-release
+          path: ./android/app/build/outputs/apk/release/app-release-signed.apk
+          retention-days: 10

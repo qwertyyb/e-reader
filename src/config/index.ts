@@ -1,4 +1,5 @@
-import { getDeviceInfo } from "@/utils/env";
+import { APP_DEFAULT_OPDS_SERVER_URL, APP_DEFAULT_REMOTE_SHELF_URL } from "@/constant";
+import { env, getDeviceInfo } from "@/utils/env";
 import dedent from "dedent";
 
 // 需要在 assets/font.scss 中定义
@@ -79,8 +80,8 @@ export const getDefaultPreferences = (): IPreferences => ({
   screenKeepAlive: 'reading',
   darkMode: 'system',
   autoOpenLastRead: true,
-  shelfServerUrl: './books/index.json',
-  opdsServerUrl: './opds/root.xml',
+  shelfServerUrl: env.isApp() ? APP_DEFAULT_REMOTE_SHELF_URL : './books/index.json',
+  opdsServerUrl: env.isApp() ? APP_DEFAULT_OPDS_SERVER_URL : './opds/root.xml',
   sync: {
     enabled: true,
     server: 'https://e-reader.qwertyyb.cn',
@@ -93,7 +94,7 @@ export const getDefaultPreferences = (): IPreferences => ({
     model: '',
     apiKey: ''
   },
-  volumeControl: 'disabled'
+  volumeControl: env.isApp() ? 'normal' :'disabled'
 })
 
 export const readColorScheme: Record<string, IColorScheme> = {

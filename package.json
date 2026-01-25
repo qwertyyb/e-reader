@@ -12,7 +12,7 @@
     "lint": "eslint . --fix",
     "dev:android": "RUN_ENV=dev cap run android",
     "dev:ios": "RUN_ENV=dev cap run ios",
-    "build:android": "rm -rf appdist/e-reader && mkdir -p appdist/e-reader && cp -R dist/* appdist/e-reader/ && cp dist/index.html appdist/index.html && node scripts/replace-html-script.mjs && RUN_ENV=prod cap run android",
+    "build:android": "rm -rf appdist/e-reader && mkdir -p appdist/e-reader && cp -R dist/* appdist/e-reader/ && cp dist/index.html appdist/index.html && rm -rf appdist/e-reader/books && rm -rf appdist/e-reader/snapshots && node scripts/replace-html-script.mjs && RUN_ENV=prod cap build android",
     "generate-icon": "npx @capacitor/assets generate --iconBackgroundColor '#ffffff' --iconBackgroundColorDark '#000000' --splashBackgroundColor '#ffffff' --splashBackgroundColorDark '#000000' --android --ios"
   },
   "dependencies": {
@@ -71,6 +71,7 @@
     "eslint": "^9.14.0",
     "eslint-plugin-vue": "^9.30.0",
     "npm-run-all2": "^7.0.1",
+    "plist": "^3.1.0",
     "rollup-plugin-visualizer": "^6.0.1",
     "sass-embedded": "^1.83.0",
     "typescript": "~5.6.3",
