@@ -94,6 +94,9 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
       
+      - name: Sync Capacitor
+        run: npx cap sync
+      
       - name: Decode keystore file
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d > android-release.jks
