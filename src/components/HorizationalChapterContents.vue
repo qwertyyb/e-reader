@@ -334,10 +334,15 @@ defineExpose({
   background-image: var(--read-bg-image);
   background-size: cover;
   background-color: var(--read-bg-color);
-  overflow-x: hidden;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
   position: relative;
   user-select: text;
   -webkit-user-select: text;
+  &::column {
+    scroll-snap-align: start;
+    scroll-margin-left: calc(var(--column-gap) / 2);
+  }
   * {
     color: var(--read-text-color);
   }

@@ -1,5 +1,5 @@
 <template>
-  <div class="tab-view book-shelf">
+  <div class="tab-view">
     <div class="tab-panel-container">
       <c-router-view></c-router-view>
     </div>
@@ -109,11 +109,12 @@ watch(router.currentRoute, route => {
     flex-direction: row-reverse;
   }
   .tab-nav-list {
-    height: 100vh;
     width: 200px;
     flex-direction: column;
     border-right: 1px solid var(--border-color);
     border-top: none;
+    margin-top: var(--sait);
+    height: calc(100vh - var(--sait));
   }
   .tab-nav-item {
     flex-direction: row;

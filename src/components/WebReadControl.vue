@@ -389,7 +389,7 @@ defineExpose({
   border-bottom: 1px solid var(--border-color);
   box-shadow: 7px 14px 10px 0px rgba(0,0,0,0.1);
   text-align: center;
-  padding-bottom: var(--saib);
+  padding-top: var(--sait);
   box-sizing: content-box;
   position: relative;
   z-index: 4;
@@ -424,6 +424,12 @@ defineExpose({
   min-width: 375px;
   font-size: 16px;
   border: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column;
+  box-sizing: border-box;
+  max-height: calc(90vh - 48px - var(--sait) - var(--saib) - 16px);
+  overflow: auto;
   .divider {
     height: 2px;
     background-color: var(--border-color);
@@ -434,14 +440,6 @@ defineExpose({
   }
 }
 
-.control-panel {
-  display: flex;
-  justify-content: space-around;
-  flex-direction: column;
-  box-sizing: border-box;
-  max-height: calc(100vh - 48px - var(--sait) - var(--saib) - 16px);
-  overflow: auto;
-}
 .line-item {
   display: flex;
   gap: 20px;
