@@ -17,10 +17,11 @@
 import CDialog from "@/components/common/CDialog.vue";
 import { disableCache, showToast } from "@/utils";
 import { defineAsyncComponent, onBeforeUnmount, ref } from "vue";
-import { updateInterval } from '@/constant';
+import { ANDROID_APK_BASE_URL, updateInterval } from '@/constant';
 import { version } from '@/version';
 import { bridge } from "@/register-sw";
-import { isSmall } from "@/utils/env";
+import { env, isSmall } from "@/utils/env";
+import { checkInstallApkPermission, downloadAndInstall, requestInstallApkPermission } from "@/platform/auto-update";
 
 const MarkdownViewer = defineAsyncComponent(() => import('@/components/MarkdownViewer.vue'))
 
@@ -55,14 +56,35 @@ const checkUpdates = async ({ slient = false } = {}) => {
   visible.value = true
 }
 
-const update = async () => {
-  showToast('开始更新...')
-  await bridge.invoke('update').catch(err => {
-    showToast('更新失败')
+const androidAppUpdate = async (url: string) => {
+  const granted = await checkInstallApkPermission()
+  if (!granted) {
+    showToast('请先允许安装应用')
+    requestInstallApkPermission()
+    return
+  }
+  showToast('下载新版本...')
+  try {
+    await downloadAndInstall(url)
+  } catch (err) {
+    showToast('安装失败, ' + String(err))
     throw err
-  })
-  showToast('更新成功，页面自动刷新中...')
-  location.reload()
+  }
+}
+
+const update = async () => {
+  if (env.isApp()) {
+    const url = new URL(`e-reader-v${newVersionInfo.value.version}.apk`, ANDROID_APK_BASE_URL)
+    androidAppUpdate(url.toString())
+  } else {
+    showToast('开始更新...')
+    await bridge.invoke('update').catch(err => {
+      showToast('更新失败')
+      throw err
+    })
+    showToast('更新成功，页面自动刷新中...')
+    location.reload()
+  }
 }
 
 let interval: ReturnType<typeof setInterval>

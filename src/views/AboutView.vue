@@ -4,6 +4,7 @@
     <img class="logo" src="/icons/icon256.png" />
     <h3 class="name" @click="toDebugView">E Reader</h3>
     <p class="version" v-if="version">v{{ version }}({{ buildVersion }})</p>
+    <p class="version shell-version" v-if="shellVersion.version">Shell版本：{{ shellVersion.version }}({{ shellVersion.buildVersion }})</p>
     <button class="check-update-btn btn primary-btn" @click="checkUpdates">检查版本更新</button>
   </route-page>
 </template>
@@ -12,13 +13,26 @@
 import RoutePage from '@/components/RoutePage.vue';
 import NavigationBar from '@/components/NavigationBar.vue';
 import { version, buildVersion } from '@/version';
-import { onMounted } from 'vue';
+import { onMounted, shallowRef } from 'vue';
 import { useRouter } from 'vue-router';
+import { App } from '@capacitor/app'
+import { env } from '@/utils/env';
 
 const router = useRouter();
+const shellVersion = shallowRef({
+  version: '',
+  buildVersion: ''
+})
 
 const checkUpdates = async () => {
   document.dispatchEvent(new CustomEvent('app:checkupdates', { detail: { slient: false } }))
+  if (env.isApp()) {
+    const info = await App.getInfo()
+    shellVersion.value = {
+      version: info.version,
+      buildVersion: info.build
+    }
+  }
 }
 
 const toDebugView = (() => {
@@ -41,7 +55,6 @@ const toDebugView = (() => {
     lastClickTime = currentTime;
   };
 })()
-
 
 
 onMounted(checkUpdates)

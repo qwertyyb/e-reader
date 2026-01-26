@@ -13,7 +13,9 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", exact: "8.0.0"),
         .package(name: "CapacitorCommunityTextToSpeech", path: "../../../node_modules/.pnpm/@capacitor-community+text-to-speech@6.1.0_@capacitor+core@8.0.0/node_modules/@capacitor-community/text-to-speech"),
-        .package(name: "CapacitorApp", path: "../../../node_modules/.pnpm/@capacitor+app@8.0.0_@capacitor+core@8.0.0/node_modules/@capacitor/app")
+        .package(name: "CapacitorApp", path: "../../../node_modules/.pnpm/@capacitor+app@8.0.0_@capacitor+core@8.0.0/node_modules/@capacitor/app"),
+        .package(name: "CapacitorFileTransfer", path: "../../../node_modules/.pnpm/@capacitor+file-transfer@2.0.3_@capacitor+core@8.0.0/node_modules/@capacitor/file-transfer"),
+        .package(name: "CapacitorFilesystem", path: "../../../node_modules/.pnpm/@capacitor+filesystem@8.1.0_@capacitor+core@8.0.0/node_modules/@capacitor/filesystem")
     ],
     targets: [
         .target(
@@ -22,7 +24,9 @@ let package = Package(
                 .product(name: "Capacitor", package: "capacitor-swift-pm"),
                 .product(name: "Cordova", package: "capacitor-swift-pm"),
                 .product(name: "CapacitorCommunityTextToSpeech", package: "CapacitorCommunityTextToSpeech"),
-                .product(name: "CapacitorApp", package: "CapacitorApp")
+                .product(name: "CapacitorApp", package: "CapacitorApp"),
+                .product(name: "CapacitorFileTransfer", package: "CapacitorFileTransfer"),
+                .product(name: "CapacitorFilesystem", package: "CapacitorFilesystem")
             ]
         )
     ]

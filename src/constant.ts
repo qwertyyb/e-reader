@@ -11,3 +11,5 @@ export const PREFERENCES_STORAGE_KEY = 'preferences'
 export const APP_DEFAULT_REMOTE_SHELF_URL = 'https://qwertyyb.github.io/e-reader/books/index.json'
 
 export const APP_DEFAULT_OPDS_SERVER_URL = 'https://qwertyyb.github.io/e-reader/opds/root.xml'
+
+export const ANDROID_APK_BASE_URL = 'https://github.com/qwertyyb/e-reader/releases/latest/download/'

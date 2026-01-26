@@ -12,6 +12,9 @@ dependencies {
     implementation project(':capacitor-community-text-to-speech')
     implementation project(':capacitor-community-volume-buttons')
     implementation project(':capacitor-app')
+    implementation project(':capacitor-file-transfer')
+    implementation project(':capacitor-filesystem')
+    implementation project(':m430-capacitor-app-install')
 
 }
 

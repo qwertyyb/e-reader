@@ -10,3 +10,12 @@ project(':capacitor-community-volume-buttons').projectDir = new File('../node_mo
 
 include ':capacitor-app'
 project(':capacitor-app').projectDir = new File('../node_modules/.pnpm/@capacitor+app@8.0.0_@capacitor+core@8.0.0/node_modules/@capacitor/app/android')
+
+include ':capacitor-file-transfer'
+project(':capacitor-file-transfer').projectDir = new File('../node_modules/.pnpm/@capacitor+file-transfer@2.0.3_@capacitor+core@8.0.0/node_modules/@capacitor/file-transfer/android')
+
+include ':capacitor-filesystem'
+project(':capacitor-filesystem').projectDir = new File('../node_modules/.pnpm/@capacitor+filesystem@8.1.0_@capacitor+core@8.0.0/node_modules/@capacitor/filesystem/android')
+
+include ':m430-capacitor-app-install'
+project(':m430-capacitor-app-install').projectDir = new File('../node_modules/.pnpm/@m430+capacitor-app-install@0.0.3_@capacitor+core@8.0.0/node_modules/@m430/capacitor-app-install/android')
