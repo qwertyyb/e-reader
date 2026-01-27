@@ -38,7 +38,7 @@ const insertVersion = async (version = 'v0.1.0', changelog = '##feature \n - 添
   writeFileSync(updateFilePath, json)
 }
 
-if (!APP_VERSION || !BUILDVERSION || !CHANGELOG || !ANDROID_DOWNLOAD_URL) {
+if (!APP_VERSION || !BUILDVERSION || !ANDROID_DOWNLOAD_URL) {
   console.error('APP_VERSION, BUILDVERSION, CHANGELOG, ANDROID_DOWNLOAD_URL is required')
   process.exit(1)
 }
