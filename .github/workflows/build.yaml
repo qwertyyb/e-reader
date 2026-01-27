@@ -79,6 +79,9 @@ jobs:
       # 构建 Android App
       - name: Build App
         run: pnpm run build:android --keystorepath ${{ github.workspace }}/android-release.jks --keystorepass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }} --keystorealias ${{ secrets.ANDROID_KEYSTORE_ALIAS }} --keystorealiaspass ${{ secrets.ANDROID_KEYSTORE_ALIAS_PASSWORD }}
+        env:
+          APP_VERSION: ${{ steps.changelog.outputs.version }}
+          CHANGELOG: ${{ steps.changelog.outputs.clean_changelog }}
 
       # 创建 Release
       - name: Create Release
