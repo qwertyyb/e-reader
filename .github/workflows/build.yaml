@@ -30,6 +30,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # 配置前端构建环境
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
@@ -41,9 +43,11 @@ jobs:
           node-version: 22
           cache: 'pnpm'
 
+      # 设置 build version
       - name: Set build version
         run: echo "BUILDVERSION=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
       
+      # 生成 changelog
       - name: Conventional Changelog Action
         id: changelog
         uses: TriPSs/conventional-changelog-action@v3
@@ -54,6 +58,7 @@ jobs:
           skip-on-empty: 'false'
           skip-tag: 'false'
 
+      # 安装依赖并构建前端项目
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Build
@@ -61,12 +66,21 @@ jobs:
         env:
           APP_VERSION: ${{ steps.changelog.outputs.version }}
 
-      - name: create releases.json
-        run: node scripts/insert-version.mjs
-        env:
-          APP_VERSION: ${{ steps.changelog.outputs.version }}
-          CHANGELOG: ${{ steps.changelog.outputs.clean_changelog }}
-      
+      # 配置 Android 构建环境 Java
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      # 配置构建 keystore 文件
+      - name: Decode keystore file
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d > android-release.jks
+
+      # 构建 Android App
+      - name: Build App
+        run: pnpm run build:android --keystorepath ${{ github.workspace }}/android-release.jks --keystorepass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }} --keystorealias ${{ secrets.ANDROID_KEYSTORE_ALIAS }} --keystorealiaspass ${{ secrets.ANDROID_KEYSTORE_ALIAS_PASSWORD }}
+
+      # 创建 Release
       - name: Create Release
         uses: actions/create-release@v1
         id: create_release
@@ -77,7 +91,29 @@ jobs:
           tag_name: ${{ steps.changelog.outputs.tag }}
           release_name: ${{ steps.changelog.outputs.tag }}
           body: ${{ steps.changelog.outputs.clean_changelog }}
+
+      # 上传 Android App 到 Release
+      - name: Upload Android App to Release
+        uses: actions/upload-release-asset@v1
+        id: upload_android_app
+        if: steps.changelog.outputs.skipped == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./android/app/build/outputs/apk/release/app-release-signed.apk
+          asset_name: e-reader-${{ steps.changelog.outputs.tag }}.apk
+          asset_content_type: application/vnd.android.package-archive
+
+      # 创建版本信息文件
+      - name: create releases.json
+        run: node scripts/insert-version.mjs
+        env:
+          APP_VERSION: ${{ steps.changelog.outputs.version }}
+          CHANGELOG: ${{ steps.changelog.outputs.clean_changelog }}
+          ANDROID_DOWNLOAD_URL: ${{ steps.upload_android_app.outputs.browser_download_url }}
       
+      # 发布新版本到 GitHub Pages
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
@@ -89,32 +125,11 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-      
-      - name: Decode keystore file
-        run: |
-          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d > android-release.jks
-
-      - name: Build App
-        run: pnpm run build:android --keystorepath ${{ github.workspace }}/android-release.jks --keystorepass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }} --keystorealias ${{ secrets.ANDROID_KEYSTORE_ALIAS }} --keystorealiaspass ${{ secrets.ANDROID_KEYSTORE_ALIAS_PASSWORD }}
-
+      # 把 Android App 上传到制品
       - name: Upload artifact
         uses: actions/upload-artifact@v6
+        if: steps.changelog.outputs.skipped == 'false'
         with:
           name: android-release
           path: ./android/app/build/outputs/apk/release/app-release-signed.apk
           retention-days: 1
-
-      - name: Upload Android App to Release
-        uses: actions/upload-release-asset@v1
-        if: steps.changelog.outputs.skipped == 'false'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./android/app/build/outputs/apk/release/app-release-signed.apk
-          asset_name: e-reader-${{ steps.changelog.outputs.tag }}.apk
-          asset_content_type: application/vnd.android.package-archive

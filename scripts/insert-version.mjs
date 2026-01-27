@@ -5,10 +5,15 @@ import { getAssetsWithIntegrity } from './assets-integrity.mjs'
 
 const updateUrl = 'https://qwertyyb.github.io/e-reader/releases.json'
 
+const APP_VERSION = process.env.APP_VERSION
+const BUILDVERSION = Number(process.env.BUILDVERSION)
+const CHANGELOG = process.env.CHANGELOG
+const ANDROID_DOWNLOAD_URL = process.env.ANDROID_DOWNLOAD_URL
+
 const updateFilePath = join(fileURLToPath(import.meta.url), '../../dist/releases.json')
 console.log('update file path', updateFilePath)
 
-const insertVersion = async (version = 'v0.1.0', changelog = '##feature \n - 添加新的特性', { buildVersion }) => {
+const insertVersion = async (version = 'v0.1.0', changelog = '##feature \n - 添加新的特性', { buildVersion, androidDownloadUrl }) => {
   let releases = []
   const r = await fetch(`${updateUrl}?_t=${Date.now()}`)
   if (r.ok) {
@@ -24,6 +29,7 @@ const insertVersion = async (version = 'v0.1.0', changelog = '##feature \n - 添
     version,
     buildVersion,
     changelog,
+    androidDownloadUrl,
     pubDate: new Date().toISOString(),
     assets: await getAssetsWithIntegrity()
   })
@@ -32,4 +38,9 @@ const insertVersion = async (version = 'v0.1.0', changelog = '##feature \n - 添
   writeFileSync(updateFilePath, json)
 }
 
-insertVersion(process.env.APP_VERSION, process.env.CHANGELOG, { buildVersion: Number(process.env.BUILDVERSION) })
+if (!APP_VERSION || !BUILDVERSION || !CHANGELOG || !ANDROID_DOWNLOAD_URL) {
+  console.error('APP_VERSION, BUILDVERSION, CHANGELOG, ANDROID_DOWNLOAD_URL is required')
+  process.exit(1)
+}
+
+insertVersion(APP_VERSION, CHANGELOG, { buildVersion: buildVersion, androidDownloadUrl: ANDROID_DOWNLOAD_URL })
