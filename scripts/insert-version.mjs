@@ -43,4 +43,4 @@ if (!APP_VERSION || !BUILDVERSION || !ANDROID_DOWNLOAD_URL) {
   process.exit(1)
 }
 
-insertVersion(APP_VERSION, CHANGELOG, { buildVersion: buildVersion, androidDownloadUrl: ANDROID_DOWNLOAD_URL })
+insertVersion(APP_VERSION, CHANGELOG, { buildVersion: BUILDVERSION, androidDownloadUrl: ANDROID_DOWNLOAD_URL })
