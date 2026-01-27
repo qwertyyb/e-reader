@@ -4,7 +4,9 @@ import { readFile, writeFile } from 'node:fs/promises'
 import plist from 'plist';
 
 const version = process.env.APP_VERSION
-const buildVersion = Number(process.env.BUILDVERSION)
+
+// android 的 versionCode 有长度限制，最长 2^31 - 1, 无法使用基于时间的版本号，此处简单使用时间戳偏移
+const buildVersion = Math.round(Date.now() / 1000) - (new Date('2026/01/01 00:00:00').getTime() / 1000)
 
 const androidGradlePath = join(root, './android/app/build.gradle');
 const iosPlistPath = join(root, './ios/App/App/Info.plist');
@@ -51,6 +53,11 @@ const updateAppVersion = async (version, buildVersion) => {
   - 版本代码（versionCode/BuildVersion）：${buildVersion}
   - Android：已更新 android/app/build.gradle
   - iOS：已更新 ios/App/App/Info.plist`);
+}
+
+if (!version || !buildVersion) {
+  console.error('❌ 请设置环境变量 APP_VERSION 和 BUILDVERSION');
+  process.exit(1);
 }
 
 updateAppVersion(version, buildVersion)
