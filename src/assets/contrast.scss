@@ -1,6 +1,6 @@
 /* 高对比度模式 */
 html.more-contrast {
-  --card-bg-color: #eee;
+  --card-bg-color: #cacaca;
   --border-color: #000;
   --card-border-color: #000;
   --bg-color: #fff;
@@ -12,15 +12,16 @@ html.more-contrast {
   --read-bg-color: #fff;
   --reading-text-color: #fff;
   --reading-bg-color: #000;
-}
-html.more-contrast img {
-  filter: grayscale(100%) contrast(140%);
+  --card-light-bg-color-1: #dadada;
+  .mask {
+    background: none;
+  }
 }
 
 html.more-contrast.dark {
   color-scheme: dark;
 
-  --card-bg-color: #333;
+  --card-bg-color: #444;
   --border-color: #fff;
   --card-border-color: #000;
   --bg-color: #000;
@@ -32,4 +33,6 @@ html.more-contrast.dark {
   --read-bg-color: #000;
   --reading-text-color: #000;
   --reading-bg-color: #fff;
+
+  --card-light-bg-color-1: #666;
 }

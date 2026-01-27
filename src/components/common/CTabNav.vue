@@ -10,6 +10,8 @@
 </template>
 
 <script setup lang="ts">
+import { disableAnim } from '@/utils/env';
+
 defineProps<{
   list: { name: string, title: string }[]
 }>()
@@ -21,7 +23,7 @@ const toggle = async (item: { name: string, title: string }, event: PointerEvent
   const cur = target.parentElement?.querySelector('.selected')
   const curRect = cur?.getBoundingClientRect()
   const targetRect = target.getBoundingClientRect()
-  if (cur && curRect) {
+  if (cur && curRect && !disableAnim.value) {
     await cur.animate([
       { '--x': 0 },
       { '--x': `${targetRect.left - curRect.left}px` }
@@ -55,6 +57,7 @@ html body #app .c-tab-nav .tab-nav-item {
   font-weight: 500;
   &.selected {
     color: inherit;
+    background: none;
   }
   &.selected::before {
     content: " ";

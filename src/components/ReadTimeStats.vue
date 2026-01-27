@@ -53,6 +53,7 @@ import { formatDuration } from '@/utils';
 import { Chart, type TooltipModel } from 'chart.js/auto'
 import dayjs from 'dayjs';
 import 'chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm';
+import { disableAnim } from '@/utils/env';
 
 const props = defineProps<{ range: 'week' | 'month' | 'year' | 'all' }>()
 
@@ -190,6 +191,7 @@ const renderChart = async (data: IReadTimeRecord[]) => {
     },
     options: {
       locale: 'zh-CN',
+      animation: disableAnim.value ? false : undefined,
       parsing: {
         xAxisKey: 'date',
         yAxisKey: 'duration'

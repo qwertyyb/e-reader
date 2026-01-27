@@ -2,9 +2,9 @@
 @use "./animation";
 
 @use "./font";
+@use './contrast';
 
 @import './base.css';
-@import './contrast.css';
 @import './dark-mode.css';
 
 #app {
