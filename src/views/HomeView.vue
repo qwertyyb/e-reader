@@ -79,7 +79,7 @@ watch(router.currentRoute, route => {
 .tab-nav-list {
   display: flex;
   list-style: none;
-  padding-bottom: var(--saib);
+  padding-bottom: max(12px, var(--saib));
   width: 100%;
   box-sizing: content-box;
   border-top: 1px solid var(--border-color);
@@ -94,8 +94,7 @@ watch(router.currentRoute, route => {
   justify-content: center;
   align-items: center;
   font-weight: 500;
-  padding-top: 12px;
-  padding-bottom: 12px;
+  padding-top: 6px;
   .material-symbols-outlined {
     color: inherit;
     font-size: 24px;
@@ -113,8 +112,8 @@ watch(router.currentRoute, route => {
     flex-direction: column;
     border-right: 1px solid var(--border-color);
     border-top: none;
-    margin-top: var(--sait);
-    height: calc(100vh - var(--sait));
+    margin-top: calc(var(--sait) + 16px);
+    height: calc(100vh - var(--sait) - 16px);
   }
   .tab-nav-item {
     flex-direction: row;
