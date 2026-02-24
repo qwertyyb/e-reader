@@ -233,6 +233,16 @@
         "^第[一二]卷",
         "^第\\d+章"
       ]
+    },
+    {
+      "id": "28",
+      "title": "老婆请安分",
+      "cover": "./covers/lpqaf.jpeg",
+      "author": "花还没开",
+      "downloadUrl": "./老婆请安分.txt",
+      "tocRegList": [
+        "^第\\d+章"
+      ]
     }
   ]
 }
