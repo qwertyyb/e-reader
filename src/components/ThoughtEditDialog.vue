@@ -39,8 +39,7 @@ const visible = ref(false);
 const editingMark = ref<IMarkEntity>()
 
 const saveThought = async () => {
-  const { id, ...rest } = toRaw(editingMark.value!)
-  console.log(editingMark.value, rest, toRaw(editingMark.value))
+  const { id, ...rest } = JSON.parse(JSON.stringify(editingMark.value!))
   if (id) {
     await marks.update(id, rest)
   } else {

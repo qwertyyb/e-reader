@@ -62,7 +62,6 @@ const removeMark = async (mark: IMarkEntity) => {
 }
 
 const editMark = (mark: IMarkEntity) => {
-  console.log('editMark', mark)
   thoughtEditDialogEl.value?.open(mark)
 }
 
