@@ -3,7 +3,6 @@
     <li class="mark-item"
       v-for="mark in markListWithStyle"
       :key="mark.id"
-      @click="$emit('tap', mark)"
     >
       <span class="material-symbols-outlined mark-icon"
         v-if="!mark.thought"
@@ -11,16 +10,23 @@
       <span class="material-symbols-outlined mark-icon"
         v-else
         :style="mark.iconStyle">record_voice_over</span>
-      <div class="mark-content">
+      <div class="mark-content" @click="$emit('tap', mark)">
         <p class="mark-thought" v-if="mark.thought">{{ mark.thought }}</p>
         <div class="mark-quote-wrapper">
           <div class="pre-line"></div>
           <p class="mark-quote"><mark :style="mark.textStyle">{{ mark.text }}</mark></p>
         </div>
       </div>
-      <span class="remove-action" @click="$emit('remove', mark)">
-        <span class="material-symbols-outlined remove-icon">delete</span>
-      </span>
+      <div class="mark-actions">
+        <span class="action-item remove-action" @click="$emit('remove', mark)">
+          <span class="material-symbols-outlined action-icon remove-icon">delete</span>
+          <span class="action-label">删除</span>
+        </span>
+        <span class="action-item edit-action" @click="$emit('edit', mark)" v-if="mark.thought">
+          <span class="material-symbols-outlined action-icon edit-icon">edit</span>
+          <span class="action-label">编辑</span>
+        </span>
+      </div>
     </li>
   </ul>
 </template>
@@ -35,7 +41,8 @@ const props = defineProps<{
 
 defineEmits<{
   'remove': [IMarkEntity],
-  'tap': [IMarkEntity]
+  'tap': [IMarkEntity],
+  'edit': [IMarkEntity]
 }>()
 
 const markListWithStyle = computed(() => {
@@ -65,21 +72,33 @@ const markListWithStyle = computed(() => {
   border-radius: 4px;
   overflow: hidden;
   display: flex;
+  flex-wrap: wrap;
   margin-bottom: 12px;
   padding: 10px;
   font-size: 14px;
   position: relative;
 }
-.mark-list .mark-item .remove-action {
+.mark-actions {
+  width: 100%;
   display: flex;
-  align-items: center;
-  color: rgb(153, 153, 153);
-  cursor: pointer;
-  font-size: 12px;
-}
-.mark-list .mark-item .remove-icon {
-  color: inherit;
-  font-size: 18px;
+  justify-content: space-between;
+  border-top: 1px solid var(--border-color);
+  margin-top: 12px;
+  padding-top: 8px;
+  .action-item {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: rgb(153, 153, 153);
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .action-icon {
+    color: inherit;
+    font-size: 18px;
+    margin-right: 4px;
+  }
 }
 .mark-list .mark-item .mark-content {
   flex: 1;

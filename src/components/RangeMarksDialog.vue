@@ -5,16 +5,18 @@
       {{ rangeMark?.text }}
       <span class="quote">&rdquo;</span>
     </header>
-    <mark-list :mark-list="markDataList" @remove="removeMark"></mark-list>
+    <mark-list :mark-list="markDataList" @remove="removeMark" @edit="editMark"></mark-list>
+    <thought-edit-dialog ref="thoughtEditDialog" @success="refresh"></thought-edit-dialog>
   </c-dialog>
 </template>
 
 <script setup lang="ts">
 import CDialog from '@/components/common/CDialog.vue';
 import MarkList from '@/components/MarkList.vue';
+import ThoughtEditDialog from './ThoughtEditDialog.vue';
 import { marks } from '@/services/storage';
 import { showToast } from '@/utils';
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, useTemplateRef } from 'vue';
 
 const props = defineProps<{
   visible: boolean
@@ -29,6 +31,7 @@ const emits = defineEmits<{
 }>()
 
 const markDataList = ref<IMarkEntity[]>([])
+const thoughtEditDialogEl = useTemplateRef('thoughtEditDialog')
 
 const rangeMark = computed(() => {
   return markDataList.value.find(item => {
@@ -56,6 +59,11 @@ const removeMark = async (mark: IMarkEntity) => {
   if (!markDataList.value.length) {
     emits('close')
   }
+}
+
+const editMark = (mark: IMarkEntity) => {
+  console.log('editMark', mark)
+  thoughtEditDialogEl.value?.open(mark)
 }
 
 watch(() => props.range, () => refresh())

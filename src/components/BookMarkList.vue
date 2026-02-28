@@ -2,19 +2,21 @@
   <ul class="book-mark-list">
     <li class="chapter-mark-list" v-for="chapter in chapterMarkList" :key="chapter.chapterId">
       <h4 class="mark-chapter-title">{{ chapter.title }}</h4>
-      <mark-list :mark-list="chapter.markList" @remove="removeMark" @tap="$emit('mark-tap', $event)" class="mark-list"></mark-list>
+      <mark-list :mark-list="chapter.markList" @remove="removeMark" @tap="$emit('mark-tap', $event)" @edit="editMark" class="mark-list"></mark-list>
     </li>
     <li class="empty-tips" v-if="!loading && !chapterMarkList.length">暂无笔记，快标注你的第一条笔记吧</li>
+    <thought-edit-dialog ref="thought-edit-dialog" @success="refresh"></thought-edit-dialog>
   </ul>
 </template>
 
 <script setup lang="ts">
 import MarkList from "@/components/MarkList.vue"
+import ThoughtEditDialog from "./ThoughtEditDialog.vue";
 import { localBookService } from "@/services/LocalBookService";
 import { marks } from "@/services/storage";
 import { showToast } from "@/utils";
 import { getBookMarkList } from "@/utils/mark";
-import { ref } from "vue"
+import { ref, shallowRef, useTemplateRef } from "vue"
 
 const props = defineProps<{
   bookId: number,
@@ -26,8 +28,9 @@ const emits = defineEmits<{
 }>()
 
 const loading = ref(false)
+const thoughtEditDialogEl = useTemplateRef('thought-edit-dialog')
 
-const chapterMarkList = ref<{ chapterId: string, title: string, markList: IMarkEntity[] }[]>([])
+const chapterMarkList = shallowRef<{ chapterId: string, title: string, markList: IMarkEntity[] }[]>([])
 
 const refresh = async () => {
   loading.value = true
@@ -45,6 +48,10 @@ const removeMark = async (mark: IMarkEntity) => {
   showToast('已删除')
   refresh()
   emits('mark-removed', mark)
+}
+
+const editMark = (mark: IMarkEntity) => {
+  thoughtEditDialogEl.value?.open(mark)
 }
 
 refresh()
