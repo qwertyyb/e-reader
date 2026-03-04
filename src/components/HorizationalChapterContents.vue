@@ -345,6 +345,9 @@ defineExpose({
     scroll-snap-align: start;
     scroll-margin-left: calc(var(--column-gap) / 2);
   }
+  &::-webkit-scrollbar {
+    display: none;
+  }
   * {
     color: var(--read-text-color);
   }

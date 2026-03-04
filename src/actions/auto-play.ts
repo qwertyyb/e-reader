@@ -4,8 +4,23 @@ import Logger from 'js-logger'
 
 const logger = Logger.get('auto-play')
 
-export class AutoPlay extends TypedEventTarget<{ change: CustomEvent<{ playing: boolean }> }> {
+interface AutoPlayOptions {
+  scrollVertical: (distance: number) => void,
+  nextPage: () => void,
+  speed: number,
+  changeHandler: (event: CustomEvent<{ playing: boolean }>) => void,
+  turnPageType: TurnPageType,
+  requestWakeLock?: boolean
+}
+
+const PROGRESS_COUNT = 20
+
+export class AutoPlay extends TypedEventTarget<{
+  change: CustomEvent<{ playing: boolean }>,
+  progress: CustomEvent<{ progress: number }>
+}> {
   static CHANGE_EVENT_NAME = 'change' as const
+  static PROGRESS_EVENT_NAME = 'progress' as const
 
   scrollVertical: (distance: number) => void
   nextPage = () => {}
@@ -13,16 +28,10 @@ export class AutoPlay extends TypedEventTarget<{ change: CustomEvent<{ playing: 
   turnPageType: TurnPageType = 'vertical-scroll'
 
   #interval: ReturnType<typeof setTimeout> | null = null
+  #progressInterval: ReturnType<typeof setTimeout> | null = null
   #requestWakeLock: boolean = false
 
-  constructor({ scrollVertical, nextPage, speed, changeHandler, turnPageType, requestWakeLock = !!navigator.wakeLock }: {
-    scrollVertical: (distance: number) => void,
-    nextPage: () => void,
-    speed: number,
-    changeHandler: (event: CustomEvent<{ playing: boolean }>) => void,
-    turnPageType: TurnPageType,
-    requestWakeLock?: boolean,
-  }) {
+  constructor({ scrollVertical, nextPage, speed, changeHandler, turnPageType, requestWakeLock = !!navigator.wakeLock }: AutoPlayOptions) {
     super()
     this.scrollVertical = scrollVertical
     this.nextPage = nextPage
@@ -34,6 +43,15 @@ export class AutoPlay extends TypedEventTarget<{ change: CustomEvent<{ playing: 
     }
   }
 
+  #startProgress() {
+    let progress = 0;
+    const stepDuration = 300 / this.speed * 1000 / 20
+    this.#progressInterval = setInterval(() => {
+      progress += (1 / PROGRESS_COUNT)
+      this.dispatchEvent(new CustomEvent(AutoPlay.PROGRESS_EVENT_NAME, { detail: { progress } }))
+    }, stepDuration)
+  }
+
   start() {
     logger.info('start')
     this.stop()
@@ -41,8 +59,15 @@ export class AutoPlay extends TypedEventTarget<{ change: CustomEvent<{ playing: 
       wakeLock.request()
     }
     if (this.turnPageType === 'horizontal-scroll') {
+      this.#startProgress()
       this.#interval = setInterval(() => {
+        this.dispatchEvent(new CustomEvent(AutoPlay.PROGRESS_EVENT_NAME, { detail: { progress: 1 } }))
+        if (this.#progressInterval) {
+          clearInterval(this.#progressInterval)
+        }
+        logger.info('request next page')
         this.nextPage()
+        this.#startProgress()
       }, 300 / this.speed * 1000)
     } else {
       this.#interval = setInterval(() => {
@@ -55,7 +80,9 @@ export class AutoPlay extends TypedEventTarget<{ change: CustomEvent<{ playing: 
   stop() {
     logger.info('stop')
     if (this.#interval) { clearInterval(this.#interval) }
+    if (this.#progressInterval) { clearInterval(this.#progressInterval) }
     this.#interval = null
+    this.#progressInterval = null
     wakeLock.release()
     this.dispatchEvent(new CustomEvent(AutoPlay.CHANGE_EVENT_NAME, { detail: { playing: false } }))
   }

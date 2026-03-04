@@ -208,6 +208,12 @@
         <div class="control-label"></div>
       </div>
     </div>
+
+    <teleport to="#app">
+      <div class="auto-play-progress" v-if="controlState.autoPlay && settings.turnPageType === 'horizontal-scroll'">
+        <div class="progress-value" :style="{width: (autoPlayProgress * 100) + '%'}"></div>
+      </div>
+    </teleport>
   </div>
 </template>
 
@@ -240,6 +246,7 @@ const controlState = ref({
   readSpeak: false as boolean | 'loading',
   autoPlay: false
 })
+const autoPlayProgress = ref(0)
 
 const progress = inject<Ref<{ chapter: IChapter, chapterIndex: number, cursor: number, duration: number } | null>>('progress')
 const book = inject<Ref<IBook | ILocalBook>>('book')
@@ -308,10 +315,17 @@ const darkModeChangeHandler = (event: CustomEvent<{ enabled: boolean }>) => {
 
 darkMode.addEventListener('change', darkModeChangeHandler)
 
+const autoPlayProgressHandler = (event: CustomEvent<{ progress: number }>) => {
+  autoPlayProgress.value = event.detail.progress
+}
+
+actions.autoPlay.addEventListener('progress', autoPlayProgressHandler)
+
 onBeforeUnmount(() => {
   actions.autoPlay.stop()
   actions.readSpeak.stop()
   darkMode.removeEventListener('change', darkModeChangeHandler)
+  actions.autoPlay.removeEventListener('progress', autoPlayProgressHandler)
 })
 
 const changeAutoPlaySpeed = (speed: number) => {
@@ -542,6 +556,21 @@ defineExpose({
   .control-icon {
     margin-left: 4px;
     font-size: 22px;
+  }
+}
+
+.auto-play-progress {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 6px;
+  z-index: 2;
+  .progress-value {
+    width: 100%;
+    height: 100%;
+    background: var(--text-color);
   }
 }
 </style>

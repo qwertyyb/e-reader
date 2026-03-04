@@ -67,7 +67,7 @@
       <div class="divider"></div>
 
       <div class="auto-play">
-        <div class="control-icon material-symbols-outlined">{{ controlState.autoPlay ? 'pause_circle' : 'play_circle' }}</div>
+        <div class="control-icon material-symbols-outlined pointer" @tap="toggleControl('autoPlay')">{{ controlState.autoPlay ? 'pause_circle' : 'play_circle' }}</div>
         <c-progress
           :min="10"
           :max="200"
@@ -159,14 +159,14 @@
       <div class="divider"></div>
 
       <ul class="color-scheme-list">
-        <li class="color-scheme-item"
+        <li class="color-scheme-item pointer"
           v-for="(item, key) in readColorScheme"
           :key="key"
           :class="{selected: settings.colorScheme?.backgroundColor === item.backgroundColor && settings.colorScheme?.textColor === item.textColor }"
           @click="settings.colorScheme = { ...item }"
           :style="{ backgroundColor: item.backgroundColor }"
         ></li>
-        <li class="color-scheme-item material-symbols-outlined system-item"
+        <li class="color-scheme-item material-symbols-outlined system-item pointer"
           :class="{selected: !settings.colorScheme }"
           @click="settings.colorScheme = undefined;darkMode.toggle()"
         >{{ controlState.darkMode ? 'light_mode' : 'dark_mode' }}</li>
@@ -194,6 +194,11 @@
         <div class="control-label"></div>
       </div>
     </div>
+    <teleport to="#app">
+      <div class="auto-play-progress" v-if="controlState.autoPlay && settings.turnPageType === 'horizontal-scroll'">
+        <div class="progress-value" :style="{width: (autoPlayProgress * 100) + '%'}"></div>
+      </div>
+    </teleport>
   </div>
 </template>
 
@@ -218,7 +223,7 @@ const props = defineProps<{
 const emits = defineEmits<{
   'next-page': [],
   'scroll-vertical': [number],
-  'open-chapter-list': []
+  'open-chapter-list': [],
 }>()
 
 const visiblePanel = ref<string | null>()
@@ -227,6 +232,7 @@ const controlState = ref({
   readSpeak: false as boolean | 'loading',
   autoPlay: false
 })
+const autoPlayProgress = ref(0)
 
 const progress = inject<Ref<{ chapter: IChapter, chapterIndex: number, cursor: number, duration: number } | null>>('progress')
 const book = inject<Ref<IBook | ILocalBook>>('book')
@@ -303,12 +309,23 @@ const createActions = () => {
   }
 }
 
+const darkModeChangeHandler = (event: CustomEvent<{ enabled: boolean }>) => {
+  controlState.value.darkMode = event.detail.enabled
+}
+
+const autoPlayProgressHandler = (event: CustomEvent<{ progress: number }>) => {
+  autoPlayProgress.value = event.detail.progress
+}
+
 const actions = createActions()
-darkMode.addEventListener('change', (event) => controlState.value.darkMode = (event as CustomEvent<{ enabled: boolean }>).detail.enabled)
+actions.autoPlay.addEventListener('progress', autoPlayProgressHandler)
+darkMode.addEventListener('change', darkModeChangeHandler)
 
 onBeforeUnmount(() => {
   actions.autoPlay.stop()
   actions.readSpeak.stop()
+  darkMode.removeEventListener('change', darkModeChangeHandler)
+  actions.autoPlay.removeEventListener('progress', autoPlayProgressHandler)
 })
 
 const changeAutoPlaySpeed = (speed: number) => {
@@ -562,6 +579,21 @@ defineExpose({
   text-align: center;
   .control-icon {
     font-size: 54px;
+  }
+}
+
+.auto-play-progress {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 6px;
+  z-index: 2;
+  .progress-value {
+    width: 100%;
+    height: 100%;
+    background: var(--text-color);
   }
 }
 </style>
