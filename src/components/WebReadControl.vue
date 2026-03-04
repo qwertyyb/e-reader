@@ -429,7 +429,8 @@ defineExpose({
   flex-direction: column;
   box-sizing: border-box;
   max-height: calc(90vh - 48px - var(--sait) - var(--saib) - 16px);
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   .divider {
     height: 2px;
     background-color: var(--border-color);

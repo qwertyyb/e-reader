@@ -193,6 +193,7 @@ const scrollHandler = debounce(() => {
   loadContents(progress.chapter.id)
 
   emits('progress', progress)
+  scrollToPage()
 }, 100)
 
 const scrollToPage = (getNextPage?: (page: number) => number) => {
@@ -201,11 +202,12 @@ const scrollToPage = (getNextPage?: (page: number) => number) => {
   const pageWidth = getPageWidth()
   const curPage = Math.round(wrapper.scrollLeft / pageWidth)
   const scrollLeft = (getNextPage?.(curPage) ?? curPage) * pageWidth
+  logger.info('scrollToPage', curPage, scrollLeft) 
   wrapper.scrollTo({ left: scrollLeft, behavior:  disableAnim.value ? 'instant' : 'smooth' })
 }
 
-const nextPage = () => scrollToPage(page => page + 1)
-const prevPage = () => scrollToPage(page => Math.max(0, (page - 1)))
+const nextPage = () => scrollToPage(page => page + columnCount.value)
+const prevPage = () => scrollToPage(page => Math.max(0, (page - columnCount.value)))
 
 const init = async () => {
   await loadContents(props.defaultChapterId)

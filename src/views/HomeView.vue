@@ -113,7 +113,7 @@ watch(router.currentRoute, route => {
     border-right: 1px solid var(--border-color);
     border-top: none;
     margin-top: calc(var(--sait) + 16px);
-    height: calc(100vh - var(--sait) - 16px);
+    height: calc(var(--page-height) - var(--sait) - 16px);
   }
   .tab-nav-item {
     flex-direction: row;
