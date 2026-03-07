@@ -6,7 +6,9 @@
         ref="dialog"
         :style="{ height: props.height || 'auto', width: props.width }"
       >
-        <div class="nav-indicator" v-if="position === 'bottom' || !position"></div>
+        <div class="nav-indicator-wrapper" ref="indicator-wrapper">
+          <div class="nav-indicator" v-if="position === 'bottom' || !position"></div>
+        </div>
         <header class="c-dialog-header" v-if="$slots.header || title || $slots.title">
           <slot name="header">
             <slot name="title">
@@ -24,6 +26,7 @@
 </template>
 
 <script setup lang="ts">
+import { useGesture } from '@/hooks/gesture';
 import { onCloseRequest } from '@/platform/close-listener';
 import { disableAnim } from '@/utils/env';
 import { nextTick, onBeforeUnmount, ref, useTemplateRef, watch, type StyleValue } from 'vue';
@@ -40,6 +43,7 @@ const props = defineProps<{
 
 const mask = useTemplateRef('mask')
 const dialog = useTemplateRef('dialog')
+const indicatorWrapper = useTemplateRef('indicator-wrapper')
 
 const emits = defineEmits<{
   open: []
@@ -58,25 +62,10 @@ watch(() => props.visible, () => {
   }
 })
 
-const fadeInKeyframes = [
-  { backgroundColor: 'rgba(0, 0, 0, 0)' },
-  { backgroundColor: 'rgba(0, 0, 0, 0.85)'}
-]
-const slideLeftInKeyframes = [
-  { transform: 'translateX(100%)' },
-  { transform: 'translateX(0)'}
-]
-
-const slideRightInKeyframes = [
-  { transform: 'translateX(-100%)' },
-  { transform: 'translateX(0)'}
-]
-const slideUpInKeyframes = [
-  { transform: 'translateY(100%)' },
-  { transform: 'translateY(0)'}
-]
-
-const getInKeyframes = () => props.position === 'left' ? slideLeftInKeyframes : props.position === 'right' ? slideRightInKeyframes : slideUpInKeyframes
+const getDialogEnterToKeyframe = () => ({ transform: 'translateX(0) translateY(0)' })
+const getDialogOutToKeyframe = () => ({ transform: props.position === 'left' ? 'translateX(100%)' : props.position === 'right' ? 'translateX(-100%)' : 'translateY(100%)' })
+const getMaskEnterToKeyframe = () => ({ backgroundColor: 'rgba(0, 0, 0, 0.85)' })
+const getMaskOutToKeyframe = () => ({ backgroundColor: 'rgba(0, 0, 0, 0)' })
 
 let removeCloseRequestListener: ReturnType<typeof onCloseRequest> | null = null
 
@@ -89,8 +78,8 @@ const closeDialog = async () => {
   }
   await nextTick()
   await Promise.all([
-    dialog.value?.animate(getInKeyframes().toReversed(), { duration: 200, easing: 'ease-in', fill: 'both' }).finished,
-    mask.value?.animate(fadeInKeyframes.toReversed(), { duration: 200, easing: 'ease-in', fill: 'both' }).finished
+    dialog.value?.animate([getDialogOutToKeyframe()], { duration: 200, easing: 'ease-in', fill: 'both' }).finished,
+    mask.value?.animate([getMaskOutToKeyframe()], { duration: 200, easing: 'ease-in', fill: 'both' }).finished
   ])
   containerVisible.value = false
   emits('closed')
@@ -100,13 +89,35 @@ const openDialog = async () => {
   if (!disableAnim.value) {
     await nextTick()
     await Promise.all([
-      dialog.value?.animate(getInKeyframes(), { duration: 200, easing: 'ease-out', fill: 'both' }).finished,
-      mask.value?.animate(fadeInKeyframes, { duration: 200, easing: 'ease-out', fill: 'both' }).finished
+      dialog.value?.animate([getDialogOutToKeyframe(), getDialogEnterToKeyframe()], { duration: 200, easing: 'ease-out' }).finished.then((anim) => anim.commitStyles()),
+      mask.value?.animate([getMaskOutToKeyframe(), getMaskEnterToKeyframe()], { duration: 200, easing: 'ease-out' }).finished.then((anim) => anim.commitStyles())
     ])
   }
   // 监听Android返回键
   removeCloseRequestListener = onCloseRequest(closeDialog, { once: true })
 }
+
+useGesture(indicatorWrapper, {
+  direction: 'vertical',
+  onMove(detail) {
+    const percentage = Math.min(1, Math.abs(detail.deltaY) / dialog.value!.getBoundingClientRect().height)
+    dialog.value?.style.setProperty('transform', `translateY(${Math.max(0, detail.deltaY)}px)`)
+    mask.value?.style.setProperty('background-color', `rgba(0, 0, 0, ${0.85 * (1 - percentage)})`)
+  },
+  async onEnd(detail) {
+    const { height } = dialog.value!.getBoundingClientRect()
+    if (Math.abs(detail.deltaY) > height * 0.8) {
+      closeDialog()
+    } else {
+      dialog.value?.animate([getDialogEnterToKeyframe()], { duration: 200, easing: 'ease-out' }).finished.then(() => {
+        dialog.value!.style.setProperty('transform', getDialogEnterToKeyframe().transform)
+      })
+      mask.value?.animate([getMaskEnterToKeyframe()], { duration: 200, easing: 'ease-out' }).finished.then(() => {
+        mask.value?.style.setProperty('background-color', getMaskEnterToKeyframe().backgroundColor)
+      })
+    }
+  },
+})
 
 onBeforeUnmount(() => {
   removeCloseRequestListener?.()
