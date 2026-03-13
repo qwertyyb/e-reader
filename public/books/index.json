@@ -243,6 +243,16 @@
       "tocRegList": [
         "^(第.+?章|番外|后记)"
       ]
+    },
+    {
+      "id": "29",
+      "title": "这游戏也太真实了",
+      "cover": "./covers/zyxytzsl.jpeg",
+      "author": "晨星LL",
+      "downloadUrl": "./这游戏也太真实了.txt",
+      "tocRegList": [
+        "^(第\\d+章|完本感言)"
+      ]
     }
   ]
 }
