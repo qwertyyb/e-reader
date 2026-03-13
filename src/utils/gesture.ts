@@ -14,6 +14,7 @@ interface IGestureDetail {
 
 export interface IGestureOptions {
   el: HTMLElement
+  direction?: 'horizontal' | 'vertical'
   onStart?: (detail: IGestureDetail) => boolean | void
   onMove?: (detail: IGestureDetail) => void
   onEnd?: (detail: IGestureDetail) => void
@@ -71,7 +72,7 @@ export const createGesture = (options: IGestureOptions) => {
     }
 
     if (startInfo.enableGesture === null) {
-      startInfo.enableGesture = Math.abs(event.screenX - startInfo.startX) > Math.abs(event.screenY - startInfo.startY)
+      startInfo.enableGesture = options.direction === 'vertical' ? Math.abs(event.screenX - startInfo.startX) < Math.abs(event.screenY - startInfo.startY) : Math.abs(event.screenX - startInfo.startX) > Math.abs(event.screenY - startInfo.startY)
       if (startInfo.enableGesture) {
         window.getSelection()?.empty();
         console.log('onselectstart')

@@ -110,6 +110,7 @@ const markListWithStyle = computed(() => {
 .mark-list .mark-thought {
   margin-bottom: 8px;
   font-size: 16px;
+  white-space: pre-wrap;
 }
 .mark-list .mark-quote-wrapper .pre-line {
   width: 3px;
