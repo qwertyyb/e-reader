@@ -1,6 +1,6 @@
 <template>
   <teleport to="#app">
-    <div class="c-dialog" :class="`dialog-position-${position || 'default'} ${props.class}`" v-if="containerVisible">
+    <div class="c-dialog" :class="`dialog-position-${position || 'default'} ${props.class}`" :style="{ zIndex: props.zIndex }" v-if="containerVisible">
       <div class="mask" @pointerdown="$emit('close')" ref="mask"></div>
       <section class="c-dialog-content"
         ref="dialog"
@@ -38,7 +38,8 @@ const props = defineProps<{
   title?: string,
   width?: string,
   class?: string,
-  bodyStyle?: StyleValue
+  bodyStyle?: StyleValue,
+  zIndex?: number
 }>()
 
 const mask = useTemplateRef('mask')

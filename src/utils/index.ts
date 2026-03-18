@@ -138,6 +138,7 @@ export const showPicker = (() => {
     options: { label: string, value: any }[]
     visible: boolean,
     title?: string,
+    zIndex?: number,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     modelValue?: any,
     onClose: () => void
@@ -154,24 +155,32 @@ export const showPicker = (() => {
           options,
           visible: true,
           title: config?.title,
+          zIndex: 20,
           modelValue: config?.value,
           onClose: () => {
             pickerOptions.value!.visible = false
             reject(new Error('user cancel'));
           },
-          onSelect: (option: { label: string, value: V }) => resolve(option.value)
+          onSelect: (option: { label: string, value: V }) => {
+            pickerOptions.value!.visible = false
+            resolve(option.value)
+          }
         }
       } else {
         pickerOptions.value = {
           options,
           visible: false,
           title: config?.title,
+          zIndex: 20,
           modelValue: config?.value,
           onClose: () => {
             pickerOptions.value!.visible = false
             reject(new Error('user cancel'));
           },
-          onSelect: (option: { label: string, value: string | number }) => resolve(option.value as V)
+          onSelect: (option: { label: string, value: string | number }) => {
+            pickerOptions.value!.visible = false
+            resolve(option.value as V)
+          }
         }
         const app = createApp({
           render: () => h(CPicker<V>, pickerOptions.value)

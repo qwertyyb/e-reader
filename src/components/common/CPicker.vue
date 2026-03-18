@@ -4,6 +4,7 @@
     @close="$emit('close')"
     class="c-picker"
     :title="title"
+    :z-index="zIndex"
     @open="openHandler"
   >
     <template v-slot:header>
@@ -38,6 +39,7 @@ defineProps<{
   title?: string
   visible: boolean
   layout?: 'list' | 'grid'
+  zIndex?: number
 }>()
 
 defineEmits<{
