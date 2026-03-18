@@ -78,6 +78,16 @@
             <span class="material-symbols-outlined arrow-icon">chevron_right</span>
           </div>
         </li>
+
+        <li class="prfs-item" @click="tapAreaDialogVisible = true">
+          <div class="prfs-label">
+            <div class="prfs-title">点击翻页区域</div>
+            <div class="prfs-desc">自定义横向翻页时点击区域的动作</div>
+          </div>
+          <div class="prfs-control">
+            <span class="material-symbols-outlined arrow-icon">chevron_right</span>
+          </div>
+        </li>
       </ul>
 
       <ul class="prfs-group">
@@ -254,6 +264,8 @@
         {{ preferences.sync.deviceId }}
       </div>
     </CDialog>
+
+    <TapAreaSettingsDialog v-model:visible="tapAreaDialogVisible" />
   </ul>
 </template>
 
@@ -262,6 +274,7 @@ import { ref, toRaw } from 'vue';
 import CSelect from './common/CSelect.vue';
 import CSwitch from './common/CSwitch.vue';
 import CDialog from './common/CDialog.vue';
+import TapAreaSettingsDialog from './TapAreaSettingsDialog.vue';
 import { preferences } from '@/stores/preferences';
 import { version, buildVersion } from '@/version';
 import { debugOptions, resetToDefault, modeOptions } from '@/stores/debug';
@@ -294,6 +307,7 @@ const feedback = () => {
 }
 
 const dialogVisible = ref(false)
+const tapAreaDialogVisible = ref(false)
 const formValue = ref({ enabled: false, server: '', username: '', password: '', device: '', deviceId: '', connected: false })
 
 const openSyncDialog = async () => {
@@ -306,7 +320,13 @@ const openSyncDialog = async () => {
     password,
     device,
     deviceId,
-    connected: Boolean(enabled && server && username && password && await authUser({ server, username, password }).then(res => res.success))
+    connected: Boolean(enabled && server && username && password && await authUser({ server, username, password })
+      .then(res => res.success)
+      .catch(err => {
+        console.error(err)
+        return false
+      })
+    )
   }
   dialogVisible.value = true
 }

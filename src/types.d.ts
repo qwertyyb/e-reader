@@ -125,6 +125,10 @@ interface IMarkEntity {
 
 type TurnPageType = 'horizontal-scroll' | 'vertical-scroll'
 
+type TapAction = 'prevPage' | 'nextPage' | 'menu' | 'none'
+
+type TapAreaActions = [TapAction, TapAction, TapAction, TapAction, TapAction, TapAction, TapAction, TapAction, TapAction]
+
 interface IColorScheme { textColor: string, backgroundColor: string }
 
 interface ISettings {
@@ -138,6 +142,8 @@ interface ISettings {
   // 翻页方式
   turnPageType?: TurnPageType
   colorScheme?: { backgroundColor: string, textColor: string }
+  // 点击区域动作配置，九宫格区域 1-9 对应的动作
+  tapActions?: TapAreaActions
 }
 
 interface IPreferences {

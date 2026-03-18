@@ -67,6 +67,19 @@ export const textIndentList = [
   { value: '2em', label: '首行缩进' }
 ]
 
+export const defaultTapActions: TapAreaActions = [
+  'prevPage', 'menu', 'nextPage',
+  'prevPage', 'menu', 'nextPage',
+  'prevPage', 'menu', 'nextPage',
+]
+
+export const tapActionOptions: { label: string, value: TapAction }[] = [
+  { label: '上一页', value: 'prevPage' },
+  { label: '下一页', value: 'nextPage' },
+  { label: '拉起菜单', value: 'menu' },
+  { label: '无动作', value: 'none' },
+]
+
 export const backgroundList = [
   { label: '仿纸', value: {} },
 ]

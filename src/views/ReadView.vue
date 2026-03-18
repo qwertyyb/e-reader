@@ -269,6 +269,7 @@ const getProgress = (
 }
 
 const init = async () => {
+  logger.info('init')
   const [{ book, chapterList }, readingState] = await Promise.all([
     fetchBookInfo(),
     readingStateStore.get(props.id),

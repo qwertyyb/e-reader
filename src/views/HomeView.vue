@@ -79,13 +79,13 @@ watch(router.currentRoute, route => {
 .tab-nav-list {
   display: flex;
   list-style: none;
-  padding-bottom: max(12px, var(--saib));
   width: 100%;
   box-sizing: content-box;
   border-top: 1px solid var(--border-color);
   position: relative;
   z-index: 1;
   background: var(--bg-color);
+  padding-bottom: var(--saib);
 }
 .tab-nav-item {
   flex: 1;
@@ -95,6 +95,7 @@ watch(router.currentRoute, route => {
   align-items: center;
   font-weight: 500;
   padding-top: 6px;
+  padding-bottom: 6px;
   .material-symbols-outlined {
     color: inherit;
     font-size: 24px;

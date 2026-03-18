@@ -55,6 +55,9 @@ importers:
       '@zumer/snapdom':
         specifier: ^1.2.2
         version: 1.2.2
+      axios:
+        specifier: ^1.13.6
+        version: 1.13.6
       chart.js:
         specifier: ^4.5.1
         version: 4.5.1
@@ -81,7 +84,7 @@ importers:
         version: 0.8.2
       foliate-js:
         specifier: github:johnfactotum/foliate-js
-        version: https://codeload.github.com/johnfactotum/foliate-js/tar.gz/6b11e1744346f60504b727984f7d42f0fef3ab54
+        version: https://codeload.github.com/johnfactotum/foliate-js/tar.gz/399248a67a8862ffb5e6463a33f9d52b317ca2eb
       internal-ip:
         specifier: ^8.0.1
         version: 8.0.1
@@ -1636,8 +1639,8 @@ packages:
     resolution: {integrity: sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==}
     engines: {node: '>= 4.0.0'}
 
-  axios@1.12.2:
-    resolution: {integrity: sha512-vMJzPewAlRyOgxV2dU0Cuz2O8zzzx9VYtbJOaBgXFeLc4IV/Eg50n4LowmehOOR61S8ZMpc2K5Sa7g6A4jfkUw==}
+  axios@1.13.6:
+    resolution: {integrity: sha512-ChTCHMouEe2kn713WHbQGcuYrr6fXTBiu460OTwWrWob16g1bXn4vtz07Ope7ewMozJAnEquLk5lWQWtBig9DQ==}
 
   b4a@1.7.3:
     resolution: {integrity: sha512-5Q2mfq2WfGuFp3uS//0s6baOJLMoVduPYVeNmDYxu5OUA1/cBfvr2RIS7vi62LdNj/urk1hfmj867I3qt6uZ7Q==}
@@ -2389,8 +2392,8 @@ packages:
   flatted@3.3.2:
     resolution: {integrity: sha512-AiwGJM8YcNOaobumgtng+6NHuOqC3A7MixFeDafM3X9cIUM+xUXoS5Vfgf+OihAYe20fxqNM9yPBXJzRtZ/4eA==}
 
-  foliate-js@https://codeload.github.com/johnfactotum/foliate-js/tar.gz/6b11e1744346f60504b727984f7d42f0fef3ab54:
-    resolution: {tarball: https://codeload.github.com/johnfactotum/foliate-js/tar.gz/6b11e1744346f60504b727984f7d42f0fef3ab54}
+  foliate-js@https://codeload.github.com/johnfactotum/foliate-js/tar.gz/399248a67a8862ffb5e6463a33f9d52b317ca2eb:
+    resolution: {tarball: https://codeload.github.com/johnfactotum/foliate-js/tar.gz/399248a67a8862ffb5e6463a33f9d52b317ca2eb}
     version: 0.0.0
 
   follow-redirects@1.15.11:
@@ -2407,6 +2410,10 @@ packages:
 
   form-data@4.0.4:
     resolution: {integrity: sha512-KrGhL9Q4zjj0kiUt5OO4Mr/A/jlI2jDYs5eHBpYHPcBEVSiipAvn2Ko2HnPe20rmcuuvMHNdZFp+4IlGTMF0Ow==}
+    engines: {node: '>= 6'}
+
+  form-data@4.0.5:
+    resolution: {integrity: sha512-8RipRLol37bNs2bhoV67fiTEvdTrbMUYcFTiy3+wuuOnUog2QBHCZWXDRijWQfAkhBj2Uf5UnVaiWwA5vdd82w==}
     engines: {node: '>= 6'}
 
   formdata-node@4.4.1:
@@ -6140,10 +6147,10 @@ snapshots:
 
   at-least-node@1.0.0: {}
 
-  axios@1.12.2:
+  axios@1.13.6:
     dependencies:
       follow-redirects: 1.15.11
-      form-data: 4.0.4
+      form-data: 4.0.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -6660,7 +6667,7 @@ snapshots:
 
   edge-tts-universal@1.3.3(patch_hash=1beb700c42e546fd7efa88c86e39b7329240467fe7403aa7ddfbf50e74923674):
     dependencies:
-      axios: 1.12.2
+      axios: 1.13.6
       cross-fetch: 4.1.0
       https-proxy-agent: 7.0.6
       isomorphic-ws: 5.0.0(ws@8.18.3)
@@ -6985,13 +6992,21 @@ snapshots:
 
   flatted@3.3.2: {}
 
-  foliate-js@https://codeload.github.com/johnfactotum/foliate-js/tar.gz/6b11e1744346f60504b727984f7d42f0fef3ab54: {}
+  foliate-js@https://codeload.github.com/johnfactotum/foliate-js/tar.gz/399248a67a8862ffb5e6463a33f9d52b317ca2eb: {}
 
   follow-redirects@1.15.11: {}
 
   form-data-encoder@1.7.2: {}
 
   form-data@4.0.4:
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      es-set-tostringtag: 2.1.0
+      hasown: 2.0.2
+      mime-types: 2.1.35
+
+  form-data@4.0.5:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8

@@ -1,3 +1,7 @@
+import axios from 'axios'
+
+const TIMEOUT = 10000
+
 export const getRemoteProgress = async (options: {
   server: string,
   username: string,
@@ -6,19 +10,18 @@ export const getRemoteProgress = async (options: {
 }): Promise<{ document: string, percentage: number, progress: string, timestamp: number, device: string, deviceId: string } | null> => {
   const { server, username, password, document } = options
   const url = new URL(`/sync/progress/${document}?remote=1`, server)
-  const r = await fetch(url, {
+  const r = await axios.get(url.toString(), {
+    timeout: TIMEOUT,
     headers: {
       'content-type': 'application/json',
       'accept': 'application/vnd.koreader.v1+json',
       'x-auth-user': username,
       'x-auth-key': password
-    }
+    },
+    validateStatus: (status) => status < 500
   })
   if (r.status === 200) {
-    return r.json()
-  }
-  if (r.ok) {
-    return null
+    return r.data
   }
   return null
 }
@@ -26,12 +29,12 @@ export const getRemoteProgress = async (options: {
 export const createUser = async (options: { server: string, username: string, password: string }) => {
   const { server, username, password } = options
   const url = new URL(`/users/create?remote=1`, server)
-  const r = await fetch(url, {
-    method: 'POST',
+  const r = await axios.post(url.toString(), { username, password }, {
+    timeout: TIMEOUT,
     headers: {
       'content-type': 'application/json',
     },
-    body: JSON.stringify({ username, password })
+    validateStatus: (status) => status < 500
   })
   if (r.status === 201) {
     return { succes: true }
@@ -45,7 +48,8 @@ export const createUser = async (options: { server: string, username: string, pa
 export const authUser = async (options: { server: string, username: string, password: string }) => {
   const { server, username, password } = options
   const url = new URL(`/users/auth?remote=1`, server)
-  const r = await fetch(url, {
+  const r = await axios.get(url.toString(), {
+    timeout: TIMEOUT,
     headers: {
       'x-auth-user': username,
       'x-auth-key': password,
@@ -53,7 +57,7 @@ export const authUser = async (options: { server: string, username: string, pass
       'accept': 'application/vnd.koreader.v1+json'
     }
   })
-  if (r.ok) {
+  if (r.status >= 200 && r.status < 300) {
     return { success: true }
   }
   throw new Error(`认证失败: ${r.status} ${r.statusText}`)
@@ -71,23 +75,19 @@ export const setRemoteProgress = async (options: {
 }) => {
   const { server, username, password, document, progress, device, deviceId, percentage } = options
   const url = new URL(`/sync/progress?remote=1`, server)
-  const r = await fetch(url, {
-    method: 'PUT',
+  await axios.put(url.toString(), {
+    document,
+    percentage,
+    progress,
+    device_id: deviceId,
+    device
+  }, {
+    timeout: TIMEOUT,
     headers: {
       'content-type': 'application/json',
       'accept': 'application/vnd.koreader.v1+json',
       'x-auth-user': username,
       'x-auth-key': password
-    },
-    body: JSON.stringify({
-      document,
-      percentage,
-      progress,
-      device_id: deviceId,
-      device
-    })
+    }
   })
-  if (!r.ok) {
-    throw new Error(`更新进度失败: ${r.status} ${r.statusText}`)
-  }
 }

@@ -147,6 +147,12 @@
           >
           </c-select>
         </div>
+        <div class="line-item" v-if="settings.turnPageType === 'horizontal-scroll'">
+          <div class="tap-area-btn pointer" @click="tapAreaDialogVisible = true">
+            <span class="material-symbols-outlined" style="font-size: 18px">touch_app</span>
+            点击翻页区域
+          </div>
+        </div>
       </div>
     </transition>
 
@@ -214,6 +220,8 @@
         <div class="progress-value" :style="{width: (autoPlayProgress * 100) + '%'}"></div>
       </div>
     </teleport>
+
+    <TapAreaSettingsDialog v-model:visible="tapAreaDialogVisible" />
   </div>
 </template>
 
@@ -223,6 +231,7 @@ import { computed, inject, onBeforeUnmount, type Ref, ref } from 'vue';
 import CProgress from '@/components/common/CProgress.vue';
 import CSelect from '@/components/common/CSelect.vue';
 import FontSelector from '@/components/FontSelector.vue';
+import TapAreaSettingsDialog from '@/components/TapAreaSettingsDialog.vue';
 import { readColorScheme, textIndentList } from '@/config';
 import { settings } from '@/stores/settings';
 import { EdgeTTSReadSpeak, type GetNextElement } from '@/actions/read-speak';
@@ -241,6 +250,7 @@ const emits = defineEmits<{
 }>()
 
 const visiblePanel = ref<string | null>()
+const tapAreaDialogVisible = ref(false)
 const controlState = ref({
   darkMode: darkMode.isActivated(),
   readSpeak: false as boolean | 'loading',
@@ -557,6 +567,18 @@ defineExpose({
     margin-left: 4px;
     font-size: 22px;
   }
+}
+
+.tap-area-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--card-bg-color);
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 16px;
+  width: 100%;
+  justify-content: center;
 }
 
 .auto-play-progress {

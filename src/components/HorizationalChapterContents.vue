@@ -14,6 +14,7 @@ import { createGesture } from '@/utils/gesture';
 import { settings } from '@/stores/settings';
 import { VolumeButtons } from '@capacitor-community/volume-buttons'
 import { preferences } from '@/stores/preferences';
+import { defaultTapActions } from '@/config';
 
 const logger = Logger.get('HorizationalChapterContents')
 
@@ -267,15 +268,19 @@ const tapHandler = (event: PointerEvent) => {
     area = x < centerLeft ? 7 : x < centerRight ? 8 : 9
   }
 
-  const nextPageArea = [3, 6, 9]
-  const prevPageArea = [1, 4, 7]
-  if (nextPageArea.includes(area)) {
+  const tapActions = settings.value.tapActions || defaultTapActions
+  const action = tapActions[area - 1]
+
+  if (action === 'nextPage') {
     nextPage()
     event.stopPropagation();
-  } else if (prevPageArea.includes(area)) {
+  } else if (action === 'prevPage') {
     prevPage();
     event.stopPropagation();
+  } else if (action === 'none') {
+    event.stopPropagation();
   }
+  // action === 'menu' 时不阻止冒泡，让事件传递到 ControlWrapper 拉起菜单
 }
 
 defineExpose({

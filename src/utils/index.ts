@@ -138,13 +138,15 @@ export const showPicker = (() => {
     options: { label: string, value: any }[]
     visible: boolean,
     title?: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    modelValue?: any,
     onClose: () => void
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSelect: (option: { label: string, value: any }) => void
   } | null>(null)
   return <V extends string = string>(
     options: { label: string, value: V }[],
-    config?: { title: string }
+    config?: { title?: string, value?: V }
   ) => {
     return new Promise<V>((resolve, reject) => {
       if (pickerOptions.value) {
@@ -152,6 +154,7 @@ export const showPicker = (() => {
           options,
           visible: true,
           title: config?.title,
+          modelValue: config?.value,
           onClose: () => {
             pickerOptions.value!.visible = false
             reject(new Error('user cancel'));
@@ -163,6 +166,7 @@ export const showPicker = (() => {
           options,
           visible: false,
           title: config?.title,
+          modelValue: config?.value,
           onClose: () => {
             pickerOptions.value!.visible = false
             reject(new Error('user cancel'));
