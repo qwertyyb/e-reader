@@ -27,7 +27,7 @@
 import CDialog from "./common/CDialog.vue";
 import CTextarea from "./common/CTextarea.vue";
 import { marks } from "@/services/storage";
-import { nextTick, ref, toRaw, useTemplateRef } from "vue";
+import { nextTick, ref, useTemplateRef } from "vue";
 
 const emits = defineEmits<{
   success: [IMarkEntity]
