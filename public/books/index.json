@@ -253,6 +253,16 @@
       "tocRegList": [
         "^(第\\d+章|完本感言)"
       ]
+    },
+    {
+      "id": "30",
+      "title": "大王饶命",
+      "cover": "./covers/dwrm.jpeg",
+      "author": "会说话的肘子",
+      "downloadUrl": "./大王饶命.txt",
+      "tocRegList": [
+        "^(第\\d+章|后记|番外)"
+      ]
     }
   ]
 }
