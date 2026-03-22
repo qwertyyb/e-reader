@@ -31,7 +31,19 @@ export default defineConfig({
     },
   },
   build: {
-    manifest: true
+    manifest: true,
+    chunkSizeWarningLimit: 1000, // 将警告阈值提高到 1MB
+    rollupOptions: {
+      output: {
+        entryFileNames(chunkInfo) {
+          if (chunkInfo.name === 'sw') {
+            // 需要把 sw 放在根目录，否则无法生效
+            return '[name].js'
+          }
+          return '[name]-[hash].js'
+        },
+      }
+    }
   },
   worker: {
     rollupOptions: {

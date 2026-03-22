@@ -10,7 +10,7 @@ import 'normalize.css'
 
 import VirtualList from 'vue-virtual-list-v3'
 import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+
 import Logger from 'js-logger'
 
 import App from './App.vue'
@@ -41,7 +41,6 @@ initMoreContrast()
 
 const app = createApp(App)
 
-app.use(createPinia())
 app.use(appRouter)
 app.use(VirtualList)
 

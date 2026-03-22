@@ -2,8 +2,9 @@ packages:
   - packages/*
 
 onlyBuiltDependencies:
+  - esbuild
   - sharp
+  - vue-demi
 
 patchedDependencies:
   edge-tts-universal: patches/edge-tts-universal.patch
-  vue-router: patches/vue-router.patch

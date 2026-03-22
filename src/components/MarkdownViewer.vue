@@ -6,7 +6,6 @@
 
 <script setup lang="ts">
 import MarkdownIt from 'markdown-it';
-import mdCodeBlock from 'markdown-it-code-block';
 import { full as mdEmoji } from 'markdown-it-emoji';
 import mdFootnote from 'markdown-it-footnote';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -17,21 +16,6 @@ import mdSub from 'markdown-it-sub';
 import mdSup from 'markdown-it-sup';
 
 import { computed } from 'vue';
-// Light theme
-import 'markdown-it-code-block/styles/light-theme.css';
-import 'markdown-it-code-block/styles/light-theme-token.css';
-
-// Dark theme
-import 'markdown-it-code-block/styles/dark-theme.css';
-import 'markdown-it-code-block/styles/dark-theme-token.css';
-
-// Dark theme (for system preference)
-import 'markdown-it-code-block/styles/dark-theme-media.css';
-import 'markdown-it-code-block/styles/dark-theme-token-media.css';
-
-// Base style
-import 'markdown-it-code-block/styles/base.css';
-import 'markdown-it-code-block/styles/base-token.css';
 
 const props = defineProps<{
   markdown: string
@@ -45,7 +29,6 @@ const md = new MarkdownIt({
   breaks: true,
 });
 
-md.use(mdCodeBlock);
 md.use(mdEmoji);
 md.use(mdFootnote);
 md.use(mdSub);
