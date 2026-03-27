@@ -1,14 +1,16 @@
 import crypto from 'node:crypto';
-import type { Middleware } from 'koa';
+import { MiddlewareHandler } from 'hono';
 
-export const createLoggerMiddleware = (): Middleware => async (ctx, next) => {
+export const createLoggerMiddleware = (): MiddlewareHandler => async (c, next) => {
   const requestId = crypto.randomBytes(16).toString('hex');
-  console.info(`-> ${requestId} ${ctx.ip} ${ctx.method}: ${ctx.url}, body: ${ctx.method === 'POST' ? JSON.stringify(ctx.request.body) : ''}`);
+  const ip = c.req.header('x-forwarded-for') || c.req.header('cf-connecting-ip') || 'unknown';
+  console.info(`-> ${requestId} ${ip} ${c.req.method}: ${c.req.url}, body: ${c.req.method === 'POST' ? JSON.stringify(await c.req.json()) : ''}`);
   try {
     await next();
-    console.info(`<- ${requestId} ${ctx.method}: ${ctx.url}, response ${Buffer.isBuffer(ctx.body) ? `Buffer(${ctx.body.length})` : JSON.stringify(ctx.body)}`);
+    console.info(`<- ${requestId} ${c.req.method}: ${c.req.url}, response ${JSON.stringify(c.res)}`);
   } catch (err) {
-    console.error(`<- ${requestId} ${ctx.method}: ${ctx.url}, error: ${(err as any).message}, stack: ${(err as any).stack}`);
+    const error = err as Error;
+    console.error(`<- ${requestId} ${c.req.method}: ${c.req.url}, error: ${error.message}, stack: ${error.stack}`);
     throw err;
   }
 };

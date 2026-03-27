@@ -1,28 +1,27 @@
-import Router from '@koa/router'
+import { Hono } from 'hono'
 import { createUser } from '../services/users.js';
 import { createAuthMiddleware } from '../middlewares/auth.js';
 
-const router = new Router({ prefix: '/users' })
+const app = new Hono()
 
-router.post('/create', async (ctx) => {
-  const username: string | undefined = ctx.request.body.username?.trim?.();
-  const password: string | undefined = ctx.request.body.password?.trim?.();
+const auth = createAuthMiddleware()
+
+app.post('/create', async (c) => {
+  const body = await c.req.json()
+  const username: string | undefined = body.username?.trim?.();
+  const password: string | undefined = body.password?.trim?.();
   if (!username || !password) {
-    ctx.throw(400, 'username or password is empty')
-    return
+    return c.text('username or password is empty', 400)
   }
   const { exists } = await createUser(username, password)
   if (exists) {
-    ctx.throw(409, 'username already exists')
-    return
+    return c.text('username already exists', 409)
   }
-  ctx.status = 201
-  ctx.body = { username }
+  return c.json({ username }, 201)
 })
 
-router.get('/auth', createAuthMiddleware(), async (ctx) => {
-  ctx.status = 200
-  ctx.body = { authorized: 'OK' }
+app.get('/auth', auth, async (c) => {
+  return c.json({ authorized: 'OK' }, 200)
 })
 
-export default router
+export default app

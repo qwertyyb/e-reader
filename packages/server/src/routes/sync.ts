@@ -1,39 +1,42 @@
-import Router from '@koa/router'
+import { Hono } from 'hono'
 import { createAuthMiddleware } from '../middlewares/auth.js'
 import { getProgress, updateProgress } from '../services/sync.js'
 
-const router = new Router({ prefix: '/sync' })
+const app = new Hono()
 
-router.get('/progress/:document', createAuthMiddleware(), async (ctx) => {
-  const { document } = ctx.params
+const auth = createAuthMiddleware()
+
+app.get('/progress/:document', auth, async (c) => {
+  const document = c.req.param('document')
+  const username = c.get('username')
   if (!document) {
-    ctx.throw(400, 'document is empty')
-    return
+    return c.text('document is empty', 400)
   }
-  const progress = getProgress(ctx.username, document)
+  const progress = getProgress(username, document)
   if (progress) {
-    ctx.body = {
+    return c.json({
       ...progress,
       document,
-    }
+    })
   } else {
-    ctx.status = 204
+    return c.text('Not Found', 404)
   }
 })
 
-router.put('/progress', createAuthMiddleware(), async (ctx) => {
-  const { progress, percentage, device, device_id: deviceId, document } = ctx.request.body
+app.put('/progress', auth, async (c) => {
+  const body = await c.req.json()
+  const { progress, percentage, device, device_id: deviceId, document } = body
+  const username = c.get('username')
   if (!progress || !percentage || !device || !deviceId || !document) {
-    ctx.throw(400, 'document、progress、percentage、device or device_id is empty')
-    return
+    return c.text('document、progress、percentage、device or device_id is empty', 400)
   }
   try {
     const timestamp = Date.now()
-    await updateProgress(ctx.username, document, { progress, percentage, device, deviceId, document, timestamp })
-    ctx.body = { document, timestamp }
+    await updateProgress(username, document, { progress, percentage, device, deviceId, document, timestamp })
+    return c.json({ document, timestamp })
   } catch(err) {
-    ctx.throw(500, (err as Error).message || String(err))
+    return c.text((err as Error).message || String(err), 500)
   }
 })
 
-export default router
+export default app

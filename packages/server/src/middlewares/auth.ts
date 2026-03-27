@@ -1,20 +1,25 @@
-import { Middleware } from "koa"
 import { authUser } from "../services/users.js"
+import { MiddlewareHandler } from 'hono'
 
-export const createAuthMiddleware = (): Middleware => {
-  return async (ctx, next) => {
-    const username = (ctx.request.headers["x-auth-user"] as string)?.trim?.()
-    const password = (ctx.request.headers["x-auth-key"] as string)?.trim?.()
+// 扩展 Hono 上下文类型以包含用户名
+type AuthEnv = {
+  Variables: {
+    username: string
+  }
+}
+
+export const createAuthMiddleware = (): MiddlewareHandler<AuthEnv> => {
+  return async (c, next) => {
+    const username = c.req.header("x-auth-user")?.trim?.()
+    const password = c.req.header("x-auth-key")?.trim?.()
     if (!username || !password) {
-      ctx.throw(400, 'username or password is empty')
-      return
+      return c.text('username or password is empty', 400)
     }
     const user = authUser(username, password)
     if (!user) {
-      ctx.throw(403, 'username or password is incorrect')
-      return
+      return c.text('username or password is incorrect', 403)
     }
-    ctx.username = username
+    c.set('username', username)
     await next()
   }
 }
