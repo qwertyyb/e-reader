@@ -5,6 +5,8 @@ on:
   # 仅在推送到默认分支时运行。
   push:
     branches: ['main']
+    paths-ignore:
+      - 'packages/server/**'
 
   # 这个选项可以使你手动在 Action tab 页面触发工作流
   workflow_dispatch:
