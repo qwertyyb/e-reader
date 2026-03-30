@@ -68,7 +68,7 @@
 
 <script setup lang="ts">
 import ControlWrapper from '@/components/ControlWrapper.vue';
-import { computed, onBeforeUnmount, provide, ref, useTemplateRef } from 'vue';
+import { computed, onBeforeUnmount, onMounted, provide, ref, useTemplateRef } from 'vue';
 import { localBookService as dataService } from '@/services/LocalBookService';
 import { showToast } from '@/utils';
 import { readingStateStore, readTimeStore } from '@/services/storage';
@@ -324,6 +324,48 @@ const releaseWakeLock = () => {
   }
 }
 
+// 同步远程进度的通用函数
+const syncRemoteProgress = async (context: string) => {
+  if (!syncEnabled(book.value)) return
+  
+  try {
+    const [remotePosition, localReadingState] = await Promise.all([
+      getRemoteProgress({
+        server: preferences.value.sync.server,
+        username: preferences.value.sync.username,
+        password: preferences.value.sync.password,
+        document: book.value!.title
+      }),
+      readingStateStore.get(props.id)
+    ])
+    logger.info(`${context}获取远程进度`, remotePosition)
+    
+    if (remotePosition) {
+      const result = getProgress(localReadingState, remotePosition, { chapterList: chapterList.value, book: book.value! })
+      logger.info(`${context}getProgress result`, result)
+      
+      // 只有当远程进度比本地进度更新时才跳转
+      if (result?.type === 'remote' && (!progress.value || result.progress.lastReadTime > (localReadingState?.lastReadTime ?? 0))) {
+        const chapterIndex = chapterList.value.findIndex(chapter => chapter.id === result.progress.chapterId)
+        if (chapterIndex >= 0) {
+          showToast('检测到其他设备的阅读进度，已同步')
+          curChapterIndex.value = chapterIndex
+          progress.value = {
+            chapter: chapterList.value[chapterIndex],
+            chapterIndex,
+            cursor: result.progress.cursor,
+            duration: result.progress.duration ?? localReadingState.duration ?? 0
+          }
+          chapterContentsRef.value?.jump({ chapterId: result.progress.chapterId, cursor: result.progress.cursor })
+          updateReadingState()
+        }
+      }
+    }
+  } catch (err) {
+    logger.error(`${context}获取远程进度失败`, err)
+  }
+}
+
 init().catch((err) => {
   logger.error('获取书籍信息失败', err)
   showToast('获取书籍信息失败')
@@ -331,10 +373,28 @@ init().catch((err) => {
 })
 requestWakeLock()
 
+// 监听页面可见性变化
+const handleVisibilityChange = async () => {
+  if (document.visibilityState === 'hidden') {
+    // 页面进入后台时，暂停 ReadingTime
+    readingTime?.pause()
+  } else if (document.visibilityState === 'visible') {
+    // 页面回到前台时，先同步远程进度，再恢复 ReadingTime
+    await syncRemoteProgress('页面可见性变化时')
+    readingTime?.start()
+  }
+}
+
+// 路由生命周期钩子
+onMounted(() => {
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+})
+
 onBeforeUnmount(() => {
   releaseWakeLock()
   readingTime?.destroy()
   localStorage.removeItem(LAST_READ_BOOK_STORAGE_KEY)
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 
 onForwardTo((to) => {
@@ -369,16 +429,25 @@ onBackFrom(async (current) => {
   localStorage.removeItem(LAST_READ_BOOK_STORAGE_KEY)
 })
 
-onBackTo(() => {
+onBackTo(async () => {
   // 从其它页面 pop 回当前页面时，执行此回调
   requestWakeLock()
   readingTime?.start()
+  
+  // 重新添加 visibilitychange 监听
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+  
+  // 从其他页面返回时，检查并同步远程进度
+  await syncRemoteProgress('从其他页面返回时')
 })
 
 onForwardFrom(() => {
   // 从当前页面 push 跳到新的页面时，执行此回调
   releaseWakeLock()
   readingTime?.pause()
+  
+  // 移除 visibilitychange 监听
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 </script>
 
