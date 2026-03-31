@@ -344,8 +344,9 @@ const syncRemoteProgress = async (context: string) => {
       const result = getProgress(localReadingState, remotePosition, { chapterList: chapterList.value, book: book.value! })
       logger.info(`${context}getProgress result`, result)
       
-      // 只有当远程进度比本地进度更新时才跳转
-      if (result?.type === 'remote' && (!progress.value || result.progress.lastReadTime > (localReadingState?.lastReadTime ?? 0))) {
+      // 只有当远程进度来自其他设备且比本地进度更新时才跳转
+      const currentDeviceId = preferences.value.sync.deviceId
+      if (result?.type === 'remote' && remotePosition.deviceId !== currentDeviceId && (!progress.value || result.progress.lastReadTime > (localReadingState?.lastReadTime ?? 0))) {
         const chapterIndex = chapterList.value.findIndex(chapter => chapter.id === result.progress.chapterId)
         if (chapterIndex >= 0) {
           showToast('检测到其他设备的阅读进度，已同步')
