@@ -32,3 +32,4 @@ coverage
 *.tsbuildinfo
 
 appdist
+packages/server/db.json

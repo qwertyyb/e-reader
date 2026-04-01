@@ -156,6 +156,7 @@
         <li class="prfs-item" @click="openSyncDialog">
           <div class="prfs-label">进度同步</div>
           <div class="prfs-control">
+            <span class="prfs-status-text" :class="syncStatus">{{ syncStatus }}</span>
             <span class="material-symbols-outlined arrow-icon">chevron_right</span>
           </div>
         </li>
@@ -285,8 +286,32 @@ import { appRouter } from '@/router';
 import { getDefaultPreferences } from '@/config';
 import Logger from 'js-logger';
 import { authUser, createUser } from '@/services/sync';
+import { onMounted } from 'vue';
 
 const logger = Logger.get('SettingsPanel');
+
+type SyncStatus = '未启用' | '连接断开' | '已连接'
+const syncStatus = ref<SyncStatus>('未启用')
+
+const checkSyncStatus = async () => {
+  const { enabled, server, username, password } = preferences.value.sync
+  if (!enabled || !server || !username || !password) {
+    syncStatus.value = '未启用'
+    return
+  }
+  try {
+    await authUser({ server, username, password })
+    syncStatus.value = '已连接'
+  } catch {
+    syncStatus.value = '连接断开'
+  }
+}
+
+onMounted(() => {
+  if (tabName.value === 'services') {
+    checkSyncStatus()
+  }
+})
 
 const tabName = defineModel<string>('name', { default: 'basic' })
 
@@ -337,7 +362,6 @@ const registerOrLogin = async () => {
     showToast('请输入完整信息')
     return;
   }
-  preferences.value.sync = { ...preferences.value.sync, enabled, server, username, password, device, deviceId }
   try {
     await createUser({ server, username, password })
   } catch (err) {
@@ -346,10 +370,13 @@ const registerOrLogin = async () => {
 
   formValue.value.connected = await authUser({ server, username, password }).then(res => {
     showToast('登录成功')
+    preferences.value.sync = { ...preferences.value.sync, enabled, server, username, password, device, deviceId }
     dialogVisible.value = false
+    checkSyncStatus()
     return res.success
   }).catch(err => {
     showToast('连接服务器失败,' + err)
+    checkSyncStatus()
     return false;
   })
 }
@@ -359,6 +386,7 @@ const resetSync = () => {
   preferences.value.sync = { ...defaultPrfs.sync }
   formValue.value = { ...formValue.value, ...defaultPrfs.sync, connected: false }
   dialogVisible.value = false
+  checkSyncStatus()
 }
 
 const syncEnableChangeHandler = (value: boolean) => {
@@ -444,6 +472,19 @@ const syncEnableChangeHandler = (value: boolean) => {
   }
   .arrow-icon {
     font-size: 24px;
+  }
+  .prfs-status-text {
+    font-size: 14px;
+    margin-right: 4px;
+    &.已连接 {
+      color: #4caf50;
+    }
+    &.连接断开 {
+      color: #f44336;
+    }
+    &.未启用 {
+      color: var(--text-secondary);
+    }
   }
 }
 
