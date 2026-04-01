@@ -33,24 +33,6 @@
           </c-select>
         </li>
 
-        <li class="prfs-item" v-if="isApp">
-          <div class="prfs-label">
-            <div class="prfs-title">音量键翻页</div>
-            <div class="prfs-desc">仅在翻页方式为横向滑动时生效</div>
-          </div>
-          <c-select
-            title="音量键翻页"
-            v-model="preferences.volumeControl"
-            class="prfs-control"
-            :options="[
-              { label: '禁用', value: 'disabled', subtitle: '禁用音量键翻页' },
-              { label: '启用', value: 'normal', subtitle: '音量+上一页，音量-下一页' },
-              { label: '反向', value: 'reverse', subtitle: '音量+下一页，音量-上一页' }
-            ]"
-          >
-          </c-select>
-        </li>
-
         <li class="prfs-item">
           <div class="prfs-label">自动打开上次阅读</div>
           <div class="prfs-control">
@@ -78,7 +60,10 @@
             <span class="material-symbols-outlined arrow-icon">chevron_right</span>
           </div>
         </li>
+      </ul>
 
+      <li class="prfs-group-title">翻页控制</li>
+      <ul class="prfs-group">
         <li class="prfs-item" @click="tapAreaDialogVisible = true">
           <div class="prfs-label">
             <div class="prfs-title">点击翻页区域</div>
@@ -87,6 +72,23 @@
           <div class="prfs-control">
             <span class="material-symbols-outlined arrow-icon">chevron_right</span>
           </div>
+        </li>
+        <li class="prfs-item" v-if="isApp">
+          <div class="prfs-label">
+            <div class="prfs-title">音量键翻页</div>
+            <div class="prfs-desc">仅在翻页方式为横向滑动时生效</div>
+          </div>
+          <c-select
+            title="音量键翻页"
+            v-model="preferences.volumeControl"
+            class="prfs-control"
+            :options="[
+              { label: '禁用', value: 'disabled', subtitle: '禁用音量键翻页' },
+              { label: '启用', value: 'normal', subtitle: '音量+上一页，音量-下一页' },
+              { label: '反向', value: 'reverse', subtitle: '音量+下一页，音量-上一页' }
+            ]"
+          >
+          </c-select>
         </li>
       </ul>
 
@@ -450,6 +452,7 @@ const syncEnableChangeHandler = (value: boolean) => {
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 4px;
+  padding: 0 16px;
   opacity: 0.6;
 }
 .prfs-control {
