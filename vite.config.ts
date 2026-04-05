@@ -4,7 +4,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 
-import { visualizer } from "rollup-plugin-visualizer";
+
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -12,9 +12,6 @@ export default defineConfig({
   plugins: [
     vue(),
     vueJsx(),
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    visualizer(),
   ],
   define: {
     __BUILD_VERSION__: JSON.stringify(process.env.BUILDVERSION || '0'),
