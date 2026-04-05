@@ -62,7 +62,7 @@
         </li>
       </ul>
 
-      <li class="prfs-group-title">翻页控制</li>
+      <h3 class="prfs-group-title">翻页控制</h3>
       <ul class="prfs-group">
         <li class="prfs-item" @click="tapAreaDialogVisible = true">
           <div class="prfs-label">
@@ -431,7 +431,7 @@ const syncEnableChangeHandler = (value: boolean) => {
   background: var(--card-bg-color);
   border-radius: 6px;
   & + .prfs-group {
-    margin-top: 8px;
+    margin-top: 16px;
   }
 }
 .prfs-item {
