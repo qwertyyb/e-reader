@@ -263,6 +263,16 @@
       "tocRegList": [
         "^(第\\d+章|后记|番外)"
       ]
+    },
+    {
+      "id": "31",
+      "title": "异常生物见闻录",
+      "cover": "./covers/ycswjwl.jpeg",
+      "author": "远瞳",
+      "downloadUrl": "./异常生物见闻录.txt",
+      "tocRegList": [
+        "^第\\d+章"
+      ]
     }
   ]
 }
