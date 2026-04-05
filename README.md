@@ -37,6 +37,64 @@
 14. 支持自动朗读。
 15. 支持自定义书架。
 
+## 远程书架
+
+通过配置远程书架地址，可以从远程服务器获取书籍列表，实现书籍的在线浏览和下载。
+
+### 配置方式
+
+进入「高级设置」，修改「书架服务 URL」即可。
+
+### 书籍数据格式
+
+远程书架服务需要提供一个 JSON 文件，格式如下：
+
+```json
+{
+  "shelf": [
+    {
+      "id": "book-001",
+      "title": "书名",
+      "author": "作者",
+      "cover": "cover.jpg",
+      "downloadUrl": "book.epub",
+      "tocRegList": ["第[一二三四五六七八九十零百千万亿]+[章].*"]
+    }
+  ]
+}
+```
+
+其中：
+- `id`: 书籍唯一标识
+- `title`: 书名
+- `author`: 作者（可选）
+- `cover`: 封面图片路径（可使用相对路径）
+- `downloadUrl`: 书籍文件路径，支持 epub、txt、mobi 等格式（可使用相对路径）
+- `tocRegList`: 目录识别正则表达式数组（可选）
+
+> 注意：`cover` 和 `downloadUrl` 支持相对路径，会基于服务地址自动解析。
+
+### 示例
+
+假设服务地址为 `https://example.com/books/index.json`，书籍数据如下：
+
+```json
+{
+  "shelf": [
+    {
+      "id": "1",
+      "title": "示例书籍",
+      "cover": "covers/1.jpg",
+      "downloadUrl": "books/1.epub"
+    }
+  ]
+}
+```
+
+实际请求的完整地址为：
+- 封面：`https://example.com/books/covers/1.jpg`
+- 下载：`https://example.com/books/books/1.epub`
+
 ## 技术亮点
 
 - 基于 vue3 构建
