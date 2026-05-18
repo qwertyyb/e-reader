@@ -273,6 +273,17 @@
       "tocRegList": [
         "^第\\d+章"
       ]
+    },
+    {
+      "id": "32",
+      "title": "黎明之剑",
+      "cover": "./covers/lmzj.jpeg",
+      "author": "远瞳",
+      "downloadUrl": "./黎明之剑.txt",
+      "tocRegList": [
+        "^第\\S+卷",
+        "^(第\\d+章|完本感言)"
+      ]
     }
   ]
 }
