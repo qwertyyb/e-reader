@@ -284,6 +284,16 @@
         "^第\\S+卷",
         "^(第\\d+章|完本感言)"
       ]
+    },
+    {
+      "id": "33",
+      "title": "高武纪元",
+      "cover": "./covers/gwjy.jpeg",
+      "author": "烽仙",
+      "downloadUrl": "./高武纪元.txt",
+      "tocRegList": [
+        "^(第\\d+章|完本感言)"
+      ]
     }
   ]
 }
