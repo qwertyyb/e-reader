@@ -84,6 +84,9 @@ import { LAST_READ_BOOK_STORAGE_KEY } from '@/constant';
 import Logger from 'js-logger';
 import { appRouter } from '@/router';
 import { getRemoteProgress, setRemoteProgress } from '@/services/sync';
+import { App, type AppState } from '@capacitor/app';
+import type { PluginListenerHandle } from '@capacitor/core';
+import { env } from '@/utils/env';
 
 const logger = Logger.get('ReadView')
 
@@ -386,9 +389,24 @@ const handleVisibilityChange = async () => {
   }
 }
 
+const appStateChangeHandler = async (state: AppState) => {
+  if (state.isActive) {
+    // 页面回到前台时，先同步远程进度，再恢复 ReadingTime
+    await syncRemoteProgress('页面可见性变化时')
+    readingTime?.start()
+  } else {
+    // 页面进入后台时，暂停 ReadingTime
+    readingTime?.pause()
+  }
+}
+
+let appListenHandle: Promise<PluginListenerHandle> | null = null
 // 路由生命周期钩子
 onMounted(() => {
   document.addEventListener('visibilitychange', handleVisibilityChange)
+  if (env.isAndroidApp()) {
+    appListenHandle = App.addListener('appStateChange', appStateChangeHandler)
+  }
 })
 
 onBeforeUnmount(() => {
@@ -396,6 +414,7 @@ onBeforeUnmount(() => {
   readingTime?.destroy()
   localStorage.removeItem(LAST_READ_BOOK_STORAGE_KEY)
   document.removeEventListener('visibilitychange', handleVisibilityChange)
+  appListenHandle?.then(handle => handle.remove())
 })
 
 onForwardTo((to) => {
