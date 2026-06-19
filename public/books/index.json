@@ -294,6 +294,17 @@
       "tocRegList": [
         "^(第\\d+章|完本感言)"
       ]
+    },
+    {
+      "id": "34",
+      "title": "超神机械师",
+      "cover": "./covers/csjxs.jpeg",
+      "author": "齐佩甲",
+      "downloadUrl": "./超神机械师.txt",
+      "tocRegList": [
+        "^第.+卷",
+        "^第\\d+章"
+      ]
     }
   ]
 }
