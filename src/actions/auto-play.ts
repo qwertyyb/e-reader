@@ -24,7 +24,7 @@ export class AutoPlay extends TypedEventTarget<{
 
   scrollVertical: (distance: number) => void
   nextPage = () => {}
-  speed = 30 // 每秒滚动的像素
+  speed = 10 // 每秒滚动的像素
   turnPageType: TurnPageType = 'vertical-scroll'
 
   #interval: ReturnType<typeof setTimeout> | null = null
@@ -45,11 +45,15 @@ export class AutoPlay extends TypedEventTarget<{
 
   #startProgress() {
     let progress = 0;
-    const stepDuration = 300 / this.speed * 1000 / 20
+    const stepDuration = 3000 / this.speed * 1000 / PROGRESS_COUNT
     this.#progressInterval = setInterval(() => {
       progress += (1 / PROGRESS_COUNT)
       this.dispatchEvent(new CustomEvent(AutoPlay.PROGRESS_EVENT_NAME, { detail: { progress } }))
     }, stepDuration)
+  }
+
+  #resetProgress() {
+    this.dispatchEvent(new CustomEvent(AutoPlay.PROGRESS_EVENT_NAME, { detail: { progress: 1 / PROGRESS_COUNT } }))
   }
 
   start() {
@@ -59,6 +63,7 @@ export class AutoPlay extends TypedEventTarget<{
       wakeLock.request()
     }
     if (this.turnPageType === 'horizontal-scroll') {
+      this.#resetProgress()
       this.#startProgress()
       this.#interval = setInterval(() => {
         this.dispatchEvent(new CustomEvent(AutoPlay.PROGRESS_EVENT_NAME, { detail: { progress: 1 } }))
@@ -68,11 +73,11 @@ export class AutoPlay extends TypedEventTarget<{
         logger.info('request next page')
         this.nextPage()
         this.#startProgress()
-      }, 300 / this.speed * 1000)
+      }, 3000 / this.speed * 1000)
     } else {
       this.#interval = setInterval(() => {
-        this.scrollVertical(this.speed / (1000 / 16))
-      }, 10)
+        this.scrollVertical(1)
+      }, 2000 / this.speed)
     }
     this.dispatchEvent(new CustomEvent(AutoPlay.CHANGE_EVENT_NAME, { detail: { playing: true } }))
   }
