@@ -33,7 +33,7 @@ watchEffect(() => {
 });
 
 const calcScale = () => {
-  scale.value = Math.min(window.innerWidth / 400, window.innerHeight / 700);
+  scale.value = Math.min(window.innerWidth / 400, window.innerHeight / 800);
 }
 
 </script>
