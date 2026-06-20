@@ -13,7 +13,10 @@ import { settings } from '@/stores/settings';
 import { debounce, showToast, throttle } from '@/utils';
 import { renderChapter } from '@/utils/chapter';
 import { disableAnim, getSafeAreaTop } from '@/utils/env';
-import { nextTick, useTemplateRef } from 'vue';
+import Logger from 'js-logger';
+import { nextTick, useTemplateRef, watch } from 'vue';
+
+const logger = Logger.get('ChapterContents')
 
 const props = defineProps<{
   chapterList: IChapter[],
@@ -203,6 +206,19 @@ const scrollHandler = () => {
   updateContents()
 }
 
+const jump = async (options: { chapterId: string, cursor: number }) => {
+  await loadContentsWithSignal(options.chapterId)
+  scrollToCursor(options.cursor)
+}
+
+watch(() => ({ fontSize: settings.value.fontSize, lineHeight: settings.value.lineHeight }), async (val) => {
+  logger.info('fontSize or lineHeight changed', val)
+  const curProgress = getCurrentProgress()
+  if (!curProgress) return;
+  await nextTick()
+  jump({ chapterId: curProgress.chapter.id, cursor: curProgress.cursor })
+})
+
 const init = async () => {
   await Promise.all([
     loadContentsWithSignal(props.defaultChapterId),
@@ -222,10 +238,7 @@ const init = async () => {
 init()
 
 defineExpose({
-  async jump(options: { chapterId: string, cursor: number }) {
-    await loadContentsWithSignal(options.chapterId)
-    scrollToCursor(options.cursor)
-  },
+  jump,
   scroll: (() => {
     let totalDistance = 0;
     return (distance: number) => {
