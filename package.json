@@ -28,8 +28,7 @@
     "@m430/capacitor-app-install": "^0.0.3",
     "@types/markdown-it": "^14.1.2",
     "@zip.js/zip.js": "^2.7.60",
-    "@zumer/snapdom": "^1.2.2",
-
+    "@zumer/snapdom": "^2.12.9",
     "chart.js": "^4.5.1",
     "chartjs-adapter-dayjs-4": "^1.0.4",
     "dayjs": "^1.11.19",

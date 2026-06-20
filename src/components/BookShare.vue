@@ -131,7 +131,7 @@ const generate = async () => {
   await nextTick()
   if (!shareRef.value) return;
   const { snapdom } = await import('@zumer/snapdom')
-  const blob = await snapdom.toBlob(shareRef.value)
+  const blob = await snapdom.toBlob(shareRef.value, { type: 'jpeg', quality: 0.92 })
   if (!blob) {
     showToast('无法生成图片')
     throw new Error('无法生成图片')

@@ -60,14 +60,8 @@
             <template #label>{{ bookPercent }}</template>
           </c-progress>
         </div>
-        <div class="line-item">
-          <p class="auto-play-toggle pointer" @click="toggleControl('autoPlay')">
-            自动
-            <span class="control-icon material-symbols-outlined">
-              {{ controlState.autoPlay ? 'pause_circle' : 'play_circle' }}
-            </span>
-          </p>
-          <div class="speed" style="flex:1">
+        <div class="line-item" v-if="controlState.autoPlay" style="margin-top: 32px">
+          <div class="speed" style="flex:1;">
             <c-progress
               :min="10"
               :max="200"
@@ -79,6 +73,14 @@
               <template v-slot:suffix>快</template>
             </c-progress>
           </div>
+        </div>
+        <div class="line-item">
+          <p class="auto-play-toggle pointer" style="flex:1;justify-content: center;" @click="toggleControl('autoPlay')">
+            自动翻页
+            <span class="control-icon material-symbols-outlined">
+              {{ controlState.autoPlay ? 'pause_circle' : 'play_circle' }}
+            </span>
+          </p>
         </div>
       </div>
     </transition>
