@@ -13,6 +13,12 @@ importers:
 
   .:
     dependencies:
+      '@better-scroll/core':
+        specifier: ^2.5.1
+        version: 2.5.1
+      '@better-scroll/mouse-wheel':
+        specifier: ^2.5.1
+        version: 2.5.1
       '@capacitor-community/text-to-speech':
         specifier: ^6.1.0
         version: 6.1.0(@capacitor/core@8.0.0)
@@ -373,6 +379,15 @@ packages:
   '@babel/types@7.29.0':
     resolution: {integrity: sha512-LwdZHpScM4Qz8Xw2iKSzS+cfglZzJGvofQICy7W7v4caru4EaAmyUuO6BGrbyQ2mYV11W0U8j5mBhd14dd3B0A==}
     engines: {node: '>=6.9.0'}
+
+  '@better-scroll/core@2.5.1':
+    resolution: {integrity: sha512-koKOuYA55dQ04FJRIVUpMGDr1hbCfWmfX0MGp1hKagkQSWSRpwblqACiwtggVauoj9aaJRJZ9hDsTM4weaavlg==}
+
+  '@better-scroll/mouse-wheel@2.5.1':
+    resolution: {integrity: sha512-DGnrirRMY6zMM7xwgx09D/cA9A//3J1/uDkq8iBVEyE5p0sEr/keQpjEfFHGkBRa505BnbBwdbN6f5lugEDSPw==}
+
+  '@better-scroll/shared-utils@2.5.1':
+    resolution: {integrity: sha512-AplkfSjXVYP9LZiD6JsKgmgQJ/mG4uuLmBuwLz8W5OsYc7AYTfN8kw6GqZ5OwCGoXkVhBGyd8NeC4xwYItp0aw==}
 
   '@bufbuild/protobuf@2.2.3':
     resolution: {integrity: sha512-tFQoXHJdkEOSwj5tRIZSPNUuXK3RaR7T1nUrPgbYX1pUbvqqaaZAsfo+NXBPsz5rZMSKVFrgK1WL8Q/MSLvprg==}
@@ -4103,6 +4118,16 @@ snapshots:
     dependencies:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
+
+  '@better-scroll/core@2.5.1':
+    dependencies:
+      '@better-scroll/shared-utils': 2.5.1
+
+  '@better-scroll/mouse-wheel@2.5.1':
+    dependencies:
+      '@better-scroll/core': 2.5.1
+
+  '@better-scroll/shared-utils@2.5.1': {}
 
   '@bufbuild/protobuf@2.2.3': {}
 
