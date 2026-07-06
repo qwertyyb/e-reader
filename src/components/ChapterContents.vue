@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import { settings } from '@/stores/settings';
-import { debounce, showToast, throttle } from '@/utils';
+import { showToast, throttle } from '@/utils';
 import { renderChapter } from '@/utils/chapter';
 import { disableAnim, getSafeAreaTop } from '@/utils/env';
 import Logger from 'js-logger';
@@ -194,16 +194,39 @@ const getCurrentProgress = () => {
 }
 
 // 经测试，发现 safari 在正在滚动时，无法接受滚动位置的突变，即修改 scrollTop 时，会出现非预期行为
-// 所以此处需要等待滚动结束后再更新内容区域，具体实现为防抖(safari 目前暂不支持 scrollend 事件)
-const updateContents = debounce(() => { if (!touching) { updateProgress({ loadContents: true }) } }, 500)
+// 所以 DOM 替换必须等滚动静止后再执行；节流只负责标记「需要加载」，真正加载在滚动空闲时触发
+const SCROLL_IDLE_MS = 150
+let scrollIdle = true
+let scrollIdleTimer: ReturnType<typeof setTimeout> | null = null
+let pendingLoadContents = false
+
+const tryLoadContents = () => {
+  if (!pendingLoadContents || touching || !scrollIdle) return
+  pendingLoadContents = false
+  updateProgress({ loadContents: true })
+}
+
+const scheduleLoadContents = throttle(() => {
+  pendingLoadContents = true
+  tryLoadContents()
+}, 500)
+
+const markScrolling = () => {
+  scrollIdle = false
+  if (scrollIdleTimer) clearTimeout(scrollIdleTimer)
+  scrollIdleTimer = setTimeout(() => {
+    scrollIdle = true
+    tryLoadContents()
+  }, SCROLL_IDLE_MS)
+}
 
 // 更新进度需要节流，不能防抖，否则在自动播放时，不会更新进度
 const emitProgress = throttle(() => updateProgress({ loadContents: false }), 1000)
 
-
 const scrollHandler = () => {
+  markScrolling()
   emitProgress()
-  updateContents()
+  scheduleLoadContents()
 }
 
 const jump = async (options: { chapterId: string, cursor: number }) => {
