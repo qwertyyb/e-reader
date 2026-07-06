@@ -238,6 +238,8 @@ onMounted(() => {
     click: false,
     bounce: true,
     probeType: 3,
+    deceleration: 0.0005,
+    useTransition: false, 
     mouseWheel: {
       speed: 20,
       invert: false,
@@ -265,7 +267,7 @@ defineExpose({
       const scrollDistance = Math.floor(totalDistance)
       totalDistance = totalDistance - scrollDistance
       if (scrollDistance <= 0) return;
-      bscroll?.scrollBy(0, scrollDistance, 0)
+      bscroll?.scrollBy(0, -scrollDistance, 0)
     }
   })(),
   getNextReadElement(current?: HTMLElement) {
