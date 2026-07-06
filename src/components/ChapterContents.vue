@@ -8,7 +8,7 @@
 import BScroll from '@better-scroll/core';
 import MouseWheel from '@better-scroll/mouse-wheel'
 import { settings } from '@/stores/settings';
-import { debounce, showToast, throttle } from '@/utils';
+import { showToast, throttle } from '@/utils';
 import { renderChapter } from '@/utils/chapter';
 import { disableAnim, getSafeAreaTop } from '@/utils/env';
 import Logger from 'js-logger';
@@ -63,6 +63,7 @@ const renderChapterContents = (contents: HTMLElement[]) => {
   const { top: oldTop } = chapterEl.getBoundingClientRect()
 
   // 3. 更新章节
+  bscroll?.stop()
   wrapper.replaceChildren(...contents)
   bscroll?.refresh()
 
@@ -93,7 +94,7 @@ const loadContents = async (chapterId: string, options?: { signal: AbortSignal }
   }
 
   // 如果已取消，就不再渲染了
-  if (options?.signal.aborted) {
+  if (options?.signal.aborted || bscroll?.pending) {
     throw new Error('render cancelled')
   }
 
@@ -179,7 +180,7 @@ const getCurrentProgress = () => {
 
 // 经测试，发现 safari 在正在滚动时，无法接受滚动位置的突变，即修改 scrollTop 时，会出现非预期行为
 // 所以此处需要等待滚动结束后再更新内容区域，具体实现为防抖(safari 目前暂不支持 scrollend 事件)
-const updateContents = debounce(() => { updateProgress({ loadContents: true }) }, 500)
+const updateContents = throttle(() => { updateProgress({ loadContents: true }) }, 500)
 
 // 更新进度需要节流，不能防抖，否则在自动播放时，不会更新进度
 const emitProgress = throttle(() => updateProgress({ loadContents: false }), 1000)
@@ -238,7 +239,7 @@ onMounted(() => {
     click: false,
     bounce: true,
     probeType: 3,
-    deceleration: 0.0005,
+    deceleration: 0.001,
     useTransition: false, 
     mouseWheel: {
       speed: 20,
