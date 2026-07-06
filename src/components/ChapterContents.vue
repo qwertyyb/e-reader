@@ -1,20 +1,20 @@
 <template>
   <div class="chapter-contents" ref="el">
-    <div class="chapter-contents-wrapper"></div>
+    <div class="chapter-contents-wrapper"
+      @scroll="scrollHandler"
+      @touchstart="touchStartHandler"
+      @touchend="touchEndHandler"
+      @touchcancel="touchCancelHandler"></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import BScroll from '@better-scroll/core';
-import MouseWheel from '@better-scroll/mouse-wheel'
 import { settings } from '@/stores/settings';
-import { showToast, throttle } from '@/utils';
+import { debounce, showToast, throttle } from '@/utils';
 import { renderChapter } from '@/utils/chapter';
 import { disableAnim, getSafeAreaTop } from '@/utils/env';
 import Logger from 'js-logger';
-import { nextTick, onBeforeUnmount, onMounted, useTemplateRef, watch } from 'vue';
-
-BScroll.use(MouseWheel)
+import { nextTick, useTemplateRef, watch } from 'vue';
 
 const logger = Logger.get('ChapterContents')
 
@@ -34,6 +34,20 @@ const el = useTemplateRef('el')
 const keeps = 5
 
 let updateAbortController: AbortController | null = null
+
+const abortUpdate = () => {
+  updateAbortController?.abort()
+}
+
+let touching = false
+const touchStartHandler = () => {
+  touching = true
+  abortUpdate()
+}
+const touchCancelHandler = () => {
+  touching = false
+}
+const touchEndHandler = () => { touching = false }
 
 const renderChapterContents = (contents: HTMLElement[]) => {
   // vue 的渲染不太可控，自行渲染
@@ -63,16 +77,19 @@ const renderChapterContents = (contents: HTMLElement[]) => {
   const { top: oldTop } = chapterEl.getBoundingClientRect()
 
   // 3. 更新章节
-  bscroll?.stop()
   wrapper.replaceChildren(...contents)
-  bscroll?.refresh()
 
   // 4. 获取新的章节位置
   const newChapterEl = el.value.querySelector<HTMLDivElement>(`.chapter[data-id="${progress.chapter.id}"]`)
   if (!newChapterEl) return;
   const { top: newTop } = newChapterEl.getBoundingClientRect()
-  // 这里 scrollBy 与 Element.scrollBy 的参数相反，所以需要用 oldTop - newTop
-  bscroll?.scrollBy(0, oldTop - newTop, 0)
+
+  // 5. 计算需要滚动的位置并滚动
+  // 需要先停掉正在进行的滚动，避免设置 scrollTop 不生效
+  wrapper.style.overflow = 'hidden'
+  const distance = newTop - oldTop
+  wrapper.scrollTop += distance
+  wrapper.style.overflow = ''
 }
 
 const loadContents = async (chapterId: string, options?: { signal: AbortSignal }) => {
@@ -94,7 +111,7 @@ const loadContents = async (chapterId: string, options?: { signal: AbortSignal }
   }
 
   // 如果已取消，就不再渲染了
-  if (options?.signal.aborted || bscroll?.pending) {
+  if (options?.signal.aborted || touching) {
     throw new Error('render cancelled')
   }
 
@@ -111,7 +128,6 @@ const loadContentsWithSignal = (chapterId: string) => {
   return loadContents(chapterId, { signal: updateAbortController.signal })
     .then((res) => {
       lastLoadChapterId = chapterId
-      bscroll?.refresh()
       return res
     })
     .catch(err => {
@@ -122,9 +138,8 @@ const loadContentsWithSignal = (chapterId: string) => {
 
 const scrollToCursor = async (cursor: number) => {
   await nextTick()
-  const targetEl = el.value?.querySelector<HTMLElement>(`[data-cursor="${cursor}"]`)
-  if (!targetEl) return;
-  bscroll?.scrollToElement(targetEl, 0, 0, -getSafeAreaTop()-5)
+  el.value?.querySelector<HTMLElement>(`[data-cursor="${cursor}"]`)?.scrollIntoView()
+  el.value?.querySelector('.chapter-contents-wrapper')?.scrollBy(0, -getSafeAreaTop()-5)
   console.log('scrollToCursor')
 }
 
@@ -180,21 +195,19 @@ const getCurrentProgress = () => {
 
 // 经测试，发现 safari 在正在滚动时，无法接受滚动位置的突变，即修改 scrollTop 时，会出现非预期行为
 // 所以此处需要等待滚动结束后再更新内容区域，具体实现为防抖(safari 目前暂不支持 scrollend 事件)
-const updateContents = throttle(() => { updateProgress({ loadContents: true }) }, 500)
+const updateContents = debounce(() => { if (!touching) { updateProgress({ loadContents: true }) } }, 500)
 
 // 更新进度需要节流，不能防抖，否则在自动播放时，不会更新进度
 const emitProgress = throttle(() => updateProgress({ loadContents: false }), 1000)
 
 
 const scrollHandler = () => {
-  logger.info('scrollHandler', bscroll?.y)
   emitProgress()
   updateContents()
 }
 
 const jump = async (options: { chapterId: string, cursor: number }) => {
   await loadContentsWithSignal(options.chapterId)
-  bscroll?.refresh()
   scrollToCursor(options.cursor)
 }
 
@@ -222,53 +235,21 @@ const init = async () => {
   scrollToCursor(props.defaultCursor)
 }
 
-const selectionChangeHandler = () => {
-  logger.info('selectionChangeHandler', window.getSelection()?.isCollapsed)
-  if (window.getSelection()?.isCollapsed) {
-    bscroll?.enable()
-  } else {
-    bscroll?.disable()
-  }
-}
-
-let bscroll: BScroll | null = null
-onMounted(() => {
-  bscroll = new BScroll(el.value!, {
-    scrollX: false,
-    scrollY: true,
-    click: false,
-    bounce: true,
-    probeType: 3,
-    deceleration: 0.001,
-    useTransition: false, 
-    mouseWheel: {
-      speed: 20,
-      invert: false,
-      easeTime: 300
-    },
-    preventDefault: false
-  })
-  bscroll.on('scroll', scrollHandler)
-  document.addEventListener('selectionchange', selectionChangeHandler)
-  init()
-})
-
-onBeforeUnmount(() => {
-  bscroll?.destroy()
-  bscroll = null
-  document.removeEventListener('selectionchange', selectionChangeHandler)
-})
+init()
 
 defineExpose({
   jump,
   scroll: (() => {
     let totalDistance = 0;
     return (distance: number) => {
+      const wrapper = el.value?.querySelector('.chapter-contents-wrapper')
+      if (!wrapper) return;
+      // 某些浏览器(如safari)上不支持小于 1 的滚动量，这里积累一下，每次滚动整数量
       totalDistance += distance
       const scrollDistance = Math.floor(totalDistance)
       totalDistance = totalDistance - scrollDistance
       if (scrollDistance <= 0) return;
-      bscroll?.scrollBy(0, -scrollDistance, 0)
+      wrapper.scrollTo({ top: wrapper.scrollTop + scrollDistance })
     }
   })(),
   getNextReadElement(current?: HTMLElement) {
@@ -282,10 +263,7 @@ defineExpose({
       const nextEl = el.value?.querySelector<HTMLElement>(`[data-cursor="${progress.cursor}"]`)
       return {
         nextEl,
-        scrollIntoView: () => {
-          if (!nextEl) return;
-          bscroll?.scrollToElement(nextEl, disableAnim.value ? 0 : 300, 0, true)
-        }
+        scrollIntoView: () => nextEl?.scrollIntoView({ block: 'center', behavior:  disableAnim.value ? 'instant' : 'smooth' })
       }
     }
     const cursor = Number(current.dataset.cursor)
@@ -296,26 +274,22 @@ defineExpose({
       nextCursor += 1
       nextEl = el.value?.querySelector<HTMLElement>(`[data-cursor="${nextCursor}"]`)
     }
-    return {
-      nextEl,
-      scrollIntoView: () => {
-        if (!nextEl) return;
-        bscroll?.scrollToElement(nextEl, disableAnim.value ? 0 : 300, 0, true)
-      }
-    }
+    return { nextEl, scrollIntoView: () => nextEl?.scrollIntoView({ block: 'center', behavior:  disableAnim.value ? 'instant' : 'smooth' }) }
   }
 })
 </script>
 
 <style lang="scss" scoped>
-.chapter-contents {
+.chapter-contents, .chapter-contents-wrapper {
   height: 100%;
-  overflow: hidden;
+  overflow: auto;
   position: relative;
 }
 .chapter-contents-wrapper {
+  height: 100%;
   z-index: 0;
   background-clip: border-box;
+  overflow: auto;
   position: relative;
   background-image: var(--read-bg-image);
   background-size: contain;
