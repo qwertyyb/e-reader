@@ -327,6 +327,17 @@
         "^第.{1,5}卷",
         "^第\\d+章"
       ]
+    },
+    {
+      "id": "37",
+      "title": "一世之尊",
+      "cover": "./covers/yszz.jpeg",
+      "author": "爱潜水的乌贼",
+      "downloadUrl": "./一世之尊.txt",
+      "tocRegList": [
+        "^第.+卷\\s",
+        "^第.+章"
+      ]
     }
   ]
 }
