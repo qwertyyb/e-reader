@@ -319,6 +319,17 @@
     },
     {
       "id": "36",
+      "title": "夜的命名术",
+      "cover": "./covers/ydmms.jpeg",
+      "author": "会说话的肘子",
+      "downloadUrl": "./夜的命名术.txt",
+      "tocRegList": [
+        "^第.{1,5}卷",
+        "^第\\d+章"
+      ]
+    },
+    {
+      "id": "37",
       "title": "一世之尊",
       "cover": "./covers/yszz.jpeg",
       "author": "爱潜水的乌贼",
