@@ -327,6 +327,16 @@
         "^第.+卷\\s",
         "^第.+章"
       ]
+    },
+    {
+      "id": "37",
+      "title": "魔王大人深不可测",
+      "cover": "./covers/mwdrsbkc.jpeg",
+      "author": "晨星LL",
+      "downloadUrl": "./魔王大人深不可测.txt",
+      "tocRegList": [
+        "^(第\\d+章|番外)"
+      ]
     }
   ]
 }
